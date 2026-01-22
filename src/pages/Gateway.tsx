@@ -1,9 +1,18 @@
+import { useAuth } from "@/state/auth/AuthProvider";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Building2, ChevronRight } from "lucide-react";
+import { Building2, User, ChevronRight } from "lucide-react";
 
 export default function Gateway() {
     const navigate = useNavigate();
+    const { isAuthenticated, isLoading } = useAuth();
+
+    useEffect(() => {
+        if (!isLoading && isAuthenticated) {
+            navigate("/meus-calendarios", { replace: true });
+        }
+    }, [isAuthenticated, isLoading, navigate]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-festive-pattern bg-[length:40px_40px] relative overflow-hidden">

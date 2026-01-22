@@ -69,6 +69,20 @@ import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
+// Corrigir o problema de tokens do Supabase no HashRouter
+const AuthHandler = () => {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
+      if (!hash.startsWith("#/")) {
+        console.log("App: Auth fragment detected, normalizing for HashRouter");
+        window.location.hash = "/" + hash.substring(1);
+      }
+    }
+  }, []);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <GlobalSettingsProvider>
@@ -76,6 +90,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <HashRouter>
+          <AuthHandler />
           <Routes>
             <Route path="/" element={<Gateway />} />
             <Route path="/home" element={<LandingPage />} />
