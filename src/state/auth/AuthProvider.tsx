@@ -61,10 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     // 1. Fallback Timeout (Safety Net)
+    // We use a local variable to check the state inside the timeout to avoid stale closures
     const timeoutId = setTimeout(() => {
-      if (mounted && isLoading) {
-        console.warn("AuthProvider: Fallback timeout reached. Setting isLoading=false.");
-        setIsLoading(false);
+      if (mounted) {
+        setIsLoading(current => {
+          if (current) {
+            console.warn("AuthProvider: Fallback timeout reached. Setting isLoading=false.");
+            return false;
+          }
+          return current;
+        });
       }
     }, 5000);
 
@@ -137,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}#/meus-calendarios`,
+        emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
       },
     });
     setIsLoading(false);
@@ -150,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}#/meus-calendarios`,
+        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
       },
     });
     setIsLoading(false);
