@@ -1,0 +1,423 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core brand - Festive Green */
+    --background: 80 30% 97%;
+    --foreground: 150 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 150 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 30% 15%;
+
+    /* Primary - Vibrant Green */
+    --primary: 145 63% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Soft mint */
+    --secondary: 145 30% 94%;
+    --secondary-foreground: 145 63% 32%;
+
+    --muted: 80 20% 94%;
+    --muted-foreground: 150 15% 45%;
+
+    /* Accent - Gold/Yellow for highlights */
+    --accent: 45 95% 55%;
+    --accent-foreground: 45 90% 20%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 145 20% 88%;
+    --input: 145 20% 88%;
+    --ring: 145 63% 42%;
+
+    --radius: 1rem;
+
+    /* Festive theme colors */
+    --festive-green: 145 63% 42%;
+    --festive-green-light: 145 50% 92%;
+    --festive-yellow: 45 95% 55%;
+    --festive-yellow-light: 45 90% 92%;
+    
+    /* Carnaval theme */
+    --carnaval-purple: 270 60% 55%;
+    --carnaval-purple-light: 270 50% 94%;
+    --carnaval-pink: 330 70% 60%;
+    --carnaval-pink-light: 330 60% 94%;
+    --carnaval-yellow: 50 95% 55%;
+    
+    /* São João theme */
+    --saojoao-orange: 25 90% 55%;
+    --saojoao-orange-light: 35 80% 94%;
+    --saojoao-brown: 25 40% 35%;
+    --saojoao-yellow: 45 95% 60%;
+
+    /* Natal theme */
+    --natal-green: 145 63% 32%;
+    --natal-green-light: 145 45% 93%;
+    --natal-red: 0 78% 54%;
+    --natal-red-light: 0 70% 95%;
+    --natal-cream: 30 60% 97%;
+
+    /* Páscoa theme (lavanda + rosa) */
+    --pascoa-lavender: 255 70% 72%;
+    --pascoa-lavender-light: 255 55% 95%;
+    --pascoa-pink: 335 80% 58%;
+    --pascoa-pink-light: 335 70% 95%;
+    --pascoa-yellow: 45 95% 58%;
+    --pascoa-yellow-light: 45 90% 92%;
+    --pascoa-bg: 255 40% 97%;
+
+    /* Romance (Namoro/Casamento) */
+    --romance-red: 350 78% 52%;
+    --romance-red-light: 350 65% 95%;
+    --romance-rose: 345 75% 70%;
+    --romance-bg: 350 45% 97%;
+
+    /* Casamento (editorial creme + dourado) */
+    --wedding-cream: 40 45% 97%;
+    --wedding-card: 40 35% 95%;
+    --wedding-gold: 45 90% 55%;
+    --wedding-gold-soft: 45 70% 88%;
+    --wedding-ink: 25 25% 16%;
+    --wedding-muted: 30 10% 55%;
+
+    /* Réveillon (noite + dourado) */
+    --reveillon-violet: 255 55% 52%;
+    --reveillon-violet-light: 255 45% 95%;
+    --reveillon-gold: 45 95% 55%;
+    --reveillon-bg: 255 35% 97%;
+
+    /* Independência (verde + azul + amarelo) */
+    --br-green: 145 70% 35%;
+    --br-green-light: 145 45% 93%;
+    --br-blue: 220 75% 35%;
+    --br-blue-light: 220 50% 95%;
+    --br-yellow: 45 95% 55%;
+    --br-bg: 210 35% 97%;
+
+    /* Gradients */
+    --gradient-festive: linear-gradient(135deg, hsl(145 63% 42%) 0%, hsl(145 70% 35%) 100%);
+    --gradient-carnaval: linear-gradient(135deg, hsl(270 60% 55%) 0%, hsl(330 70% 60%) 100%);
+    --gradient-saojoao: linear-gradient(135deg, hsl(25 90% 55%) 0%, hsl(45 95% 60%) 100%);
+    --gradient-natal: linear-gradient(90deg, hsl(var(--natal-green)) 0%, hsl(var(--natal-red)) 100%);
+    --gradient-pascoa: linear-gradient(135deg, hsl(var(--pascoa-lavender)) 0%, hsl(var(--pascoa-pink)) 100%);
+    --gradient-romance: linear-gradient(135deg, hsl(var(--romance-rose)) 0%, hsl(var(--romance-red)) 100%);
+    --gradient-wedding: linear-gradient(90deg, hsl(var(--wedding-gold)) 0%, hsl(45 90% 48%) 100%);
+    --gradient-reveillon: linear-gradient(135deg, hsl(var(--reveillon-violet)) 0%, hsl(var(--reveillon-gold)) 100%);
+    --gradient-independencia: linear-gradient(135deg, hsl(var(--br-green)) 0%, hsl(var(--br-blue)) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(80 30% 98%) 100%);
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(145 30% 20% / 0.1);
+    --shadow-card: 0 8px 30px -10px hsl(145 30% 20% / 0.15);
+    --shadow-elevated: 0 20px 50px -15px hsl(145 30% 20% / 0.2);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 150 30% 8%;
+    --foreground: 80 20% 95%;
+
+    --card: 150 25% 12%;
+    --card-foreground: 80 20% 95%;
+
+    --popover: 150 25% 12%;
+    --popover-foreground: 80 20% 95%;
+
+    --primary: 145 63% 50%;
+    --primary-foreground: 150 30% 8%;
+
+    --secondary: 150 20% 18%;
+    --secondary-foreground: 145 50% 70%;
+
+    --muted: 150 20% 18%;
+    --muted-foreground: 150 15% 60%;
+
+    --accent: 45 95% 55%;
+    --accent-foreground: 45 90% 10%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 20% 20%;
+    --input: 150 20% 20%;
+    --ring: 145 63% 50%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Theme variants */
+  .theme-carnaval {
+    --primary: 270 60% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 50% 94%;
+    --secondary-foreground: 270 60% 45%;
+    --accent: 50 95% 55%;
+    --accent-foreground: 50 90% 20%;
+    --background: 270 25% 97%;
+    --ring: 270 60% 55%;
+    --border: 270 20% 88%;
+  }
+
+  .theme-saojoao {
+    --primary: 25 90% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 35 80% 94%;
+    --secondary-foreground: 25 90% 40%;
+    --accent: 45 95% 60%;
+    --accent-foreground: 45 90% 20%;
+    --background: 40 40% 96%;
+    --ring: 25 90% 55%;
+    --border: 35 30% 85%;
+  }
+
+  .theme-natal {
+    --primary: var(--natal-green);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--natal-green-light);
+    --secondary-foreground: var(--natal-green);
+    --accent: var(--natal-red);
+    --accent-foreground: 0 0% 100%;
+    --background: var(--natal-cream);
+    --ring: var(--natal-green);
+    --border: 145 20% 88%;
+  }
+
+  .theme-pascoa {
+    --primary: var(--pascoa-lavender);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--pascoa-lavender-light);
+    --secondary-foreground: 255 55% 40%;
+    --accent: var(--pascoa-pink);
+    --accent-foreground: 0 0% 100%;
+    --background: var(--pascoa-bg);
+    --ring: var(--pascoa-lavender);
+    --border: 255 25% 90%;
+  }
+
+  .theme-romance {
+    --primary: var(--romance-red);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--romance-red-light);
+    --secondary-foreground: 350 70% 40%;
+    --accent: var(--romance-rose);
+    --accent-foreground: 350 60% 18%;
+    --background: var(--romance-bg);
+    --ring: var(--romance-red);
+    --border: 350 25% 90%;
+  }
+
+  .theme-casamento {
+    --background: var(--wedding-cream);
+    --foreground: var(--wedding-ink);
+    --card: var(--wedding-card);
+    --card-foreground: var(--wedding-ink);
+
+    --primary: var(--wedding-gold);
+    --primary-foreground: var(--wedding-ink);
+
+    --secondary: 40 35% 93%;
+    --secondary-foreground: var(--wedding-ink);
+
+    --muted: 40 25% 92%;
+    --muted-foreground: var(--wedding-muted);
+
+    --accent: var(--wedding-gold);
+    --accent-foreground: var(--wedding-ink);
+
+    --border: 45 30% 85%;
+    --ring: var(--wedding-gold);
+  }
+
+  .theme-reveillon {
+    --primary: var(--reveillon-violet);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--reveillon-violet-light);
+    --secondary-foreground: 255 55% 42%;
+    --accent: var(--reveillon-gold);
+    --accent-foreground: 45 90% 18%;
+    --background: var(--reveillon-bg);
+    --ring: var(--reveillon-violet);
+    --border: 255 25% 90%;
+  }
+
+  .theme-independencia {
+    --primary: var(--br-blue);
+    --primary-foreground: 0 0% 100%;
+    --secondary: var(--br-blue-light);
+    --secondary-foreground: var(--br-blue);
+    --accent: var(--br-yellow);
+    --accent-foreground: 45 90% 18%;
+    --background: var(--br-bg);
+    --ring: var(--br-green);
+    --border: 210 25% 88%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-nunito antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-extrabold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-festive {
+    @apply bg-primary text-primary-foreground font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .card-festive {
+    @apply bg-card rounded-3xl shadow-lg p-6;
+    box-shadow: var(--shadow-card);
+  }
+
+  .day-card {
+    @apply aspect-square rounded-2xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer;
+  }
+
+  .day-card-locked {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .day-card-available {
+    @apply bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .day-card-opened {
+    @apply bg-secondary text-secondary-foreground border-2 border-primary/20;
+  }
+
+  .progress-festive {
+    @apply h-3 rounded-full bg-secondary overflow-hidden;
+  }
+
+  .progress-festive-bar {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+    background: var(--gradient-festive);
+  }
+
+  .badge-festive {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold;
+  }
+
+  .floating-icons {
+    @apply absolute inset-0 pointer-events-none overflow-hidden;
+  }
+
+  .tip-card {
+    @apply bg-accent/10 border border-accent/20 rounded-2xl p-4 flex items-start gap-3;
+  }
+}
+
+@layer utilities {
+  .text-gradient-festive {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-festive);
+  }
+
+  .text-gradient-carnaval {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-carnaval);
+  }
+
+  .text-gradient-saojoao {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-saojoao);
+  }
+
+  .bg-gradient-festive {
+    background: var(--gradient-festive);
+  }
+
+  .bg-gradient-carnaval {
+    background: var(--gradient-carnaval);
+  }
+
+  .bg-gradient-saojoao {
+    background: var(--gradient-saojoao);
+  }
+
+  .bg-gradient-natal {
+    background: var(--gradient-natal);
+  }
+
+  .bg-gradient-pascoa {
+    background: var(--gradient-pascoa);
+  }
+
+  .bg-gradient-romance {
+    background: var(--gradient-romance);
+  }
+
+  .bg-gradient-wedding {
+    background: var(--gradient-wedding);
+  }
+
+  .bg-gradient-reveillon {
+    background: var(--gradient-reveillon);
+  }
+
+  .bg-gradient-independencia {
+    background: var(--gradient-independencia);
+  }
+
+  .shadow-festive {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .glass-premium {
+    @apply bg-card/60 backdrop-blur-2xl border border-white/20;
+  }
+
+  .luxury-shadow {
+    box-shadow: 0 20px 40px -20px hsl(145 30% 20% / 0.15),
+                0 0 0 1px hsl(145 30% 20% / 0.05);
+  }
+
+  .neon-glow {
+    filter: drop-shadow(0 0 10px hsl(var(--primary) / 0.3));
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 4s infinite ease-in-out;
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
