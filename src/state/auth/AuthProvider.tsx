@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/meus-calendarios`,
+        redirectTo: `${window.location.origin}/fresta/#/meus-calendarios`,
       },
     });
     setIsLoading(false);
@@ -171,9 +171,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (patch: Partial<Pick<Profile, "display_name" | "avatar">>) => {
     if (!user) return;
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(patch as any)
+    const { error } = await (supabase
+      .from('profiles') as any)
+      .update(patch)
       .eq('id', user.id);
 
     if (error) {

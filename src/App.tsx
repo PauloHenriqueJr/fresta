@@ -50,7 +50,7 @@ import SalesRegistry from "@/pages/admin/bi/SalesRegistry";
 import B2CCustomers from "@/pages/admin/customers/B2CCustomers";
 import B2BClients from "@/pages/admin/customers/B2BClients";
 import PlanManager from "@/pages/admin/settings/PlanManager";
-import SEOMetadata from "@/pages/admin/technical/SEOMetadata";
+import SEOMetadata from "./pages/admin/technical/SEOMetadata";
 import AuditLogs from "@/pages/admin/bi/AuditLogs";
 import Feedbacks from "@/pages/admin/customers/Feedbacks";
 import CouponManager from "@/pages/admin/settings/CouponManager";
