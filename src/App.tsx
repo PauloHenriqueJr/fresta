@@ -74,9 +74,9 @@ const AuthHandler = () => {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
-      if (!hash.startsWith("#/")) {
-        console.log("App: Auth fragment detected, normalizing for HashRouter");
-        window.location.hash = "/" + hash.substring(1);
+      if (hash.startsWith("#/")) {
+        console.log("App: Auth fragment detected, normalizing for Supabase");
+        window.location.hash = hash.replace("#/", "#");
       }
     }
   }, []);
