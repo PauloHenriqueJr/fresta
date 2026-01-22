@@ -60,6 +60,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Check if we have a fragment that looks like a Supabase auth response
+    // We should NOT release isLoading immediately if we are expecting a session from the URL
+    const hasAuthFragment = window.location.hash.includes("access_token=") ||
+      window.location.hash.includes("error_description=") ||
+      window.location.search.includes("code=");
+
+    if (hasAuthFragment) {
+      console.log("AuthProvider: Auth fragment detected in URL, keeping isLoading=true");
+    }
+
     // 1. Fallback Timeout (Safety Net)
     // We use a local variable to check the state inside the timeout to avoid stale closures
     const timeoutId = setTimeout(() => {
@@ -110,7 +120,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 3. Fast check for existing session
     supabase.auth.getSession().then(({ data: { session: s } }) => {
-      if (mounted && s && isLoading) {
+      if (!mounted) return;
+
+      if (s) {
         console.log("AuthProvider: Fast path session found");
         setSession(s);
         setUser(s.user);
@@ -122,12 +134,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setPermissions(perms);
           }
         });
-      } else if (mounted && !s && isLoading) {
-        // If we definitely have no session after getSession, we can at least stop waiting here
-        // but let the listener have the final say if it fires soon.
+      } else if (!hasAuthFragment) {
+        // Only release loading IF we didn't see an auth fragment
+        // If we DO have a fragment, let onAuthStateChange handle it
+        console.log("AuthProvider: No session and no fragment, releasing loading");
+        setIsLoading(false);
       }
     }).catch(err => {
       console.error("AuthProvider: getSession error", err);
+      if (!hasAuthFragment) setIsLoading(false);
     });
 
     return () => {
