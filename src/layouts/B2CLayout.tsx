@@ -11,7 +11,7 @@ export default function B2CLayout() {
   const location = useLocation();
 
   const isTabActive = (path: string) => location.pathname === path;
-  const isCreationFlow = location.pathname.startsWith("/criar");
+  const isCreationFlow = location.pathname.startsWith("/criar") || location.pathname.startsWith("/editar-dia");
 
   return (
     <SidebarProvider>

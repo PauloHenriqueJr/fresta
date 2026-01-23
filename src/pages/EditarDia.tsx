@@ -108,7 +108,7 @@ const EditarDia = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-32 lg:pb-8">
+    <div className="min-h-screen bg-background pb-32">
       {/* Header - mobile only */}
       <motion.header
         className="px-4 py-4 flex items-center gap-4 lg:hidden"
@@ -450,28 +450,11 @@ const EditarDia = () => {
               </motion.section>
             )}
           </div>
-          {/* Desktop inline button */}
-          <motion.button
-            className="hidden lg:flex w-full btn-festive mt-8 items-center justify-center gap-2"
-            onClick={handleSave}
-            disabled={saving}
-            whileHover={!saving ? { scale: 1.02 } : {}}
-            whileTap={!saving ? { scale: 0.98 } : {}}
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              "Salvar Surpresa"
-            )}
-          </motion.button>
         </div>
       </div>
 
-      {/* Save Button - mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border lg:hidden">
+      {/* Save Button - Always visible at bottom */}
+      <div className="fixed bottom-0 left-0 lg:left-64 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-[110] transition-all duration-300">
         <motion.button
           className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2"
           onClick={handleSave}
@@ -489,7 +472,7 @@ const EditarDia = () => {
           )}
         </motion.button>
       </div>
-    </div >
+    </div>
   );
 };
 
