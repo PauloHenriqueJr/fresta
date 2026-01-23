@@ -7,6 +7,7 @@ import FloatingDecorations from "@/components/calendar/FloatingDecorations";
 import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
+import { buildCalendarShareUrl } from "@/lib/utils";
 import type { Tables } from "@/lib/supabase/types";
 
 type Calendar = Tables<'calendars'>;
@@ -66,19 +67,19 @@ const VisualizarCalendario = () => {
   };
 
   const handleShare = async () => {
+    if (!id) return;
+    const shareUrl = buildCalendarShareUrl(id);
     if (navigator.share) {
       await navigator.share({
         title: calendar?.title ?? "Calendário Fresta",
         text: `Confira o calendário "${calendar?.title}"!`,
-        url: window.location.href,
+        url: shareUrl,
       });
 
-      if (id) {
-        await CalendarsRepository.incrementShares(id);
-      }
+      await CalendarsRepository.incrementShares(id);
     } else {
       // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
       alert("Link copiado!");
     }
   };
