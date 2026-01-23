@@ -73,21 +73,37 @@ const VisualizarCalendario = () => {
 
     // Step 1: Check if PWA is installed
     const isInstalled = isPWAInstalled();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 
-    if (!isInstalled && canInstallPWA()) {
-      // Prompt user to install PWA first
-      toast("📲 Instale o app para receber notificações!", {
-        description: "Clique em 'Adicionar à Tela Inicial' para continuar.",
-        duration: 5000
-      });
-
-      const installed = await promptInstall();
-      if (!installed) {
-        toast("Sem problema! 👍", {
-          description: "Você ainda pode conferir o calendário manualmente."
+    if (!isInstalled) {
+      if (canInstallPWA()) {
+        // Android/Desktop: Prompt user to install PWA
+        toast("📲 Instale o app para receber notificações!", {
+          description: "Clique em 'Adicionar à Tela Inicial' para continuar.",
+          action: {
+            label: "Instalar",
+            onClick: async () => {
+              const installed = await promptInstall();
+              if (installed) {
+                handleNotifyMe(); // Retry after install
+              }
+            }
+          },
+          duration: 8000
         });
-        setLockedDay(null);
-        return;
+
+        // Try precise prompt immediately
+        const installed = await promptInstall();
+        if (!installed) {
+          return; // Stop if user cancelled install
+        }
+      } else if (isIOS) {
+        // iOS: Show instructions
+        toast("📲 Instale o app para ser avisado!", {
+          description: "Toque em Compartilhar no navegador e escolha 'Adicionar à Tela de Início'.",
+          duration: 8000
+        });
+        return; // iOS users must install manually first
       }
     }
 
