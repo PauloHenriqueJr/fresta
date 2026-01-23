@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { useEffect } from "react";
 import { Trash2, Loader2 } from "lucide-react";
+import { buildCalendarShareUrl } from "@/lib/utils";
 
 const Configuracoes = () => {
   const { id } = useParams();
@@ -46,10 +47,10 @@ const Configuracoes = () => {
     fetchCalendar();
   }, [id]);
 
-  const calendarLink = `fresta.app/c/${id}`;
+  const calendarLink = id ? buildCalendarShareUrl(id) : "";
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://${calendarLink}`);
+    navigator.clipboard.writeText(calendarLink);
     setCopied(true);
     toast({
       title: "Link copiado!",

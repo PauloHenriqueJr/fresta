@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecionando…</title>
+    <script>
+      (function () {
+        var base = "/fresta";
+        var path = window.location.pathname;
+        if (path.indexOf(base) === 0) {
+          path = path.slice(base.length);
+        }
+        var normalizedPath = path.startsWith("/") ? path : "/" + path;
+        var target =
+          base +
+          "/#" +
+          normalizedPath +
+          window.location.search +
+          window.location.hash;
+        window.location.replace(target);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecionando…</p>
+  </body>
+</html>

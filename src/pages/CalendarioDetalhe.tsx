@@ -7,6 +7,7 @@ import FloatingDecorations from "@/components/calendar/FloatingDecorations";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
+import { buildCalendarShareUrl } from "@/lib/utils";
 import type { Tables } from "@/lib/supabase/types";
 
 type Calendar = Tables<"calendars">;
@@ -98,7 +99,7 @@ const CalendarioDetalhe = () => {
     } catch (err) {
       console.error("CalendarioDetalhe: erro ao incrementar compartilhamentos", err);
     }
-    const url = `${window.location.origin}/c/${calendar.id}`;
+    const url = buildCalendarShareUrl(calendar.id);
     try {
       if (navigator.share) {
         await navigator.share({ title: calendar.title, url });
