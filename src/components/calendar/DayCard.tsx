@@ -67,14 +67,17 @@ const DayCard = ({
     >
       <div className="relative w-full h-full transform-style-3d transition-transform duration-700">
         {/* Door Back (revealed content) */}
-        <div className="absolute inset-0 bg-muted/30 rounded-2xl flex items-center justify-center border-2 border-border/20">
-          <div className="text-center">
+        <button
+          onClick={onClick}
+          className="absolute inset-0 bg-muted/30 rounded-2xl flex items-center justify-center border-2 border-border/20 cursor-pointer hover:bg-muted/40 transition-colors"
+        >
+          <div className="text-center pointer-events-none">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-1">
               <Check className="w-4 h-4 text-primary" />
             </div>
             <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest leading-none">Aberto</span>
           </div>
-        </div>
+        </button>
 
         {/* Door Front */}
         <motion.button
