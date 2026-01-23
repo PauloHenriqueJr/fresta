@@ -98,7 +98,7 @@ const CalendarioDetalhe = () => {
     } catch (err) {
       console.error("CalendarioDetalhe: erro ao incrementar compartilhamentos", err);
     }
-    const url = `${window.location.origin}/c/${calendar.id}`;
+    const url = `${window.location.origin}${import.meta.env.BASE_URL}#/c/${calendar.id}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: calendar.title, url });

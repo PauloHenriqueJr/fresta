@@ -46,10 +46,10 @@ const Configuracoes = () => {
     fetchCalendar();
   }, [id]);
 
-  const calendarLink = `fresta.app/c/${id}`;
+  const calendarLink = `${window.location.host}${import.meta.env.BASE_URL}#/c/${id}`;
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://${calendarLink}`);
+    navigator.clipboard.writeText(`${window.location.protocol}//${calendarLink}`);
     setCopied(true);
     toast({
       title: "Link copiado!",
