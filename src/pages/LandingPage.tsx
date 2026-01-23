@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Lock
 } from "lucide-react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -98,9 +99,37 @@ const LandingPage = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
 
+  // Role-based redirect for logged-in users
+  const { role: authRole } = useAuth();
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      navigate("/meus-calendarios", { replace: true });
+      // Prefer role from hook, fallback to localStorage if needed
+      const userRole = authRole || localStorage.getItem('fresta_user_role') || 'user';
+
+      if (['admin', 'rh'].includes(userRole)) {
+        navigate("/b2b", { replace: true });
+      } else {
+        navigate("/meus-calendarios", { replace: true });
+      }
+    }
+  }, [isAuthenticated, isLoading, navigate, authRole]);
+
+  // For Guests: Check if there's a last visited calendar to resume
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      const lastCalendar = localStorage.getItem('fresta_last_visited_calendar');
+      if (lastCalendar) {
+        // If we have a saved calendar, offering a quick way back is great UX
+        toast("Bem-vindo de volta! 🚪", {
+          description: "Deseja voltar para o último fresta que você viu?",
+          action: {
+            label: "Voltar para calendário",
+            onClick: () => navigate(lastCalendar)
+          },
+          duration: 8000
+        });
+      }
     }
   }, [isAuthenticated, isLoading, navigate]);
 

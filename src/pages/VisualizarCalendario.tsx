@@ -151,6 +151,13 @@ const VisualizarCalendario = () => {
   };
 
 
+  // Save as last visited calendar for PWA entry
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem('fresta_last_visited_calendar', `/c/${id}`);
+    }
+  }, [id]);
+
   // Carregar status local ao iniciar
   useEffect(() => {
     if (id) {
