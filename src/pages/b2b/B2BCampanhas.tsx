@@ -1,7 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  Eye,
+  Edit2,
+  Archive,
+  Trash2,
+  BarChart2
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { db } from "@/lib/offline/db";
 import B2BPageHeader from "@/components/b2b/B2BPageHeader";
@@ -46,34 +63,32 @@ export default function B2BCampanhas() {
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-center">
         <div className="bg-card rounded-2xl p-3 shadow-card flex items-center gap-3 lg:col-span-8">
-        <Search className="w-5 h-5 text-muted-foreground" />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar campanhas..."
-          className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
-        />
-      </div>
+          <Search className="w-5 h-5 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar campanhas..."
+            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+        </div>
 
         {/* Desktop: toggle de visualização */}
         <div className="hidden lg:flex lg:col-span-4 lg:justify-end gap-2">
           <button
             onClick={() => setDesktopView("table")}
-            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
-              desktopView === "table"
+            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${desktopView === "table"
                 ? "bg-secondary text-secondary-foreground border-transparent"
                 : "bg-background text-foreground/80 border-border hover:bg-muted"
-            }`}
+              }`}
           >
             Tabela
           </button>
           <button
             onClick={() => setDesktopView("kanban")}
-            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
-              desktopView === "kanban"
+            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${desktopView === "kanban"
                 ? "bg-secondary text-secondary-foreground border-transparent"
                 : "bg-background text-foreground/80 border-border hover:bg-muted"
-            }`}
+              }`}
           >
             Kanban
           </button>
@@ -96,9 +111,47 @@ export default function B2BCampanhas() {
                 <p className="font-bold text-foreground truncate">{c.title}</p>
                 <p className="text-xs text-muted-foreground">{c.status.toUpperCase()} • {c.duration} dias</p>
               </div>
-              <span className="text-xs font-bold px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
-                {c.theme.toUpperCase()}
-              </span>
+              <div className="flex flex-col items-end gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-2 -mr-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 backdrop-blur-xl rounded-2xl p-2 shadow-2xl">
+                    <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
+                      Ações da Campanha
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => navigate(`/b2b/campanhas/${c.id}`)} className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
+                      <Eye className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-bold">Ver Detalhes</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
+                      <BarChart2 className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-bold">Relatório Full</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
+                      <Edit2 className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-bold">Editar Setup</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-border/50 my-2" />
+                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-orange-500/10 text-orange-500 transition-colors group">
+                      <Archive className="w-4 h-4" />
+                      <span className="text-sm font-bold">Arquivar</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group">
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm font-bold">Excluir</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <span className="text-xs font-bold px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                  {c.theme.toUpperCase()}
+                </span>
+              </div>
             </div>
 
             <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">

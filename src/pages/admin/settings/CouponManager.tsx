@@ -6,6 +6,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+    DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MoreVertical, Copy, RotateCcw } from "lucide-react";
 
 export default function CouponManager() {
     const [coupons, setCoupons] = useState<any[]>([]);
@@ -48,11 +67,14 @@ export default function CouponManager() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Tem certeza que deseja excluir este cupom?")) return;
+    const [couponToDelete, setCouponToDelete] = useState<{ id: string, code: string } | null>(null);
+
+    const handleDelete = async () => {
+        if (!couponToDelete) return;
         try {
-            await AdminRepository.deleteCoupon(id);
+            await AdminRepository.deleteCoupon(couponToDelete.id);
             toast.success("Cupom excluído");
+            setCouponToDelete(null);
             fetchCoupons();
         } catch (err) {
             toast.error("Erro ao excluir");
@@ -153,26 +175,86 @@ export default function CouponManager() {
                             <div className="pt-4 border-t border-border/10 flex justify-between items-center">
                                 <p className="text-xs font-bold text-muted-foreground">{coupon.usage_count} / {coupon.usage_limit} usos</p>
                                 <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleToggleStatus(coupon)}
-                                        className={`p-2 rounded-lg transition-all ${coupon.is_active ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20'}`}
-                                        title={coupon.is_active ? "Desativar" : "Ativar"}
-                                    >
-                                        {coupon.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(coupon.id)}
-                                        className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 transition-all"
-                                        title="Excluir"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
+                                                <MoreVertical className="w-4 h-4" />
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 backdrop-blur-xl rounded-2xl p-2 shadow-2xl">
+                                            <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
+                                                Ações do Cupom
+                                            </DropdownMenuLabel>
+                                            <DropdownMenuItem
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(coupon.code);
+                                                    toast.success("Código copiado!");
+                                                }}
+                                                className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                                            >
+                                                <Copy className="w-4 h-4 text-primary" />
+                                                <span className="text-sm font-bold">Copiar Código</span>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => handleToggleStatus(coupon)}
+                                                className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                                            >
+                                                {coupon.is_active ? (
+                                                    <PowerOff className="w-4 h-4 text-rose-500" />
+                                                ) : (
+                                                    <Power className="w-4 h-4 text-emerald-500" />
+                                                )}
+                                                <span className="text-sm font-bold">{coupon.is_active ? 'Desativar Cupom' : 'Ativar Cupom'}</span>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                                            >
+                                                <RotateCcw className="w-4 h-4 text-primary" />
+                                                <span className="text-sm font-bold">Resetar Usos</span>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator className="bg-border/50 my-2" />
+                                            <DropdownMenuItem
+                                                onClick={() => setCouponToDelete({ id: coupon.id, code: coupon.code })}
+                                                className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                <span className="text-sm font-bold">Excluir Permanente</span>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
+
+            <AlertDialog open={!!couponToDelete} onOpenChange={(open) => !open && setCouponToDelete(null)}>
+                <AlertDialogContent className="bg-card border-border/50 backdrop-blur-2xl rounded-[2.5rem] p-8 max-w-sm">
+                    <AlertDialogHeader>
+                        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-6 mx-auto">
+                            <Trash2 className="w-8 h-8 text-rose-500" />
+                        </div>
+                        <AlertDialogTitle className="text-2xl font-black text-center text-foreground tracking-tight">
+                            Excluir Cupom?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-center text-muted-foreground font-medium pt-2">
+                            Tem certeza que deseja remover o cupom <span className="text-foreground font-black">"{couponToDelete?.code}"</span>? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col gap-3 mt-8">
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            className="w-full rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-black py-6 shadow-lg shadow-rose-500/20 transition-all active:scale-95"
+                        >
+                            Sim, Excluir Cupom
+                        </AlertDialogAction>
+                        <AlertDialogCancel className="w-full rounded-2xl border-border bg-background hover:bg-muted font-bold py-6">
+                            Manter Cupom
+                        </AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

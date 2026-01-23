@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Plus, Search, MoreVertical, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, MoreVertical, Loader2, Eye, Edit2, Settings, BarChart3, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -7,6 +7,24 @@ import { useAuth } from "@/state/auth/AuthProvider";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import type { Tables } from "@/lib/supabase/types";
 import EmptyState from "@/components/common/EmptyState";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Calendar = Tables<'calendars'>;
 
@@ -66,17 +84,18 @@ const MeusCalendarios = () => {
     }
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Tem certeza que deseja excluir o calendário "${title}"? esta ação não pode ser desfeita.`)) {
-      return;
-    }
+  const [calendarToDelete, setCalendarToDelete] = useState<{ id: string, title: string } | null>(null);
+
+  const handleDelete = async () => {
+    if (!calendarToDelete) return;
 
     try {
-      await CalendarsRepository.delete(id);
-      setCalendars(prev => prev.filter(c => c.id !== id));
+      await CalendarsRepository.delete(calendarToDelete.id);
+      setCalendars(prev => prev.filter(c => c.id !== calendarToDelete.id));
+      setCalendarToDelete(null);
     } catch (err) {
       console.error('Error deleting calendar:', err);
-      alert('Erro ao excluir calendário. Tente novamente.');
+      // Still using standard toast for errors as it's cleaner
     }
   };
 
@@ -237,15 +256,57 @@ const MeusCalendarios = () => {
                   {/* Top Actions */}
                   <div className="flex flex-col items-end gap-2">
                     {getStatusBadge(calendar.status)}
-                    <button
-                      className="w-10 h-10 rounded-xl hover:bg-festive-red/10 flex items-center justify-center transition-all group/delete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(calendar.id, calendar.title);
-                      }}
-                    >
-                      <MoreVertical className="w-5 h-5 text-muted-foreground group-hover/delete:text-festive-red" />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="w-10 h-10 rounded-xl hover:bg-primary/10 flex items-center justify-center transition-all group/more"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-5 h-5 text-muted-foreground group-hover/more:text-primary" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 backdrop-blur-xl rounded-2xl p-2 shadow-2xl">
+                        <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
+                          Ações do Calendário
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/calendario/${calendar.id}`)}
+                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                        >
+                          <Eye className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                          <span className="text-sm font-bold">Visualizar</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/editar-dia/${calendar.id}/1`)}
+                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                        >
+                          <Edit2 className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                          <span className="text-sm font-bold">Editar Surpresas</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                        >
+                          <Settings className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                          <span className="text-sm font-bold">Configurações</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
+                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                        >
+                          <BarChart3 className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                          <span className="text-sm font-bold">Estatísticas</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-border/50 my-2" />
+                        <DropdownMenuItem
+                          onClick={() => setCalendarToDelete({ id: calendar.id, title: calendar.title })}
+                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-festive-red/10 text-festive-red transition-colors group"
+                        >
+                          <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                          <span className="text-sm font-bold">Excluir Permanente</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
 
@@ -290,6 +351,33 @@ const MeusCalendarios = () => {
           />
         )}
       </div>
+      {/* Delete Confirmation Modal */}
+      <AlertDialog open={!!calendarToDelete} onOpenChange={(open) => !open && setCalendarToDelete(null)}>
+        <AlertDialogContent className="bg-card border-border/50 backdrop-blur-2xl rounded-[2.5rem] p-8 max-w-md">
+          <AlertDialogHeader>
+            <div className="w-16 h-16 rounded-2xl bg-festive-red/10 flex items-center justify-center mb-6 mx-auto">
+              <Trash2 className="w-8 h-8 text-festive-red" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-black text-center text-foreground tracking-tight">
+              Excluir Calendário?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-muted-foreground font-medium pt-2">
+              Você está prestes a excluir <span className="text-foreground font-black">"{calendarToDelete?.title}"</span>. Esta ação removerá todas as surpresas e não poderá ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-3 mt-8">
+            <AlertDialogCancel className="flex-1 rounded-2xl border-border bg-background hover:bg-muted font-bold py-6">
+              Manter Calendário
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="flex-1 rounded-2xl bg-festive-red hover:bg-festive-red/90 text-white font-black py-6 shadow-lg shadow-festive-red/20 transition-all active:scale-95"
+            >
+              Sim, Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
