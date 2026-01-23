@@ -23,7 +23,7 @@ const DayCard = ({
   hasSpecialContent = false,
   dateLabel,
 }: DayCardProps) => {
-  const isInteractive = status === "available";
+  const isInteractive = status !== "locked";
 
   const getCardClasses = () => {
     const base = "day-card relative overflow-hidden";

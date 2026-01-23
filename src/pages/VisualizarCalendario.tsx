@@ -8,6 +8,7 @@ import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import type { Tables } from "@/lib/supabase/types";
+import { useAuth } from "@/state/auth/AuthProvider";
 import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -17,6 +18,7 @@ type CalendarDay = Tables<'calendar_days'>;
 const VisualizarCalendario = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [days, setDays] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,16 @@ const VisualizarCalendario = () => {
     fetchCalendar();
   }, [id]);
 
+  // Increment views only if not owner
+  useEffect(() => {
+    if (calendar && user !== undefined) {
+      const isOwner = calendar.owner_id === user?.id;
+      if (!isOwner) {
+        CalendarsRepository.incrementViews(calendar.id);
+      }
+    }
+  }, [calendar, user]);
+
   const handleDayClick = async (dayNum: number) => {
     // Check if locked
     const baseDate = calendar?.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
@@ -97,7 +109,13 @@ const VisualizarCalendario = () => {
 
       // Increment opened count global
       if (dayData.id) {
-        await CalendarsRepository.incrementDayOpened(dayData.id);
+        // Não contar se o próprio dono estiver vendo
+        const currentUserId = user?.id;
+        const isOwner = calendar?.owner_id === currentUserId;
+
+        if (!isOwner) {
+          await CalendarsRepository.incrementDayOpened(dayData.id);
+        }
       }
     }
   };
@@ -138,7 +156,7 @@ const VisualizarCalendario = () => {
         : (openedDays.includes(d.day) ? ("opened" as const) : ("available" as const)),
       hasSpecialContent: !!d.content_type,
     };
-  });
+  }).filter(d => d.hasSpecialContent); // Somente mostrar dias com conteúdo para a esposa
 
   if (loading) {
     return (
@@ -258,10 +276,12 @@ const VisualizarCalendario = () => {
         } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
           type: selectedDayData.content_type,
           url: selectedDayData?.url || "",
+          message: selectedDayData?.message || "",
         } : selectedDayData?.content_type === "link" ? {
           type: "link",
           url: selectedDayData?.url || "",
           label: selectedDayData?.label || "Clique aqui",
+          message: selectedDayData?.message || "",
         } : {
           type: "text",
           message: "Esta porta ainda está vazia... 📭",

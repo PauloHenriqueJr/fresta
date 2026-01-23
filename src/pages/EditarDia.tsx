@@ -78,8 +78,8 @@ const EditarDia = () => {
     try {
       await CalendarsRepository.updateDay(calendarId, dayNumber, {
         contentType: selectedType,
-        message: selectedType === "text" ? message : null,
-        url: selectedType === "photo" || selectedType === "gif" || selectedType === "link" ? url : null,
+        message: message.trim() || null,
+        url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
         label: selectedType === "link" ? label : null,
       });
 
@@ -215,7 +215,7 @@ const EditarDia = () => {
             </motion.section>
 
             {/* Message Input */}
-            {selectedType === "text" && (
+            {(selectedType === "text" || selectedType === "photo" || selectedType === "gif") && (
               <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -34,6 +34,7 @@ const CalendarioDetalhe = () => {
   const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [selectedDayPreview, setSelectedDayPreview] = useState<number | null>(null);
+  const [previewOpenedDays, setPreviewOpenedDays] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchCalendar = async () => {
@@ -93,7 +94,8 @@ const CalendarioDetalhe = () => {
         return {
           day: dayNum,
           dateLabel,
-          status: hasSpecialContent ? ("opened" as const) : ("available" as const),
+          // No dashboard, a porta s?? abre visualmente se estiver em previewMode e for clicada
+          status: (previewMode && previewOpenedDays.includes(dayNum)) ? ("opened" as const) : ("available" as const),
           hasSpecialContent,
         };
       });
@@ -101,7 +103,7 @@ const CalendarioDetalhe = () => {
       console.error("CalendarioDetalhe: Error processing days", e);
       return [];
     }
-  }, [calendar, daysData]);
+  }, [calendar, daysData, previewMode, previewOpenedDays]);
 
   const selectedDayData = useMemo(() =>
     daysData.find(d => d.day === selectedDayPreview),
@@ -284,7 +286,11 @@ const CalendarioDetalhe = () => {
           onDayClick={(day) => {
             if (!isOwner) return;
             if (previewMode) {
-              setSelectedDayPreview(day);
+              // No modo preview, abrimos a porta (anima????o 3D) e depois o modal
+              setPreviewOpenedDays(prev => prev.includes(day) ? prev : [...prev, day]);
+              setTimeout(() => {
+                setSelectedDayPreview(day);
+              }, 600);
             } else {
               navigate(`/editar-dia/${calendar.id}/${day}`);
             }
