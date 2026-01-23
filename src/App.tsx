@@ -187,7 +187,7 @@ const AppContent = () => {
         {/* B2C (app shell apenas no desktop; mobile/tablet inalterado) */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={["user"]}>
+            <ProtectedRoute allowedRoles={["user", "admin"]}>
               <B2CLayout />
             </ProtectedRoute>
           }
