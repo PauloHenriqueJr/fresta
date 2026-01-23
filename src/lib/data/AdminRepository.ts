@@ -147,5 +147,14 @@ export const AdminRepository = {
        .from('site_settings')
        .upsert({ id: 'global', ...data });
      if (error) throw error;
+  },
+
+  async getSystemHealth() {
+    const { data, error } = await supabase.rpc('get_system_stats');
+    if (error) {
+      console.error('AdminRepository.getSystemHealth error:', error.message);
+      throw error;
+    }
+    return data;
   }
 };
