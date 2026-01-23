@@ -118,20 +118,40 @@ const DaySurpriseModal = ({
                 {(content?.type === "photo" || content?.type === "gif") && (
                   <div className="space-y-4 text-center">
                     <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video bg-muted group">
-                      {/* Detect if URL is likely a social media video link */}
-                      {(content.url?.includes('tiktok.com') || content.url?.includes('instagram.com/reels') || content.url?.includes('youtube.com') || content.url?.includes('youtu.be')) ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-black/80 to-muted/80 backdrop-blur-sm">
-                          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
+                      {/* Video Embed Support */}
+                      {content.url?.includes('youtube.com') || content.url?.includes('youtu.be') ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${content.url.includes('youtu.be') ? content.url.split('/').pop() : new URLSearchParams(new URL(content.url).search).get('v')}`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : content.url?.includes('tiktok.com') ? (
+                        // TikTok embed is tricky due to their scripts, we'll try a simple iframe of the video if possible or a better preview
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#010101] to-[#25F4EE]/20">
+                          <div className="w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4 border border-white/20">
                             <Play className="w-8 h-8 text-white fill-current translate-x-1" />
                           </div>
-                          <p className="text-white font-black text-sm uppercase tracking-widest mb-1">Vídeo Surpresa</p>
-                          <p className="text-white/60 text-[10px] uppercase font-bold">TikTok / Social Media</p>
-
+                          <p className="text-white font-black text-sm uppercase tracking-widest mb-1">Vídeo no TikTok</p>
                           <a
                             href={content.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="absolute inset-0"
+                            className="absolute inset-0 z-10"
+                          />
+                        </div>
+                      ) : (content.url?.includes('instagram.com/reels') || content.url?.includes('instagram.com/p/')) ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
+                          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4 border border-white/40">
+                            <Play className="w-8 h-8 text-white fill-current translate-x-1" />
+                          </div>
+                          <p className="text-white font-black text-sm uppercase tracking-widest mb-1">Reels no Instagram</p>
+                          <a
+                            href={content.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute inset-0 z-10"
                           />
                         </div>
                       ) : (

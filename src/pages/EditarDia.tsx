@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -241,17 +241,101 @@ const EditarDia = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className="font-bold text-foreground mb-4">URL da Imagem</h3>
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://exemplo.com/imagem.jpg"
-                  className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
-                />
-                <div className="tip-card mt-4">
-                  <p className="text-xs text-muted-foreground">
-                    💡 <strong>Dica:</strong> Cole a URL de uma imagem direta (terminando em .jpg, .png ou .gif) ou de uma postagem do Instagram.
+                <h3 className="font-bold text-foreground mb-4">Mídia da Surpresa</h3>
+
+                <div className="space-y-6">
+                  {/* Upload Area */}
+                  <div className="relative group">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file || !calendarId) return;
+
+                        setSaving(true);
+                        try {
+                          const { data: { user } } = await (await import("@/lib/supabase/client")).supabase.auth.getUser();
+                          if (!user) throw new Error("Usuário não autenticado");
+
+                          const fileExt = file.name.split('.').pop();
+                          const fileName = `${user.id}/${calendarId}/day-${dayNumber}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                          const publicUrl = await CalendarsRepository.uploadMedia(file, fileName);
+                          setUrl(publicUrl);
+                          toast({
+                            title: "Foto enviada!",
+                            description: "A imagem foi salva com sucesso no servidor.",
+                          });
+                        } catch (err: any) {
+                          console.error('Upload error:', err);
+                          toast({
+                            title: "Erro no envio",
+                            description: err.message || "Não foi possível enviar a foto.",
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setSaving(false);
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      disabled={saving}
+                    />
+                    <div className={`p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 transition-all ${url ? 'border-primary/40 bg-primary/5' : 'border-border bg-card group-hover:border-primary/50'}`}>
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Camera className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-bold text-foreground">
+                          {url ? 'Trocar Foto' : 'Escolher Foto do Dispositivo'}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-1">PNG, JPG ou GIF (Max 5MB)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {url && (
+                    <div className="relative rounded-2xl overflow-hidden shadow-md aspect-video bg-muted border border-border">
+                      {url.includes('tiktok.com') || url.includes('instagram.com') || url.includes('youtube.com') ? (
+                        <div className="w-full h-full flex items-center justify-center p-4 bg-muted text-center">
+                          <p className="text-xs text-muted-foreground">Preview não disponível para links sociais nesta tela, mas aparecerá no calendário.</p>
+                        </div>
+                      ) : (
+                        <img src={url} alt="Preview" className="w-full h-full object-cover" />
+                      )}
+                      <button
+                        onClick={() => setUrl('')}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+                      <span className="bg-background px-4 text-muted-foreground">OU USE UM LINK EXTERNO</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Link de Vídeo ou Imagem Externa</h4>
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="TikTok, Instagram Reels, YouTube ou link de imagem..."
+                      className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="tip-card mt-6">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    💡 <strong>Privacidade:</strong> Fotos do seu dispositivo são salvas com segurança no Supabase. Se o seu Instagram for <strong>privado</strong>, a foto do link não aparecerá para outras pessoas; nesse caso, prefira subir o arquivo aqui!
                   </p>
                 </div>
               </motion.section>

@@ -79,35 +79,30 @@ const VisualizarCalendario = () => {
       if (canInstallPWA()) {
         // Android/Desktop: Prompt user to install PWA
         toast("📲 Instale o app para receber notificações!", {
-          description: "Clique em 'Adicionar à Tela Inicial' para continuar.",
+          description: "A experiência fica muito melhor com o aplicativo instalado.",
           action: {
-            label: "Instalar",
+            label: "Instalar Agora",
             onClick: async () => {
               const installed = await promptInstall();
               if (installed) {
-                handleNotifyMe(); // Retry after install
+                // O ouvinte 'appinstalled' no useEffect cuidará de pedir a permissão
               }
             }
           },
-          duration: 8000
+          duration: 10000
         });
-
-        // Try precise prompt immediately
-        const installed = await promptInstall();
-        if (!installed) {
-          return; // Stop if user cancelled install
-        }
+        return; // Não pede permissão no navegador comum para não ser invasivo
       } else if (isIOS) {
         // iOS: Show instructions
-        toast("📲 Instale o app para ser avisado!", {
-          description: "Toque em Compartilhar no navegador e escolha 'Adicionar à Tela de Início'.",
-          duration: 8000
+        toast("📲 Ative as notificações!", {
+          description: "Para ser avisado das portas, instale o app: toque em Compartilhar e 'Adicionar à Tela de Início'.",
+          duration: 10000
         });
-        return; // iOS users must install manually first
+        return;
       }
     }
 
-    // Step 2: Request notification permission
+    // Step 2: Request notification permission (Executado apenas se já instalado ou em Desktop)
     const permission = await requestNotificationPermission();
 
     if (permission !== 'granted') {
@@ -134,6 +129,7 @@ const VisualizarCalendario = () => {
       ? parseISO(calendar.start_date)
       : parseISO(calendar.created_at || new Date().toISOString());
     const doorDate = startOfDay(addDays(baseDate, lockedDay - 1));
+    doorDate.setHours(9, 0, 0, 0); // Notificar às 09:00 para melhor engajamento
 
     const success = await scheduleDoorReminder(calendar.id, lockedDay, doorDate);
 

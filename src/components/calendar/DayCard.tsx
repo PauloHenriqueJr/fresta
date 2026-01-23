@@ -83,18 +83,30 @@ const DayCard = ({
         <motion.button
           className={cn(
             getCardClasses(),
-            "absolute inset-0 z-10 origin-left backface-hidden flex flex-col items-center justify-center rounded-2xl"
+            "absolute inset-0 z-10 origin-left backface-hidden flex flex-col items-center justify-center rounded-2xl shadow-md border border-white/10"
           )}
           onClick={onClick}
-          initial={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
-          animate={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ type: "spring", stiffness: 45, damping: 12 }}
+          initial={status === "opened" ? { rotateY: -110, scale: 1.05, translateZ: 20 } : { rotateY: 0, scale: 1, translateZ: 0 }}
+          animate={status === "opened" ? { rotateY: -110, scale: 1.05, translateZ: 20 } : { rotateY: 0, scale: 1, translateZ: 0 }}
+          whileHover={status !== "opened" ? {
+            scale: 1.05,
+            rotateY: status === "available" ? -5 : 0,
+            boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
+          } : {}}
+          whileTap={{ scale: 0.95 }}
+          transition={{
+            type: "spring",
+            stiffness: 100,
+            damping: 15,
+            mass: 0.8
+          }}
         >
+          {/* Subtle light reflection on top */}
+          <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none rounded-t-2xl" />
+
           {/* Day number or Date Label */}
           {dateLabel && (
-            <span className="text-[10px] font-black opacity-60 uppercase mb-0.5">{dateLabel}</span>
+            <span className="text-[10px] font-black opacity-60 uppercase mb-0.5 relative z-10">{dateLabel}</span>
           )}
           <span
             className={cn(
@@ -109,16 +121,20 @@ const DayCard = ({
           <div className="mt-1 relative z-10">{getIcon()}</div>
 
           {/* Handle indicator */}
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-foreground/10 rounded-full" />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-8 bg-black/10 rounded-full border border-white/5 flex flex-col items-center justify-center gap-1 dark:bg-white/5">
+            <div className="w-1 h-1 rounded-full bg-white/20" />
+            <div className="w-1 h-1 rounded-full bg-white/20" />
+            <div className="w-1 h-1 rounded-full bg-white/20" />
+          </div>
 
           {/* Time left indicator for locked cards */}
           {status === "locked" && timeLeft && (
-            <span className="text-[10px] mt-1 opacity-60">{timeLeft}</span>
+            <span className="text-[10px] mt-1 opacity-60 italic relative z-10">{timeLeft}</span>
           )}
 
           {/* Shimmer effect for available cards */}
           {status === "available" && (
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-[length:200%_100%] rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-shimmer bg-[length:200%_200%] rounded-2xl pointer-events-none" />
           )}
         </motion.button>
       </div>

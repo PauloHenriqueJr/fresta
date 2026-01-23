@@ -297,5 +297,37 @@ export const CalendarsRepository = {
       totalCalendars: data?.length || 0,
       ...totals
     };
+  },
+
+  // Storage Methods
+  async uploadMedia(file: File, path: string): Promise<string> {
+    const { data, error } = await supabase.storage
+      .from('calendar-media')
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+
+    if (error) {
+      console.error('CalendarsRepository.uploadMedia: Error', error);
+      throw error;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('calendar-media')
+      .getPublicUrl(data.path);
+
+    return publicUrl;
+  },
+
+  async deleteMedia(path: string): Promise<void> {
+    const { error } = await supabase.storage
+      .from('calendar-media')
+      .remove([path]);
+
+    if (error) {
+      console.error('CalendarsRepository.deleteMedia: Error', error);
+      throw error;
+    }
   }
 };
