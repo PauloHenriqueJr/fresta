@@ -1,9 +1,16 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { LayoutDashboard, Users, DollarSign, BarChart3, CircleUser, MoreHorizontal } from "lucide-react";
+import { useAuth } from "@/state/auth/AuthProvider";
+import { motion } from "framer-motion";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { profile } = useAuth();
+
+  const isTabActive = (path: string) => location.pathname === path;
 
   return (
     <SidebarProvider>
@@ -37,14 +44,102 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        {/* Mobile Fallback */}
-        <div className="lg:hidden p-4">
-          <div className="bg-amber-500/10 p-6 rounded-3xl border border-amber-500/20 text-center">
-            <h2 className="text-xl font-black text-amber-600 mb-2">Acesso Restrito</h2>
-            <p className="text-sm text-foreground/70 font-medium">O painel administrativo deve ser acessado preferencialmente via Desktop para melhor visualização dos dados.</p>
-          </div>
-          <div className="mt-8">
+        {/* Mobile View with Bottom Nav */}
+        <div className="lg:hidden flex-1 flex flex-col relative pb-20">
+          <header className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/60 backdrop-blur-xl sticky top-0 z-50">
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black uppercase tracking-widest text-amber-600/60">Admin</span>
+              <span className="text-lg font-black tracking-tight text-foreground -mt-1">Fresta Master</span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+              <span className="text-[10px] font-black text-amber-600">🛡️</span>
+            </div>
+          </header>
+
+          <main className="flex-1 p-4 overflow-x-hidden">
             <Outlet />
+          </main>
+
+          {/* SHARED BOTTOM NAV - ADMIN MOBILE */}
+          <div className="fixed bottom-0 left-0 right-0 z-[100] safe-area-bottom bg-background/80 backdrop-blur-xl border-t border-border/40 px-2 py-1">
+            <nav className="flex items-center justify-around max-w-lg mx-auto h-16 relative">
+
+              {/* DASHBOARD */}
+              <button
+                onClick={() => navigate("/admin")}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/admin") ? "text-amber-600" : "text-muted-foreground/60 hover:text-foreground"
+                  }`}
+              >
+                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/admin") ? "bg-amber-500/10" : ""}`}>
+                  <LayoutDashboard className="w-6 h-6" />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest">Geral</span>
+              </button>
+
+              {/* VENDAS */}
+              <button
+                onClick={() => navigate("/admin/vendas")}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/admin/vendas") ? "text-amber-600" : "text-muted-foreground/60 hover:text-foreground"
+                  }`}
+              >
+                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/admin/vendas") ? "bg-amber-500/10" : ""}`}>
+                  <DollarSign className="w-6 h-6" />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest">Vendas</span>
+              </button>
+
+              {/* BI / FINANCEIRO */}
+              <button
+                onClick={() => navigate("/admin/financeiro")}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/admin/financeiro") ? "text-amber-600" : "text-muted-foreground/60 hover:text-foreground"
+                  }`}
+              >
+                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/admin/financeiro") ? "bg-amber-500/10" : ""}`}>
+                  <BarChart3 className="w-6 h-6" />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest text-center">BI</span>
+              </button>
+
+              {/* USUÁRIOS */}
+              <button
+                onClick={() => navigate("/admin/usuarios")}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/admin/usuarios") ? "text-amber-600" : "text-muted-foreground/60 hover:text-foreground"
+                  }`}
+              >
+                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/admin/usuarios") ? "bg-amber-500/10" : ""}`}>
+                  <Users className="w-6 h-6" />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest">Users</span>
+              </button>
+
+              {/* PERFIL */}
+              <button
+                onClick={() => navigate("/perfil")}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/perfil") ? "text-amber-600" : "text-muted-foreground/60"
+                  }`}
+              >
+                <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl p-0.5 transition-colors ${isTabActive("/perfil") ? "bg-amber-500/10" : ""}`}>
+                  {profile && profile.avatar ? (
+                    <div className={`w-full h-full rounded-full overflow-hidden border transition-colors ${isTabActive("/perfil") ? "border-amber-600" : "border-border/50"
+                      }`}>
+                      <img
+                        src={profile.avatar}
+                        alt="Perfil"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                      <CircleUser className="w-full h-full text-muted-foreground hidden" />
+                    </div>
+                  ) : (
+                    <CircleUser className={`w-6 h-6 ${isTabActive("/perfil") ? "text-amber-600" : "text-muted-foreground"}`} />
+                  )}
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest">Perfil</span>
+              </button>
+            </nav>
           </div>
         </div>
       </div>

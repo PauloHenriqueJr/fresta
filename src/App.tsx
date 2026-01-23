@@ -134,7 +134,7 @@ const AppContent = () => {
         <Route
           path="/b2b"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["rh", "admin"]}>
               <B2BLayout />
             </ProtectedRoute>
           }
@@ -152,8 +152,15 @@ const AppContent = () => {
           <Route path="equipe" element={<B2BEquipe />} />
         </Route>
 
-        {/* Admin (offline/mock; sem proteção por enquanto) */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Admin (Protegido por role admin) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
           <Route path="financeiro" element={<FinancialDashboard />} />
           <Route path="vendas" element={<SalesRegistry />} />
