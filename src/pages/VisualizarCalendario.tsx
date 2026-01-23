@@ -7,6 +7,7 @@ import FloatingDecorations from "@/components/calendar/FloatingDecorations";
 import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
+import { toast } from "sonner";
 import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
@@ -56,6 +57,31 @@ const VisualizarCalendario = () => {
 
     return () => clearInterval(interval);
   }, [lockedDay, calendar]);
+
+  const handleNotifyMe = async () => {
+    if (!("Notification" in window)) {
+      toast.error("Seu navegador não suporta notificações.");
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        toast.success("Tudo pronto! 🔔", {
+          description: "Você receberá um aviso assim que esta porta abrir."
+        });
+      } else {
+        toast("Notificação agendada!", {
+          description: "Fique de olho no horário para não perder."
+        });
+      }
+    } catch (e) {
+      toast("Notificação agendada!", {
+        description: "Fique de olho no horário para não perder."
+      });
+    }
+    setLockedDay(null);
+  };
 
   // Carregar status local ao iniciar
   useEffect(() => {
@@ -409,6 +435,7 @@ const VisualizarCalendario = () => {
                 </div>
 
                 <motion.button
+                  onClick={handleNotifyMe}
                   className="w-full btn-festive py-5 rounded-3xl flex items-center justify-center gap-3"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

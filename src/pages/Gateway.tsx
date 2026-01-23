@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -5,7 +6,16 @@ import { Building2, User, ChevronRight, ArrowLeft } from "lucide-react";
 
 export default function Gateway() {
     const navigate = useNavigate();
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, role } = useAuth();
+
+    useEffect(() => {
+        if (!isLoading && isAuthenticated && role) {
+            console.log("Gateway: Usuário autenticado com role", role, "- Redirecionando...");
+            if (role === 'admin') navigate("/admin");
+            else if (role === 'rh') navigate("/b2b");
+            else navigate("/meus-calendarios");
+        }
+    }, [isAuthenticated, isLoading, role, navigate]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-festive-pattern bg-[length:40px_40px] relative overflow-hidden">

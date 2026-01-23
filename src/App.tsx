@@ -150,6 +150,8 @@ const AppContent = () => {
           <Route path="analytics" element={<B2BAnalytics />} />
           <Route path="branding" element={<B2BBranding />} />
           <Route path="equipe" element={<B2BEquipe />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="configuracoes" element={<ContaConfiguracoes />} />
         </Route>
 
         {/* Admin (Protegido por role admin) */}
@@ -175,6 +177,8 @@ const AppContent = () => {
           <Route path="health" element={<SystemHealth />} />
           <Route path="backups" element={<BackupManager />} />
           <Route path="emails" element={<TransactionalEmails />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="configuracoes" element={<ContaConfiguracoes />} />
         </Route>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/contato" element={<Contato />} />
@@ -183,7 +187,7 @@ const AppContent = () => {
         {/* B2C (app shell apenas no desktop; mobile/tablet inalterado) */}
         <Route
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["user"]}>
               <B2CLayout />
             </ProtectedRoute>
           }

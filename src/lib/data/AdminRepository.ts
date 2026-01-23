@@ -23,8 +23,8 @@ export const AdminRepository = {
   },
 
   async updateFeedbackStatus(id: string, status: string) {
-    const { error } = await supabase
-      .from('feedbacks')
+    const { error } = await (supabase
+      .from('feedbacks') as any)
       .update({ status })
       .eq('id', id);
     if (error) throw error;
@@ -47,8 +47,8 @@ export const AdminRepository = {
   },
 
   async updateCoupon(id: string, data: any) {
-    const { error } = await supabase
-      .from('coupons')
+    const { error } = await (supabase
+      .from('coupons') as any)
       .update(data)
       .eq('id', id);
     if (error) throw error;
@@ -74,8 +74,8 @@ export const AdminRepository = {
   },
 
   async updatePlan(id: string, data: any) {
-    const { error } = await supabase
-      .from('pricing_plans')
+    const { error } = await (supabase
+      .from('pricing_plans') as any)
       .update(data)
       .eq('id', id);
     if (error) throw error;
@@ -85,7 +85,7 @@ export const AdminRepository = {
   async getUsers() {
     const { data, error } = await supabase
       .from('profiles')
-      .select('*, subscriptions(*)')
+      .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;

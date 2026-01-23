@@ -122,13 +122,13 @@ export default function B2BLayout() {
 
               {/* PERFIL */}
               <button
-                onClick={() => navigate("/perfil")}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/perfil") ? "text-primary" : "text-muted-foreground/60"
+                onClick={() => navigate("/b2b/perfil")}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/b2b/perfil") ? "text-primary" : "text-muted-foreground/60"
                   }`}
               >
-                <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl p-0.5 transition-colors ${isTabActive("/perfil") ? "bg-primary/10" : ""}`}>
+                <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl p-0.5 transition-colors ${isTabActive("/b2b/perfil") ? "bg-primary/10" : ""}`}>
                   {profile && profile.avatar ? (
-                    <div className={`w-full h-full rounded-full overflow-hidden border transition-colors ${isTabActive("/perfil") ? "border-primary" : "border-border/50"
+                    <div className={`w-full h-full rounded-full overflow-hidden border transition-colors ${isTabActive("/b2b/perfil") ? "border-primary" : "border-border/50"
                       }`}>
                       <img
                         src={profile.avatar}
@@ -142,7 +142,7 @@ export default function B2BLayout() {
                       <CircleUser className="w-full h-full text-muted-foreground hidden" />
                     </div>
                   ) : (
-                    <CircleUser className={`w-6 h-6 ${isTabActive("/perfil") ? "text-primary" : "text-muted-foreground"}`} />
+                    <CircleUser className={`w-6 h-6 ${isTabActive("/b2b/perfil") ? "text-primary" : "text-muted-foreground"}`} />
                   )}
                 </div>
                 <span className="text-[9px] font-black uppercase tracking-widest">Perfil</span>
