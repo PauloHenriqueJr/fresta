@@ -98,6 +98,12 @@ const LandingPage = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
 
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/meus-calendarios", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
   // Persistence: Check Global Settings on mount or update
   useEffect(() => {
     // 1. URL overrides everything (for testing)
@@ -122,11 +128,6 @@ const LandingPage = () => {
     }
   }, [isSettingsLoading, settings.activeTheme]);
 
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      navigate("/meus-calendarios", { replace: true });
-    }
-  }, [isAuthenticated, isLoading, navigate]);
 
   useEffect(() => {
     const handleMouse = (e: MouseEvent) => {
@@ -252,11 +253,21 @@ const LandingPage = () => {
                   <span className="font-extrabold text-xl">Fresta</span>
                 </button>
                 <nav className="flex items-center gap-1">
-                  {['Explorar', 'Premium', 'Entrar'].map(item => (
-                    <button key={item} onClick={() => navigate(`/${item.toLowerCase()}`)} className="px-3 py-2 rounded-xl text-sm font-semibold hover:bg-muted">{item}</button>
+                  {['Explorar', 'Premium', isAuthenticated ? 'Meus Calendários' : 'Entrar'].map(item => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        if (item === 'Meus Calendários') navigate('/meus-calendarios');
+                        else if (item === 'Entrar') navigate('/portal');
+                        else navigate(`/${item.toLowerCase()}`);
+                      }}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold hover:bg-muted"
+                    >
+                      {item}
+                    </button>
                   ))}
                 </nav>
-                <button onClick={() => navigate("/criar")} className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>Criar calendário</button>
+                <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>Criar calendário</button>
               </div>
             </div>
           </div>
@@ -311,7 +322,7 @@ const LandingPage = () => {
                   Crie calendários de surpresas para quem você ama. Uma porta por dia, uma emoção diferente.
                 </p>
                 <div className="flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
-                  <button onClick={() => navigate("/criar")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
+                  <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
                     <Sparkles className="w-6 h-6" /> Criar meu calendário
                   </button>
                   <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-2xl font-black text-xl bg-muted hover:bg-muted/80 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
@@ -414,7 +425,7 @@ const LandingPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
             {themeDisplay.map((item, index) => (
-              <motion.div key={index} className={`relative overflow-hidden rounded-[3rem] p-10 ${item.gradientClass} text-primary-foreground group cursor-pointer shadow-2xl`} whileHover={{ y: -10 }} onClick={() => navigate("/criar")}>
+              <motion.div key={index} className={`relative overflow-hidden rounded-[3rem] p-10 ${item.gradientClass} text-primary-foreground group cursor-pointer shadow-2xl`} whileHover={{ y: -10 }} onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")}>
                 <div className="relative z-10 flex flex-col h-full justify-between min-h-[220px]">
                   <div>
                     <span className="text-4xl mb-4 block">{item.emoji}</span>
@@ -474,8 +485,9 @@ const LandingPage = () => {
           <p className="text-muted-foreground font-bold text-base">© 2024 Fresta. Feito com 💚 para o Brasil.</p>
           <div className="mt-8 flex justify-center gap-6 text-muted-foreground/60 font-black uppercase tracking-widest text-xs">
             <button className="hover:text-primary transition-colors">Ajuda</button>
-            <button className="hover:text-primary transition-colors">Privacidade</button>
-            <button className="hover:text-primary transition-colors">Termos</button>
+            <button className="hover:text-primary transition-colors" onClick={() => navigate("/portal")}>Portal RH / Empresas</button>
+            <button className="hover:text-primary transition-colors" onClick={() => navigate("/privacidade")}>Privacidade</button>
+            <button className="hover:text-primary transition-colors" onClick={() => navigate("/termos")}>Termos</button>
           </div>
         </div>
       </footer>

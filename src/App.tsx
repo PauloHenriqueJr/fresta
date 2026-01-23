@@ -2,8 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { useAuth } from "@/state/auth/AuthProvider";
 import LandingPage from "./pages/LandingPage";
+import Contato from "./pages/Contato";
+import Privacidade from "./pages/Privacidade";
+import Termos from "./pages/Termos";
 import CalendarView from "./pages/CalendarView";
 import Onboarding from "./pages/Onboarding";
 import MeusCalendarios from "./pages/MeusCalendarios";
@@ -69,18 +73,158 @@ import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
+const Loader = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
+    <div className="w-16 h-16 rounded-2xl bg-gradient-festive animate-pulse flex items-center justify-center mb-4">
+      <span className="text-2xl">🚪</span>
+    </div>
+    <div className="h-1 w-32 bg-muted rounded-full overflow-hidden">
+      <div className="h-full bg-primary animate-pulse" />
+    </div>
+    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 animate-pulse">
+      Fresta está vindo...
+    </p>
+  </div>
+);
+
 // Corrigir o problema de tokens do Supabase no HashRouter
 const AuthHandler = () => {
+  const navigate = useNavigate();
+  const { session, isLoading } = useAuth();
+
   useEffect(() => {
     const hash = window.location.hash;
+
+    // 1. Normalização Imediata: Se o hash é um fragmento de auth pura (#access_token)
+    // Precisamos converter para #/access_token para o HashRouter não dar 404
+    if (hash && (hash.includes("access_token=") || hash.includes("error_description=")) && !hash.startsWith("#/")) {
+      console.log("App: Normalizando fragmento de auth para o HashRouter");
+      window.location.hash = "/" + hash.substring(1);
+      return;
+    }
+
+    // 2. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
     if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
-      if (!hash.startsWith("#/")) {
-        console.log("App: Auth fragment detected, normalizing for HashRouter");
-        window.location.hash = "/" + hash.substring(1);
+      if (session) {
+        console.log("App: Sessão confirmada, redirecionando para o painel");
+        navigate("/meus-calendarios", { replace: true });
       }
     }
-  }, []);
+  }, [session, isLoading, navigate]);
+
   return null;
+};
+
+const AppContent = () => {
+  const { isLoading } = useAuth();
+
+  if (isLoading) return <Loader />;
+
+  return (
+    <HashRouter>
+      <AuthHandler />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/portal" element={<Gateway />} />
+        <Route path="/entrar" element={<Entrar />} />
+        <Route path="/login-rh" element={<LoginRH />} />
+        <Route path="/login-colaborador" element={<LoginEmployee />} />
+
+        {/* B2B */}
+        <Route
+          path="/b2b"
+          element={
+            <ProtectedRoute>
+              <B2BLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<B2BDashboard />} />
+          <Route path="relatorio" element={<ExecutiveReport />} />
+          <Route path="campanhas" element={<B2BCampanhas />} />
+          <Route path="campanhas/nova" element={<B2BCriarCampanha />} />
+          <Route path="campanhas/:id" element={<B2BCampanhaDetalhe />} />
+          <Route path="editor" element={<CorporateEditor />} />
+          <Route path="privacidade" element={<PrivacySettings />} />
+          <Route path="convites" element={<BulkInvite />} />
+          <Route path="analytics" element={<B2BAnalytics />} />
+          <Route path="branding" element={<B2BBranding />} />
+          <Route path="equipe" element={<B2BEquipe />} />
+        </Route>
+
+        {/* Admin (offline/mock; sem proteção por enquanto) */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="financeiro" element={<FinancialDashboard />} />
+          <Route path="vendas" element={<SalesRegistry />} />
+          <Route path="temas" element={<AdminThemes />} />
+          <Route path="planos" element={<PlanManager />} />
+          <Route path="usuarios" element={<B2CCustomers />} />
+          <Route path="b2b-clientes" element={<B2BClients />} />
+          <Route path="feedbacks" element={<Feedbacks />} />
+          <Route path="cupons" element={<CouponManager />} />
+          <Route path="logs" element={<AuditLogs />} />
+          <Route path="seo" element={<SEOMetadata />} />
+          <Route path="health" element={<SystemHealth />} />
+          <Route path="backups" element={<BackupManager />} />
+          <Route path="emails" element={<TransactionalEmails />} />
+        </Route>
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/contato" element={<Contato />} />
+        <Route path="/privacidade" element={<Privacidade />} />
+        <Route path="/termos" element={<Termos />} />
+        {/* B2C (app shell apenas no desktop; mobile/tablet inalterado) */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <B2CLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/meus-calendarios" element={<MeusCalendarios />} />
+          <Route path="/criar" element={<CriarCalendario />} />
+          <Route path="/calendario/:id" element={<CalendarioDetalhe />} />
+          <Route path="/calendario/:id/configuracoes" element={<Configuracoes />} />
+          <Route path="/calendario/:id/estatisticas" element={<Estatisticas />} />
+          <Route path="/editar-dia/:calendarId/:dia" element={<EditarDia />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
+          <Route path="/premium" element={<Premium />} />
+          <Route path="/checkout/:planId" element={<Checkout />} />
+          <Route path="/ajuda" element={<Ajuda />} />
+          <Route path="/explorar" element={<Explorar />} />
+        </Route>
+
+        {/* legacy/demo routes */}
+        <Route path="/calendario" element={<CalendarView />} />
+        <Route path="/calendario/saojoao" element={<CalendarioSaoJoao />} />
+        <Route path="/calendario/carnaval" element={<CalendarioCarnaval />} />
+        <Route path="/calendario/natal" element={<CalendarioNatal />} />
+        <Route path="/calendario/reveillon" element={<CalendarioReveillon />} />
+        <Route path="/calendario/pascoa" element={<CalendarioPascoa />} />
+        <Route path="/calendario/independencia" element={<CalendarioIndependencia />} />
+        <Route path="/calendario/namoro" element={<CalendarioNamoro />} />
+        <Route path="/calendario/casamento" element={<CalendarioCasamento />} />
+        <Route path="/configuracoes" element={<Configuracoes />} />
+        {/* /editar-dia/:calendarId/:dia agora está dentro do B2CLayout */}
+        <Route path="/editar-dia/:dia" element={<EditarDia />} />
+        <Route path="/escolher-tema" element={<EscolherTema />} />
+        <Route path="/c/:id" element={<VisualizarCalendario />} />
+        {/* /perfil agora está dentro do B2CLayout */}
+        <Route
+          path="/estatisticas"
+          element={
+            <ProtectedRoute>
+              <Estatisticas />
+            </ProtectedRoute>
+          }
+        />
+        {/* /conta/configuracoes agora está dentro do B2CLayout */}
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </HashRouter>
+  );
 };
 
 const App = () => (
@@ -89,106 +233,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <HashRouter>
-          <AuthHandler />
-          <Routes>
-            <Route path="/" element={<Gateway />} />
-            <Route path="/home" element={<LandingPage />} />
-            <Route path="/entrar" element={<Entrar />} />
-            <Route path="/login-rh" element={<LoginRH />} />
-            <Route path="/login-colaborador" element={<LoginEmployee />} />
-
-            {/* B2B */}
-            <Route
-              path="/b2b"
-              element={
-                <ProtectedRoute>
-                  <B2BLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<B2BDashboard />} />
-              <Route path="relatorio" element={<ExecutiveReport />} />
-              <Route path="campanhas" element={<B2BCampanhas />} />
-              <Route path="campanhas/nova" element={<B2BCriarCampanha />} />
-              <Route path="campanhas/:id" element={<B2BCampanhaDetalhe />} />
-              <Route path="editor" element={<CorporateEditor />} />
-              <Route path="privacidade" element={<PrivacySettings />} />
-              <Route path="convites" element={<BulkInvite />} />
-              <Route path="analytics" element={<B2BAnalytics />} />
-              <Route path="branding" element={<B2BBranding />} />
-              <Route path="equipe" element={<B2BEquipe />} />
-            </Route>
-
-            {/* Admin (offline/mock; sem proteção por enquanto) */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="financeiro" element={<FinancialDashboard />} />
-              <Route path="vendas" element={<SalesRegistry />} />
-              <Route path="temas" element={<AdminThemes />} />
-              <Route path="planos" element={<PlanManager />} />
-              <Route path="usuarios" element={<B2CCustomers />} />
-              <Route path="b2b-clientes" element={<B2BClients />} />
-              <Route path="feedbacks" element={<Feedbacks />} />
-              <Route path="cupons" element={<CouponManager />} />
-              <Route path="logs" element={<AuditLogs />} />
-              <Route path="seo" element={<SEOMetadata />} />
-              <Route path="health" element={<SystemHealth />} />
-              <Route path="backups" element={<BackupManager />} />
-              <Route path="emails" element={<TransactionalEmails />} />
-            </Route>
-            <Route path="/onboarding" element={<Onboarding />} />
-            {/* B2C (app shell apenas no desktop; mobile/tablet inalterado) */}
-            <Route
-              element={
-                <ProtectedRoute>
-                  <B2CLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/meus-calendarios" element={<MeusCalendarios />} />
-              <Route path="/criar" element={<CriarCalendario />} />
-              <Route path="/calendario/:id" element={<CalendarioDetalhe />} />
-              <Route path="/calendario/:id/configuracoes" element={<Configuracoes />} />
-              <Route path="/calendario/:id/estatisticas" element={<Estatisticas />} />
-              <Route path="/editar-dia/:calendarId/:dia" element={<EditarDia />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
-              <Route path="/premium" element={<Premium />} />
-              <Route path="/checkout/:planId" element={<Checkout />} />
-              <Route path="/ajuda" element={<Ajuda />} />
-              <Route path="/explorar" element={<Explorar />} />
-            </Route>
-
-            {/* legacy/demo routes */}
-            <Route path="/calendario" element={<CalendarView />} />
-            <Route path="/calendario/saojoao" element={<CalendarioSaoJoao />} />
-            <Route path="/calendario/carnaval" element={<CalendarioCarnaval />} />
-            <Route path="/calendario/natal" element={<CalendarioNatal />} />
-            <Route path="/calendario/reveillon" element={<CalendarioReveillon />} />
-            <Route path="/calendario/pascoa" element={<CalendarioPascoa />} />
-            <Route path="/calendario/independencia" element={<CalendarioIndependencia />} />
-            <Route path="/calendario/namoro" element={<CalendarioNamoro />} />
-            <Route path="/calendario/casamento" element={<CalendarioCasamento />} />
-            <Route path="/configuracoes" element={<Configuracoes />} />
-            {/* /editar-dia/:calendarId/:dia agora está dentro do B2CLayout */}
-            <Route path="/editar-dia/:dia" element={<EditarDia />} />
-            <Route path="/escolher-tema" element={<EscolherTema />} />
-            <Route path="/c/:id" element={<VisualizarCalendario />} />
-            {/* /perfil agora está dentro do B2CLayout */}
-            <Route
-              path="/estatisticas"
-              element={
-                <ProtectedRoute>
-                  <Estatisticas />
-                </ProtectedRoute>
-              }
-            />
-            {/* /conta/configuracoes agora está dentro do B2CLayout */}
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </HashRouter>
+        <AppContent />
       </TooltipProvider>
     </GlobalSettingsProvider>
   </QueryClientProvider>

@@ -1,21 +1,27 @@
 import { useAuth } from "@/state/auth/AuthProvider";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, User, ChevronRight } from "lucide-react";
+import { Building2, User, ChevronRight, ArrowLeft } from "lucide-react";
 
 export default function Gateway() {
     const navigate = useNavigate();
     const { isAuthenticated, isLoading } = useAuth();
 
-    useEffect(() => {
-        if (!isLoading && isAuthenticated) {
-            navigate("/meus-calendarios", { replace: true });
-        }
-    }, [isAuthenticated, isLoading, navigate]);
-
     return (
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 bg-festive-pattern bg-[length:40px_40px] relative overflow-hidden">
+            {/* Back Button */}
+            <motion.button
+                onClick={() => navigate("/")}
+                className="absolute top-8 left-8 p-3 rounded-full bg-card/50 backdrop-blur-md border border-border flex items-center gap-2 text-sm font-black hover:bg-card transition-all z-50 lg:top-12 lg:left-12"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+            >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline text-[10px] tracking-widest">VOLTAR AO INÍCIO</span>
+            </motion.button>
+
             {/* Dynamic Background elements */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full animate-pulse" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/10 blur-[120px] rounded-full animate-pulse decoration-5000" />

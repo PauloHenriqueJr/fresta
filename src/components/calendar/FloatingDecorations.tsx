@@ -2,15 +2,15 @@ import { motion } from "framer-motion";
 
 interface FloatingDecorationsProps {
   theme?:
-    | "default"
-    | "carnaval"
-    | "saojoao"
-    | "natal"
-    | "reveillon"
-    | "pascoa"
-    | "independencia"
-    | "namoro"
-    | "casamento";
+  | "default"
+  | "carnaval"
+  | "saojoao"
+  | "natal"
+  | "reveillon"
+  | "pascoa"
+  | "independencia"
+  | "namoro"
+  | "casamento";
 }
 
 const FloatingDecorations = ({ theme = "default" }: FloatingDecorationsProps) => {
@@ -29,11 +29,11 @@ const FloatingDecorations = ({ theme = "default" }: FloatingDecorationsProps) =>
       case "independencia":
         return ["🇧🇷", "🎺", "✨", "🏛️", "🌟"];
       case "namoro":
-        return ["💘", "💌", "🌹", "✨", "💞"];
+        return ["💘", "💌", "🌹", "✨", "💞", "🍫", "💏", "🥂"];
       case "casamento":
-        return ["💍", "👰", "🤵", "🥂", "💐"];
+        return ["💍", "👰‍♀️", "🤵‍♂️", "🥂", "💐", "💖", "💒", "🍰"];
       default:
-        return ["🎄", "⭐", "🎁", "❄️", "🔔"];
+        return ["✨", "🌈", "🎈", "🎁", "⭐"];
     }
   };
 

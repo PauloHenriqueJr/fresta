@@ -200,9 +200,27 @@ const Entrar = () => {
             </button>
           </motion.div>
 
+          <div className="pt-8 border-t border-border/50 space-y-4">
+            <p className="text-center text-xs font-black text-muted-foreground/30 uppercase tracking-[0.2em] mb-4">
+              Para Empresas
+            </p>
+            <button
+              onClick={() => navigate("/login-rh")}
+              className="w-full py-4 px-6 rounded-2xl bg-amber-500/5 text-amber-600 font-black text-[10px] tracking-widest uppercase hover:bg-amber-500/10 transition-all border border-amber-500/10"
+            >
+              Acessar Portal RH / Corporativo
+            </button>
+            <button
+              onClick={() => navigate("/contato")}
+              className="w-full text-center text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
+            >
+              É uma empresa? <span className="underline italic">Contrate o Fresta</span> para seu time
+            </button>
+          </div>
+
           <p className="text-center text-xs text-muted-foreground py-4 lg:pt-8 font-medium">
             Ao entrar, você concorda com nossos <br className="lg:hidden" />
-            <button className="underline hover:text-primary transition-colors">Termos de Uso</button> e <button className="underline hover:text-primary transition-colors">Privacidade</button>.
+            <button onClick={() => navigate("/termos")} className="underline hover:text-primary transition-colors">Termos de Uso</button> e <button onClick={() => navigate("/privacidade")} className="underline hover:text-primary transition-colors">Privacidade</button>.
           </p>
         </div>
       </div>

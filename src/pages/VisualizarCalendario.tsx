@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Share2, Heart, Eye, Loader2, AlertCircle } from "lucide-react";
+import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
@@ -11,6 +11,8 @@ import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AnimatePresence } from "framer-motion";
+import { Progress } from "@/components/ui/progress";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
@@ -25,8 +27,35 @@ const VisualizarCalendario = () => {
   const [error, setError] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [lockedDay, setLockedDay] = useState<number | null>(null);
 
   const [openedDays, setOpenedDays] = useState<number[]>([]);
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  // Countdown timer for locked modal
+  useEffect(() => {
+    if (lockedDay === null) return;
+
+    const interval = setInterval(() => {
+      const baseDate = calendar?.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
+      const doorDate = startOfDay(addDays(baseDate, lockedDay - 1));
+      const now = new Date();
+      const diff = doorDate.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setLockedDay(null);
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft({ hours, minutes, seconds });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lockedDay, calendar]);
 
   // Carregar status local ao iniciar
   useEffect(() => {
@@ -91,7 +120,8 @@ const VisualizarCalendario = () => {
     const isLocked = isAfter(doorDate, startOfDay(new Date()));
 
     if (isLocked) {
-      return; // Prevenir abertura antecipada
+      setLockedDay(dayNum);
+      return;
     }
 
     const dayData = days.find((d) => d.day === dayNum);
@@ -279,6 +309,34 @@ const VisualizarCalendario = () => {
         />
       </main>
 
+      {/* Time Capsule - User Reference */}
+      <motion.section
+        className="relative z-10 px-4 mt-8 mb-24 max-w-lg mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <div className="bg-card/40 backdrop-blur-xl border border-white/20 rounded-[2.5rem] p-8 relative overflow-hidden group shadow-elevated">
+          {/* Decorative icons in bg */}
+          <div className="absolute top-4 right-4 text-primary/10 -rotate-12 transition-transform group-hover:rotate-0">
+            <Heart className="w-16 h-16 fill-current" />
+          </div>
+          <div className="absolute bottom-4 left-4 text-accent/10 rotate-12 transition-transform group-hover:rotate-0">
+            <Sparkles className="w-12 h-12" />
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+              <Sparkles className="w-7 h-7 text-primary" />
+            </div>
+            <h3 className="text-2xl font-black text-foreground mb-2">CÁPSULA DO TEMPO</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed italic">
+              "O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção."
+            </p>
+          </div>
+        </div>
+      </motion.section>
+
       {/* Surprise Modal */}
       <DaySurpriseModal
         isOpen={selectedDay !== null}
@@ -302,6 +360,76 @@ const VisualizarCalendario = () => {
         }}
         theme={calendar.theme_id}
       />
+
+      {/* Locked Day Modal "Calma Coração" */}
+      <AnimatePresence>
+        {lockedDay !== null && (
+          <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 theme-${calendar.theme_id}`}>
+            <motion.div
+              className="absolute inset-0 bg-foreground/60 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLockedDay(null)}
+            />
+            <motion.div
+              className="relative bg-card rounded-[3rem] p-8 max-w-sm w-full shadow-elevated overflow-hidden"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-24 h-24 rounded-full border-4 border-primary/20 flex items-center justify-center mb-6 relative">
+                  <div className="absolute inset-0 rounded-full border-4 border-primary animate-ping opacity-20" />
+                  <Loader2 className="w-12 h-12 text-primary animate-spin-slow" />
+                </div>
+
+                <h2 className="text-3xl font-black text-foreground mb-3 leading-tight">Calma, coração!</h2>
+                <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+                  Essa surpresa ainda está sendo preparada e só abre em breve. Segura a ansiedade! ✨
+                </p>
+
+                <div className="flex gap-3 mb-10">
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20">{timeLeft.hours.toString().padStart(2, '0')}</div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Horas</span>
+                  </div>
+                  <div className="text-2xl font-black pt-3 text-primary">:</div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20">{timeLeft.minutes.toString().padStart(2, '0')}</div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Minutos</span>
+                  </div>
+                  <div className="text-2xl font-black pt-3 text-primary">:</div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 bg-primary/10 text-primary border-2 border-primary/20 rounded-2xl flex items-center justify-center font-black text-xl">{timeLeft.seconds.toString().padStart(2, '0')}</div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Segundos</span>
+                  </div>
+                </div>
+
+                <motion.button
+                  className="w-full btn-festive py-5 rounded-3xl flex items-center justify-center gap-3"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                    <Heart className="w-5 h-5 fill-current" />
+                  </motion.div>
+                  Me avise quando abrir
+                </motion.button>
+
+                <button
+                  onClick={() => setLockedDay(null)}
+                  className="mt-6 text-sm font-bold text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Voltar ao calendário
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-20">

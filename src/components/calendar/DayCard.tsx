@@ -23,8 +23,6 @@ const DayCard = ({
   hasSpecialContent = false,
   dateLabel,
 }: DayCardProps) => {
-  const isInteractive = status !== "locked";
-
   const getCardClasses = () => {
     const base = "day-card relative overflow-hidden";
 
@@ -62,7 +60,7 @@ const DayCard = ({
 
   return (
     <motion.div
-      className={cn("relative w-full aspect-square perspective-1000", !isInteractive && "cursor-default")}
+      className={cn("relative w-full aspect-square perspective-1000")}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, delay: day * 0.02 }}
@@ -85,10 +83,9 @@ const DayCard = ({
             "absolute inset-0 z-10 origin-left backface-hidden flex flex-col items-center justify-center rounded-2xl"
           )}
           onClick={onClick}
-          disabled={!isInteractive}
           animate={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
-          whileHover={isInteractive ? { scale: 1.02 } : undefined}
-          whileTap={isInteractive ? { scale: 0.98 } : undefined}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 80, damping: 15 }}
         >
           {/* Day number or Date Label */}
@@ -121,7 +118,7 @@ const DayCard = ({
           )}
         </motion.button>
       </div>
-    </motion.div>
+    </motion.div >
   );
 };
 

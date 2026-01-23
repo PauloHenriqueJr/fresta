@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, Mail, Lock, ArrowRight } from "lucide-react";
+import { Briefcase, Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function LoginRH() {
     const navigate = useNavigate();
@@ -26,7 +26,20 @@ export default function LoginRH() {
             </div>
 
             {/* Right Side: Form */}
-            <div className="w-full lg:w-1/2 bg-background flex flex-col items-center justify-center p-8 md:p-20">
+            <div className="w-full lg:w-1/2 bg-background flex flex-col items-center justify-center p-8 md:p-20 relative">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute top-8 left-8 p-3 rounded-full bg-muted/50 hover:bg-muted transition-all transition-colors z-50 lg:hidden"
+                >
+                    <ArrowLeft className="w-5 h-5 text-foreground" />
+                </button>
+                <button
+                    onClick={() => navigate(-1)}
+                    className="hidden lg:flex absolute top-12 left-12 items-center gap-2 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4" /> Voltar
+                </button>
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -75,7 +88,7 @@ export default function LoginRH() {
 
                     <div className="pt-8 text-center">
                         <p className="text-sm text-muted-foreground font-medium">
-                            Novo por aqui? <button className="text-primary font-black hover:underline">Contrate Fresta para sua Empresa</button>
+                            Novo por aqui? <button onClick={() => navigate("/contato")} className="text-primary font-black hover:underline">Contrate Fresta para sua Empresa</button>
                         </p>
                     </div>
                 </motion.div>
