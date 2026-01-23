@@ -59,29 +59,81 @@ const VisualizarCalendario = () => {
   }, [lockedDay, calendar]);
 
   const handleNotifyMe = async () => {
-    if (!("Notification" in window)) {
-      toast.error("Seu navegador não suporta notificações.");
+    if (!calendar || lockedDay === null) return;
+
+    // Import push utilities dynamically to avoid SSR issues
+    const {
+      isPWAInstalled,
+      promptInstall,
+      canInstallPWA,
+      requestNotificationPermission,
+      subscribeToPush,
+      scheduleDoorReminder
+    } = await import('@/lib/push/notifications');
+
+    // Step 1: Check if PWA is installed
+    const isInstalled = isPWAInstalled();
+
+    if (!isInstalled && canInstallPWA()) {
+      // Prompt user to install PWA first
+      toast("📲 Instale o app para receber notificações!", {
+        description: "Clique em 'Adicionar à Tela Inicial' para continuar.",
+        duration: 5000
+      });
+
+      const installed = await promptInstall();
+      if (!installed) {
+        toast("Sem problema! 👍", {
+          description: "Você ainda pode conferir o calendário manualmente."
+        });
+        setLockedDay(null);
+        return;
+      }
+    }
+
+    // Step 2: Request notification permission
+    const permission = await requestNotificationPermission();
+
+    if (permission !== 'granted') {
+      toast.error("Permissão de notificação negada", {
+        description: "Ative as notificações nas configurações do navegador."
+      });
+      setLockedDay(null);
       return;
     }
 
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        toast.success("Tudo pronto! 🔔", {
-          description: "Você receberá um aviso assim que esta porta abrir."
-        });
-      } else {
-        toast("Notificação agendada!", {
-          description: "Fique de olho no horário para não perder."
-        });
-      }
-    } catch (e) {
-      toast("Notificação agendada!", {
-        description: "Fique de olho no horário para não perder."
+    // Step 3: Subscribe to push notifications
+    const subscription = await subscribeToPush();
+
+    if (!subscription) {
+      toast.error("Erro ao configurar notificações", {
+        description: "Tente novamente mais tarde."
+      });
+      setLockedDay(null);
+      return;
+    }
+
+    // Step 4: Schedule the door reminder
+    const baseDate = calendar.start_date
+      ? parseISO(calendar.start_date)
+      : parseISO(calendar.created_at || new Date().toISOString());
+    const doorDate = startOfDay(addDays(baseDate, lockedDay - 1));
+
+    const success = await scheduleDoorReminder(calendar.id, lockedDay, doorDate);
+
+    if (success) {
+      toast.success("🎉 Lembrete configurado!", {
+        description: `Você será notificado quando a Porta ${lockedDay} abrir.`
+      });
+    } else {
+      toast("Lembrete salvo localmente!", {
+        description: "Você receberá a notificação quando abrir o app."
       });
     }
+
     setLockedDay(null);
   };
+
 
   // Carregar status local ao iniciar
   useEffect(() => {

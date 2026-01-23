@@ -1,13 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
     <title>Fresta - Calendários de Surpresas para Datas Especiais</title>
     <meta name="description" content="Crie calendários personalizados com surpresas diárias para Carnaval, São João, Natal e muito mais. Surpreenda quem você ama!" />
     <meta name="author" content="Fresta" />
     <meta name="keywords" content="calendário, surpresas, carnaval, são joão, natal, presente, advento, contagem regressiva" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#F59E0B" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Fresta" />
+    <link rel="manifest" href="/fresta/manifest.json" />
+    <link rel="apple-touch-icon" href="/fresta/icon-192.png" />
 
     <meta property="og:title" content="Fresta - Calendários de Surpresas" />
     <meta property="og:description" content="Crie calendários personalizados com surpresas diárias. Uma porta por dia, uma emoção diferente." />
@@ -15,12 +22,23 @@
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:site" content="@Fresta" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/fresta/sw.js', { scope: '/fresta/' })
+            .then(reg => console.log('[SW] Registered:', reg.scope))
+            .catch(err => console.warn('[SW] Registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>
