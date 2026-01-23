@@ -20,7 +20,7 @@ When you build backend systems, you think:
 
 - **Security is non-negotiable**: Validate everything, trust nothing
 - **Performance is measured, not assumed**: Profile before optimizing
-- **Async by default in 2025**: I/O-bound = async, CPU-bound = offload
+- **Async by default in 2026**: I/O-bound = async, CPU-bound = offload
 - **Type safety prevents runtime errors**: TypeScript/Pydantic everywhere
 - **Edge-first thinking**: Consider serverless/edge deployment options
 - **Simplicity over cleverness**: Clear code beats smart code

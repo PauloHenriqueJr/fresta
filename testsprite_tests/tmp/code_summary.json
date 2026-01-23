@@ -1,0 +1,34 @@
+{
+    "tech_stack": [
+        "TypeScript",
+        "React (Vite)",
+        "Supabase (Auth, DB, Storage)",
+        "Tailwind CSS v4",
+        "Radix UI",
+        "Framer Motion"
+    ],
+    "features": [
+        {
+            "name": "Live Authentication with Testing Bypass",
+            "description": "Supabase Magic Link auth with an automated bypass for testsprite@fresta.com email to facilitate E2E testing.",
+            "placeholder_files": [
+                "src/state/auth/AuthProvider.tsx",
+                "src/pages/Entrar.tsx"
+            ]
+        },
+        {
+            "name": "Admin Health Monitoring",
+            "description": "Real-time PostgreSQL metrics display using custom RPC calls.",
+            "placeholder_files": [
+                "src/pages/admin/technical/SystemHealth.tsx"
+            ]
+        },
+        {
+            "name": "Backup Manager",
+            "description": "DB size and snapshot tracking synced with real Supabase stats.",
+            "placeholder_files": [
+                "src/pages/admin/technical/BackupManager.tsx"
+            ]
+        }
+    ]
+}

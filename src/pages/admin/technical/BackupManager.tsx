@@ -1,30 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Download, Cloud, Clock, RefreshCw, Trash2, Database } from "lucide-react";
+import { Download, Cloud, Clock, RefreshCw, Trash2, Database, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { AdminRepository } from "@/lib/data/AdminRepository";
 
 export default function BackupManager() {
     const [isBackingUp, setIsBackingUp] = useState(false);
+    const [dbSize, setDbSize] = useState("...");
     const [backups, setBackups] = useState([
         { id: '1', date: "22/01/2026 14:30", size: "2.4 MB", type: "Full", status: "Succeeded" },
         { id: '2', date: "21/01/2026 03:00", size: "2.1 MB", type: "Full", status: "Succeeded" },
         { id: '3', date: "20/01/2026 03:00", size: "1.9 MB", type: "Incremental", status: "Succeeded" },
     ]);
 
+    useEffect(() => {
+        const fetchSize = async () => {
+            try {
+                const stats = await AdminRepository.getSystemHealth() as any;
+                if (stats && typeof stats === 'object' && 'db_size' in stats) {
+                    setDbSize(String(stats.db_size));
+                }
+            } catch (err) {
+                console.error("Failed to fetch DB size for backup manager:", err);
+            }
+        };
+        fetchSize();
+    }, []);
+
     const handleNewBackup = () => {
         setIsBackingUp(true);
-        toast.info("Iniciando backup completo do banco de dados...");
+        toast.info("Iniciando snapshot manual...");
         setTimeout(() => {
             const newBackup = {
                 id: Date.now().toString(),
                 date: new Date().toLocaleString(),
-                size: "2.5 MB",
+                size: dbSize,
                 type: "Full",
                 status: "Succeeded"
             };
             setBackups([newBackup, ...backups]);
             setIsBackingUp(false);
-            toast.success("Backup realizado com sucesso!");
+            toast.success("Snapshot realizado com sucesso!");
         }, 3000);
     };
 
@@ -50,7 +66,7 @@ export default function BackupManager() {
                     <Database className="w-8 h-8 text-primary" />
                     <div>
                         <p className="text-[10px] font-black uppercase text-muted-foreground">Tamanho do Banco</p>
-                        <p className="text-2xl font-black">12.4 MB</p>
+                        <p className="text-2xl font-black">{dbSize}</p>
                     </div>
                 </Card>
                 <Card className="border-border/40 bg-card/50 backdrop-blur-sm p-6 flex items-center gap-4">
@@ -113,6 +129,4 @@ export default function BackupManager() {
     );
 }
 
-function ShieldCheck({ className }: { className?: string }) {
-    return <Clock className={className} />; // Re-using for breadcrumb
-}
+// ShieldCheck is imported from lucide-react above

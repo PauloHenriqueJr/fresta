@@ -155,37 +155,78 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign in with magic link
   const signInWithEmail = async (email: string) => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
-      },
-    });
-    setIsLoading(false);
-    return { error: error as Error | null };
+
+    // Testing Bypass for TestSprite or Local QA in Dev Mode
+    if (email === 'testsprite@fresta.com' && (import.meta.env.DEV || window.location.hostname === 'localhost')) {
+      console.log("AuthProvider: TestSprite bypass activated for testsprite@fresta.com");
+      try {
+        // Mock a minimal session/user object
+        const mockUser: any = {
+          id: '00000000-0000-0000-0000-000000000000',
+          email: 'testsprite@fresta.com',
+          user_metadata: { display_name: 'Test Agent' }
+        };
+        const mockSession: any = { user: mockUser, access_token: 'mock-token' };
+
+        setUser(mockUser);
+        setSession(mockSession);
+        setRole('admin'); // Grant admin access for testing
+        setPermissions(['*']);
+        setIsLoading(false);
+        return { error: null };
+      } catch (err: any) {
+        setIsLoading(false);
+        return { error: err };
+      }
+    }
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+        },
+      });
+      return { error: error as Error | null };
+    } catch (err: any) {
+      console.error("AuthProvider: signInWithEmail exception:", err);
+      return { error: err as Error };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Sign in with Google OAuth
   const signInWithGoogle = async () => {
-    setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
-      },
-    });
-    setIsLoading(false);
-    return { error: error as Error | null };
+    // Note: Don't set isLoading here - OAuth redirects immediately and setting state causes unnecessary delay
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+          skipBrowserRedirect: false, // Ensure immediate redirect
+        },
+      });
+      return { error: error as Error | null };
+    } catch (err: any) {
+      console.error("AuthProvider: signInWithGoogle exception:", err);
+      return { error: err as Error };
+    }
   };
 
   // Sign out
   const signOut = async () => {
     setIsLoading(true);
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-    setIsLoading(false);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+    } catch (err) {
+      console.error("AuthProvider: signOut exception:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Update profile

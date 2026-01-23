@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "project": "Fresta - Calendários Festivos Inteligentes",
+    "date": "2026-01-21",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "Fresta is a premium platform designed for creating, managing, and exploring interactive advent-style holiday calendars. It serves both individual consumers (B2C) for personal calendars and businesses (B2B) for corporate campaign management, fully integrated with Supabase backend for real-time data synchronization and robust authentication.",
+  "core_goals": [
+    "Enable seamless passwordless login through Magic Link authentication to simplify user access.",
+    "Provide end-users with tools to create, edit, and explore interactive holiday calendars that offer customizable daily content.",
+    "Serve corporate users with powerful campaign dashboards, team and permission management, and detailed analytics for engagement monitoring.",
+    "Offer administrators comprehensive system health monitoring, backup management, and database optimization for resilience and performance.",
+    "Ensure high reliability and smooth user experience by implementing robust error handling and network resilience measures."
+  ],
+  "key_features": [
+    "Live Magic Link Authentication with automated test bypass for fast end-to-end testing.",
+    "Complete calendar CRUD operations with real-time cloud synchronization for both personal and corporate users.",
+    "Interactive 'doors' for each calendar day allowing customized content display.",
+    "Public gallery showcasing community-shared calendars for exploration and inspiration.",
+    "B2B campaign dashboards including team member and permission controls.",
+    "Analytics tracking user engagement and calendar usage for corporate campaigns.",
+    "Admin panels displaying real-time PostgreSQL metrics such as active connections and cache hit ratios via custom RPC calls.",
+    "Backup manager showing database size and snapshot history synced with Supabase stats.",
+    "SQL performance optimizations via indexing to enhance database operation speeds.",
+    "Resilient error handling ensuring the UI remains responsive even when backend services are unstable."
+  ],
+  "user_flow_summary": [
+    "User accesses the platform and logs in using Magic Link authentication or Google OAuth without passwords.",
+    "Upon login, B2C users create or manage their personal advent calendars including adding daily interactive content.",
+    "B2B users manage campaigns through dashboards where they can invite team members, assign roles, and monitor analytics.",
+    "All user data changes synchronize in real-time with Supabase backend ensuring data persistence and immediate updates.",
+    "Public users browse the gallery to explore shared community calendars without authentication.",
+    "Administrators monitor system health metrics and manage backups to ensure service resilience.",
+    "If backend errors or network issues occur, users receive graceful error messages while the UI continues functioning without freezing."
+  ],
+  "validation_criteria": [
+    "Successful login via Magic Link and bypass working correctly for e2e test email.",
+    "Full CRUD operations for advent calendars tested and data correctly saved and loaded from Supabase.",
+    "Interactive calendar doors correctly display customized daily contents as intended.",
+    "Corporate dashboards fully functional with team management and analytics available and accurate.",
+    "Real-time database metrics displayed correctly on admin dashboards using custom RPC calls.",
+    "Backup data reflects actual Supabase snapshot and database sizes correctly.",
+    "Database queries optimized and verified with applied foreign key indexes.",
+    "UI remains responsive during backend failures and network interruptions with appropriate error handling in place.",
+    "Public gallery displays shared calendars and updates in real-time as calendars are published."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "React (Vite)",
+      "Supabase (Auth, DB, Storage)",
+      "Tailwind CSS v4",
+      "Radix UI",
+      "Framer Motion"
+    ],
+    "features": [
+      {
+        "name": "Live Authentication with Testing Bypass",
+        "description": "Supabase Magic Link auth with an automated bypass for testsprite@fresta.com email to facilitate E2E testing.",
+        "placeholder_files": [
+          "src/state/auth/AuthProvider.tsx",
+          "src/pages/Entrar.tsx"
+        ]
+      },
+      {
+        "name": "Admin Health Monitoring",
+        "description": "Real-time PostgreSQL metrics display using custom RPC calls.",
+        "placeholder_files": [
+          "src/pages/admin/technical/SystemHealth.tsx"
+        ]
+      },
+      {
+        "name": "Backup Manager",
+        "description": "DB size and snapshot tracking synced with real Supabase stats.",
+        "placeholder_files": [
+          "src/pages/admin/technical/BackupManager.tsx"
+        ]
+      }
+    ]
+  }
+}

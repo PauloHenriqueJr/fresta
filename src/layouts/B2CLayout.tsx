@@ -41,6 +41,20 @@ export default function B2CLayout() {
                     className="bg-transparent border-none outline-none text-sm w-64 placeholder:text-muted-foreground/50"
                   />
                 </div>
+
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={() => {
+                    const isDark = document.documentElement.classList.toggle("dark");
+                    localStorage.setItem("fresta_darkmode", String(isDark));
+                  }}
+                  className="p-3 rounded-2xl bg-muted/50 border border-border/50 text-foreground hover:bg-muted transition-all"
+                  title="Alternar modo claro/escuro"
+                >
+                  <span className="dark:hidden">🌙</span>
+                  <span className="hidden dark:inline">☀️</span>
+                </button>
+
                 <button
                   onClick={() => navigate("/premium")}
                   className="px-6 py-2.5 rounded-2xl bg-gradient-festive text-white text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all"

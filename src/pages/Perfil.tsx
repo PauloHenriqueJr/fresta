@@ -103,10 +103,10 @@ export default function Perfil() {
                 </div>
               </button>
             ))}
-            <button onClick={handleLogout} className="group p-8 rounded-[2.5rem] bg-festive-red/5 border border-festive-red/20 flex flex-col gap-6 transition-all hover:bg-festive-red/10 luxury-shadow">
-              <div className="w-14 h-14 rounded-2xl bg-festive-red flex items-center justify-center shadow-lg shadow-festive-red/30 transition-all group-hover:scale-110"><LogOut className="w-7 h-7 text-white" /></div>
+            <button onClick={handleLogout} className="group p-8 rounded-[2.5rem] bg-card border border-border/30 flex flex-col gap-6 transition-all hover:border-muted-foreground/40 luxury-shadow">
+              <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center transition-all group-hover:scale-110"><LogOut className="w-7 h-7 text-muted-foreground" /></div>
               <div className="flex-1 text-left">
-                <p className="font-black text-xl text-festive-red tracking-tight mb-1">Encerrar Sessão</p>
+                <p className="font-black text-xl text-foreground tracking-tight mb-1">Encerrar Sessão</p>
                 <p className="text-sm text-muted-foreground font-medium leading-relaxed">Proteja sua privacidade ao sair</p>
               </div>
             </button>

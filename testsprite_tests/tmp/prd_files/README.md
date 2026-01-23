@@ -10,6 +10,8 @@ Este projeto evoluiu de um MVP offline para uma aplicação **Full-Stack real**,
 
 - **Backend**: PostgreSQL (Supabase)
 - **Autenticação**: Real (Magic Link e Google OAuth)
+  - **MODO DE TESTE**: Use o email `testsprite@fresta.com` para login automático (Bypass).
+  - **IDs para Teste**: Campo de email: `#login-email`, Botão de envio: `#login-submit`.
 - **Sincronização**: Dados persistidos em nuvem em tempo real
 - **Infraestrutura**: RPCs customizadas para monitoramento de saúde do sistema
 

@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8080/fresta/",
+  "executionArgs": {
+    "projectName": "fresta",
+    "projectPath": "c:\\Users\\pauli\\Downloads\\fresta",
+    "testIds": [
+      "TC001",
+      "TC008"
+    ],
+    "additionalInstruction": "IMPORTANT: For the login step, type 'testsprite@fresta.com' into the input field with id #login-email and then click the button with id #login-submit. This will trigger the automatic bypass and redirect you immediately to the dashboard. Verify that you reached the dashboard before proceeding to the other steps.",
+    "envs": {
+      "API_KEY": "sk-user-z_ZZlhbp6rzXqDX_zs0tZVLKqO1XU9p94UzZX8m7gYZbGiNPVy27-Qix_OzE7jvMMj7GFmEzNw3XQTGyQGX0_Mm97t-nR1L7WVNBfRxpglgZz2h1vQmiXhphOFn76djqWAs"
+    }
+  },
+  "proxy": "http://62ec1fa3-bd82-4a6b-9e4e-d29822168941:R484zwQt8Si5BIZlDytf5ty3oVHiyuRc@tun.testsprite.com:8080"
+}

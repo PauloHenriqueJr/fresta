@@ -1,0 +1,330 @@
+[
+  {
+    "id": "TC001",
+    "title": "Calendar Creation Success",
+    "description": "Verify that a logged-in user can successfully create a new advent calendar with default settings and save it to the backend.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in using 'testsprite@fresta.com' (input it into #login-email and click #login-submit) to bypass magic link."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the calendar creation page."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid calendar details including name and start date."
+      },
+      {
+        "type": "action",
+        "description": "Submit the calendar creation form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that 'Meus Calendários' or 'Calendário' is visible in the UI."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Calendar Editing and Real-Time Sync",
+    "description": "Validate that a user can edit existing calendar content and changes are immediately synchronized with the backend and reflected in UI.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in using the email 'testsprite@fresta.com' (input it into #login-email and click #login-submit) to bypass magic link."
+      },
+      {
+        "type": "action",
+        "description": "Select an existing advent calendar."
+      },
+      {
+        "type": "action",
+        "description": "Modify the title and daily interactive content of a calendar door."
+      },
+      {
+        "type": "action",
+        "description": "Save changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the updated content is persisted in the backend and the UI shows the new content immediately."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Calendar Deletion",
+    "description": "Ensure that a user can delete an existing calendar and it is removed from both UI and backend database.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in using the email 'testsprite@fresta.com' (input it into #login-email and click #login-submit) to bypass magic link."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the user's calendar list."
+      },
+      {
+        "type": "action",
+        "description": "Select a calendar and trigger the delete action."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the calendar no longer appears in the list and is removed from the Supabase backend."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Interactive Door Content Display",
+    "description": "Check that clicking on each calendar 'door' reveals the correct interactive daily content as configured.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as any user and open an existing advent calendar."
+      },
+      {
+        "type": "action",
+        "description": "Click on a calendar door corresponding to the current or past day."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the interactive content is displayed correctly and matches backend data."
+      },
+      {
+        "type": "action",
+        "description": "Click on a future day door."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm that the door is either locked or shows placeholder content as per requirements."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Public Gallery Display and Realtime Updates",
+    "description": "Verify that public users can browse the gallery of community-shared calendars and see updates in real-time when new calendars are published.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access the public gallery without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that a list of shared calendars is displayed."
+      },
+      {
+        "type": "action",
+        "description": "Publish a new community calendar from a different user session."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the new calendar appears in the gallery in real-time without page refresh."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "B2B Campaign Dashboard Team Management",
+    "description": "Test the ability of corporate users to invite team members, assign roles, and update permissions on campaign dashboards.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in as a B2B user with campaign admin privileges."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the campaign dashboard."
+      },
+      {
+        "type": "action",
+        "description": "Invite a new team member via email."
+      },
+      {
+        "type": "action",
+        "description": "Assign roles and permissions to the new member."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the new team member is added with correct roles and can access campaign features accordingly."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "B2B Campaign Analytics Accuracy",
+    "description": "Ensure that engagement and usage analytics on campaign dashboards accurately reflect user interactions and calendar usage metrics.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in using the email 'testsprite@fresta.com' (input it into #login-email and click #login-submit) to bypass magic link."
+      },
+      {
+        "type": "action",
+        "description": "Open the analytics section of a campaign dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Compare displayed metrics against logs or test data to verify accuracy."
+      },
+      {
+        "type": "action",
+        "description": "Simulate additional user interactions with campaign calendars."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that analytics update in real-time to reflect new engagement."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Admin System Health Dashboard Metrics Display",
+    "description": "Validate that the administrator dashboard correctly displays real-time PostgreSQL metrics such as active connections and cache hit ratios via custom RPC calls.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in using the email 'testsprite@fresta.com' (input into #login-email and click #login-submit) for admin bypass."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the system health dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that 'Fresta' is visible in the dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Check values for plausibility and consistency with database logs."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Backup Manager Snapshot and Size Sync",
+    "description": "Confirm that the backup manager panel correctly shows database size and snapshot history synced accurately with Supabase stats.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in using 'testsprite@fresta.com' (input into #login-email and click #login-submit) to bypass."
+      },
+      {
+        "type": "action",
+        "description": "Open the backup manager page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the database size matches the actual Supabase reported size."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the snapshot history is complete and timestamps correspond to Supabase snapshots."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Database Query Optimization Verification",
+    "description": "Verify that key database queries benefit from applied foreign key indexing and operate within expected performance parameters.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Identify critical queries related to calendar and campaign data."
+      },
+      {
+        "type": "action",
+        "description": "Execute these queries in a test environment."
+      },
+      {
+        "type": "assertion",
+        "description": "Check query explain plans to confirm indexes are used."
+      },
+      {
+        "type": "assertion",
+        "description": "Measure query response times and verify they meet performance benchmarks."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "UI Responsiveness During Backend Failures",
+    "description": "Test that when backend services or Supabase are unreachable or return errors, the UI remains responsive and shows meaningful error messages without freezing.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate backend timeout or server error conditions."
+      },
+      {
+        "type": "action",
+        "description": "Perform various user operations like loading calendars, editing content, or accessing dashboards."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the UI displays graceful error messages."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the interface remains interactive and does not freeze or crash."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Network Interruption Recovery",
+    "description": "Verify that user actions interrupted by network disconnections are handled properly with retries or fallback messages and data integrity is maintained after reconnection.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Start performing an operation such as saving calendar edits."
+      },
+      {
+        "type": "action",
+        "description": "Simulate network interruption mid-operation."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate the UI indicates loss of connectivity appropriately."
+      },
+      {
+        "type": "action",
+        "description": "Restore network connection."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm operation either automatically retries and completes or informs user to retry."
+      },
+      {
+        "type": "assertion",
+        "description": "Check that no data corruption or loss occurred."
+      }
+    ]
+  }
+]

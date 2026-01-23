@@ -22,6 +22,8 @@ const Configuracoes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [calendar, setCalendar] = useState<any>(null);
+  const [title, setTitle] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [privacy, setPrivacy] = useState<"public" | "private">("public");
   const [copied, setCopied] = useState(false);
@@ -35,7 +37,9 @@ const Configuracoes = () => {
         const data = await CalendarsRepository.getById(id);
         if (data) {
           setCalendar(data);
+          setTitle(data.title);
           setPrivacy(data.privacy);
+          setStartDate(data.start_date ? data.start_date.split('T')[0] : "");
         }
       } catch (err) {
         console.error("Error fetching calendar:", err);
@@ -60,13 +64,32 @@ const Configuracoes = () => {
 
   const handleSave = async () => {
     if (!id) return;
+    if (!title.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "O título não pode ficar vazio.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSaving(true);
     try {
-      await CalendarsRepository.update(id, { privacy });
+      await CalendarsRepository.update(id, {
+        title: title.trim(),
+        privacy,
+        start_date: startDate || null
+      });
+
       toast({
         title: "Configurações salvas!",
         description: "As alterações foram aplicadas com sucesso.",
       });
+
+      // Refresh local state
+      const updated = await CalendarsRepository.getById(id);
+      if (updated) setCalendar(updated);
+
     } catch (err) {
       console.error("Error saving settings:", err);
       toast({
@@ -76,6 +99,25 @@ const Configuracoes = () => {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSocialShare = (platform: 'whatsapp' | 'instagram' | 'tiktok') => {
+    const text = encodeURIComponent(`Confira meu calendário no Fresta: ${window.location.protocol}//${calendarLink}`);
+    const urls = {
+      whatsapp: `https://wa.me/?text=${text}`,
+      instagram: `https://www.instagram.com/`, // Direct share is limited on web
+      tiktok: `https://www.tiktok.com/`,
+    };
+
+    if (platform === 'whatsapp') {
+      window.open(urls.whatsapp, '_blank');
+    } else {
+      handleCopyLink();
+      toast({
+        title: "Link copiado!",
+        description: `Abra o ${platform === 'instagram' ? 'Instagram' : 'TikTok'} e cole o link no seu perfil!`,
+      });
     }
   };
 
@@ -134,6 +176,40 @@ const Configuracoes = () => {
         </div>
       ) : (
         <div className="px-4 space-y-8 max-w-2xl lg:mx-auto pb-32">
+          {/* Basic Info Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+          >
+            <h2 className="text-xl font-bold text-foreground mb-4">
+              Informações Básicas
+            </h2>
+            <div className="bg-card rounded-3xl p-6 shadow-card space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 ml-1">Título do Calendário</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ex: Contagem para o Natal"
+                  className="w-full p-4 bg-background border-2 border-border rounded-2xl text-foreground focus:outline-none focus:border-primary transition-all"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 ml-1">Data de Início</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full p-4 bg-background border-2 border-border rounded-2xl text-foreground focus:outline-none focus:border-primary transition-all"
+                />
+                <p className="text-[10px] text-muted-foreground ml-1">A contagem regressiva começará a partir desta data.</p>
+              </div>
+            </div>
+          </motion.section>
+
           {/* Share Section */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -149,7 +225,7 @@ const Configuracoes = () => {
 
             {/* Link Card */}
             <div className="bg-card rounded-2xl p-4 shadow-card flex items-center justify-between">
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 mr-4">
                 <p className="text-sm font-medium text-foreground truncate">
                   {calendarLink}
                 </p>
@@ -158,7 +234,7 @@ const Configuracoes = () => {
                 </p>
               </div>
               <motion.button
-                className="btn-festive py-2 px-4 text-sm flex items-center gap-2"
+                className="btn-festive py-2 px-4 text-sm flex items-center gap-2 shrink-0"
                 onClick={handleCopyLink}
                 whileTap={{ scale: 0.95 }}
               >
@@ -170,7 +246,7 @@ const Configuracoes = () => {
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    Copiar Link
+                    Copiar
                   </>
                 )}
               </motion.button>
@@ -185,14 +261,20 @@ const Configuracoes = () => {
           >
             <div className="bg-card rounded-2xl p-6 shadow-card flex flex-col items-center">
               {/* QR Code placeholder */}
-              <div className="w-48 h-48 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center mb-4">
-                <div className="w-40 h-40 bg-card rounded-xl border-4 border-primary/30 flex items-center justify-center">
+              <div className="w-48 h-48 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center mb-4 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Gerar QR Code</p>
+                </div>
+                <div className="w-40 h-40 bg-card rounded-xl border-4 border-primary/30 flex items-center justify-center shadow-inner">
                   <span className="text-6xl">📱</span>
                 </div>
               </div>
-              <button className="flex items-center gap-2 text-primary font-semibold">
+              <button
+                onClick={() => handleSocialShare('whatsapp')}
+                className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity"
+              >
                 <Download className="w-5 h-5" />
-                Baixar QR Code
+                Baixar para Impressão
               </button>
             </div>
           </motion.section>
@@ -207,16 +289,27 @@ const Configuracoes = () => {
               Compartilhar nas Redes
             </h3>
             <div className="flex items-center gap-4">
-              <button className="w-14 h-14 rounded-2xl bg-[#25D366] flex items-center justify-center shadow-card">
+              <button
+                onClick={() => handleSocialShare('whatsapp')}
+                className="w-14 h-14 rounded-2xl bg-[#25D366] flex items-center justify-center shadow-card hover:scale-105 transition-transform"
+              >
                 <MessageCircle className="w-7 h-7 text-white" />
               </button>
-              <button className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center shadow-card">
+              <button
+                onClick={() => handleSocialShare('instagram')}
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center shadow-card hover:scale-105 transition-transform"
+              >
                 <Instagram className="w-7 h-7 text-white" />
               </button>
-              <button className="w-14 h-14 rounded-2xl bg-foreground flex items-center justify-center shadow-card">
+              <button
+                onClick={() => handleSocialShare('tiktok')}
+                className="w-14 h-14 rounded-2xl bg-foreground flex items-center justify-center shadow-card hover:scale-105 transition-transform"
+              >
                 <span className="text-2xl">🎵</span>
               </button>
-              <button className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center shadow-card">
+              <button
+                className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center shadow-card hover:bg-muted/80 transition-colors"
+              >
                 <MoreHorizontal className="w-7 h-7 text-muted-foreground" />
               </button>
             </div>

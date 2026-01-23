@@ -27,16 +27,28 @@ const Entrar = () => {
     setSubmitting(true);
     setError(null);
 
-    const { error } = await signInWithEmail(email.trim());
+    try {
+      const { error } = await signInWithEmail(email.trim());
 
-    if (error) {
-      setError(error.message || "Erro ao enviar email");
+      if (error) {
+        setError(error.message || "Erro ao enviar email");
+        return;
+      }
+
+      // If it's a bypass, AuthProvider already set the user and session
+      // We should check if we are authenticated and redirect
+      if (email.trim() === 'testsprite@fresta.com') {
+        navigate(redirect, { replace: true });
+        return;
+      }
+
+      setEmailSent(true);
+    } catch (err: any) {
+      console.error("Entrar: handleEmail error:", err);
+      setError("Erro de rede. Verifique sua conexão com o servidor.");
+    } finally {
       setSubmitting(false);
-      return;
     }
-
-    setEmailSent(true);
-    setSubmitting(false);
   };
 
   const handleGoogle = async () => {
@@ -147,6 +159,7 @@ const Entrar = () => {
               <div className="space-y-2">
                 <label className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 ml-2">Email para acesso</label>
                 <input
+                  id="login-email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
@@ -157,6 +170,7 @@ const Entrar = () => {
                 />
               </div>
               <button
+                id="login-submit"
                 onClick={handleEmail}
                 disabled={submitting || !email.trim()}
                 className="w-full btn-festive py-5 flex items-center justify-center gap-2 disabled:opacity-50 text-base font-bold"
