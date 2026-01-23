@@ -129,7 +129,7 @@ const DaySurpriseModal = ({
                         />
                       ) : content.url?.includes('tiktok.com') ? (
                         // TikTok embed is tricky due to their scripts, we'll try a simple iframe of the video if possible or a better preview
-                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#010101] to-[#25F4EE]/20">
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#010101] to-[#25F4EE]/20 text-white">
                           <div className="w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4 border border-white/20">
                             <Play className="w-8 h-8 text-white fill-current translate-x-1" />
                           </div>
@@ -138,17 +138,36 @@ const DaySurpriseModal = ({
                             href={content.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="absolute inset-0 z-10"
-                          />
+                            className="mt-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold transition-all border border-white/20"
+                          >
+                            Ver no TikTok ↗
+                          </a>
                         </div>
                       ) : (content.url?.includes('instagram.com/reels') || content.url?.includes('instagram.com/reel/') || content.url?.includes('instagram.com/p/')) ? (
-                        <iframe
-                          src={`${content.url.split('?')[0]}${content.url.endsWith('/') ? '' : '/'}embed/`}
-                          className="w-full h-full bg-white"
-                          frameBorder="0"
-                          scrolling="no"
-                          allowTransparency
-                        />
+                        <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
+                          <iframe
+                            src={`${content.url.split('?')[0]}${content.url.endsWith('/') ? '' : '/'}embed/`}
+                            className="w-full h-full bg-white opacity-0 transition-opacity duration-700"
+                            onLoad={(e) => (e.target as any).classList.remove('opacity-0')}
+                            frameBorder="0"
+                            scrolling="no"
+                            allowTransparency
+                          />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white pointer-events-none group-hover:pointer-events-auto">
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 border border-white/40 shadow-xl group-hover:scale-110 transition-transform">
+                              <Play className="w-8 h-8 text-white fill-current" />
+                            </div>
+                            <p className="text-xs font-black uppercase tracking-widest text-center px-4 mb-4 drop-shadow-md">Se o perfil for privado, abra no app para ver</p>
+                            <a
+                              href={content.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-6 py-3 bg-white text-black rounded-full text-xs font-black uppercase tracking-widest transition-all hover:scale-105 shadow-xl active:scale-95 pointer-events-auto"
+                            >
+                              Ver no Instagram ↗
+                            </a>
+                          </div>
+                        </div>
                       ) : (
                         <img
                           src={content.url}

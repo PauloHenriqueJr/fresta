@@ -320,13 +320,30 @@ const EditarDia = () => {
                           <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
                         </div>
                       ) : (url.includes('instagram.com/reels') || url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) ? (
-                        <iframe
-                          src={`${url.split('?')[0]}${url.endsWith('/') ? '' : '/'}embed/`}
-                          className="w-full h-full bg-white"
-                          frameBorder="0"
-                          scrolling="no"
-                          allowTransparency
-                        />
+                        <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
+                          <iframe
+                            src={`${url.split('?')[0]}${url.endsWith('/') ? '' : '/'}embed/`}
+                            className="w-full h-full bg-white opacity-0 transition-opacity duration-700"
+                            onLoad={(e) => (e.target as any).classList.remove('opacity-0')}
+                            frameBorder="0"
+                            scrolling="no"
+                            allowTransparency
+                          />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white pointer-events-none group-hover:pointer-events-auto">
+                            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 border border-white/30 shadow-xl group-hover:scale-105 transition-transform">
+                              <Play className="w-7 h-7 text-white fill-current" />
+                            </div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-center px-4 mb-4 drop-shadow-md">Se for um perfil privado, o preview não aparecerá</p>
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-5 py-2.5 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg active:scale-95 pointer-events-auto"
+                            >
+                              Abrir no Instagram ↗
+                            </a>
+                          </div>
+                        </div>
                       ) : (
                         <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
                           (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
