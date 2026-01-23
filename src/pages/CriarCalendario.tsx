@@ -354,6 +354,20 @@ const CriarCalendario = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Desktop Next Button */}
+              <div className="hidden lg:flex justify-end pt-8">
+                <motion.button
+                  className={`w-64 btn-festive flex items-center justify-center gap-2 ${!canProceed() ? "opacity-50 cursor-not-allowed" : ""}`}
+                  onClick={handleNext}
+                  disabled={!canProceed()}
+                  whileHover={canProceed() ? { scale: 1.02 } : {}}
+                  whileTap={canProceed() ? { scale: 0.98 } : {}}
+                >
+                  Continuar
+                  <ArrowRight className="w-5 h-5" />
+                </motion.button>
+              </div>
             </motion.div>
           )}
 
@@ -472,7 +486,7 @@ const CriarCalendario = () => {
       </div>
 
       {/* Bottom Button - mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border lg:hidden z-50">
         <motion.button
           className={`w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2 ${!canProceed() || creating ? "opacity-50 cursor-not-allowed" : ""
             }`}

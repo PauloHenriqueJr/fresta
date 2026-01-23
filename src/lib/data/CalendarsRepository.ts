@@ -114,11 +114,11 @@ export const CalendarsRepository = {
   },
 
   // List public calendars (for /explorar)
-  async listPublic(limit = 20): Promise<Calendar[]> {
+  async listPublic(limit = 20): Promise<any[]> {
     console.log('CalendarsRepository.listPublic: Fetching public calendars');
     const { data, error } = await supabase
       .from('calendars')
-      .select('*')
+      .select('*, profiles:owner_id(display_name, avatar)')
       .eq('privacy', 'public')
       .eq('status', 'ativo')
       .order('views', { ascending: false })

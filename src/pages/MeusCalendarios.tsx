@@ -168,26 +168,9 @@ const MeusCalendarios = () => {
         </motion.div>
       </div>
 
-      {/* Header - Mobile Only */}
-      <motion.header
-        className="px-4 py-4 flex items-center gap-4 lg:hidden"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="flex-1">
-          <h1 className="text-xl font-extrabold text-foreground">Meus Calendários</h1>
-        </div>
-        <button
-          onClick={() => navigate("/criar")}
-          className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-card"
-        >
-          <Plus className="w-5 h-5 text-primary-foreground" />
-        </button>
-      </motion.header>
-
       {/* Search & Actions Bar */}
-      <div className="px-4 mt-12 mb-12 max-w-[1600px] lg:mx-auto">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="px-4 mt-16 mb-12 max-w-[1600px] lg:mx-auto relative z-20">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card/30 p-6 rounded-[2rem] border border-border/50 backdrop-blur-md">
           <motion.div
             className="flex items-center gap-4 bg-muted/30 backdrop-blur-xl rounded-[1.5rem] px-6 py-4 border border-border/50 lg:w-[480px] group focus-within:border-primary/50 transition-all shadow-sm"
             initial={{ opacity: 0, x: -20 }}
@@ -223,7 +206,7 @@ const MeusCalendarios = () => {
       )}
 
       {/* Calendar List */}
-      <div className="px-4 pb-32 lg:pb-12 max-w-[1600px] lg:mx-auto">
+      <div className="px-4 pb-12 max-w-[1600px] lg:mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-8">
           {filteredCalendars.map((calendar, index) => {
             console.log('MeusCalendarios: Rendering card for', calendar.id, calendar.title);
@@ -306,35 +289,6 @@ const MeusCalendarios = () => {
             onClick={() => navigate("/criar")}
           />
         )}
-      </div>
-
-      {/* Bottom Navigation - mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border py-4 px-4 lg:hidden">
-        <div className="flex items-center justify-around max-w-lg mx-auto">
-          <button
-            onClick={() => navigate("/explorar")}
-            className="flex flex-col items-center gap-1 text-muted-foreground"
-          >
-            <span className="text-2xl">🔍</span>
-            <span className="text-xs">Explorar</span>
-          </button>
-          <motion.button
-            className="bg-primary text-primary-foreground font-bold py-3 px-8 rounded-2xl flex items-center gap-2 shadow-lg"
-            onClick={() => navigate("/criar")}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Plus className="w-5 h-5" />
-            Criar Novo
-          </motion.button>
-          <button
-            onClick={() => navigate("/meus-calendarios")}
-            className="flex flex-col items-center gap-1 text-primary"
-          >
-            <span className="text-2xl">📅</span>
-            <span className="text-xs">Meus</span>
-          </button>
-        </div>
       </div>
     </div>
   );

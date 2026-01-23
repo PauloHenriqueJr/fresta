@@ -22,7 +22,7 @@ const getThemeEmoji = (themeId: string) => {
 const Explorar = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
-  const [calendars, setCalendars] = useState<Calendar[]>([]);
+  const [calendars, setCalendars] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
 
@@ -44,8 +44,8 @@ const Explorar = () => {
     c.title.toLowerCase().includes(query.toLowerCase())
   );
 
-  const featured = filtered.slice(0, 3);
-  const recent = filtered.slice(3);
+  const featured = filtered.slice(0, 2);
+  const recent = filtered.slice(2);
 
   if (loading) {
     return (
@@ -58,7 +58,7 @@ const Explorar = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Discovery Hero - Desktop Only */}
-      <div className="hidden lg:block px-4 pt-12 max-w-[1600px] lg:mx-auto">
+      <div className="hidden lg:block px-6 pt-12 max-w-[1200px] mx-auto">
         <motion.div
           className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-card via-background to-card border border-border/50 p-16 shadow-2xl group"
           initial={{ opacity: 0, y: 20 }}
@@ -103,150 +103,109 @@ const Explorar = () => {
         </motion.div>
       </div>
 
-      {/* Header - Mobile Only */}
-      <motion.header
-        className="px-4 py-4 lg:hidden"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/")}
-            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card"
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <h1 className="text-2xl font-extrabold text-foreground">Explorar</h1>
+      {/* Header Section - Mobile/Standard */}
+      <div className="px-6 pt-12 lg:pt-16 max-w-[1200px] mx-auto">
+        <div className="flex flex-col gap-1 mb-8">
+          <h1 className="text-4xl font-black tracking-tight text-foreground">Explorar</h1>
+          <p className="text-muted-foreground font-medium">Descubra calendários incríveis</p>
         </div>
-      </motion.header>
 
-
-      {/* Featured Section */}
-      {featured.length > 0 && (
-        <motion.section
-          className="mb-8 max-w-[1600px] lg:mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="px-4 flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-foreground">Em Destaque</h2>
+        {/* Search Bar */}
+        <div className="flex items-center gap-4 mb-12">
+          <div className="flex-1 flex items-center gap-3 bg-muted/30 backdrop-blur-xl rounded-2xl px-6 py-4 border border-border/50 focus-within:border-primary/50 transition-all">
+            <Search className="w-5 h-5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Buscar calendários..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/50 focus:outline-none font-medium"
+            />
           </div>
-          {/* Mobile: horizontal scroll, Desktop: grid */}
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
+          <button className="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-muted transition-all shadow-sm">
+            <Filter className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Featured Section */}
+        <section className="mb-12">
+          <div className="flex items-center gap-2 mb-6">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-black text-foreground">Em Destaque</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {featured.map((calendar) => (
               <motion.div
                 key={calendar.id}
-                className="flex-shrink-0 w-80 lg:w-full group"
+                className="group cursor-pointer"
                 whileHover={{ y: -5 }}
                 onClick={() => navigate(`/c/${calendar.id}`)}
               >
-                <div
-                  className={`h-64 rounded-[2.5rem] bg-gradient-to-br ${getThemeGradient(
-                    calendar.theme_id
-                  )} p-8 flex flex-col justify-between cursor-pointer shadow-xl relative overflow-hidden`}
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-white/20 transition-colors" />
-
-                  <div className="flex items-center justify-between relative z-10">
-                    <span className="text-5xl animate-bounce-slow drop-shadow-lg">{getThemeEmoji(calendar.theme_id)}</span>
-                    <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
-                      Trending
-                    </span>
+                <div className={`aspect-[16/9] rounded-[2.5rem] p-8 ${getThemeGradient(calendar.theme_id)} relative overflow-hidden flex flex-col justify-end shadow-xl transition-all duration-500`}>
+                  <div className="absolute top-6 left-6 text-5xl drop-shadow-lg transform transition-transform group-hover:scale-110 duration-500">{getThemeEmoji(calendar.theme_id)}</div>
+                  <div className="absolute top-8 right-8 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
+                    EM ALTA
                   </div>
 
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-black text-white leading-tight mb-2 drop-shadow-md">
-                      {calendar.title}
-                    </h3>
-                    <div className="flex items-center gap-4 text-white/80 font-bold text-sm">
-                      <span className="flex items-center gap-2 bg-black/10 px-3 py-1 rounded-full">
-                        <Eye className="w-4 h-4" />
-                        {(calendar.views ?? 0).toLocaleString()}
-                      </span>
-                    </div>
+                  <div className="relative z-10 transition-transform duration-500">
+                    <h3 className="text-2xl font-black text-white leading-tight drop-shadow-md">{calendar.title}</h3>
+                    <p className="text-white/80 font-bold text-sm mt-1">por {calendar.profiles?.display_name || 'Usuário'}</p>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-      )}
-
-      {/* Recent Section */}
-      <motion.section
-        className="px-4 max-w-[1600px] lg:mx-auto lg:pb-12"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <h2 className="font-bold text-foreground mb-4">Recentes</h2>
-        {recent.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {recent.map((calendar, index) => (
-              <motion.div
-                key={calendar.id}
-                className="bg-card rounded-2xl p-4 shadow-card flex items-center gap-4 cursor-pointer hover:shadow-festive transition-shadow"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                onClick={() => navigate(`/c/${calendar.id}`)}
-              >
-                <div
-                  className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getThemeGradient(
-                    calendar.theme_id
-                  )} flex items-center justify-center flex-shrink-0`}
-                >
-                  <span className="text-xl">{getThemeEmoji(calendar.theme_id)}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-foreground truncate">
-                    {calendar.title}
-                  </h3>
-                </div>
-                <div className="flex flex-col items-end gap-1 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    {calendar.views ?? 0}
+                <div className="flex items-center gap-6 mt-4 px-2 text-muted-foreground font-bold text-sm">
+                  <span className="flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    {calendar.views >= 1000 ? `${(calendar.views / 1000).toFixed(1)}k` : calendar.views}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Heart className="w-4 h-4" />
+                    {calendar.likes || 0}
                   </span>
                 </div>
               </motion.div>
             ))}
           </div>
-        ) : featured.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground">Nenhum calendário público encontrado.</p>
-          </div>
-        ) : null}
-      </motion.section>
+        </section>
 
-      {/* Bottom Navigation - mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border py-4 px-4 lg:hidden">
-        <div className="flex items-center justify-around max-w-lg mx-auto">
-          <button
-            onClick={() => navigate("/explorar")}
-            className="flex flex-col items-center gap-1 text-primary"
-          >
-            <span className="text-2xl">🔍</span>
-            <span className="text-xs font-medium">Explorar</span>
-          </button>
-          <motion.button
-            className="bg-primary text-primary-foreground font-bold py-3 px-8 rounded-2xl flex items-center gap-2 shadow-lg"
-            onClick={() => navigate("/criar")}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Criar Novo
-          </motion.button>
-          <button
-            onClick={() => navigate("/meus-calendarios")}
-            className="flex flex-col items-center gap-1 text-muted-foreground"
-          >
-            <span className="text-2xl">📅</span>
-            <span className="text-xs">Meus</span>
-          </button>
-        </div>
+        {/* Recent Section */}
+        <section>
+          <h2 className="text-xl font-black text-foreground mb-6">Recentes</h2>
+          <div className="grid grid-cols-1 gap-4">
+            {recent.map((calendar) => (
+              <motion.div
+                key={calendar.id}
+                className="bg-card/40 hover:bg-card/60 rounded-3xl p-5 border border-border/40 flex items-center gap-5 cursor-pointer transition-all hover:shadow-lg group"
+                onClick={() => navigate(`/c/${calendar.id}`)}
+              >
+                <div className={`w-16 h-16 rounded-[1.25rem] ${getThemeGradient(calendar.theme_id)} flex items-center justify-center text-2xl shadow-inner transform transition-transform group-hover:scale-105`}>
+                  {getThemeEmoji(calendar.theme_id)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-black text-foreground truncate">{calendar.title}</h3>
+                  <p className="text-sm text-muted-foreground font-medium">por {calendar.profiles?.display_name || 'Usuário'}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2 text-muted-foreground font-bold text-[13px] pr-2">
+                  <span className="flex items-center gap-1.5">
+                    <Eye className="w-4 h-4" />
+                    {calendar.views >= 1000 ? `${(calendar.views / 1000).toFixed(1)}k` : calendar.views}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Heart className="w-4 h-4" />
+                    {calendar.likes || 0}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {filtered.length === 0 && (
+            <div className="text-center py-20 bg-card/20 rounded-[3rem] border border-dashed border-border/50">
+              <Sparkles className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+              <p className="text-muted-foreground font-medium">Nenhum calendário encontrado.</p>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
