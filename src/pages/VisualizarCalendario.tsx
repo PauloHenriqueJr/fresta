@@ -156,7 +156,7 @@ const VisualizarCalendario = () => {
         : (openedDays.includes(d.day) ? ("opened" as const) : ("available" as const)),
       hasSpecialContent: !!d.content_type,
     };
-  }).filter(d => d.hasSpecialContent); // Somente mostrar dias com conteúdo para a esposa
+  });
 
   if (loading) {
     return (
@@ -198,7 +198,7 @@ const VisualizarCalendario = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className={`min-h-screen bg-background relative overflow-hidden theme-${calendar.theme_id}`}>
       <FloatingDecorations theme={(themeData?.id || "natal") as any} />
 
       {/* Header */}
@@ -237,18 +237,32 @@ const VisualizarCalendario = () => {
             </motion.button>
           </div>
         </div>
-
-        {/* Stats */}
-        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Eye className="w-4 h-4" />
-            {(calendar.views ?? 0).toLocaleString()} visualizações
-          </span>
-          <span className="flex items-center gap-1">
-            <Heart className="w-4 h-4" />
-            {(calendar.likes ?? 0) + (liked ? 1 : 0)} curtidas
-          </span>
-        </div>
+        {/* Romantic Progress Bar - Inspired by user reference */}
+        {(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
+          <motion.div
+            className="mt-6 p-6 bg-card/60 backdrop-blur-md rounded-3xl border border-primary/20 shadow-sm"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
+                Amor: {Math.round((openedDays.length / (days.length || 1)) * 100)}% completo
+              </span>
+              <span className="text-xs font-bold text-foreground">
+                Faltam {days.length - openedDays.length} surpresas! ❤️
+              </span>
+            </div>
+            <div className="h-3 rounded-full bg-secondary/50 shadow-inner overflow-hidden">
+              <motion.div
+                className="h-full bg-primary"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.round((openedDays.length / (days.length || 1)) * 100)}%` }}
+                transition={{ duration: 1, delay: 0.5 }}
+              />
+            </div>
+          </motion.div>
+        )}
       </motion.header>
 
       {/* Calendar Grid */}
@@ -286,10 +300,11 @@ const VisualizarCalendario = () => {
           type: "text",
           message: "Esta porta ainda está vazia... 📭",
         }}
+        theme={calendar.theme_id}
       />
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-20">
         <motion.button
           className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2"
           onClick={() => navigate("/criar")}

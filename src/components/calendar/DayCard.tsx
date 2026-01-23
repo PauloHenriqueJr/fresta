@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Lock, Check, Gift, Sparkles } from "lucide-react";
+import { Lock, Check, Gift, Sparkles, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DayStatus = "locked" | "available" | "opened";
@@ -9,7 +9,7 @@ interface DayCardProps {
   status: DayStatus;
   timeLeft?: string;
   onClick?: () => void;
-  theme?: "default" | "carnaval" | "saojoao" | "natal" | "reveillon" | "pascoa" | "independencia" | "namoro" | "casamento";
+  theme?: string;
   hasSpecialContent?: boolean;
   dateLabel?: string;
 }
@@ -45,8 +45,11 @@ const DayCard = ({
       case "locked":
         return <Lock className="w-4 h-4 opacity-50" />;
       case "available":
+        const isRomance = theme === "namoro" || theme === "casamento" || theme === "noivado" || theme === "bodas";
         return hasSpecialContent ? (
           <Sparkles className="w-5 h-5" />
+        ) : isRomance ? (
+          <Heart className="w-5 h-5 fill-current animate-pulse" />
         ) : (
           <Gift className="w-5 h-5" />
         );
@@ -89,13 +92,16 @@ const DayCard = ({
           transition={{ type: "spring", stiffness: 80, damping: 15 }}
         >
           {/* Day number or Date Label */}
+          {dateLabel && (
+            <span className="text-[10px] font-black opacity-60 uppercase mb-0.5">{dateLabel}</span>
+          )}
           <span
             className={cn(
-              "font-extrabold relative z-10 leading-tight text-center px-1",
-              dateLabel ? "text-sm uppercase" : (status === "available" ? "text-2xl" : "text-xl")
+              "font-black relative z-10 leading-none text-center px-1 uppercase tracking-tighter",
+              status === "available" ? "text-xl" : "text-lg"
             )}
           >
-            {dateLabel ? dateLabel : day.toString().padStart(2, "0")}
+            PORTA {day.toString().padStart(2, "0")}
           </span>
 
           {/* Icon */}

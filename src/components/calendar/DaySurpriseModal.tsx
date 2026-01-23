@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Sparkles } from "lucide-react";
+import { X, Gift, Sparkles, Heart, Copy, Ticket } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface DaySurpriseModalProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ interface DaySurpriseModalProps {
     url?: string;
     label?: string;
   };
-  theme?: "default" | "carnaval" | "saojoao";
+  theme?: string;
 }
 
 const DaySurpriseModal = ({
@@ -21,14 +22,33 @@ const DaySurpriseModal = ({
   content,
   theme = "default",
 }: DaySurpriseModalProps) => {
+  const { toast } = useToast();
   const getGradientClass = () => {
     switch (theme) {
       case "carnaval":
         return "bg-gradient-carnaval";
       case "saojoao":
         return "bg-gradient-saojoao";
+      case "namoro":
+      case "noivado":
+      case "bodas":
+        return "bg-gradient-romance";
+      case "casamento":
+        return "bg-gradient-wedding";
       default:
         return "bg-gradient-festive";
+    }
+  };
+
+  const getIcon = () => {
+    switch (theme) {
+      case "namoro":
+      case "noivado":
+      case "bodas":
+      case "casamento":
+        return <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}><Heart className="w-12 h-12 text-white/90 mx-auto mb-3" /></motion.div>;
+      default:
+        return <Gift className="w-12 h-12 text-primary-foreground mx-auto mb-3" />;
     }
   };
 
@@ -47,7 +67,7 @@ const DaySurpriseModal = ({
 
           {/* Modal */}
           <motion.div
-            className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-md mx-auto"
+            className={`fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-md mx-auto theme-${theme}`}
             initial={{ opacity: 0, scale: 0.9, y: "-40%" }}
             animate={{ opacity: 1, scale: 1, y: "-50%" }}
             exit={{ opacity: 0, scale: 0.9, y: "-40%" }}
@@ -63,7 +83,7 @@ const DaySurpriseModal = ({
                 <Sparkles className="absolute top-6 right-6 w-4 h-4 text-white/40 animate-pulse" />
                 <Sparkles className="absolute bottom-4 left-8 w-5 h-5 text-white/30 animate-pulse" />
 
-                <Gift className="w-12 h-12 text-primary-foreground mx-auto mb-3" />
+                {getIcon()}
                 <h2 className="text-3xl font-extrabold text-primary-foreground">
                   PORTA {day.toString().padStart(2, "0")}
                 </h2>
@@ -81,7 +101,12 @@ const DaySurpriseModal = ({
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-8 relative bg-background/50 backdrop-blur-sm">
+                {/* Decorative background motifs */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none overflow-hidden">
+                  <div className="absolute -top-10 -right-10 w-40 h-40 border-[20px] border-primary rounded-full" />
+                  <div className="absolute -bottom-10 -left-10 w-32 h-32 border-[15px] border-accent rounded-full" />
+                </div>
                 {content?.type === "text" && (
                   <div className="text-center">
                     <p className="text-foreground font-medium text-lg leading-relaxed">
@@ -127,15 +152,46 @@ const DaySurpriseModal = ({
                         {content.message}
                       </p>
                     )}
-                    <a
-                      href={content.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold shadow-lg hover:grayscale-[0.2] active:scale-95 transition-all"
-                    >
-                      <Sparkles className="w-5 h-5" />
-                      {content.label || "Abrir Link"}
-                    </a>
+
+                    {/* Se o label for "CUPOM" ou similar, mostra estilo de cupom premium */}
+                    {(content.label?.toUpperCase().includes("CUPOM") || content.url?.toUpperCase().includes("BLO")) ? (
+                      <div className="space-y-6">
+                        <div className="bg-primary/5 border-2 border-dashed border-primary/40 rounded-3xl p-8 relative overflow-hidden group">
+                          {/* Ticket notches */}
+                          <div className="absolute top-1/2 -left-3 -translate-y-1/2 w-6 h-6 bg-card rounded-full shadow-inner" />
+                          <div className="absolute top-1/2 -right-3 -translate-y-1/2 w-6 h-6 bg-card rounded-full shadow-inner" />
+
+                          <Ticket className="w-10 h-10 text-primary/20 absolute top-2 right-2 rotate-12 group-hover:rotate-0 transition-transform" />
+
+                          <div className="relative z-10">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2">Vale Especial</p>
+                            <span className="text-3xl font-black text-primary tracking-widest uppercase drop-shadow-sm">
+                              {content.url.split('/').pop()?.toUpperCase() || "CUPOM"}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(content.url);
+                            toast({ title: "Copiado!", description: "Cupom pronto para usar. ❤️", duration: 2000 });
+                          }}
+                          className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-primary text-primary-foreground rounded-3xl font-black shadow-elevated hover:brightness-110 active:scale-[0.98] transition-all"
+                        >
+                          <Copy className="w-6 h-6" />
+                          COPIAR MEU PRESENTE
+                        </button>
+                      </div>
+                    ) : (
+                      <a
+                        href={content.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold shadow-lg hover:grayscale-[0.2] active:scale-95 transition-all"
+                      >
+                        <Sparkles className="w-5 h-5" />
+                        {content.label || "Abrir Link"}
+                      </a>
+                    )}
                   </div>
                 )}
 
@@ -152,12 +208,12 @@ const DaySurpriseModal = ({
 
                 {/* Action button */}
                 <motion.button
-                  className="w-full btn-festive mt-4"
+                  className="w-full bg-primary text-primary-foreground font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mt-6"
                   onClick={onClose}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.02, translateY: -2 }}
+                  whileTap={{ scale: 0.98, translateY: 0 }}
                 >
-                  Fechar
+                  Continuar
                 </motion.button>
               </div>
             </div>

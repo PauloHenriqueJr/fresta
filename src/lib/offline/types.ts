@@ -49,7 +49,7 @@ export interface ThemeDefinition {
     | "metas"
     | "estudos"
     | "aniversario";
-  gradientClass: "bg-gradient-festive" | "bg-gradient-carnaval" | "bg-gradient-saojoao";
+  gradientClass: "bg-gradient-festive" | "bg-gradient-carnaval" | "bg-gradient-saojoao" | "bg-gradient-romance" | "bg-gradient-wedding";
   description?: string;
   enabledByDefault?: boolean;
 }
