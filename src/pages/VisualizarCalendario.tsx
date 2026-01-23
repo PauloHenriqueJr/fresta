@@ -22,6 +22,22 @@ const VisualizarCalendario = () => {
   const [liked, setLiked] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
+  const [openedDays, setOpenedDays] = useState<number[]>([]);
+
+  // Carregar status local ao iniciar
+  useEffect(() => {
+    if (id) {
+      const saved = localStorage.getItem(`fresta_opened_${id}`);
+      if (saved) {
+        try {
+          setOpenedDays(JSON.parse(saved));
+        } catch (e) {
+          console.error("Error parsing opened days", e);
+        }
+      }
+    }
+  }, [id]);
+
   // Fetch calendar data
   useEffect(() => {
     const fetchCalendar = async () => {
@@ -58,7 +74,17 @@ const VisualizarCalendario = () => {
     const dayData = days.find((d) => d.day === dayNum);
     if (dayData) {
       setSelectedDay(dayNum);
-      // Increment opened count
+
+      // Salvar localmente se ainda não estiver aberto
+      if (!openedDays.includes(dayNum)) {
+        const newOpened = [...openedDays, dayNum];
+        setOpenedDays(newOpened);
+        if (id) {
+          localStorage.setItem(`fresta_opened_${id}`, JSON.stringify(newOpened));
+        }
+      }
+
+      // Increment opened count global
       if (dayData.id) {
         await CalendarsRepository.incrementDayOpened(dayData.id);
       }
@@ -89,7 +115,7 @@ const VisualizarCalendario = () => {
   // Transform days for CalendarGrid
   const gridDays = days.map(d => ({
     day: d.day,
-    status: d.content_type ? "opened" as const : "available" as const,
+    status: openedDays.includes(d.day) ? "opened" as const : "available" as const,
     hasSpecialContent: !!d.content_type,
   }));
 

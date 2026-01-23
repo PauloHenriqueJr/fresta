@@ -56,46 +56,64 @@ const DayCard = ({
   };
 
   return (
-    <motion.button
-      className={getCardClasses()}
-      onClick={isInteractive ? onClick : undefined}
-      disabled={!isInteractive}
-      whileHover={isInteractive ? { scale: 1.05 } : undefined}
-      whileTap={isInteractive ? { scale: 0.95 } : undefined}
+    <motion.div
+      className={cn("relative w-full aspect-square perspective-1000", !isInteractive && "cursor-default")}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, delay: day * 0.02 }}
     >
-      {/* Day number */}
-      <span
-        className={cn(
-          "text-xl font-extrabold",
-          status === "available" && "text-2xl"
-        )}
-      >
-        {day.toString().padStart(2, "0")}
-      </span>
-
-      {/* Icon */}
-      <div className="mt-1">{getIcon()}</div>
-
-      {/* Time left indicator for locked cards */}
-      {status === "locked" && timeLeft && (
-        <span className="text-[10px] mt-1 opacity-60">{timeLeft}</span>
-      )}
-
-      {/* Checkmark badge for opened cards */}
-      {status === "opened" && (
-        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-          <Check className="w-3 h-3 text-primary-foreground" />
+      <div className="relative w-full h-full transform-style-3d transition-transform duration-700">
+        {/* Door Back (revealed content) */}
+        <div className="absolute inset-0 bg-muted/30 rounded-2xl flex items-center justify-center border-2 border-border/20">
+          <div className="text-center">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-1">
+              <Check className="w-4 h-4 text-primary" />
+            </div>
+            <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest leading-none">Aberto</span>
+          </div>
         </div>
-      )}
 
-      {/* Shimmer effect for available cards */}
-      {status === "available" && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-[length:200%_100%]" />
-      )}
-    </motion.button>
+        {/* Door Front */}
+        <motion.button
+          className={cn(
+            getCardClasses(),
+            "absolute inset-0 z-10 origin-left backface-hidden flex flex-col items-center justify-center rounded-2xl"
+          )}
+          onClick={onClick}
+          disabled={!isInteractive}
+          animate={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
+          whileHover={isInteractive ? { scale: 1.02 } : undefined}
+          whileTap={isInteractive ? { scale: 0.98 } : undefined}
+          transition={{ type: "spring", stiffness: 80, damping: 15 }}
+        >
+          {/* Day number */}
+          <span
+            className={cn(
+              "text-xl font-extrabold relative z-10",
+              status === "available" && "text-2xl"
+            )}
+          >
+            {day.toString().padStart(2, "0")}
+          </span>
+
+          {/* Icon */}
+          <div className="mt-1 relative z-10">{getIcon()}</div>
+
+          {/* Handle indicator */}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-foreground/10 rounded-full" />
+
+          {/* Time left indicator for locked cards */}
+          {status === "locked" && timeLeft && (
+            <span className="text-[10px] mt-1 opacity-60">{timeLeft}</span>
+          )}
+
+          {/* Shimmer effect for available cards */}
+          {status === "available" && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer bg-[length:200%_100%] rounded-2xl" />
+          )}
+        </motion.button>
+      </div>
+    </motion.div>
   );
 };
 
