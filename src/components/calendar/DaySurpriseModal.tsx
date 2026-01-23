@@ -141,19 +141,14 @@ const DaySurpriseModal = ({
                             className="absolute inset-0 z-10"
                           />
                         </div>
-                      ) : (content.url?.includes('instagram.com/reels') || content.url?.includes('instagram.com/p/')) ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
-                          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4 border border-white/40">
-                            <Play className="w-8 h-8 text-white fill-current translate-x-1" />
-                          </div>
-                          <p className="text-white font-black text-sm uppercase tracking-widest mb-1">Reels no Instagram</p>
-                          <a
-                            href={content.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="absolute inset-0 z-10"
-                          />
-                        </div>
+                      ) : (content.url?.includes('instagram.com/reels') || content.url?.includes('instagram.com/reel/') || content.url?.includes('instagram.com/p/')) ? (
+                        <iframe
+                          src={`${content.url.split('?')[0]}${content.url.endsWith('/') ? '' : '/'}embed/`}
+                          className="w-full h-full bg-white"
+                          frameBorder="0"
+                          scrolling="no"
+                          allowTransparency
+                        />
                       ) : (
                         <img
                           src={content.url}

@@ -319,11 +319,14 @@ const EditarDia = () => {
                           <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
                           <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
                         </div>
-                      ) : (url.includes('instagram.com/reels') || url.includes('instagram.com/p/')) ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white">
-                          <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
-                          <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Reels do Instagram selecionado</p>
-                        </div>
+                      ) : (url.includes('instagram.com/reels') || url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) ? (
+                        <iframe
+                          src={`${url.split('?')[0]}${url.endsWith('/') ? '' : '/'}embed/`}
+                          className="w-full h-full bg-white"
+                          frameBorder="0"
+                          scrolling="no"
+                          allowTransparency
+                        />
                       ) : (
                         <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
                           (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
@@ -382,6 +385,20 @@ const EditarDia = () => {
                   placeholder="https://media.giphy.com/..."
                   className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
                 />
+
+                {url && (
+                  <div className="mt-6 relative rounded-2xl overflow-hidden shadow-md aspect-video bg-muted border border-border group">
+                    <img src={url} alt="GIF Preview" className="w-full h-full object-contain" onError={(e) => {
+                      (e.target as any).src = 'https://placehold.co/600x400?text=GIF+Inválido';
+                    }} />
+                    <button
+                      onClick={() => setUrl('')}
+                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm z-20"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </motion.section>
             )}
 
