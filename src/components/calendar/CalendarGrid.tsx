@@ -24,9 +24,8 @@ const CalendarGrid = ({
   onDayClick,
   theme = "default",
 }: CalendarGridProps) => {
-  // Show first 12 days in preview, or all if less
-  const visibleDays = days.slice(0, 12);
-  const remainingDays = days.length - visibleDays.length;
+  const visibleDays = days;
+  const remainingDays = 0;
 
   return (
     <motion.div

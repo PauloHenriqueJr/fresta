@@ -6,11 +6,10 @@ interface DaySurpriseModalProps {
   onClose: () => void;
   day: number;
   content?: {
-    type: "text" | "image" | "video" | "link";
-    title?: string;
+    type: "text" | "photo" | "gif" | "link";
     message?: string;
-    imageUrl?: string;
-    linkUrl?: string;
+    url?: string;
+    label?: string;
   };
   theme?: "default" | "carnaval" | "saojoao";
 }
@@ -85,12 +84,45 @@ const DaySurpriseModal = ({
               <div className="p-6">
                 {content?.type === "text" && (
                   <div className="text-center">
-                    {content.title && (
-                      <h3 className="text-xl font-bold text-foreground mb-2">
-                        {content.title}
-                      </h3>
+                    <p className="text-foreground font-medium text-lg leading-relaxed">
+                      {content.message}
+                    </p>
+                  </div>
+                )}
+
+                {(content?.type === "photo" || content?.type === "gif") && (
+                  <div className="space-y-4 text-center">
+                    <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video bg-muted">
+                      <img
+                        src={content.url}
+                        alt={`Surpresa Dia ${day}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {content.message && (
+                      <p className="text-muted-foreground font-medium">
+                        {content.message}
+                      </p>
                     )}
-                    <p className="text-muted-foreground">{content.message}</p>
+                  </div>
+                )}
+
+                {content?.type === "link" && (
+                  <div className="space-y-4 text-center">
+                    {content.message && (
+                      <p className="text-foreground font-medium mb-4">
+                        {content.message}
+                      </p>
+                    )}
+                    <a
+                      href={content.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold shadow-lg hover:grayscale-[0.2] active:scale-95 transition-all"
+                    >
+                      <Sparkles className="w-5 h-5" />
+                      {content.label || "Abrir Link"}
+                    </a>
                   </div>
                 )}
 
