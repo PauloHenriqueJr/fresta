@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Sparkles, Heart, Copy, Ticket } from "lucide-react";
+import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DaySurpriseModalProps {
@@ -117,30 +117,66 @@ const DaySurpriseModal = ({
 
                 {(content?.type === "photo" || content?.type === "gif") && (
                   <div className="space-y-4 text-center">
-                    <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video bg-muted">
-                      <img
-                        src={content.url}
-                        alt={`Surpresa Porta ${day}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement;
-                          if (parent) {
-                            parent.innerHTML = `
-                              <div class="flex flex-col items-center justify-center h-full p-4 text-center">
-                                <p class="text-sm font-medium text-destructive">Não foi possível carregar esta imagem.</p>
-                                <p class="text-[10px] text-muted-foreground mt-1">Verifique se a URL é válida e termina em .jpg, .png ou .gif</p>
-                              </div>
-                            `;
-                          }
-                        }}
-                      />
+                    <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video bg-muted group">
+                      {/* Detect if URL is likely a social media video link */}
+                      {(content.url?.includes('tiktok.com') || content.url?.includes('instagram.com/reels') || content.url?.includes('youtube.com') || content.url?.includes('youtu.be')) ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-black/80 to-muted/80 backdrop-blur-sm">
+                          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform mb-4">
+                            <Play className="w-8 h-8 text-white fill-current translate-x-1" />
+                          </div>
+                          <p className="text-white font-black text-sm uppercase tracking-widest mb-1">Vídeo Surpresa</p>
+                          <p className="text-white/60 text-[10px] uppercase font-bold">TikTok / Social Media</p>
+
+                          <a
+                            href={content.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute inset-0"
+                          />
+                        </div>
+                      ) : (
+                        <img
+                          src={content.url}
+                          alt={`Surpresa Porta ${day}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `
+                                <div class="flex flex-col items-center justify-center h-full p-6 text-center">
+                                  <div class="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-destructive"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                  </div>
+                                  <p class="text-xs font-bold text-destructive">Não conseguimos abrir este arquivo aqui.</p>
+                                  <p class="text-[10px] text-muted-foreground mt-1 mb-4 italic">Pode ser um vídeo ou link externo.</p>
+                                  <a href="${content.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 rounded-xl text-[10px] font-black uppercase text-foreground transition-all">
+                                    Abrir em nova aba
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                  </a>
+                                </div>
+                              `;
+                            }
+                          }}
+                        />
+                      )}
                     </div>
                     {content.message && (
-                      <p className="text-muted-foreground font-medium">
-                        {content.message}
+                      <p className="text-muted-foreground font-medium italic">
+                        "{content.message}"
                       </p>
+                    )}
+                    {(content.url?.includes('tiktok.com') || content.url?.includes('instagram.com')) && (
+                      <a
+                        href={content.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-muted/50 hover:bg-muted rounded-2xl text-xs font-black uppercase transition-all"
+                      >
+                        Abrir no App Original
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
                     )}
                   </div>
                 )}

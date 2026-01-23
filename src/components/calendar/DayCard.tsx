@@ -89,7 +89,7 @@ const DayCard = ({
           animate={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          transition={{ type: "spring", stiffness: 80, damping: 15 }}
+          transition={{ type: "spring", stiffness: 45, damping: 12 }}
         >
           {/* Day number or Date Label */}
           {dateLabel && (
