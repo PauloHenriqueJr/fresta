@@ -65,7 +65,7 @@ const DaySurpriseModal = ({
 
                 <Gift className="w-12 h-12 text-primary-foreground mx-auto mb-3" />
                 <h2 className="text-3xl font-extrabold text-primary-foreground">
-                  DIA {day.toString().padStart(2, "0")}
+                  PORTA {day.toString().padStart(2, "0")}
                 </h2>
                 <p className="text-primary-foreground/80 mt-1">
                   Surpresa disponível!
@@ -95,8 +95,21 @@ const DaySurpriseModal = ({
                     <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video bg-muted">
                       <img
                         src={content.url}
-                        alt={`Surpresa Dia ${day}`}
+                        alt={`Surpresa Porta ${day}`}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `
+                              <div class="flex flex-col items-center justify-center h-full p-4 text-center">
+                                <p class="text-sm font-medium text-destructive">Não foi possível carregar esta imagem.</p>
+                                <p class="text-[10px] text-muted-foreground mt-1">Verifique se a URL é válida e termina em .jpg, .png ou .gif</p>
+                              </div>
+                            `;
+                          }
+                        }}
                       />
                     </div>
                     {content.message && (
