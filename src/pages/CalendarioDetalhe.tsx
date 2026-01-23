@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Settings, BarChart3, Share2, Loader2 } from "lucide-react";
+import { ArrowLeft, Settings, BarChart3, Share2, Loader2, Eye, Edit, Info } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
@@ -8,6 +8,10 @@ import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/lib/supabase/types";
+import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
+import { format, addDays, parseISO, startOfDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 type Calendar = Tables<"calendars">;
 type CalendarDay = Tables<"calendar_days">;
@@ -28,6 +32,8 @@ const CalendarioDetalhe = () => {
   const [daysData, setDaysData] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [selectedDayPreview, setSelectedDayPreview] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCalendar = async () => {
@@ -76,11 +82,17 @@ const CalendarioDetalhe = () => {
     try {
       const dayMap = new Map((daysData || []).map((day) => [day.day, day]));
       return Array.from({ length: calendar.duration || 0 }, (_, i) => {
-        const day = i + 1;
-        const dayData = dayMap.get(day);
+        const dayNum = i + 1;
+        const dayData = dayMap.get(dayNum);
         const hasSpecialContent = !!(dayData?.content_type || dayData?.message || dayData?.url || dayData?.label);
+
+        const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+        const doorDate = startOfDay(addDays(baseDate, dayNum - 1));
+        const dateLabel = format(doorDate, "dd MMM", { locale: ptBR });
+
         return {
-          day,
+          day: dayNum,
+          dateLabel,
           status: hasSpecialContent ? ("opened" as const) : ("available" as const),
           hasSpecialContent,
         };
@@ -90,6 +102,11 @@ const CalendarioDetalhe = () => {
       return [];
     }
   }, [calendar, daysData]);
+
+  const selectedDayData = useMemo(() =>
+    daysData.find(d => d.day === selectedDayPreview),
+    [daysData, selectedDayPreview]
+  );
 
   const handleShare = async () => {
     if (!calendar) return;
@@ -217,6 +234,18 @@ const CalendarioDetalhe = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setPreviewMode(!previewMode)}
+              className={cn(
+                "w-14 h-14 rounded-2xl border flex items-center justify-center transition-all group",
+                previewMode
+                  ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                  : "bg-background border-border/50 hover:bg-muted text-foreground"
+              )}
+              title={previewMode ? "Sair do Modo Visualização" : "Modo Visualização"}
+            >
+              {previewMode ? <Edit className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+            </button>
             <motion.button
               className="px-8 py-4 rounded-[1.25rem] bg-gradient-festive text-white font-black shadow-xl shadow-primary/20 hover:scale-105 transition-all text-sm flex items-center gap-2"
               whileHover={{ scale: 1.05 }}
@@ -248,22 +277,34 @@ const CalendarioDetalhe = () => {
         <CalendarGrid
           title={calendar.title || "Calendário"}
           month={(() => {
-            try {
-              if (!calendar.start_date) return "DEZEMBRO";
-              const date = new Date(calendar.start_date + "T12:00:00");
-              return date.toLocaleDateString("pt-BR", { month: "long" }).toUpperCase();
-            } catch (e) {
-              return "FESTIVA";
-            }
+            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+            return format(baseDate, "MMMM", { locale: ptBR }).toUpperCase();
           })()}
-          days={days}
+          days={days as any}
           onDayClick={(day) => {
             if (!isOwner) return;
-            navigate(`/editar-dia/${calendar.id}/${day}`);
+            if (previewMode) {
+              setSelectedDayPreview(day);
+            } else {
+              navigate(`/editar-dia/${calendar.id}/${day}`);
+            }
           }}
           theme={toUiTheme(calendar.theme_id)}
         />
       </main>
+
+      <DaySurpriseModal
+        isOpen={selectedDayPreview !== null}
+        onClose={() => setSelectedDayPreview(null)}
+        day={selectedDayPreview || 1}
+        content={selectedDayData?.content_type ? {
+          type: selectedDayData.content_type as any,
+          message: selectedDayData?.message || "",
+          url: selectedDayData?.url || "",
+          label: selectedDayData?.label || "Abrir",
+        } : undefined}
+        theme={toUiTheme(calendar.theme_id) as any}
+      />
 
       {/* Bottom bar - mobile only */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border lg:hidden">

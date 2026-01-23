@@ -11,6 +11,7 @@ interface DayCardProps {
   onClick?: () => void;
   theme?: "default" | "carnaval" | "saojoao" | "natal" | "reveillon" | "pascoa" | "independencia" | "namoro" | "casamento";
   hasSpecialContent?: boolean;
+  dateLabel?: string;
 }
 
 const DayCard = ({
@@ -20,6 +21,7 @@ const DayCard = ({
   onClick,
   theme = "default",
   hasSpecialContent = false,
+  dateLabel,
 }: DayCardProps) => {
   const isInteractive = status === "available";
 
@@ -86,14 +88,14 @@ const DayCard = ({
           whileTap={isInteractive ? { scale: 0.98 } : undefined}
           transition={{ type: "spring", stiffness: 80, damping: 15 }}
         >
-          {/* Day number */}
+          {/* Day number or Date Label */}
           <span
             className={cn(
-              "text-xl font-extrabold relative z-10",
-              status === "available" && "text-2xl"
+              "font-extrabold relative z-10 leading-tight text-center px-1",
+              dateLabel ? "text-sm uppercase" : (status === "available" ? "text-2xl" : "text-xl")
             )}
           >
-            {day.toString().padStart(2, "0")}
+            {dateLabel ? dateLabel : day.toString().padStart(2, "0")}
           </span>
 
           {/* Icon */}

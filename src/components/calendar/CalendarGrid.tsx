@@ -7,6 +7,7 @@ interface CalendarDay {
   status: DayStatus;
   timeLeft?: string;
   hasSpecialContent?: boolean;
+  dateLabel?: string;
 }
 
 interface CalendarGridProps {
@@ -58,6 +59,7 @@ const CalendarGrid = ({
             status={dayData.status}
             timeLeft={dayData.timeLeft}
             hasSpecialContent={dayData.hasSpecialContent}
+            dateLabel={dayData.dateLabel}
             onClick={() => onDayClick?.(dayData.day)}
             theme={theme}
           />

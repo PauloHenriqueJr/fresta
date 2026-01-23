@@ -8,6 +8,8 @@ import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import type { Tables } from "@/lib/supabase/types";
+import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
@@ -71,6 +73,15 @@ const VisualizarCalendario = () => {
   }, [id]);
 
   const handleDayClick = async (dayNum: number) => {
+    // Check if locked
+    const baseDate = calendar?.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
+    const doorDate = startOfDay(addDays(baseDate, dayNum - 1));
+    const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+    if (isLocked) {
+      return; // Prevenir abertura antecipada
+    }
+
     const dayData = days.find((d) => d.day === dayNum);
     if (dayData) {
       setSelectedDay(dayNum);
@@ -113,11 +124,21 @@ const VisualizarCalendario = () => {
   const themeData = calendar ? getThemeDefinition(BASE_THEMES, calendar.theme_id as any) : null;
 
   // Transform days for CalendarGrid
-  const gridDays = days.map(d => ({
-    day: d.day,
-    status: openedDays.includes(d.day) ? "opened" as const : "available" as const,
-    hasSpecialContent: !!d.content_type,
-  }));
+  const gridDays = days.map(d => {
+    const baseDate = calendar?.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
+    const doorDate = startOfDay(addDays(baseDate, d.day - 1));
+    const isLocked = isAfter(doorDate, startOfDay(new Date()));
+    const dateLabel = format(doorDate, "dd MMM", { locale: ptBR });
+
+    return {
+      day: d.day,
+      dateLabel,
+      status: isLocked
+        ? ("locked" as const)
+        : (openedDays.includes(d.day) ? ("opened" as const) : ("available" as const)),
+      hasSpecialContent: !!d.content_type,
+    };
+  });
 
   if (loading) {
     return (
@@ -215,8 +236,11 @@ const VisualizarCalendario = () => {
       {/* Calendar Grid */}
       <main className="relative z-10 px-4 pb-24">
         <CalendarGrid
-          title=""
-          month=""
+          title={calendar.title}
+          month={(() => {
+            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
+            return format(baseDate, "MMMM", { locale: ptBR }).toUpperCase();
+          })()}
           days={gridDays}
           onDayClick={handleDayClick}
           theme={(themeData?.id || "natal") as any}
