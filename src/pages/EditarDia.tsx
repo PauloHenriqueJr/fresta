@@ -250,22 +250,32 @@ const EditarDia = () => {
                       type="file"
                       accept="image/*"
                       onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file || !calendarId) return;
+                        const originalFile = e.target.files?.[0];
+                        if (!originalFile || !calendarId) return;
 
                         setSaving(true);
                         try {
+                          // Import compression utility
+                          const { compressImage } = await import("@/lib/image-utils");
+
+                          // Compress only if it's an image
+                          let file = originalFile;
+                          if (originalFile.type.startsWith('image/')) {
+                            toast({ title: "Otimizando foto...", description: "Isso economiza espaço e carrega mais rápido. 🚀" });
+                            file = await compressImage(originalFile);
+                          }
+
                           const { data: { user } } = await (await import("@/lib/supabase/client")).supabase.auth.getUser();
                           if (!user) throw new Error("Usuário não autenticado");
 
-                          const fileExt = file.name.split('.').pop();
+                          const fileExt = file.name.split('.').pop() || 'jpg';
                           const fileName = `${user.id}/${calendarId}/day-${dayNumber}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
                           const publicUrl = await CalendarsRepository.uploadMedia(file, fileName);
                           setUrl(publicUrl);
                           toast({
                             title: "Foto enviada!",
-                            description: "A imagem foi salva com sucesso no servidor.",
+                            description: "A imagem foi otimizada e salva no servidor.",
                           });
                         } catch (err: any) {
                           console.error('Upload error:', err);
