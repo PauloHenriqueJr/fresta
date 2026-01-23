@@ -86,6 +86,7 @@ const DayCard = ({
             "absolute inset-0 z-10 origin-left backface-hidden flex flex-col items-center justify-center rounded-2xl"
           )}
           onClick={onClick}
+          initial={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
           animate={status === "opened" ? { rotateY: -110 } : { rotateY: 0 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
