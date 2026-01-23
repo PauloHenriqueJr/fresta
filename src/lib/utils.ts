@@ -8,5 +8,12 @@ export function cn(...inputs: ClassValue[]) {
 export function buildCalendarShareUrl(calendarId: string) {
   const baseUrl = import.meta.env.BASE_URL || "/";
   const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-  return `${window.location.origin}${normalizedBase}#/c/${calendarId}`;
+  const currentPath = window.location.pathname;
+  const baseFromLocation = currentPath.endsWith("/")
+    ? currentPath
+    : currentPath.replace(/\/[^/]*$/, "/");
+  const base = currentPath.startsWith(normalizedBase)
+    ? normalizedBase
+    : baseFromLocation;
+  return `${window.location.origin}${base}#/c/${calendarId}`;
 }
