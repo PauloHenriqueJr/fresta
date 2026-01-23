@@ -151,6 +151,25 @@ const VisualizarCalendario = () => {
   };
 
 
+  // Listen for successful installation
+  useEffect(() => {
+    const handleAppInstalled = () => {
+      toast.success("App instalado com sucesso! 🎉", {
+        description: "Agora ative as notificações para não perder nada.",
+        action: {
+          label: "Ativar Notificações",
+          onClick: () => handleNotifyMe()
+        },
+        duration: 10000
+      });
+      // Clear the prompt
+      (window as any).deferredPrompt = null;
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => window.removeEventListener('appinstalled', handleAppInstalled);
+  }, [id, lockedDay]); // Re-bind if these change, though empty deps would be fine too
+
   // Save as last visited calendar for PWA entry
   useEffect(() => {
     if (id) {
