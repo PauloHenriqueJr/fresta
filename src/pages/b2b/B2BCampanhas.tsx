@@ -77,8 +77,8 @@ export default function B2BCampanhas() {
           <button
             onClick={() => setDesktopView("table")}
             className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${desktopView === "table"
-                ? "bg-secondary text-secondary-foreground border-transparent"
-                : "bg-background text-foreground/80 border-border hover:bg-muted"
+              ? "bg-secondary text-secondary-foreground border-transparent"
+              : "bg-background text-foreground/80 border-border hover:bg-muted"
               }`}
           >
             Tabela
@@ -86,8 +86,8 @@ export default function B2BCampanhas() {
           <button
             onClick={() => setDesktopView("kanban")}
             className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${desktopView === "kanban"
-                ? "bg-secondary text-secondary-foreground border-transparent"
-                : "bg-background text-foreground/80 border-border hover:bg-muted"
+              ? "bg-secondary text-secondary-foreground border-transparent"
+              : "bg-background text-foreground/80 border-border hover:bg-muted"
               }`}
           >
             Kanban
@@ -125,7 +125,13 @@ export default function B2BCampanhas() {
                     <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
                       Ações da Campanha
                     </DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => navigate(`/b2b/campanhas/${c.id}`)} className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/b2b/campanhas/${c.id}`);
+                      }}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                    >
                       <Eye className="w-4 h-4 text-primary" />
                       <span className="text-sm font-bold">Ver Detalhes</span>
                     </DropdownMenuItem>
@@ -142,7 +148,10 @@ export default function B2BCampanhas() {
                       <Archive className="w-4 h-4" />
                       <span className="text-sm font-bold">Arquivar</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group">
+                    <DropdownMenuItem
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group"
+                    >
                       <Trash2 className="w-4 h-4" />
                       <span className="text-sm font-bold">Excluir</span>
                     </DropdownMenuItem>

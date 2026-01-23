@@ -98,7 +98,7 @@ const AuthHandler = () => {
     // 1. Normalização Imediata: Se o hash é um fragmento de auth pura (#access_token)
     // Precisamos converter para #/access_token para o HashRouter não dar 404
     if (hash && (hash.includes("access_token=") || hash.includes("error_description=")) && !hash.startsWith("#/")) {
-      console.log("App: Normalizando fragmento de auth para o HashRouter");
+      console.log("App: Normalizando sessão para o roteador");
       window.location.hash = "/" + hash.substring(1);
       return;
     }
@@ -106,7 +106,7 @@ const AuthHandler = () => {
     // 2. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
     if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
       if (session) {
-        console.log("App: Sessão confirmada, redirecionando para o painel");
+        console.log("App: Navegando para o painel principal");
         navigate("/meus-calendarios", { replace: true });
       }
     }

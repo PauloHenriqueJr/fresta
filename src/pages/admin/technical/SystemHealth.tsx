@@ -7,10 +7,10 @@ export default function SystemHealth() {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const metrics = [
-        { label: "PostgreSQL Connection", value: "Healthy", icon: Database, color: "text-emerald-500" },
-        { label: "Edge Runtime", value: "Active", icon: Server, color: "text-emerald-500" },
-        { label: "Storage Bucket", value: "92% Free", icon: Cpu, color: "text-blue-500" },
-        { label: "Realtime Socket", value: "Connected", icon: Activity, color: "text-emerald-500" },
+        { label: "Banco de Dados", value: "Saudável", icon: Database, color: "text-emerald-500" },
+        { label: "Processamento Cloud", value: "Ativo", icon: Server, color: "text-emerald-500" },
+        { label: "Armazenamento", value: "92% Disponível", icon: Cpu, color: "text-blue-500" },
+        { label: "Sincronização", value: "Conectado", icon: Activity, color: "text-emerald-500" },
     ];
 
     const refreshMetrics = () => {

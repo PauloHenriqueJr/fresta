@@ -71,8 +71,8 @@ export default function Estatisticas() {
               <h2 className="font-bold text-foreground">Performance Geográfica / Temporal</h2>
               <TrendingUp className="w-5 h-5 text-primary" />
             </div>
-            <div className="h-40 flex items-center justify-center italic text-muted-foreground/50 border-t border-border/10 pt-4">
-              [Gráfico detalhado de visualizações temporais via Supabase Edge]
+            <div className="h-40 flex items-center justify-center italic text-muted-foreground/30 pt-4 text-xs">
+              Dados de performance serão exibidos assim que houver volume suficiente de tráfego.
             </div>
           </motion.section>
 

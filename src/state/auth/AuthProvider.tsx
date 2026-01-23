@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.location.search.includes("code=");
 
     if (hasAuthFragment) {
-      console.log("AuthProvider: Auth fragment detected in URL, keeping isLoading=true");
+      console.log("AuthProvider: Fragmento de autenticação detectado, aguardando sessão...");
     }
 
     // 1. Fallback Timeout (Safety Net)
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
       }
     }).catch(err => {
-      console.error("AuthProvider: getSession error", err);
+      console.error("AuthProvider: Erro ao recuperar sessão", err.message);
       if (!hasAuthFragment) setIsLoading(false);
     });
 
@@ -198,7 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('id', user.id);
 
     if (error) {
-      console.error('Error updating profile:', error);
+      console.error('Erro ao atualizar perfil:', error.message);
       return;
     }
 

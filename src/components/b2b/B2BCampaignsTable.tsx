@@ -81,7 +81,13 @@ export default function B2BCampaignsTable({ campaigns, onOpen }: Props) {
                     <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
                       Ações da Campanha
                     </DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => onOpen(c.id)} className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpen(c.id);
+                      }}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
+                    >
                       <Eye className="w-4 h-4 text-primary" />
                       <span className="text-sm font-bold">Ver Detalhes</span>
                     </DropdownMenuItem>
@@ -98,7 +104,10 @@ export default function B2BCampaignsTable({ campaigns, onOpen }: Props) {
                       <Archive className="w-4 h-4" />
                       <span className="text-sm font-bold">Arquivar</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group" onClick={(e) => { e.stopPropagation(); /* Logic for delete */ }}>
+                    <DropdownMenuItem
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group"
+                    >
                       <Trash2 className="w-4 h-4" />
                       <span className="text-sm font-bold">Excluir</span>
                     </DropdownMenuItem>

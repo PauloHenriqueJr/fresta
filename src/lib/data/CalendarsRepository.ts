@@ -20,7 +20,7 @@ export const CalendarsRepository = {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('CalendarsRepository.listByOwner: Supabase error', error);
+        console.error('CalendarsRepository.listByOwner: Erro ao buscar calendários', error.message);
         throw error;
       }
       console.log('CalendarsRepository.listByOwner: Request finished, found', data?.length ?? 0, 'calendars');
@@ -42,7 +42,7 @@ export const CalendarsRepository = {
     
     if (error) {
       if (error.code === 'PGRST116') return null; // Not found
-      console.error('CalendarsRepository.getById: Error', error);
+      console.error('CalendarsRepository.getById: Erro', error.message);
       throw error;
     }
     return data;
@@ -59,7 +59,7 @@ export const CalendarsRepository = {
     
     if (calError) {
       if (calError.code === 'PGRST116') return null;
-      console.error('CalendarsRepository.getWithDays: Calendar error', calError);
+      console.error('CalendarsRepository.getWithDays: Erro no calendário', calError.message);
       throw calError;
     }
 
@@ -70,7 +70,7 @@ export const CalendarsRepository = {
       .order('day', { ascending: true });
     
     if (daysError) {
-      console.error('CalendarsRepository.getWithDays: Days error', daysError);
+      console.error('CalendarsRepository.getWithDays: Erro nos dias', daysError.message);
       throw daysError;
     }
 
@@ -161,7 +161,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.create: Calendar insert result', { calendar, calError });
     
     if (calError) {
-      console.error('CalendarsRepository.create: Calendar insert failed', calError);
+      console.error('CalendarsRepository.create: Falha ao inserir calendário', calError.message);
       throw calError;
     }
 

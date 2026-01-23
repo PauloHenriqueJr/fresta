@@ -270,28 +270,40 @@ const MeusCalendarios = () => {
                           Ações do Calendário
                         </DropdownMenuLabel>
                         <DropdownMenuItem
-                          onClick={() => navigate(`/calendario/${calendar.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/calendario/${calendar.id}`);
+                          }}
                           className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
                         >
                           <Eye className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                           <span className="text-sm font-bold">Visualizar</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => navigate(`/editar-dia/${calendar.id}/1`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/editar-dia/${calendar.id}/1`);
+                          }}
                           className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
                         >
                           <Edit2 className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                           <span className="text-sm font-bold">Editar Surpresas</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/calendario/${calendar.id}/configuracoes`);
+                          }}
                           className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
                         >
                           <Settings className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                           <span className="text-sm font-bold">Configurações</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/calendario/${calendar.id}/estatisticas`);
+                          }}
                           className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
                         >
                           <BarChart3 className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
@@ -299,7 +311,10 @@ const MeusCalendarios = () => {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border/50 my-2" />
                         <DropdownMenuItem
-                          onClick={() => setCalendarToDelete({ id: calendar.id, title: calendar.title })}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCalendarToDelete({ id: calendar.id, title: calendar.title });
+                          }}
                           className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-festive-red/10 text-festive-red transition-colors group"
                         >
                           <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />

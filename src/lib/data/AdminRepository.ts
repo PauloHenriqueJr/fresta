@@ -27,7 +27,10 @@ export const AdminRepository = {
       .from('feedbacks') as any)
       .update({ status })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.error('AdminRepository: Erro ao atualizar status', error.message);
+      throw error;
+    }
   },
 
   // Coupons
