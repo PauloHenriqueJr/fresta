@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X } from "lucide-react";
+import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -305,17 +305,33 @@ const EditarDia = () => {
                   </div>
 
                   {url && (
-                    <div className="relative rounded-2xl overflow-hidden shadow-md aspect-video bg-muted border border-border">
-                      {url.includes('tiktok.com') || url.includes('instagram.com') || url.includes('youtube.com') ? (
-                        <div className="w-full h-full flex items-center justify-center p-4 bg-muted text-center">
-                          <p className="text-xs text-muted-foreground">Preview não disponível para links sociais nesta tela, mas aparecerá no calendário.</p>
+                    <div className="relative rounded-2xl overflow-hidden shadow-md aspect-video bg-muted border border-border group">
+                      {url.includes('youtube.com') || url.includes('youtu.be') ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${url.includes('youtu.be') ? url.split('/').pop() : new URLSearchParams(new URL(url).search).get('v')}`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : url.includes('tiktok.com') ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[#010101] text-white">
+                          <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
+                          <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
+                        </div>
+                      ) : (url.includes('instagram.com/reels') || url.includes('instagram.com/p/')) ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white">
+                          <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
+                          <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Reels do Instagram selecionado</p>
                         </div>
                       ) : (
-                        <img src={url} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
+                          (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
+                        }} />
                       )}
                       <button
                         onClick={() => setUrl('')}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm"
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm z-20"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -335,7 +351,7 @@ const EditarDia = () => {
                     <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Link de Vídeo ou Imagem Externa</h4>
                     <input
                       type="url"
-                      value={url}
+                      value={url.includes('.supabase.co') ? '' : url}
                       onChange={(e) => setUrl(e.target.value)}
                       placeholder="TikTok, Instagram Reels, YouTube ou link de imagem..."
                       className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
@@ -361,7 +377,7 @@ const EditarDia = () => {
                 <h3 className="font-bold text-foreground mb-4">URL do GIF</h3>
                 <input
                   type="url"
-                  value={url}
+                  value={url.includes('.supabase.co') ? '' : url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://media.giphy.com/..."
                   className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
