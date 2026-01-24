@@ -17,12 +17,15 @@ import {
   Trash2,
   Loader2
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES } from "@/lib/offline/themes";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const Configuracoes = () => {
   const { id } = useParams();
@@ -249,11 +252,10 @@ const Configuracoes = () => {
 
                     <div className="space-y-3">
                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5A7470]/60 ml-1">Data de Estreia</label>
-                      <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full h-14 px-6 bg-[#F8F9F5] border-2 border-transparent rounded-2xl text-[#1A3E3A] font-bold focus:outline-none focus:border-solidroad-accent focus:bg-white transition-all shadow-inner"
+                      <DatePicker
+                        date={startDate ? parseISO(startDate) : undefined}
+                        setDate={(date) => setStartDate(date ? format(date, 'yyyy-MM-dd') : "")}
+                        placeholder="Escolher data de estreia..."
                       />
                       <p className="text-[10px] text-[#5A7470]/50 font-medium italic ml-1 leading-relaxed">
                         A contagem regressiva e os dias disponíveis serão calculados a partir desta data.

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   ArrowLeft,
   ArrowRight,
@@ -259,8 +261,8 @@ const CriarCalendario = () => {
                   <div className="space-y-3">
                     <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50 ml-1">Data de Início (Opcional)</label>
                     <DatePicker
-                      date={startDate ? new Date(startDate) : undefined}
-                      setDate={(date) => setStartDate(date ? date.toISOString().split('T')[0] : "")}
+                      date={startDate ? parseISO(startDate) : undefined}
+                      setDate={(date) => setStartDate(date ? format(date, 'yyyy-MM-dd') : "")}
                       placeholder="Escolher data de início..."
                     />
                   </div>
@@ -362,7 +364,7 @@ const CriarCalendario = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-bold text-muted-foreground">Estreia</span>
-                    <span className="text-base font-black text-solidroad-text dark:text-white">{startDate ? new Date(startDate).toLocaleDateString('pt-BR') : 'Imediata'}</span>
+                    <span className="text-base font-black text-solidroad-text dark:text-white">{startDate ? format(parseISO(startDate), 'dd/MM/yyyy') : 'Imediata'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-bold text-muted-foreground">Visibilidade</span>
