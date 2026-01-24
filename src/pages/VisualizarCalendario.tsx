@@ -15,6 +15,7 @@ import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase/client";
 import {
   LoveBackground,
   HangingHearts,
@@ -73,6 +74,25 @@ const VisualizarCalendario = () => {
 
   const [openedDays, setOpenedDays] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  const handleLike = () => {
+    const newLiked = !liked;
+    setLiked(newLiked);
+    if (newLiked) {
+      toast.success("Amor enviado! ❤️", {
+        description: "Que lindo gesto! O criador do calendário vai adorar.",
+        duration: 3000,
+      });
+      // Optionally sync with Supabase here
+      if (calendar?.id) {
+        // We'll use a standard update for now as RPC might not be defined for likes
+        (supabase.from('calendars') as any)
+          .update({ likes: (calendar.likes || 0) + 1 })
+          .eq('id', calendar.id)
+          .then();
+      }
+    }
+  };
 
   // Countdown timer for locked modal
   useEffect(() => {
@@ -535,7 +555,7 @@ const VisualizarCalendario = () => {
           </div>
           <LoveQuote isEditor={false} />
         </main>
-        <LoveFooter isEditor={false} />
+        <LoveFooter isEditor={false} liked={liked} onLike={handleLike} />
         <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
@@ -685,18 +705,20 @@ const VisualizarCalendario = () => {
           )}
           <div className="flex-1" /> {/* Spacer */}
           <div className="flex items-center gap-2">
-            <motion.button
-              onClick={() => setLiked(!liked)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${liked ? "bg-red-500" : "bg-white/80 backdrop-blur-sm"
-                } shadow-sm border border-black/5`}
-              whileTap={{ scale: 0.9 }}
-              style={liked && calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
-            >
-              <Heart
-                className={`w-5 h-5 ${liked ? "text-white fill-white" : "text-muted-foreground"
-                  }`}
-              />
-            </motion.button>
+            {!(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
+              <motion.button
+                onClick={() => setLiked(!liked)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${liked ? "bg-red-500" : "bg-white/80 backdrop-blur-sm"
+                  } shadow-sm border border-black/5`}
+                whileTap={{ scale: 0.9 }}
+                style={liked && calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
+              >
+                <Heart
+                  className={`w-5 h-5 ${liked ? "text-white fill-white" : "text-muted-foreground"
+                    }`}
+                />
+              </motion.button>
+            )}
             <motion.button
               onClick={handleShare}
               className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5"
@@ -864,12 +886,12 @@ const VisualizarCalendario = () => {
         <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
-          content={selectedDayData?.content_type ? {
-            type: selectedDayData.content_type === 'text' ? 'text' : 'image',
-            title: `Porta ${selectedDay}`,
+          content={selectedDayData ? {
+            type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
+            title: selectedDayData.label || `Porta ${selectedDay}`,
             message: selectedDayData?.message || "",
             mediaUrl: selectedDayData?.url || undefined,
-          } : { type: 'text', message: "Surpresa! 🎉" }}
+          } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
         />
       ) : (
         <DaySurpriseModal

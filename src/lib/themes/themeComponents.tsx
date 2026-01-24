@@ -1,5 +1,6 @@
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X } from "lucide-react";
+import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // --- Background ---
@@ -214,22 +215,49 @@ export const EnvelopeCard = ({ dayNumber, onClick, isEditor = false }: { dayNumb
 // Unlocked Day (Past/Opened)
 // UnlockedDayCard
 export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false }: { dayNumber: number | string, imageUrl: string, onClick?: () => void, isEditor?: boolean }) => {
+  const [imgError, setImgError] = useState(false);
+  const hasImage = imageUrl && !imgError;
+
   return (
     <motion.div
       whileHover={{ y: -2 }}
       onClick={onClick}
-      className="aspect-[4/5] relative flex flex-col items-center justify-end p-2 rounded-xl bg-white border-2 border-rose-100 shadow-sm overflow-hidden group font-display cursor-pointer"
+      className="aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl bg-white border-2 border-rose-100 shadow-sm overflow-hidden group font-display cursor-pointer"
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center grayscale-[0.2] transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
-        style={{ backgroundImage: `url('${imageUrl}')` }}
-      ></div>
-      <div className="absolute top-1 right-1 text-love-red bg-white/80 rounded-full p-0.5 shadow-sm">
+      {hasImage ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center grayscale-[0.2] transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
+          style={{ backgroundImage: `url('${imageUrl}')` }}
+        >
+          {/* Hidden img to detect errors */}
+          <img
+            src={imageUrl}
+            className="hidden"
+            onError={() => setImgError(true)}
+            alt=""
+          />
+        </div>
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-rose-100/50 flex flex-col items-center justify-center p-4">
+          <div className="w-12 h-12 rounded-full bg-white/80 flex items-center justify-center shadow-sm mb-2 text-rose-300">
+            <MessageSquare className="w-6 h-6" />
+          </div>
+          <div className="absolute top-0 right-0 w-8 h-8 bg-rose-200/40 rounded-bl-3xl" />
+        </div>
+      )}
+
+      <div className="absolute top-1 right-1 text-love-red bg-white/80 rounded-full p-1 shadow-sm z-20">
         {isEditor ? <Pencil className="w-3 h-3" /> : <Heart className="w-3 h-3 fill-current" />}
       </div>
-      <span className="relative z-10 text-[10px] font-bold text-white bg-black/30 backdrop-blur-sm px-2 rounded-full mb-1">
-        Dia {dayNumber}
-      </span>
+
+      <div className="relative z-10 text-center flex flex-col items-center">
+        <span className={cn(
+          "text-[10px] font-bold px-2 rounded-full mb-1",
+          hasImage ? "text-white bg-black/30 backdrop-blur-sm" : "text-rose-600 bg-rose-50/80"
+        )}>
+          Dia {dayNumber}
+        </span>
+      </div>
     </motion.div>
   )
 }
@@ -291,16 +319,34 @@ export const EditorFooter = () => {
 }
 
 // --- User Footer ---
-export const LoveFooter = ({ isEditor = false }: { isEditor?: boolean }) => {
+export const LoveFooter = ({
+  isEditor = false,
+  liked = false,
+  onLike,
+}: {
+  isEditor?: boolean;
+  liked?: boolean;
+  onLike?: () => void;
+}) => {
   return (
-    <div className={cn(
-      "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 dark:border-rose-900/50 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10",
-      isEditor ? "bottom-24" : "bottom-10"
-    )}>
+    <div
+      className={cn(
+        "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 dark:border-rose-900/50 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10 transition-all duration-300",
+        isEditor ? "bottom-24" : "bottom-10"
+      )}
+    >
       <div className="flex items-center gap-3">
-        <button className="flex-1 bg-love-red hover:bg-rose-700 text-white h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 transition-all active:scale-95">
-          <Heart className="w-4 h-4 fill-white" />
-          Enviar Amor
+        <button
+          onClick={onLike}
+          className={cn(
+            "flex-1 h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95",
+            liked
+              ? "bg-rose-500 text-white shadow-rose-500/20"
+              : "bg-love-red hover:bg-rose-700 text-white shadow-rose-500/30"
+          )}
+        >
+          <Heart className={cn("w-4 h-4", liked ? "fill-white" : "fill-white")} />
+          {liked ? "Amor Enviado!" : "Enviar Amor"}
         </button>
         {isEditor && (
           <button className="h-12 w-12 rounded-2xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-800">
@@ -309,8 +355,8 @@ export const LoveFooter = ({ isEditor = false }: { isEditor?: boolean }) => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 // --- Legacy support for existing components if needed ---
 export const FlagBanner = () => null;
@@ -610,7 +656,7 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
 
         {/* Paper Body */}
         <div
-          className="flex-1 px-6 pt-10 pb-6 flex flex-col items-center bg-[#fffafa]"
+          className="flex-1 px-6 pt-10 pb-6 flex flex-col items-center bg-[#fffafa] min-h-[300px]"
           style={{
             backgroundImage: `
               linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
@@ -622,26 +668,37 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
           {/* Media (Polaroid style) */}
           {content.mediaUrl && (
             <div className="w-full aspect-square rounded-2xl overflow-hidden border-8 border-white shadow-lg rotate-1 mb-6 relative shrink-0">
-              <img src={content.mediaUrl} alt="Memory" className="w-full h-full object-cover" />
+              <img
+                src={content.mediaUrl}
+                alt="Memory"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=3786&auto=format&fit=crop";
+                }}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
             </div>
           )}
 
           {/* Text Content */}
-          <div className="text-center space-y-3 relative z-10">
-            {content.title && (
-              <h2 className="font-romantic text-4xl text-rose-900 leading-tight block">
-                {content.title}
-              </h2>
-            )}
+          <div className="text-center space-y-3 relative z-10 w-full">
+            <h2 className="font-romantic text-4xl text-rose-900 leading-tight block">
+              {content.title || "Uma Surpresa para Você"}
+            </h2>
 
-            {content.message && (
-              <p className="font-festive text-xl text-rose-800 leading-relaxed px-2 block">
-                {content.message}
+            <div className="px-2">
+              <p className="font-festive text-xl text-rose-800 leading-relaxed block break-words">
+                {content.message || "Às vezes as palavras não são suficientes para expressar o que eu sinto..."}
+              </p>
+            </div>
+
+            {content.mediaUrl && content.type === 'image' && !content.message && (
+              <p className="font-festive text-lg text-rose-700/60 leading-relaxed italic">
+                Uma imagem vale mais que mil palavras. ❤️
               </p>
             )}
 
-            <div className="pt-4">
+            <div className="pt-8">
               <span className="font-romantic text-3xl text-rose-700 block">Com todo meu coração,</span>
               <div className="flex justify-center mt-1">
                 <Heart className="w-5 h-5 text-love-red fill-current" />

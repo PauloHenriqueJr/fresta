@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play } from "lucide-react";
+import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play, Check } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -38,6 +38,8 @@ const EditarDia = () => {
   const [message, setMessage] = useState("");
   const [url, setUrl] = useState("");
   const [label, setLabel] = useState("");
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const dayNumber = parseInt(dia || "1", 10);
 
@@ -70,6 +72,37 @@ const EditarDia = () => {
 
     fetchData();
   }, [calendarId, dayNumber]);
+
+  // Track changes for autosave
+  useEffect(() => {
+    if (loading) return;
+    setHasChanges(true);
+  }, [message, url, label, selectedType, loading]);
+
+  // Debounced Auto-save
+  useEffect(() => {
+    if (!hasChanges || saving || !calendarId) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setSaving(true);
+        await CalendarsRepository.updateDay(calendarId, dayNumber, {
+          contentType: selectedType,
+          message: message.trim() || null,
+          url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
+          label: selectedType === "link" ? label : null,
+        });
+        setLastSaved(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+        setHasChanges(false);
+      } catch (err) {
+        console.error('Autosave error:', err);
+      } finally {
+        setSaving(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [message, url, label, selectedType, hasChanges, saving, calendarId, dayNumber]);
 
   const handleSave = async () => {
     if (!calendarId) return;
@@ -156,6 +189,20 @@ const EditarDia = () => {
             <h1 className="text-3xl font-extrabold text-foreground">O que tem na Porta {dayNumber}?</h1>
             <p className="text-sm text-muted-foreground">{calendar ? calendar.title : "Personalize sua surpresa"}</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {saving ? (
+            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground/60 uppercase tracking-widest animate-pulse">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Salvando...
+            </div>
+          ) : lastSaved ? (
+            <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 uppercase tracking-widest">
+              <Check className="w-3 h-3" />
+              Salvo às {lastSaved}
+            </div>
+          ) : null}
         </div>
       </div>
 

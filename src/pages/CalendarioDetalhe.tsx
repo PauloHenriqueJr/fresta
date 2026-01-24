@@ -68,6 +68,7 @@ const CalendarioDetalhe = () => {
   const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [selectedDayPreview, setSelectedDayPreview] = useState<number | null>(null);
+  const [liked, setLiked] = useState(false);
   const [previewOpenedDays, setPreviewOpenedDays] = useState<number[]>([]);
 
   useEffect(() => {
@@ -110,8 +111,9 @@ const CalendarioDetalhe = () => {
       const dayMap = new Map((daysData || []).map((day) => [day.day, day]));
       return Array.from({ length: calendar.duration || 0 }, (_, i) => {
         const dayNum = i + 1;
-        const dayData = dayMap.get(dayNum);
-        const hasSpecialContent = !!(dayData?.content_type || dayData?.message || dayData?.url || dayData?.label);
+        const currentDayData = dayMap.get(dayNum);
+        const hasSpecialContent = !!(currentDayData?.content_type || currentDayData?.message || currentDayData?.url || currentDayData?.label);
+        const isOpenedByVisitor = (currentDayData?.opened_count || 0) > 0;
 
         const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
         const doorDate = startOfDay(addDays(baseDate, dayNum - 1));
@@ -124,6 +126,9 @@ const CalendarioDetalhe = () => {
 
         if (previewMode) {
           status = previewOpenedDays.includes(dayNum) ? "opened" : status;
+        } else if (hasSpecialContent || isOpenedByVisitor) {
+          // In Editor (non-preview), if it has content or was opened by visitor, show as "Opened" letter
+          status = "opened";
         }
 
         return {
@@ -282,9 +287,9 @@ const CalendarioDetalhe = () => {
         </main>
 
         {previewMode ? (
-          <LoveFooter isEditor={false} />
+          <LoveFooter isEditor={false} liked={liked} onLike={() => setLiked(!liked)} />
         ) : (
-          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[92%] max-w-lg p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 lg:bottom-8 lg:right-8 lg:left-auto lg:translate-x-0 w-[92%] max-w-lg lg:max-w-xs p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
             <button
               onClick={handleShare}
               className="flex-1 bg-love-red hover:bg-rose-700 text-white h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 transition-all active:scale-95"
@@ -391,13 +396,13 @@ const CalendarioDetalhe = () => {
         {previewMode ? (
           <WeddingFooter isEditor={false} />
         ) : (
-          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[92%] max-w-lg p-4 bg-white/90 backdrop-blur-xl border border-wedding-gold/10 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 lg:bottom-8 lg:right-8 lg:left-auto lg:translate-x-0 w-[92%] max-w-lg lg:max-w-xs p-4 bg-white/90 backdrop-blur-xl border border-wedding-gold/10 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
             <button
               onClick={handleShare}
-              className="flex-1 bg-gradient-to-r from-wedding-gold to-wedding-gold-dark text-white h-12 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-wedding-gold/20"
+              className="flex-1 bg-gradient-to-r from-wedding-gold to-wedding-gold-dark text-white h-12 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-wedding-gold/20"
             >
               <Share2 className="w-4 h-4" />
-              Compatilhar União
+              Compartilhar União
             </button>
             <button onClick={() => navigate(`/calendario/${calendar.id}/stats`)} className="h-12 w-12 rounded-2xl bg-[#F9F6F0] text-wedding-gold flex items-center justify-center border border-wedding-gold/20">
               <BarChart3 className="w-5 h-5" />
@@ -576,12 +581,12 @@ const CalendarioDetalhe = () => {
         <LoveLetterModal
           isOpen={selectedDayPreview !== null}
           onClose={() => setSelectedDayPreview(null)}
-          content={selectedDayData?.content_type ? {
-            type: selectedDayData.content_type === 'text' ? 'text' : 'image',
-            title: `Porta ${selectedDayPreview}`,
+          content={selectedDayData ? {
+            type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
+            title: selectedDayData.label || `Porta ${selectedDayPreview}`,
             message: selectedDayData?.message || "",
             mediaUrl: selectedDayData?.url || undefined,
-          } : { type: 'text', message: "Surpresa! 🎉" }}
+          } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDayPreview}` }}
         />
       ) : (
         <DaySurpriseModal
