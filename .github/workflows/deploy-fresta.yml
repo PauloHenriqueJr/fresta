@@ -112,46 +112,44 @@ jobs:
           
           # 1. Configurações
           INFRA_PATH="${{ secrets.VPS_INFRA_PATH || '/root' }}"
-          COMPOSE_FILE="$INFRA_PATH/docker-compose.yml"
+          COMPOSE_FILE="docker-compose.$SERVICE_NAME.yml"
           
           echo "📂 Acessando diretório: $INFRA_PATH"
           cd "$INFRA_PATH" || { echo "❌ Erro: Diretório $INFRA_PATH não encontrado"; exit 1; }
 
-          # 2. Login no GHCR na VPS
+          # 2. Login no GHCR
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          # 3. Provisionamento Automático no docker-compose.yml
-          if ! grep -q "$SERVICE_NAME:" "$COMPOSE_FILE"; then
-            echo "📝 Adicionando definição do serviço $SERVICE_NAME ao $COMPOSE_FILE..."
-            echo "" >> "$COMPOSE_FILE"
-            echo "  $SERVICE_NAME:" >> "$COMPOSE_FILE"
-            echo "    image: ghcr.io/paulohenriquejr/fresta:$IMAGE_TAG" >> "$COMPOSE_FILE"
-            echo "    container_name: $SERVICE_NAME" >> "$COMPOSE_FILE"
-            echo "    restart: unless-stopped" >> "$COMPOSE_FILE"
-            echo "    networks:" >> "$COMPOSE_FILE"
-            echo "      - traefik-public" >> "$COMPOSE_FILE"
-            echo "    labels:" >> "$COMPOSE_FILE"
-            echo "      - \"traefik.enable=true\"" >> "$COMPOSE_FILE"
-            echo "      - \"traefik.http.routers.$SERVICE_NAME.rule=Host(\`$DOMAIN_URL\`)\"" >> "$COMPOSE_FILE"
-            echo "      - \"traefik.http.routers.$SERVICE_NAME.entrypoints=websecure\"" >> "$COMPOSE_FILE"
-            echo "      - \"traefik.http.routers.$SERVICE_NAME.tls.certresolver=myresolver\"" >> "$COMPOSE_FILE"
-            echo "      - \"traefik.http.services.$SERVICE_NAME.loadbalancer.server.port=80\"" >> "$COMPOSE_FILE"
-          else
-            echo "✅ Serviço $SERVICE_NAME já definido no docker-compose.yml"
-          fi
+          # 3. Gerar Arquivo Docker Compose Dedicado (Mais Seguro)
+          echo "📝 Criando arquivo de deploy: $COMPOSE_FILE"
+          cat <<EOF > "$COMPOSE_FILE"
+          services:
+            $SERVICE_NAME:
+              image: ghcr.io/paulohenriquejr/fresta:$IMAGE_TAG
+              container_name: $SERVICE_NAME
+              restart: unless-stopped
+              networks:
+                - traefik
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.$SERVICE_NAME.rule=Host(\`$DOMAIN_URL\`)"
+                - "traefik.http.routers.$SERVICE_NAME.entrypoints=websecure"
+                - "traefik.http.routers.$SERVICE_NAME.tls.certresolver=myresolver"
+                - "traefik.http.services.$SERVICE_NAME.loadbalancer.server.port=80"
 
-          # 4. Atualizar Referência da Imagem no Compose (Importante para upgrades de versão v1.0 -> v1.1)
-          # Usa sed para garantir que a imagem esteja apontando para a tag correta
-          sed -i "s|image: ghcr.io/paulohenriquejr/fresta:.*|image: ghcr.io/paulohenriquejr/fresta:$IMAGE_TAG|g" "$COMPOSE_FILE"
+          networks:
+            traefik:
+              external: true
+          EOF
 
-          # 5. Pull e Update
-          echo "📥 Baixando imagem Fresta ($IMAGE_TAG)..."
-          docker pull ghcr.io/paulohenriquejr/fresta:$IMAGE_TAG
+          # 4. Pull e Update
+          echo "📥 Baixando imagem..."
+          docker compose -f "$COMPOSE_FILE" pull
           
           echo "🚀 Subindo serviço..."
-          docker compose up -d $SERVICE_NAME
+          docker compose -f "$COMPOSE_FILE" up -d
           
-          # 6. Limpeza
+          # 5. Limpeza
           docker image prune -f
           
           echo "✅ Deploy de $SERVICE_NAME ($IMAGE_TAG) concluído com sucesso!"
