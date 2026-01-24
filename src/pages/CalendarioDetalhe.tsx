@@ -167,7 +167,7 @@ const CalendarioDetalhe = () => {
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-40 bg-white/80 dark:bg-[#0E220E]/80 backdrop-blur-md border-b border-border/10 px-6 py-4"
+        className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/10 px-6 py-4 transition-colors"
       >
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
@@ -196,33 +196,39 @@ const CalendarioDetalhe = () => {
             </div>
           </div>
 
-          {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          {/* Actions - Responsive (Mobile Icons, Desktop Text) */}
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setPreviewMode(!previewMode)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border",
-                previewMode
-                  ? "bg-solidroad-accent text-solidroad-text border-solidroad-accent shadow-lg shadow-solidroad-accent/20"
-                  : "bg-white dark:bg-white/5 border-border/10 text-muted-foreground hover:text-foreground"
+                "flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm transition-all border",
+                !previewMode
+                  ? "bg-solidroad-accent/10 text-solidroad-text dark:text-white border-solidroad-accent/20"
+                  : "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
               )}
+              title={previewMode ? "Modo Visualização" : "Modo Edição"}
             >
-              {previewMode ? <Edit className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              {previewMode ? "Modo Editor" : "Visualizar"}
+              {previewMode ? <Eye className="w-4 h-4 md:w-5 md:h-5 dark:text-white" /> : <Edit className="w-4 h-4 md:w-5 md:h-5 dark:text-white" />}
+              <span className="hidden sm:inline">{previewMode ? "Visualização" : "Edição"}</span>
             </button>
 
             <button
               onClick={handleShare}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-border/10 font-bold text-sm text-solidroad-text dark:text-white hover:bg-muted transition-all"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-background/50 dark:bg-card border border-border/10 font-bold text-sm text-solidroad-text dark:text-white hover:bg-muted transition-all"
+              title="Compartilhar"
             >
-              <Share2 className="w-4 h-4" />
-              Compartilhar
+              <Share2 className="w-4 h-4 md:w-5 md:h-5 dark:text-white" />
+              <span className="hidden sm:inline">Compartilhar</span>
             </button>
 
-            <div className="h-8 w-px bg-border/10 mx-2" />
+            <div className="hidden md:block h-8 w-px bg-border/10 mx-1" />
 
-            <button onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)} className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition-colors">
-              <Settings className="w-5 h-5 text-muted-foreground" />
+            <button
+              onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+              className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition-colors border border-transparent dark:border-border/10"
+              title="Configurações"
+            >
+              <Settings className="w-5 h-5 text-muted-foreground dark:text-white" />
             </button>
           </div>
         </div>
@@ -231,37 +237,37 @@ const CalendarioDetalhe = () => {
       <main className="px-6 py-8 max-w-[1600px] mx-auto space-y-8 relative z-10">
         {/* Stats Row - Bento Grid Lite */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-white/5 rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+          <div className="bg-card rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-300">
               <Eye className="w-6 h-6" />
             </div>
             <div>
               <p className="text-2xl font-black text-solidroad-text dark:text-white">{(calendar.views || 0).toLocaleString()}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Visualizações</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">Visualizações</p>
             </div>
           </div>
-          <div className="bg-white dark:bg-white/5 rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-500/10 flex items-center justify-center text-green-600 dark:text-green-400">
+          <div className="bg-card rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-300">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
               <p className="text-2xl font-black text-solidroad-text dark:text-white">{completionPercentage}%</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Concluído</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">Concluído</p>
             </div>
           </div>
-          <div className="bg-white dark:bg-white/5 rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
+          <div className="bg-card rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-300">
               <Calendar className="w-6 h-6" />
             </div>
             <div>
               <p className="text-2xl font-black text-solidroad-text dark:text-white">{days.filter(d => d.hasSpecialContent).length} / {calendar.duration}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Dias Configurados</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">Dias Configurados</p>
             </div>
           </div>
         </div>
 
         {/* Calendar Grid Container */}
-        <div className="bg-white dark:bg-white/5 rounded-[2.5rem] p-8 md:p-12 border border-border/10 shadow-sm min-h-[500px]">
+        <div className="bg-card rounded-[2.5rem] p-8 md:p-12 border border-border/10 shadow-sm min-h-[500px] transition-colors">
           <CalendarGrid
             title={calendar.title || "Calendário"}
             month={(() => {
@@ -296,23 +302,6 @@ const CalendarioDetalhe = () => {
         theme={toUiTheme(calendar.theme_id) as any}
       />
 
-      {/* Mobile Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-[#0E220E]/90 backdrop-blur-lg border-t border-border/10 lg:hidden z-50">
-        <div className="flex gap-3">
-          <button
-            onClick={handleShare}
-            className="flex-1 bg-solidroad-accent text-solidroad-text px-4 py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2"
-          >
-            <Share2 className="w-5 h-5" /> Compartilhar
-          </button>
-          <button
-            onClick={() => setPreviewMode(!previewMode)}
-            className="px-4 py-3.5 rounded-xl bg-white dark:bg-white/10 border border-border/10 flex items-center justify-center"
-          >
-            {previewMode ? <Edit className="w-5 h-5 text-solidroad-text dark:text-white" /> : <Eye className="w-5 h-5 text-solidroad-text dark:text-white" />}
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

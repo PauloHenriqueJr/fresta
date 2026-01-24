@@ -181,6 +181,11 @@
     --ring: 270 60% 55%;
     --border: 270 20% 88%;
   }
+  .dark .theme-carnaval {
+    --background: 270 30% 8%;
+    --secondary: 270 20% 15%;
+    --border: 270 20% 20%;
+  }
 
   .theme-saojoao {
     --primary: 25 90% 55%;
@@ -192,6 +197,11 @@
     --background: 40 40% 96%;
     --ring: 25 90% 55%;
     --border: 35 30% 85%;
+  }
+  .dark .theme-saojoao {
+    --background: 25 30% 8%;
+    --secondary: 25 20% 15%;
+    --border: 25 20% 20%;
   }
 
   .theme-natal {
@@ -205,6 +215,11 @@
     --ring: var(--natal-green);
     --border: 145 20% 88%;
   }
+  .dark .theme-natal {
+    --background: 145 40% 6%;
+    --secondary: 145 20% 12%;
+    --border: 145 20% 18%;
+  }
 
   .theme-pascoa {
     --primary: var(--pascoa-lavender);
@@ -216,6 +231,11 @@
     --background: var(--pascoa-bg);
     --ring: var(--pascoa-lavender);
     --border: 255 25% 90%;
+  }
+  .dark .theme-pascoa {
+    --background: 255 35% 8%;
+    --secondary: 255 20% 15%;
+    --border: 255 20% 20%;
   }
 
   .theme-romance {
@@ -229,27 +249,33 @@
     --ring: var(--romance-red);
     --border: 350 25% 90%;
   }
+  .dark .theme-romance {
+    --background: 350 40% 8%;
+    --secondary: 350 20% 15%;
+    --border: 350 20% 20%;
+  }
 
   .theme-casamento {
     --background: var(--wedding-cream);
     --foreground: var(--wedding-ink);
     --card: var(--wedding-card);
     --card-foreground: var(--wedding-ink);
-
     --primary: var(--wedding-gold);
     --primary-foreground: var(--wedding-ink);
-
     --secondary: 40 35% 93%;
     --secondary-foreground: var(--wedding-ink);
-
     --muted: 40 25% 92%;
     --muted-foreground: var(--wedding-muted);
-
     --accent: var(--wedding-gold);
     --accent-foreground: var(--wedding-ink);
-
     --border: 45 30% 85%;
     --ring: var(--wedding-gold);
+  }
+  .dark .theme-casamento {
+    --background: 40 10% 8%;
+    --foreground: 40 20% 95%;
+    --secondary: 40 15% 15%;
+    --border: 45 20% 20%;
   }
 
   .theme-reveillon {
@@ -263,6 +289,12 @@
     --ring: var(--reveillon-violet);
     --border: 255 25% 90%;
   }
+  .dark .theme-reveillon {
+    --background: 255 40% 6%;
+    --secondary: 255 20% 12%;
+    --border: 255 20% 18%;
+    --gradient-reveillon: linear-gradient(135deg, hsl(255 50% 25%) 0%, hsl(45 70% 30%) 100%);
+  }
 
   .theme-independencia {
     --primary: var(--br-blue);
@@ -274,6 +306,32 @@
     --background: var(--br-bg);
     --ring: var(--br-green);
     --border: 210 25% 88%;
+  }
+  .dark .theme-independencia {
+    --background: 210 40% 7%;
+    --secondary: 210 20% 14%;
+    --border: 210 20% 20%;
+    --gradient-independencia: linear-gradient(135deg, hsl(145 60% 15%) 0%, hsl(220 60% 15%) 100%);
+  }
+  
+  /* Additional Dark Mode Gradient Overrides */
+  .dark .theme-carnaval {
+    --gradient-carnaval: linear-gradient(135deg, hsl(270 50% 20%) 0%, hsl(330 50% 25%) 100%);
+  }
+  .dark .theme-saojoao {
+    --gradient-saojoao: linear-gradient(135deg, hsl(25 70% 20%) 0%, hsl(45 80% 25%) 100%);
+  }
+  .dark .theme-natal {
+    --gradient-natal: linear-gradient(90deg, hsl(145 50% 15%) 0%, hsl(0 60% 20%) 100%);
+  }
+  .dark .theme-pascoa {
+    --gradient-pascoa: linear-gradient(135deg, hsl(255 50% 20%) 0%, hsl(335 60% 25%) 100%);
+  }
+  .dark .theme-romance {
+    --gradient-romance: linear-gradient(135deg, hsl(345 60% 20%) 0%, hsl(350 70% 15%) 100%);
+  }
+  .dark .theme-casamento {
+    --gradient-wedding: linear-gradient(90deg, hsl(45 60% 25%) 0%, hsl(45 80% 20%) 100%);
   }
 }
 

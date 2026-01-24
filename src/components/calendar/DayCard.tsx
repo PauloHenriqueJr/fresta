@@ -17,16 +17,7 @@ interface DayCardProps {
 }
 
 // Pastel Color Maps for Themes
-const THEME_COLORS: Record<string, string> = {
-  carnaval: "from-purple-400 to-pink-400",
-  saojoao: "from-orange-400 to-red-400",
-  natal: "from-red-500 to-green-600",
-  reveillon: "from-yellow-400 to-yellow-600",
-  pascoa: "from-pink-300 to-purple-300",
-  namoro: "from-red-400 to-pink-500",
-  casamento: "from-slate-300 to-slate-400",
-  default: "from-solidroad-accent to-solidroad-accent/80", // Solidroad Gold
-};
+// removing THEME_COLORS as it's now in CSS variables
 
 const THEME_BG_CLASSES: Record<string, string> = {
   carnaval: "bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800",
@@ -47,10 +38,7 @@ const DayCard = ({
 }: DayCardProps) => {
   const premiumTheme = getThemeConfig(theme);
 
-  const getThemeGradient = () => {
-    return THEME_COLORS[theme] || THEME_COLORS["default"];
-  };
-
+  // removed getThemeGradient
   const getThemeBg = () => {
     if (status === 'opened') return "bg-gray-100 dark:bg-white/5 border-transparent";
     return THEME_BG_CLASSES[theme] || THEME_BG_CLASSES["default"];
@@ -92,13 +80,14 @@ const DayCard = ({
         <motion.button
           className={cn(
             "absolute inset-0 z-10 flex flex-col items-center justify-center rounded-[1.5rem] shadow-sm transition-all overflow-hidden border",
-            status === 'available' ? `bg-gradient-to-br ${getThemeGradient()} border-transparent shadow-lg shadow-black/5` : getThemeBg()
+            status === 'available' ? "border-transparent shadow-lg shadow-black/5" : getThemeBg()
           )}
           style={
-            status === 'locked' ? {
-              ...premiumTheme.styles.card.locked,
-              ...(premiumTheme.styles.card.boxShadow ? { boxShadow: premiumTheme.styles.card.boxShadow } : {})
-            } : undefined
+            status === 'available' ? { background: `var(--gradient-${theme === 'default' ? 'festive' : (theme === 'namoro' || theme === 'casamento' ? 'romance' : theme)})` } :
+              status === 'locked' ? {
+                ...premiumTheme.styles.card.locked,
+                ...(premiumTheme.styles.card.boxShadow ? { boxShadow: premiumTheme.styles.card.boxShadow } : {})
+              } : undefined
           }
           onClick={onClick}
           whileHover={status !== "opened" ? {
