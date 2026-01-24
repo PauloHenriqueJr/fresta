@@ -35,12 +35,12 @@ export default function B2CLayout() {
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="hidden xl:flex items-center bg-white/50 dark:bg-white/5 rounded-2xl px-4 py-2.5 border border-border/10 group focus-within:border-solidroad-accent/50 focus-within:ring-2 focus-within:ring-solidroad-accent/10 transition-all">
-                  <Search className="w-4 h-4 text-muted-foreground mr-2" />
+                <div className="hidden xl:flex items-center bg-muted/50 dark:bg-card rounded-2xl px-4 py-2.5 border border-border/10 group focus-within:border-solidroad-accent/50 focus-within:ring-2 focus-within:ring-solidroad-accent/10 transition-all">
+                  <Search className="w-4 h-4 text-muted-foreground/60 mr-2" />
                   <input
                     type="text"
                     placeholder="Busca global..."
-                    className="bg-transparent border-none outline-none text-sm w-64 placeholder:text-muted-foreground/50 font-medium text-solidroad-text dark:text-white"
+                    className="bg-transparent border-none outline-none text-sm w-64 placeholder:text-muted-foreground/40 font-medium text-foreground"
                   />
                 </div>
 
@@ -50,7 +50,7 @@ export default function B2CLayout() {
                     const nextTheme = themePreference === "dark" ? "light" : "dark";
                     updateThemePreference(nextTheme);
                   }}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted/50 dark:bg-white/5 text-[#0E220E] dark:text-[#F6D045] transition-all hover:scale-105 border border-border/50"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted/50 dark:bg-card text-foreground dark:text-solidroad-accent transition-all hover:scale-105 border border-border/10"
                   title="Alternar modo claro/escuro"
                 >
                   {themePreference === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -58,7 +58,7 @@ export default function B2CLayout() {
 
                 <button
                   onClick={() => navigate("/premium")}
-                  className="px-6 py-2.5 rounded-xl bg-solidroad-accent text-solidroad-text text-sm font-black shadow-lg shadow-solidroad-accent/20 hover:scale-105 transition-all flex items-center gap-2 shadow-glow"
+                  className="px-6 py-2.5 rounded-xl bg-solidroad-accent text-solidroad-text text-sm font-black shadow-glow-accent hover:scale-105 transition-all flex items-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
                   Seja Premium

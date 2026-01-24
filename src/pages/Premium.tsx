@@ -43,7 +43,7 @@ const Premium = () => {
   const [selectedPlan, setSelectedPlan] = useState("annual");
 
   return (
-    <div className="min-h-screen bg-[#F8F9F5]">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Premium Hero - High Impact */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-24 pt-12">
         {/* Background pattern */}
@@ -91,7 +91,7 @@ const Premium = () => {
           </p>
 
           <div className="flex justify-center -mb-32 relative z-20">
-            <div className="w-64 h-48 bg-white rounded-[3rem] shadow-2xl flex items-center justify-center relative overflow-hidden group">
+            <div className="w-64 h-48 bg-card rounded-[3rem] shadow-2xl flex items-center justify-center relative overflow-hidden group border-4 border-white dark:border-white/10">
               <div className="absolute inset-0 bg-gradient-to-br from-solidroad-accent/10 to-transparent" />
               <Crown className="w-32 h-32 text-solidroad-accent/40 group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute bottom-4 right-4 text-4xl transform rotate-12">🎁</div>
@@ -106,8 +106,8 @@ const Premium = () => {
           {/* Features Column */}
           <div className="lg:col-span-3 space-y-10">
             <div>
-              <h3 className="text-2xl font-black text-[#1A3E3A] mb-2">Por que ser Premium?</h3>
-              <p className="text-[#5A7470] font-medium">Acesso total a todas as ferramentas criativas do Fresta.</p>
+              <h3 className="text-2xl font-black text-foreground mb-2">Por que ser Premium?</h3>
+              <p className="text-muted-foreground/60 font-medium">Acesso total a todas as ferramentas criativas do Fresta.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -130,23 +130,23 @@ const Premium = () => {
               ))}
             </div>
 
-            <div className="p-8 rounded-[2.5rem] bg-[#1A3E3A] text-white flex flex-col md:flex-row items-center gap-6 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
-              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
+            <div className="p-8 rounded-[2.5rem] bg-card border border-border/10 text-foreground flex flex-col md:flex-row items-center gap-6 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-solidroad-accent/5 rounded-full -mr-16 -mt-16" />
+              <div className="w-16 h-16 rounded-2xl bg-solidroad-accent/10 flex items-center justify-center shrink-0">
                 <Sparkles className="w-8 h-8 text-solidroad-accent" />
               </div>
               <div>
                 <p className="text-lg font-bold leading-tight">Já é um dos nossos criadores?</p>
-                <p className="text-white/60 text-sm">Restaure sua compra se você já assinou anteriormente em outro dispositivo.</p>
+                <p className="text-muted-foreground/60 text-sm">Restaure sua compra se você já assinou anteriormente em outro dispositivo.</p>
               </div>
-              <button className="md:ml-auto px-6 h-12 rounded-xl bg-white text-[#1A3E3A] font-black text-sm hover:bg-solidroad-accent transition-colors shadow-lg">RESTAURAR</button>
+              <button className="md:ml-auto px-6 h-12 rounded-xl bg-solidroad-accent text-solidroad-text font-black text-sm hover:scale-105 transition-all shadow-glow">RESTAURAR</button>
             </div>
           </div>
 
           {/* Pricing Column */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-[3rem] p-8 shadow-2xl border border-[rgba(0,0,0,0.04)] sticky top-32">
-              <h3 className="text-xl font-black text-[#1A3E3A] mb-8 text-center uppercase tracking-widest">Escolha seu plano</h3>
+            <div className="bg-card rounded-[3rem] p-8 shadow-2xl border border-border/10 sticky top-32">
+              <h3 className="text-xl font-black text-foreground mb-8 text-center uppercase tracking-widest">Escolha seu plano</h3>
 
               <div className="space-y-4">
                 {plans.map((plan) => (
@@ -157,7 +157,7 @@ const Premium = () => {
                       "w-full p-6 rounded-[2.5rem] border-2 transition-all relative text-left group",
                       selectedPlan === plan.id
                         ? "border-solidroad-accent bg-solidroad-accent/5 shadow-xl scale-[1.02]"
-                        : "border-[rgba(0,0,0,0.06)] bg-[#F8F9F5] hover:border-solidroad-accent/30"
+                        : "border-border/10 bg-muted hover:border-solidroad-accent/30"
                     )}
                   >
                     {plan.badge && (
@@ -166,7 +166,7 @@ const Premium = () => {
                       </span>
                     )}
                     <div className="flex justify-between items-center mb-4">
-                      <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", selectedPlan === plan.id ? "text-solidroad-accent" : "text-[#5A7470]")}>
+                      <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", selectedPlan === plan.id ? "text-solidroad-accent" : "text-muted-foreground/60")}>
                         PLANO {plan.name}
                       </p>
                       <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
@@ -176,8 +176,8 @@ const Premium = () => {
                       </div>
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-black text-[#1A3E3A] tracking-tighter">{plan.price}</span>
-                      <span className="text-sm font-bold text-[#5A7470]/60 lowercase">{plan.period}</span>
+                      <span className="text-3xl font-black text-foreground tracking-tighter">{plan.price}</span>
+                      <span className="text-sm font-bold text-muted-foreground/60 lowercase">{plan.period}</span>
                     </div>
                     {plan.savings && (
                       <div className="mt-3 inline-flex px-3 py-1 rounded-full bg-[#E8F5E0] text-[#2D7A5F] text-[10px] font-black uppercase tracking-wider">
@@ -192,7 +192,7 @@ const Premium = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(`/checkout/${selectedPlan}`)}
-                className="w-full h-16 bg-[#1A3E3A] text-white rounded-2xl font-black text-lg shadow-xl shadow-[#1A3E3A]/20 flex items-center justify-center gap-2 mt-8 hover:bg-[#1B4D3E] transition-all"
+                className="w-full h-16 bg-solidroad-accent text-solidroad-text rounded-2xl font-black text-lg shadow-glow-accent flex items-center justify-center gap-2 mt-8 hover:scale-105 transition-all"
               >
                 ASSINAR AGORA
                 <ArrowRight className="w-6 h-6" />

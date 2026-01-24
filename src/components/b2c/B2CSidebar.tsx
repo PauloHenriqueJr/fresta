@@ -77,12 +77,12 @@ export default function B2CSidebar() {
                             "flex items-center gap-3 py-3 rounded-xl transition-all",
                             collapsed ? "justify-center px-0" : "px-3",
                             isActive
-                              ? "bg-solidroad-accent text-solidroad-text shadow-glow"
-                              : "text-muted-foreground/70 hover:bg-solidroad-accent/10 hover:text-solidroad-text dark:text-white/60 dark:hover:text-solidroad-accent"
+                              ? "bg-solidroad-accent text-solidroad-text shadow-glow-accent ring-2 ring-solidroad-accent/20"
+                              : "text-muted-foreground/70 hover:bg-muted dark:hover:bg-card hover:text-foreground transition-all duration-300"
                           )}
                         >
-                          <item.icon className={cn("w-8 h-8", isActive ? "text-[#0E220E]" : "text-muted-foreground/60 dark:text-white/40 group-hover:text-inherit")} strokeWidth={isActive ? 2 : 1.5} />
-                          {!collapsed && <span>{item.title}</span>}
+                          <item.icon className={cn("w-8 h-8", isActive ? "text-solidroad-text" : "text-muted-foreground/40 dark:text-white/20 group-hover:text-foreground")} strokeWidth={isActive ? 2.5 : 2} />
+                          {!collapsed && <span className={cn("font-bold tracking-tight", isActive ? "text-solidroad-text" : "text-foreground")}>{item.title}</span>}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -108,12 +108,12 @@ export default function B2CSidebar() {
                             "flex items-center gap-3 py-3 rounded-xl transition-all",
                             collapsed ? "justify-center px-0" : "px-3",
                             isActive
-                              ? "bg-solidroad-accent text-solidroad-text shadow-glow"
-                              : "text-muted-foreground/70 hover:bg-solidroad-accent/10 hover:text-solidroad-text dark:text-white/60 dark:hover:text-solidroad-accent"
+                              ? "bg-solidroad-accent text-solidroad-text shadow-glow-accent ring-2 ring-solidroad-accent/20"
+                              : "text-muted-foreground/70 hover:bg-muted dark:hover:bg-card hover:text-foreground transition-all duration-300"
                           )}
                         >
-                          <item.icon className={cn("w-8 h-8", isActive ? "text-[#0E220E]" : "text-muted-foreground/60 dark:text-white/40 group-hover:text-inherit")} strokeWidth={isActive ? 2 : 1.5} />
-                          {!collapsed && <span>{item.title}</span>}
+                          <item.icon className={cn("w-8 h-8", isActive ? "text-solidroad-text" : "text-muted-foreground/40 dark:text-white/20 group-hover:text-foreground")} strokeWidth={isActive ? 2.5 : 2} />
+                          {!collapsed && <span className={cn("font-bold tracking-tight", isActive ? "text-solidroad-text" : "text-foreground")}>{item.title}</span>}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -124,7 +124,7 @@ export default function B2CSidebar() {
                     <button
                       onClick={() => { logout(); navigate('/entrar'); }}
                       className={cn(
-                        "w-full flex items-center gap-3 py-3 rounded-xl transition-all font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10",
+                        "w-full flex items-center gap-3 py-3 rounded-xl transition-all font-bold text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/10",
                         collapsed ? "justify-center px-0" : "px-3"
                       )}
                     >
@@ -141,7 +141,7 @@ export default function B2CSidebar() {
         {/* User Footer */}
         <div className={cn("mt-auto p-4 border-t border-border/10", collapsed ? "flex justify-center" : "")}>
           <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "")}>
-            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-sm font-bold text-muted-foreground border border-border/10 overflow-hidden">
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground border border-border/10 overflow-hidden shrink-0">
               {/* Explicitly fallback to Initials if no avatar, never use mascot here */}
               {profile?.avatar ? (
                 <img src={profile.avatar} className="w-full h-full object-cover" />
@@ -151,8 +151,8 @@ export default function B2CSidebar() {
             </div>
             {!collapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-sm font-bold text-solidroad-text dark:text-white truncate">{profile?.display_name || "Usuário"}</span>
-                <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                <span className="text-sm font-bold text-foreground truncate">{profile?.display_name || "Usuário"}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 truncate">{user?.email}</span>
               </div>
             )}
           </div>

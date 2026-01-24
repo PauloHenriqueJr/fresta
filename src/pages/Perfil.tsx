@@ -71,14 +71,14 @@ export default function Perfil() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9F5] flex items-center justify-center">
-        <Loader2 className="animate-spin text-[#2D7A5F]" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9F5] pb-12">
+    <div className="min-h-screen bg-background pb-12 transition-colors duration-300">
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F]">
         {/* Background pattern */}
@@ -163,13 +163,13 @@ export default function Perfil() {
           {statCards.map((stat, index) => (
             <div
               key={stat.label}
-              className={`${STAT_COLORS[index].bg} rounded-2xl p-5 lg:p-8 border border-[rgba(0,0,0,0.06)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]`}
+              className="rounded-2xl p-5 lg:p-8 bg-card border border-border/10 shadow-sm"
             >
               <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl ${STAT_COLORS[index].icon} flex items-center justify-center mb-4`}>
                 <stat.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <p className="text-2xl lg:text-3xl font-extrabold text-[#1A3E3A] tracking-tight">{stat.value}</p>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#5A7470]">{stat.label}</p>
+              <p className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">{stat.label}</p>
             </div>
           ))}
         </motion.div>
@@ -181,36 +181,36 @@ export default function Perfil() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <h2 className="text-sm font-bold text-[#5A7470] uppercase tracking-wider mb-4">Recursos</h2>
+          <h2 className="text-sm font-bold text-muted-foreground/60 uppercase tracking-wider mb-4">Recursos</h2>
 
           {menuItems.map((item, index) => (
             <button
               key={item.label}
               onClick={() => navigate(item.route)}
-              className={`w-full flex items-center gap-4 p-4 lg:p-5 rounded-2xl border border-[rgba(0,0,0,0.06)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] transition-all group ${MENU_COLORS[index]}`}
+              className="w-full flex items-center gap-4 p-4 lg:p-5 rounded-2xl bg-card border border-border/10 hover:shadow-xl hover:-translate-y-1 transition-all group"
             >
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.highlight ? 'bg-[#F9A03F]' : 'bg-white/50'}`}>
-                <item.icon className={`w-5 h-5 ${item.highlight ? 'text-white' : 'text-[#2D7A5F]'}`} />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.highlight ? 'bg-solidroad-accent shadow-glow' : 'bg-muted'}`}>
+                <item.icon className={`w-5 h-5 ${item.highlight ? 'text-solidroad-text' : 'text-muted-foreground'}`} />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-base font-bold text-[#1A3E3A]">{item.label}</p>
-                <p className="text-sm text-[#5A7470]">{item.description}</p>
+                <p className="text-base font-bold text-foreground">{item.label}</p>
+                <p className="text-sm text-muted-foreground/60">{item.description}</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-[#5A7470] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ChevronRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           ))}
 
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 p-4 lg:p-5 rounded-2xl bg-white border border-[rgba(0,0,0,0.06)] hover:bg-red-50 hover:border-red-200 transition-all group"
+            className="w-full flex items-center gap-4 p-4 lg:p-5 rounded-2xl bg-card border border-border/10 hover:bg-red-500/5 hover:border-red-500/20 transition-all group"
           >
-            <div className="w-12 h-12 rounded-xl bg-[#F8F9F5] flex items-center justify-center group-hover:bg-red-100 transition-colors">
-              <LogOut className="w-5 h-5 text-[#5A7470] group-hover:text-red-500 transition-colors" />
+            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center group-hover:bg-red-500/10 transition-colors">
+              <LogOut className="w-5 h-5 text-muted-foreground group-hover:text-red-500 transition-colors" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-base font-bold text-[#1A3E3A] group-hover:text-red-600 transition-colors">Sair da conta</p>
-              <p className="text-sm text-[#5A7470]">Encerrar sua sessão</p>
+              <p className="text-base font-bold text-foreground group-hover:text-red-500 transition-colors">Sair da conta</p>
+              <p className="text-sm text-muted-foreground/60">Encerrar sua sessão</p>
             </div>
           </button>
         </motion.div>

@@ -53,7 +53,7 @@ const Ajuda = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F9F5]">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Premium Hero - Welcoming */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-24 pt-12">
         {/* Background pattern */}
@@ -102,21 +102,21 @@ const Ajuda = () => {
       <div className="container mx-auto px-6 max-w-4xl -mt-10 relative z-20 pb-24">
         {/* Floating Search Style from Explorar */}
         <motion.div
-          className="bg-white rounded-[2rem] shadow-[0_16px_48px_rgba(0,0,0,0.1)] p-5 md:p-6 flex items-center gap-4 border border-[rgba(0,0,0,0.04)]"
+          className="bg-card rounded-[2rem] shadow-xl p-5 md:p-6 flex items-center gap-4 border border-border/10"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-12 h-12 rounded-2xl bg-solidroad-beige/40 flex items-center justify-center">
-              <Search className="w-6 h-6 text-[#F9A03F]" />
+            <div className="w-12 h-12 rounded-2xl bg-solidroad-accent/10 flex items-center justify-center">
+              <Search className="w-6 h-6 text-solidroad-accent" />
             </div>
             <input
               type="text"
               placeholder="Qual sua dúvida hoje?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[#1A3E3A] placeholder:text-[#9CA3AF] focus:outline-none font-bold text-lg"
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/40 focus:outline-none font-bold text-lg"
             />
           </div>
         </motion.div>
@@ -136,7 +136,7 @@ const Ajuda = () => {
                 <motion.div
                   key={index}
                   className={cn(
-                    "bg-white rounded-3xl border border-[rgba(0,0,0,0.05)] shadow-sm overflow-hidden transition-all duration-300",
+                    "bg-card rounded-3xl border border-border/10 shadow-sm overflow-hidden transition-all duration-300",
                     expandedIndex === index ? "shadow-xl border-solidroad-accent/20 ring-4 ring-solidroad-accent/5" : "hover:border-solidroad-accent/10"
                   )}
                 >
@@ -144,11 +144,11 @@ const Ajuda = () => {
                     onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
                     className="w-full p-6 flex items-center justify-between text-left group"
                   >
-                    <span className={cn("font-black text-lg transition-colors", expandedIndex === index ? "text-[#1A3E3A]" : "text-[#5A7470] group-hover:text-[#1A3E3A]")}>
+                    <span className={cn("font-black text-lg transition-colors", expandedIndex === index ? "text-foreground" : "text-muted-foreground/60 group-hover:text-foreground")}>
                       {item.question}
                     </span>
                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                      expandedIndex === index ? "bg-solidroad-accent text-solidroad-text rotate-180" : "bg-[#F8F9F5] text-[#5A7470]"
+                      expandedIndex === index ? "bg-solidroad-accent text-solidroad-text rotate-180" : "bg-muted text-muted-foreground"
                     )}>
                       <ChevronDown className="w-5 h-5 stroke-[3px]" />
                     </div>
@@ -163,7 +163,7 @@ const Ajuda = () => {
                     className="overflow-hidden"
                   >
                     <div className="px-6 pb-6 pt-2">
-                      <div className="p-5 rounded-2xl bg-[#F8F9F5] text-[#1A3E3A] font-medium leading-relaxed">
+                      <div className="p-5 rounded-2xl bg-muted/30 text-foreground font-medium leading-relaxed">
                         {item.answer}
                       </div>
                     </div>
@@ -192,26 +192,26 @@ const Ajuda = () => {
               Fale Conosco
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <button className="flex items-center gap-6 p-6 rounded-[2.5rem] bg-white border border-[rgba(0,0,0,0.05)] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all group">
-                <div className="w-16 h-16 rounded-2xl bg-[#E8F5E0] text-[#2D7A5F] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <button className="flex items-center gap-6 p-6 rounded-[2.5rem] bg-card border border-border/10 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all group">
+                <div className="w-16 h-16 rounded-2xl bg-solidroad-green dark:bg-solidroad-green-dark text-[#2D7A5F] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <MessageCircle className="w-8 h-8" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="font-black text-[#1A3E3A] text-lg mb-1">WhatsApp</p>
-                  <p className="text-xs text-[#5A7470] font-bold uppercase tracking-widest">Suporte Humanizado</p>
+                  <p className="font-black text-foreground text-lg mb-1">WhatsApp</p>
+                  <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest">Suporte Humanizado</p>
                 </div>
-                <ExternalLink className="w-5 h-5 text-[#5A7470]/40 group-hover:text-solidroad-accent transition-colors" />
+                <ExternalLink className="w-5 h-5 text-muted-foreground/20 group-hover:text-solidroad-accent transition-colors" />
               </button>
 
-              <button className="flex items-center gap-6 p-6 rounded-[2.5rem] bg-white border border-[rgba(0,0,0,0.05)] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all group">
-                <div className="w-16 h-16 rounded-2xl bg-[#D4F4F0] text-[#1B4D3E] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+              <button className="flex items-center gap-6 p-6 rounded-[2.5rem] bg-card border border-border/10 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all group">
+                <div className="w-16 h-16 rounded-2xl bg-solidroad-turquoise dark:bg-solidroad-turquoise-dark text-[#1B4D3E] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <Mail className="w-8 h-8" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="font-black text-[#1A3E3A] text-lg mb-1">E-mail</p>
-                  <p className="text-xs text-[#5A7470] font-bold uppercase tracking-widest">Respostas em até 24h</p>
+                  <p className="font-black text-foreground text-lg mb-1">E-mail</p>
+                  <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest">Respostas em até 24h</p>
                 </div>
-                <ExternalLink className="w-5 h-5 text-[#5A7470]/40 group-hover:text-solidroad-accent transition-colors" />
+                <ExternalLink className="w-5 h-5 text-muted-foreground/20 group-hover:text-solidroad-accent transition-colors" />
               </button>
             </div>
           </motion.section>

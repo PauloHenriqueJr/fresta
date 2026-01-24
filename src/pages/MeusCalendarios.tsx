@@ -167,7 +167,7 @@ const MeusCalendarios = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9F5] pb-24">
+    <div className="min-h-screen bg-background pb-24 transition-colors duration-300">
       {/* Premium Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-20 pt-10">
         {/* Background pattern */}
@@ -209,7 +209,7 @@ const MeusCalendarios = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/criar")}
-              className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#1B4D3E] rounded-2xl font-black shadow-2xl hover:shadow-white/10 transition-all group"
+              className="flex items-center justify-center gap-2 px-8 py-4 bg-white dark:bg-card text-[#1B4D3E] dark:text-white rounded-2xl font-black shadow-2xl hover:shadow-white/10 transition-all group"
             >
               <Plus className="w-5 h-5 stroke-[3px] group-hover:rotate-90 transition-transform duration-300" />
               CRIAR NOVO
@@ -230,36 +230,36 @@ const MeusCalendarios = () => {
             <div
               key={stat.label}
               className={cn(
-                "rounded-2xl p-5 md:p-8 bg-white border border-[rgba(0,0,0,0.06)] shadow-[0_8px_24px_rgba(0,0,0,0.08)] group hover:shadow-xl transition-all duration-300",
+                "rounded-2xl p-5 md:p-8 bg-card border border-border/10 shadow-sm group hover:shadow-xl transition-all duration-300",
                 idx === 2 ? "col-span-2 md:col-span-1" : ""
               )}
             >
               <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110", stat.bg)}>
                 <stat.icon className={cn("w-5 h-5 md:w-6 md:h-6", stat.iconColor)} />
               </div>
-              <p className="text-2xl md:text-4xl font-black text-[#1A3E3A] tracking-tighter">
+              <p className="text-2xl md:text-4xl font-black text-foreground tracking-tighter">
                 {stat.key === 'views' ? statsData.views.toLocaleString() : statsData[stat.key as keyof typeof statsData]}
               </p>
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-[#5A7470]">{stat.label}</p>
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</p>
             </div>
           ))}
         </motion.div>
 
         {/* Search Bar - Floating White Card style from Explorar */}
         <motion.div
-          className="mt-8 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 flex items-center gap-4 border border-[rgba(0,0,0,0.04)]"
+          className="mt-8 bg-card rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-border/10"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
           <div className="flex items-center gap-3 flex-1">
-            <Search className="w-5 h-5 text-[#5A7470]" />
+            <Search className="w-5 h-5 text-muted-foreground/60" />
             <input
               type="text"
               placeholder="Buscar por título ou tema..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[#1A3E3A] placeholder:text-[#9CA3AF] focus:outline-none font-medium"
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/40 focus:outline-none font-medium"
             />
           </div>
         </motion.div>
@@ -268,21 +268,21 @@ const MeusCalendarios = () => {
         <div className="mt-12">
           {filteredCalendars.length === 0 ? (
             <motion.div
-              className="py-20 text-center bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.06)] shadow-sm"
+              className="py-20 text-center bg-card rounded-[2.5rem] border border-border/10 shadow-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div className="w-20 h-20 bg-[#FFF8E8] rounded-full flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-10 h-10 text-[#F9A03F]" />
+              <div className="w-20 h-20 bg-solidroad-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-solidroad-accent" />
               </div>
-              <h2 className="text-2xl font-black text-[#1A3E3A] mb-2">Nada por aqui ainda</h2>
-              <p className="text-[#5A7470] max-w-xs mx-auto mb-8">
+              <h2 className="text-2xl font-black text-foreground mb-2">Nada por aqui ainda</h2>
+              <p className="text-muted-foreground/60 max-w-xs mx-auto mb-8">
                 {query ? `Nenhum calendário com "${query}" foi encontrado.` : "Seus calendários aparecerão aqui. Que tal criar o primeiro agora?"}
               </p>
               {!query && (
                 <button
                   onClick={() => navigate("/criar")}
-                  className="px-8 py-3.5 bg-solidroad-accent text-solidroad-text rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-lg"
+                  className="px-8 py-3.5 bg-solidroad-accent text-solidroad-text rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-glow"
                 >
                   Criar meu Primeiro Calendário
                 </button>
@@ -307,8 +307,9 @@ const MeusCalendarios = () => {
                     key={calendar.id}
                     variants={item}
                     className={cn(
-                      "group relative rounded-[2rem] p-6 bg-white border border-[rgba(0,0,0,0.06)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-300 overflow-hidden cursor-pointer",
-                      cardBg
+                      "group relative rounded-[2rem] p-6 bg-card border border-border/10 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden cursor-pointer",
+                      // Allow theme colors only in light mode? Or just use semantic card bg
+                      "dark:!bg-card"
                     )}
                     onClick={() => navigate(`/calendario/${calendar.id}`)}
                   >
@@ -343,10 +344,10 @@ const MeusCalendarios = () => {
                     </div>
 
                     <div className="space-y-1 mb-8">
-                      <h3 className="text-xl font-black text-[#1A3E3A] line-clamp-1 group-hover:text-solidroad-accent transition-colors tracking-tight">
+                      <h3 className="text-xl font-black text-foreground line-clamp-1 group-hover:text-solidroad-accent transition-colors tracking-tight">
                         {calendar.title}
                       </h3>
-                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-[#5A7470]/60">
+                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {calendar.duration} dias</span>
                         <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {calendar.views || 0}</span>
                       </div>
@@ -362,31 +363,31 @@ const MeusCalendarios = () => {
                           <DropdownMenuTrigger asChild>
                             <button
                               onClick={(e) => e.stopPropagation()}
-                              className="w-9 h-9 rounded-xl hover:bg-black/5 transition-colors flex items-center justify-center text-[#5A7470]"
+                              className="w-9 h-9 rounded-xl hover:bg-muted transition-colors flex items-center justify-center text-muted-foreground/60"
                             >
                               <MoreVertical className="w-5 h-5" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-white shadow-2xl border border-[rgba(0,0,0,0.08)]">
+                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-card shadow-2xl border border-border/10">
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); navigate(`/calendario/${calendar.id}`); }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-[#E8F5E0] text-[#1A3E3A]"
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
                             >
-                              <Eye className="w-4 h-4 mr-2 text-[#2D7A5F]" /> Visualizar
+                              <Eye className="w-4 h-4 mr-2" /> Visualizar
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); navigate(`/editar-dia/${calendar.id}/1`); }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-[#FFF8E8] text-[#1A3E3A]"
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
                             >
-                              <Edit2 className="w-4 h-4 mr-2 text-[#F9A03F]" /> Editar Conteúdo
+                              <Edit2 className="w-4 h-4 mr-2" /> Editar Conteúdo
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-black/5" />
+                            <DropdownMenuSeparator className="border-border/10" />
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setCalendarToDelete({ id: calendar.id, title: calendar.title || '' });
                               }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-[#FFE5EC] text-red-500"
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-red-500/10 text-red-500 transition-colors"
                             >
                               <Trash2 className="w-4 h-4 mr-2" /> Excluir
                             </DropdownMenuItem>
@@ -414,7 +415,7 @@ const MeusCalendarios = () => {
           </>
         }
       />
-    </div>
+    </div >
   );
 };
 
