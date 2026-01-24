@@ -27,7 +27,9 @@ export function DatePicker({ date, setDate, placeholder = "Selecione uma data" }
                     className={cn(
                         "w-full pl-6 pr-4 py-7 rounded-2xl text-left font-bold text-lg border-2 transition-all hover:bg-solidroad-accent/5 hover:border-solidroad-accent/30",
                         !date && "text-muted-foreground font-normal",
-                        date ? "border-solidroad-accent/50 bg-solidroad-accent/5 text-solidroad-text" : "border-border/10 bg-[#F9F9F9] dark:bg-black/20 text-solidroad-text dark:text-white"
+                        date
+                            ? "border-solidroad-accent/50 bg-solidroad-accent/10 text-foreground"
+                            : "border-border/10 bg-background dark:bg-white/5 text-foreground"
                     )}
                 >
                     {date ? (
@@ -35,11 +37,11 @@ export function DatePicker({ date, setDate, placeholder = "Selecione uma data" }
                     ) : (
                         <span>{placeholder}</span>
                     )}
-                    <CalendarIcon className={cn("ml-auto h-5 w-5 opacity-50", date && "text-solidroad-accent opacity-100")} />
+                    <CalendarIcon className={cn("ml-auto h-5 w-5 opacity-50", date && "text-solidroad-accent opacity-100 shadow-glow")} />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 rounded-[2.5rem] border-0 shadow-2xl overflow-hidden" align="start">
-                <div className="bg-white dark:bg-[#1C1A0E] border border-border/10 p-4">
+                <div className="bg-card border border-border/10 p-4 transition-colors">
                     <Calendar
                         mode="single"
                         selected={date}
@@ -48,13 +50,13 @@ export function DatePicker({ date, setDate, placeholder = "Selecione uma data" }
                         locale={ptBR}
                         className="rounded-xl"
                         classNames={{
-                            day_selected: "bg-solidroad-accent text-solidroad-text hover:bg-solidroad-accent hover:text-solidroad-text focus:bg-solidroad-accent focus:text-solidroad-text font-bold rounded-xl",
-                            day_today: "bg-solidroad-accent/10 text-solidroad-text font-bold rounded-xl",
-                            day: "h-10 w-10 p-0 font-medium aria-selected:opacity-100 hover:bg-solidroad-accent/20 rounded-xl transition-colors",
-                            head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] capitalize pb-2",
-                            caption: "flex justify-center pt-1 pb-6 relative items-center",
-                            caption_label: "text-lg font-black text-solidroad-text dark:text-white capitalize",
-                            nav_button: "h-10 w-10 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-solidroad-accent/10 rounded-2xl transition-all",
+                            day_selected: "bg-solidroad-accent text-solidroad-text hover:bg-solidroad-accent hover:text-solidroad-text focus:bg-solidroad-accent focus:text-solidroad-text font-black rounded-xl shadow-glow",
+                            day_today: "bg-solidroad-accent/10 text-solidroad-accent font-black rounded-xl",
+                            day: "h-10 w-10 p-0 font-bold aria-selected:opacity-100 hover:bg-solidroad-accent/20 rounded-xl transition-all text-foreground",
+                            head_cell: "text-muted-foreground/60 rounded-md w-10 font-black text-xs uppercase tracking-widest pb-4",
+                            caption: "flex justify-center pt-2 pb-6 relative items-center",
+                            caption_label: "text-lg font-black text-foreground capitalize",
+                            nav_button: "h-10 w-10 bg-muted/50 dark:bg-white/5 p-0 opacity-80 hover:opacity-100 hover:bg-solidroad-accent/10 rounded-2xl transition-all text-foreground",
                         }}
                     />
                 </div>

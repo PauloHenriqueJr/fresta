@@ -146,18 +146,16 @@ const CalendarioDetalhe = () => {
     <div className={`min-h-screen bg-background relative overflow-hidden theme-${calendar.theme_id}`}>
       {/* Sao Joao Background Pattern - Synced with VisualizarCalendario */}
       {calendar.theme_id === 'saojoao' && (
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
+        <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5 pointer-events-none" style={{
           backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
           backgroundSize: "32px 32px",
-          backgroundPosition: "0 0, 16px 16px",
-          backgroundColor: "#FFF8E8"
+          backgroundPosition: "0 0, 16px 16px"
         }} />
       )}
       {calendar.theme_id === 'casamento' && (
-        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{
+        <div className="absolute inset-0 z-0 opacity-5 dark:opacity-2 pointer-events-none" style={{
           backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          backgroundColor: "#FFFCF5"
+          backgroundSize: "24px 24px"
         }} />
       )}
 
@@ -208,7 +206,7 @@ const CalendarioDetalhe = () => {
               )}
               title={previewMode ? "Modo Visualização" : "Modo Edição"}
             >
-              {previewMode ? <Eye className="w-4 h-4 md:w-5 md:h-5 dark:text-white" /> : <Edit className="w-4 h-4 md:w-5 md:h-5 dark:text-white" />}
+              {previewMode ? <Eye className="w-4 h-4 md:w-5 md:h-5 dark:text-white" /> : <Edit className="w-4 h-4 md:w-5 md:h-5 dark:text-solidroad-accent" />}
               <span className="hidden sm:inline">{previewMode ? "Visualização" : "Edição"}</span>
             </button>
 

@@ -396,7 +396,7 @@ const CriarCalendario = () => {
       {/* Desktop Next/Back Buttons for Step 1 & 2 */}
       {step < 3 && (
         <div className="hidden lg:flex fixed bottom-8 right-8 gap-4">
-          <button onClick={handleNext} disabled={!canProceed()} className="px-8 py-4 bg-solidroad-text text-white rounded-2xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+          <button onClick={handleNext} disabled={!canProceed()} className="px-8 py-4 bg-solidroad-accent text-solidroad-text rounded-2xl font-black shadow-xl shadow-solidroad-accent/20 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-glow">
             Próximo Passo <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -407,7 +407,7 @@ const CriarCalendario = () => {
         <button
           onClick={handleNext}
           disabled={!canProceed() || creating}
-          className="w-full bg-solidroad-text text-white py-4 rounded-xl font-bold shadow-lg disabled:opacity-50"
+          className="w-full bg-solidroad-accent text-solidroad-text py-4 rounded-xl font-black shadow-xl shadow-solidroad-accent/20 disabled:opacity-50 transition-all active:scale-[0.98] shadow-glow"
         >
           {step === 3 ? "Finalizar Criação" : "Continuar"}
         </button>

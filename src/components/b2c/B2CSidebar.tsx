@@ -77,8 +77,8 @@ export default function B2CSidebar() {
                             "flex items-center gap-3 py-3 rounded-xl transition-all",
                             collapsed ? "justify-center px-0" : "px-3",
                             isActive
-                              ? "bg-[#F6D045] text-[#0E220E]"
-                              : "text-muted-foreground/70 hover:bg-[#F6D045]/10 hover:text-[#0E220E] dark:text-white/60 dark:hover:text-[#F6D045]"
+                              ? "bg-solidroad-accent text-solidroad-text shadow-glow"
+                              : "text-muted-foreground/70 hover:bg-solidroad-accent/10 hover:text-solidroad-text dark:text-white/60 dark:hover:text-solidroad-accent"
                           )}
                         >
                           <item.icon className={cn("w-8 h-8", isActive ? "text-[#0E220E]" : "text-muted-foreground/60 dark:text-white/40 group-hover:text-inherit")} strokeWidth={isActive ? 2 : 1.5} />
@@ -108,8 +108,8 @@ export default function B2CSidebar() {
                             "flex items-center gap-3 py-3 rounded-xl transition-all",
                             collapsed ? "justify-center px-0" : "px-3",
                             isActive
-                              ? "bg-[#F6D045] text-[#0E220E]"
-                              : "text-muted-foreground/70 hover:bg-[#F6D045]/10 hover:text-[#0E220E] dark:text-white/60 dark:hover:text-[#F6D045]"
+                              ? "bg-solidroad-accent text-solidroad-text shadow-glow"
+                              : "text-muted-foreground/70 hover:bg-solidroad-accent/10 hover:text-solidroad-text dark:text-white/60 dark:hover:text-solidroad-accent"
                           )}
                         >
                           <item.icon className={cn("w-8 h-8", isActive ? "text-[#0E220E]" : "text-muted-foreground/60 dark:text-white/40 group-hover:text-inherit")} strokeWidth={isActive ? 2 : 1.5} />
