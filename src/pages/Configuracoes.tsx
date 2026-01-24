@@ -64,10 +64,11 @@ const Configuracoes = () => {
     fetchCalendar();
   }, [id]);
 
-  const calendarLink = `${window.location.host}${import.meta.env.BASE_URL}#/c/${id}`;
+  const fullUrl = `${window.location.origin}${import.meta.env.BASE_URL}#/c/${id}`;
+  const calendarLink = fullUrl.replace(/^https?:\/\//, '');
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.protocol}//${calendarLink}`);
+    navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     toast({
       title: "Link copiado!",
@@ -118,10 +119,10 @@ const Configuracoes = () => {
   };
 
   const handleSocialShare = (platform: 'whatsapp' | 'instagram' | 'tiktok') => {
-    const text = encodeURIComponent(`Confira meu calendário no Fresta: ${window.location.protocol}//${calendarLink}`);
+    const text = encodeURIComponent(`Confira meu calendário no Fresta: ${fullUrl}`);
     const urls = {
       whatsapp: `https://wa.me/?text=${text}`,
-      instagram: `https://www.instagram.com/`, // Direct share is limited on web
+      instagram: `https://www.instagram.com/`,
       tiktok: `https://www.tiktok.com/`,
     };
 
@@ -131,7 +132,7 @@ const Configuracoes = () => {
       handleCopyLink();
       toast({
         title: "Link copiado!",
-        description: `Abra o ${platform === 'instagram' ? 'Instagram' : 'TikTok'} e cole o link no seu perfil!`,
+        description: `Abra o ${platform === 'instagram' ? 'Instagram' : 'TikTok'} e cole o link na sua bio!`,
       });
     }
   };
@@ -358,12 +359,16 @@ const Configuracoes = () => {
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <div className="flex flex-col md:flex-row items-center gap-10">
-                    {/* QR Code Placeholder */}
-                    <div className="w-48 h-48 bg-background dark:bg-black/20 rounded-[2rem] flex items-center justify-center p-4 border-2 border-dashed border-border/20 group relative shrink-0">
-                      <div className="absolute inset-0 bg-solidroad-accent/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem] flex items-center justify-center backdrop-blur-[2px]">
-                        <span className="text-[10px] font-black text-solidroad-text/60 tracking-widest">GERAR AGORA</span>
+                    {/* Dynamic QR Code */}
+                    <div className="w-48 h-48 bg-white dark:bg-white rounded-[2rem] flex items-center justify-center p-4 border-2 border-border/10 group relative shrink-0 shadow-lg overflow-hidden transition-all hover:scale-105">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`}
+                        alt="QR Code"
+                        className="w-full h-full object-contain"
+                      />
+                      <div className="absolute inset-0 bg-solidroad-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                        <span className="text-[10px] font-black text-solidroad-text tracking-widest bg-solidroad-accent/80 px-3 py-1 rounded-full">ESCANEIE</span>
                       </div>
-                      <span className="text-6xl text-solidroad-accent opacity-20 group-hover:opacity-40 transition-opacity">📱</span>
                     </div>
 
                     <div className="flex-1 text-center md:text-left">
@@ -373,7 +378,7 @@ const Configuracoes = () => {
                       <div className="flex flex-wrap justify-center md:justify-start gap-4">
                         <button onClick={() => handleSocialShare('whatsapp')} className="w-14 h-14 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><MessageCircle className="w-7 h-7" /></button>
                         <button onClick={() => handleSocialShare('instagram')} className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#FFB344] via-[#EA384D] to-[#8D2791] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><Instagram className="w-7 h-7" /></button>
-                        <button onClick={() => handleSocialShare('tiktok')} className="w-14 h-14 rounded-2xl bg-solidroad-text dark:bg-black/40 text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><span className="text-2xl font-bold">🎵</span></button>
+                        <button onClick={() => handleSocialShare('tiktok')} className="w-14 h-14 rounded-2xl bg-solidroad-text dark:bg-black/40 text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all shadow-glow"><span className="text-2xl font-bold">🎵</span></button>
                       </div>
                     </div>
                   </div>

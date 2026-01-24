@@ -58,7 +58,7 @@ export default function B2CLayout() {
 
                 <button
                   onClick={() => navigate("/premium")}
-                  className="px-6 py-2.5 rounded-xl bg-solidroad-accent text-solidroad-text text-sm font-black shadow-lg shadow-solidroad-accent/20 hover:scale-105 transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-solidroad-accent text-solidroad-text text-sm font-black shadow-lg shadow-solidroad-accent/20 hover:scale-105 transition-all flex items-center gap-2 shadow-glow"
                 >
                   <Sparkles className="w-4 h-4" />
                   Seja Premium
