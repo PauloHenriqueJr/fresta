@@ -10,13 +10,19 @@ import {
   Globe,
   Link,
   Check,
+  Settings,
+  Sparkles,
+  Calendar,
+  ChevronRight,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES } from "@/lib/offline/themes";
 import { useEffect } from "react";
-import { Trash2, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Configuracoes = () => {
   const { id } = useParams();
@@ -151,360 +157,267 @@ const Configuracoes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 lg:pb-8">
-      {/* Header - mobile only */}
-      <motion.header
-        className="px-4 py-4 flex items-center gap-4 lg:hidden"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card"
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <h1 className="text-lg font-bold text-foreground">Configurações</h1>
-      </motion.header>
+    <div className="min-h-screen bg-[#F8F9F5]">
+      {/* Premium Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-24 pt-12">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 1440 400">
+            <defs>
+              <pattern id="dotPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="2" fill="white" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dotPattern)" />
+          </svg>
+        </div>
 
-      {/* Desktop Header */}
-      <div className="hidden lg:flex items-center gap-4 px-4 py-6 max-w-2xl mx-auto">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-xl bg-card border border-border/50 hover:bg-accent hover:text-accent-foreground flex items-center justify-center transition-colors"
-          title="Voltar"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-extrabold text-foreground">Configurações</h1>
-          <p className="text-sm text-muted-foreground">{calendar?.title || "Carregando..."}</p>
+        <div className="relative z-10 container mx-auto px-6 max-w-4xl">
+          <div className="flex items-center gap-4 mb-8">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(-1)}
+              className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-all shadow-sm hover:bg-white/20"
+            >
+              <ArrowLeft className="w-5 h-5 stroke-[2.5px]" />
+            </motion.button>
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-2">
+                <Settings className="w-3 h-3 text-solidroad-accent" />
+                <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Ajustes Mágicos</span>
+              </div>
+              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+                Configurações
+              </h1>
+            </div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+          >
+            <div className="w-12 h-12 rounded-xl bg-solidroad-accent/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-6 h-6 text-solidroad-accent" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-white font-bold truncate">{calendar?.title || "Carregando..."}</p>
+              <p className="text-white/60 text-xs font-medium uppercase tracking-wider">Editando agora</p>
+            </div>
+          </motion.div>
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground">Carregando dados...</p>
-        </div>
-      ) : (
-        <div className="px-4 space-y-8 max-w-2xl lg:mx-auto pb-32">
-          {/* Basic Info Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-          >
-            <h2 className="text-xl font-bold text-foreground mb-4">
-              Informações Básicas
-            </h2>
-            <div className="bg-card rounded-3xl p-6 shadow-card space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 ml-1">Título do Calendário</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Contagem para o Natal"
-                  className="w-full p-4 bg-background border-2 border-border rounded-2xl text-foreground focus:outline-none focus:border-primary transition-all"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 ml-1">Data de Início</label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full p-4 bg-background border-2 border-border rounded-2xl text-foreground focus:outline-none focus:border-primary transition-all"
-                />
-                <p className="text-[10px] text-muted-foreground ml-1">A contagem regressiva começará a partir desta data.</p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* Theme Selection Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-          >
-            <h2 className="text-xl font-bold text-foreground mb-4">
-              Personalização do Tema
-            </h2>
-            <div className="bg-card rounded-3xl p-6 shadow-card space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 ml-1">Tema Visual</label>
-                  <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded-full">
-                    {BASE_THEMES.find(t => t.id === themeId)?.name}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                  {BASE_THEMES.filter(t => t.scope !== 'b2b').map((theme) => (
-                    <button
-                      key={theme.id}
-                      onClick={() => setThemeId(theme.id)}
-                      className={`relative p-3 rounded-xl border-2 text-left transition-all hover:scale-[1.02] active:scale-95 ${themeId === theme.id
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border/50 hover:border-primary/50 bg-background"
-                        }`}
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 text-lg ${themeId === theme.id ? "bg-primary text-white" : "bg-muted"}`}>
-                        {/* We could render icon here if we had mapping, but name is enough */}
-                        {themeId === theme.id ? <Check className="w-4 h-4" /> : null}
-                      </div>
-                      <p className="font-bold text-xs text-foreground leading-tight">{theme.name}</p>
-                      <p className="text-[9px] text-muted-foreground line-clamp-2 mt-1">{theme.description}</p>
-                    </button>
-                  ))}
-                </div>
-                <p className="text-[10px] text-muted-foreground ml-1">
-                  💡 Dica: Alterar o tema <strong>não apaga</strong> o conteúdo dos dias.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* Share Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <h2 className="text-xl font-bold text-foreground mb-2">
-              Compartilhar seu Calendário
-            </h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Personalize como os outros verão seu cronômetro festivo.
-            </p>
-
-            {/* Link Card */}
-            <div className="bg-card rounded-2xl p-4 shadow-card flex items-center justify-between">
-              <div className="flex-1 min-w-0 mr-4">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {calendarLink}
-                </p>
-                <p className="text-xs text-primary">
-                  Link do seu calendário personalizado
-                </p>
-              </div>
-              <motion.button
-                className="btn-festive py-2 px-4 text-sm flex items-center gap-2 shrink-0"
-                onClick={handleCopyLink}
-                whileTap={{ scale: 0.95 }}
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Copiado
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Copiar
-                  </>
-                )}
-              </motion.button>
-            </div>
-          </motion.section>
-
-          {/* QR Code Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="bg-card rounded-2xl p-6 shadow-card flex flex-col items-center">
-              {/* QR Code placeholder */}
-              <div className="w-48 h-48 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center mb-4 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Gerar QR Code</p>
-                </div>
-                <div className="w-40 h-40 bg-card rounded-xl border-4 border-primary/30 flex items-center justify-center shadow-inner">
-                  <span className="text-6xl">📱</span>
-                </div>
-              </div>
-              <button
-                onClick={() => handleSocialShare('whatsapp')}
-                className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider hover:opacity-80 transition-opacity"
-              >
-                <Download className="w-5 h-5" />
-                Baixar para Impressão
-              </button>
-            </div>
-          </motion.section>
-
-          {/* Social Share Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h3 className="font-bold text-foreground mb-4">
-              Compartilhar nas Redes
-            </h3>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => handleSocialShare('whatsapp')}
-                className="w-14 h-14 rounded-2xl bg-[#25D366] flex items-center justify-center shadow-card hover:scale-105 transition-transform"
-              >
-                <MessageCircle className="w-7 h-7 text-white" />
-              </button>
-              <button
-                onClick={() => handleSocialShare('instagram')}
-                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center shadow-card hover:scale-105 transition-transform"
-              >
-                <Instagram className="w-7 h-7 text-white" />
-              </button>
-              <button
-                onClick={() => handleSocialShare('tiktok')}
-                className="w-14 h-14 rounded-2xl bg-foreground flex items-center justify-center shadow-card hover:scale-105 transition-transform"
-              >
-                <span className="text-2xl">🎵</span>
-              </button>
-              <button
-                className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center shadow-card hover:bg-muted/80 transition-colors"
-              >
-                <MoreHorizontal className="w-7 h-7 text-muted-foreground" />
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              WhatsApp • Stories • TikTok • Mais
-            </p>
-          </motion.section>
-
-          {/* Privacy Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <h3 className="font-bold text-foreground mb-4">Privacidade</h3>
-            <div className="bg-card rounded-2xl shadow-card overflow-hidden">
-              <button
-                className={`w-full p-4 flex items-center gap-4 ${privacy === "public" ? "bg-secondary" : ""
-                  }`}
-                onClick={() => setPrivacy("public")}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${privacy === "public" ? "bg-primary" : "bg-muted"
-                    }`}
-                >
-                  <Globe
-                    className={`w-5 h-5 ${privacy === "public"
-                      ? "text-primary-foreground"
-                      : "text-muted-foreground"
-                      }`}
-                  />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-semibold text-foreground">Público</p>
-                  <p className="text-xs text-muted-foreground">
-                    Qualquer pessoa pode encontrar
-                  </p>
-                </div>
-                <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${privacy === "public"
-                    ? "border-primary bg-primary"
-                    : "border-muted"
-                    }`}
-                >
-                  {privacy === "public" && (
-                    <Check className="w-4 h-4 text-primary-foreground" />
-                  )}
-                </div>
-              </button>
-
-              <button
-                className={`w-full p-4 flex items-center gap-4 border-t border-border ${privacy === "private" ? "bg-secondary" : ""
-                  }`}
-                onClick={() => setPrivacy("private")}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${privacy === "private" ? "bg-primary" : "bg-muted"
-                    }`}
-                >
-                  <Link
-                    className={`w-5 h-5 ${privacy === "private"
-                      ? "text-primary-foreground"
-                      : "text-muted-foreground"
-                      }`}
-                  />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-semibold text-foreground">
-                    Privado (apenas link)
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Apenas pessoas com o link acessam
-                  </p>
-                </div>
-                <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${privacy === "private"
-                    ? "border-primary bg-primary"
-                    : "border-muted"
-                    }`}
-                >
-                  {privacy === "private" && (
-                    <Check className="w-4 h-4 text-primary-foreground" />
-                  )}
-                </div>
-              </button>
-            </div>
-          </motion.section>
-
-          {/* Danger Zone */}
-          <motion.section
-            className="pt-8 border-t border-border"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <h3 className="font-bold text-festive-red mb-2">Zona de Perigo</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Ações irreversíveis para o seu calendário.
-            </p>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="w-full p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive font-bold flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors disabled:opacity-50"
+      <div className="container mx-auto px-6 max-w-4xl -mt-12 relative z-20 pb-48 md:pb-32">
+        {loading ? (
+          <div className="bg-white rounded-[2.5rem] p-20 shadow-xl flex flex-col items-center justify-center text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-solidroad-accent mb-4" />
+            <p className="font-bold text-[#5A7470]">Preparando ajustes...</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Sections Wrapper */}
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: { opacity: 0 },
+                show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+              }}
+              className="space-y-6"
             >
-              {deleting ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Trash2 className="w-5 h-5" />
-              )}
-              Excluir permanentemente
-            </button>
-          </motion.section>
+              {/* Basic Info Section */}
+              <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+                <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-[rgba(0,0,0,0.04)]">
+                  <h2 className="text-xl font-black text-[#1A3E3A] mb-8 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-solidroad-beige flex items-center justify-center"><Calendar className="w-4 h-4 text-[#F9A03F]" /></div>
+                    Informações Básicas
+                  </h2>
 
-          {/* Desktop inline button */}
-          <motion.button
-            className="hidden lg:block w-full btn-festive mt-8"
-            onClick={handleSave}
-            disabled={saving}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {saving ? "Salvando..." : "Salvar Configurações"}
-          </motion.button>
-        </div>
-      )}
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5A7470]/60 ml-1">Nome da Experiência</label>
+                      <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Ex: Contagem para o Natal"
+                        className="w-full h-14 px-6 bg-[#F8F9F5] border-2 border-transparent rounded-2xl text-[#1A3E3A] font-bold text-lg focus:outline-none focus:border-solidroad-accent focus:bg-white transition-all shadow-inner"
+                      />
+                    </div>
 
-      {/* Save Button - mobile only */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#5A7470]/60 ml-1">Data de Estreia</label>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full h-14 px-6 bg-[#F8F9F5] border-2 border-transparent rounded-2xl text-[#1A3E3A] font-bold focus:outline-none focus:border-solidroad-accent focus:bg-white transition-all shadow-inner"
+                      />
+                      <p className="text-[10px] text-[#5A7470]/50 font-medium italic ml-1 leading-relaxed">
+                        A contagem regressiva e os dias disponíveis serão calculados a partir desta data.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.section>
+
+              {/* Theme Selection - Modernized */}
+              <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+                <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-[rgba(0,0,0,0.04)]">
+                  <h2 className="text-xl font-black text-[#1A3E3A] mb-8 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-solidroad-turquoise flex items-center justify-center"><Globe className="w-4 h-4 text-[#4ECDC4]" /></div>
+                    Trocar Estilo Visual
+                  </h2>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {BASE_THEMES.filter(t => t.scope !== 'b2b').map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => setThemeId(theme.id)}
+                        className={cn(
+                          "relative p-4 rounded-3xl border-2 text-left transition-all duration-300 group overflow-hidden",
+                          themeId === theme.id
+                            ? "border-solidroad-accent bg-solidroad-accent/5 shadow-lg"
+                            : "border-[rgba(0,0,0,0.04)] hover:border-solidroad-accent/30 bg-[#F8F9F5]"
+                        )}
+                      >
+                        {themeId === theme.id && (
+                          <div className="absolute top-2 right-2 w-5 h-5 bg-solidroad-accent rounded-full flex items-center justify-center">
+                            <Check className="w-3 h-3 text-solidroad-text stroke-[3px]" />
+                          </div>
+                        )}
+                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-xl mb-3 mb-3 group-hover:scale-110 transition-transform">
+                          {theme.emoji || '✨'}
+                        </div>
+                        <p className="font-black text-sm text-[#1A3E3A] leading-tight">{theme.name}</p>
+                        <p className="text-[10px] text-[#5A7470]/70 font-medium line-clamp-2 mt-1 leading-tight">{theme.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.section>
+
+              {/* Privacy & Sharing */}
+              <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Privacy */}
+                  <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-[rgba(0,0,0,0.04)]">
+                    <h3 className="text-lg font-black text-[#1A3E3A] mb-6 flex items-center gap-2">
+                      Visibilidade
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        { id: 'public', label: 'Público', desc: 'Aparece no Explorar', icon: Globe },
+                        { id: 'private', label: 'Privado', desc: 'Apenas com link', icon: Link }
+                      ].map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => setPrivacy(p.id as any)}
+                          className={cn(
+                            "w-full p-4 rounded-2xl border-2 flex items-center gap-4 transition-all",
+                            privacy === p.id ? "border-solidroad-accent bg-solidroad-accent/5" : "border-transparent bg-[#F8F9F5]"
+                          )}
+                        >
+                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", privacy === p.id ? "bg-solidroad-accent" : "bg-white")}>
+                            <p.icon className={cn("w-5 h-5", privacy === p.id ? "text-solidroad-text" : "text-[#5A7470]")} />
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className="font-black text-[#1A3E3A] text-sm">{p.label}</p>
+                            <p className="text-[10px] text-[#5A7470]/60 font-bold uppercase tracking-wider">{p.desc}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Link */}
+                  <div className="bg-[#1A3E3A] rounded-[2.5rem] p-8 shadow-xl text-white">
+                    <h3 className="text-lg font-black mb-6 flex items-center gap-2">Link da Experiência</h3>
+                    <div className="bg-white/10 rounded-2xl p-4 border border-white/10 mb-6 shrink-0 min-w-0">
+                      <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">Link Único</p>
+                      <p className="text-sm font-bold truncate opacity-90">{calendarLink}</p>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCopyLink}
+                      className="w-full h-14 rounded-2xl bg-solidroad-accent text-solidroad-text font-black text-sm flex items-center justify-center gap-2"
+                    >
+                      {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                      {copied ? "COPIADO!" : "COPIAR LINK"}
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.section>
+
+              {/* QR Code & Social */}
+              <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+                <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-[rgba(0,0,0,0.04)]">
+                  <div className="flex flex-col md:flex-row items-center gap-10">
+                    {/* QR Code Placeholder */}
+                    <div className="w-48 h-48 bg-[#F8F9F5] rounded-[2rem] flex items-center justify-center p-4 border-2 border-dashed border-[rgba(0,0,0,0.08)] group relative shrink-0">
+                      <div className="absolute inset-0 bg-solidroad-accent/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem] flex items-center justify-center backdrop-blur-[2px]">
+                        <span className="text-[10px] font-black text-solidroad-text/60 tracking-widest">GERAR AGORA</span>
+                      </div>
+                      <span className="text-6xl text-solidroad-accent opacity-20 group-hover:opacity-40 transition-opacity">📱</span>
+                    </div>
+
+                    <div className="flex-1 text-center md:text-left">
+                      <h3 className="text-2xl font-black text-[#1A3E3A] mb-3 leading-tight">Compartilhar com o mundo</h3>
+                      <p className="text-[#5A7470] font-medium mb-6">Mande o link no WhatsApp ou use o QR Code em convites impressos (surpresa!).</p>
+
+                      <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                        <button onClick={() => handleSocialShare('whatsapp')} className="w-14 h-14 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><MessageCircle className="w-7 h-7" /></button>
+                        <button onClick={() => handleSocialShare('instagram')} className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#FFB344] via-[#EA384D] to-[#8D2791] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><Instagram className="w-7 h-7" /></button>
+                        <button onClick={() => handleSocialShare('tiktok')} className="w-14 h-14 rounded-2xl bg-[#1A3E3A] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><span className="text-2xl font-bold">🎵</span></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.section>
+
+              {/* Danger Zone */}
+              <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
+                <div className="bg-red-50 rounded-[2.5rem] p-8 border-2 border-red-100/50">
+                  <h3 className="text-lg font-black text-red-600 mb-2">Zona de Perigo</h3>
+                  <p className="text-[#5A7470] text-sm font-medium mb-6">Ações irreversíveis. Tenha cuidado!</p>
+
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="w-full h-14 rounded-2xl bg-white border-2 border-red-100 text-red-500 font-black text-sm flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm"
+                  >
+                    {deleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                    EXCLUIR CALENDÁRIO PERMANENTEMENTE
+                  </button>
+                </div>
+              </motion.section>
+            </motion.div>
+          </div>
+        )}
+      </div>
+
+      {/* Save Button - Floating Footer */}
       {!loading && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border lg:hidden">
-          <motion.button
-            className="w-full max-w-lg mx-auto btn-festive"
-            onClick={handleSave}
-            disabled={saving}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {saving ? "Salvando..." : "Salvar Configurações"}
-          </motion.button>
+        <div className="fixed bottom-[72px] md:bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-[rgba(0,0,0,0.04)] z-[60]">
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-4">
+            <div className="hidden md:block flex-1 min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#5A7470]/60">Modo de Edição</p>
+              <p className="text-sm font-bold text-[#1A3E3A] truncate">Suas mudanças serão refletidas imediatamente no link público.</p>
+            </div>
+            <motion.button
+              onClick={handleSave}
+              disabled={saving}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full md:w-auto md:min-w-[240px] h-16 bg-solidroad-accent text-solidroad-text rounded-[1.25rem] font-black text-lg shadow-xl shadow-solidroad-accent/20 flex items-center justify-center gap-2 group"
+            >
+              {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Check className="w-6 h-6 stroke-[3.5px] group-hover:scale-110 transition-transform" />}
+              {saving ? "SALVANDO..." : "SALVAR TUDO"}
+            </motion.button>
+          </div>
         </div>
       )}
     </div>

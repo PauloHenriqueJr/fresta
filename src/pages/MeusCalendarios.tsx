@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Sparkles,
   Gift,
-  PartyPopper
+  PartyPopper,
+  ChevronRight
 } from "lucide-react";
 import { PremiumIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
@@ -175,260 +176,226 @@ const MeusCalendarios = () => {
   }
 
   return (
-    <div className="space-y-8 pb-20">
-      {/* Premium Header */}
-      {/* Mobile Header (Reference Style) */}
-      <div className="flex md:hidden items-center justify-between py-4 px-1">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-solidroad-text dark:text-white">
-          <ArrowRight className="w-6 h-6 rotate-180" />
-        </button>
-        <h1 className="text-lg font-bold text-solidroad-text dark:text-white">
-          Meus Calendários
-        </h1>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => navigate("/criar")}
-          className="w-10 h-10 rounded-xl bg-solidroad-green dark:bg-solidroad-green-dark flex items-center justify-center text-[#2D7A5F] dark:text-[#5DBF94] shadow-sm"
-        >
-          <Plus className="w-6 h-6 stroke-[3px]" />
-        </motion.button>
+    <div className="min-h-screen bg-[#F8F9F5] pb-24">
+      {/* Premium Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-20 pt-10">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 1440 400">
+            <defs>
+              <pattern id="dotPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="2" fill="white" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dotPattern)" />
+          </svg>
+        </div>
+
+        {/* Floating elements */}
+        <div className="absolute top-16 right-[10%] w-40 h-40 bg-[#F9A03F]/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-10 left-[15%] w-32 h-32 bg-[#4ECDC4]/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+
+        <div className="relative z-10 container mx-auto px-6">
+          <motion.div
+            className="flex flex-col md:flex-row md:items-center justify-between gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
+                <Sparkles className="w-3 h-3 text-solidroad-accent" />
+                <span className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Painel de Controle</span>
+              </div>
+              <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">
+                Meus <span className="text-solidroad-accent">Calendários</span>
+              </h1>
+              <p className="text-lg text-white/60 font-medium">
+                Gerencie suas experiências e acompanhe os momentos
+              </p>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/criar")}
+              className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#1B4D3E] rounded-2xl font-black shadow-2xl hover:shadow-white/10 transition-all group"
+            >
+              <Plus className="w-5 h-5 stroke-[3px] group-hover:rotate-90 transition-transform duration-300" />
+              CRIAR NOVO
+            </motion.button>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Desktop Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hidden md:flex flex-col md:flex-row md:items-end justify-between gap-6"
-      >
-        <div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-solidroad-text dark:text-white mb-2">
-            Meus Calendários
-          </h1>
-          <p className="text-lg text-muted-foreground/80 dark:text-white/60 font-medium">
-            Gerencie suas experiências
-          </p>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate("/criar")}
-          className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-solidroad-accent/20 hover:shadow-xl bg-solidroad-accent text-solidroad-text hover:-translate-y-0.5"
+      <div className="container mx-auto px-6">
+        {/* Stats Grid - Overlapping Hero */}
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-3 gap-4 -mt-12 relative z-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
-          <Plus className="w-5 h-5 stroke-[3px]" />
-          Criar Novo
-        </motion.button>
-      </motion.div>
-
-      {/* Stats Grid */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="flex overflow-x-auto pb-6 gap-4 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-4 md:pb-0 snap-x hide-scrollbar"
-      >
-        {STATS.map((stat, idx) => (
-          <motion.div
-            key={stat.label}
-            variants={item}
-            className={cn(
-              "min-w-[140px] md:min-w-0 snap-center rounded-2xl md:rounded-[2rem] p-4 md:p-8 border border-border/5 relative overflow-hidden group transition-all duration-300 hover:shadow-xl flex-1",
-              stat.bg
-            )}
-          >
-            {/* Desktop-only Decoration */}
-            <div className="hidden md:block absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500">
-              <stat.icon className="w-32 h-32" />
-            </div>
-
-            <div className="relative z-10 flex flex-col justify-between h-full gap-3 md:gap-4">
-              <div className={cn("w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center bg-white/50 backdrop-blur-sm shadow-sm", stat.iconColor)}>
-                <stat.icon className="w-4 h-4 md:w-6 md:h-6" strokeWidth={2.5} />
-              </div>
-              <div>
-                <p className="text-2xl md:text-4xl font-black tracking-tighter text-solidroad-text dark:text-white">
-                  {stat.key === 'views' ? statsData.views.toLocaleString() : statsData[stat.key as keyof typeof statsData]}
-                </p>
-                <p className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40 mt-0.5 md:mt-1 truncate">
-                  {stat.label}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Search Bar - Mobile Optimized */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="flex items-center gap-3 px-4 py-3 md:px-6 md:py-5 rounded-xl md:rounded-3xl border border-border/10 bg-white dark:bg-white/5 focus-within:ring-2 focus-within:ring-solidroad-accent/50 focus-within:bg-white/80 dark:focus-within:bg-white/10 transition-all shadow-sm"
-      >
-        <Search className="w-5 h-5 text-muted-foreground/40" strokeWidth={2.5} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar calendários..."
-          className="flex-1 bg-transparent focus:outline-none font-medium text-solidroad-text dark:text-white placeholder:text-muted-foreground/40 text-sm md:text-base"
-        />
-      </motion.div>
-
-      {/* Calendars List (Mobile) & Grid (Desktop) */}
-      <div className="flex flex-col md:grid md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-        {filteredCalendars.length === 0 ? (
-          <div className="col-span-full rounded-[2.5rem] p-16 border-2 border-dashed border-border/10 text-center bg-white/50 dark:bg-white/5">
-            <div className="w-20 h-20 bg-solidroad-beige dark:bg-solidroad-beige-dark rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-              <Sparkles className="w-10 h-10 text-solidroad-accent opacity-60" />
-            </div>
-            <h2 className="font-bold text-xl mb-2 text-solidroad-text dark:text-white">
-              Nenhum calendário encontrado
-            </h2>
-            <p className="text-base mb-8 text-muted-foreground/60 dark:text-white/40 max-w-sm mx-auto">
-              {query ? `Não encontramos nada para "${query}".` : "Você ainda não criou nenhum calendário. Que tal começar agora?"}
-            </p>
-            <button
-              onClick={() => navigate("/criar")}
-              className="px-8 py-3.5 rounded-2xl font-bold text-sm bg-solidroad-accent text-solidroad-text shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          {STATS.map((stat, idx) => (
+            <div
+              key={stat.label}
+              className={cn(
+                "rounded-2xl p-5 md:p-8 bg-white border border-[rgba(0,0,0,0.06)] shadow-[0_8px_24px_rgba(0,0,0,0.08)] group hover:shadow-xl transition-all duration-300",
+                idx === 2 ? "col-span-2 md:col-span-1" : ""
+              )}
             >
-              Criar Calendário
-            </button>
+              <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110", stat.bg)}>
+                <stat.icon className={cn("w-5 h-5 md:w-6 md:h-6", stat.iconColor)} />
+              </div>
+              <p className="text-2xl md:text-4xl font-black text-[#1A3E3A] tracking-tighter">
+                {stat.key === 'views' ? statsData.views.toLocaleString() : statsData[stat.key as keyof typeof statsData]}
+              </p>
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-[#5A7470]">{stat.label}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Search Bar - Floating White Card style from Explorar */}
+        <motion.div
+          className="mt-8 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 flex items-center gap-4 border border-[rgba(0,0,0,0.04)]"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-center gap-3 flex-1">
+            <Search className="w-5 h-5 text-[#5A7470]" />
+            <input
+              type="text"
+              placeholder="Buscar por título ou tema..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1 bg-transparent text-[#1A3E3A] placeholder:text-[#9CA3AF] focus:outline-none font-medium"
+            />
           </div>
-        ) : (
-          filteredCalendars.map((calendar, index) => {
-            const def = getThemeDefinition(BASE_THEMES, calendar.theme_id as any);
-            return (
-              <>
-                {/* Mobile List Item */}
-                <motion.div
-                  key={`mobile-${calendar.id}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(`/calendario/${calendar.id}`)}
-                  className="md:hidden flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-white/5 border border-border/10 shadow-sm active:scale-[0.98] transition-all"
+        </motion.div>
+
+        {/* List Content */}
+        <div className="mt-12">
+          {filteredCalendars.length === 0 ? (
+            <motion.div
+              className="py-20 text-center bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.06)] shadow-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="w-20 h-20 bg-[#FFF8E8] rounded-full flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-[#F9A03F]" />
+              </div>
+              <h2 className="text-2xl font-black text-[#1A3E3A] mb-2">Nada por aqui ainda</h2>
+              <p className="text-[#5A7470] max-w-xs mx-auto mb-8">
+                {query ? `Nenhum calendário com "${query}" foi encontrado.` : "Seus calendários aparecerão aqui. Que tal criar o primeiro agora?"}
+              </p>
+              {!query && (
+                <button
+                  onClick={() => navigate("/criar")}
+                  className="px-8 py-3.5 bg-solidroad-accent text-solidroad-text rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-lg"
                 >
-                  {/* Thumbnail Row */}
-                  <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-border/10 relative">
-                    {def?.id && themeImages[def.id] ? (
-                      <img
-                        src={themeImages[def.id]}
-                        alt={calendar.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-solidroad-green to-solidroad-turquoise dark:from-white/5 dark:to-white/10 flex items-center justify-center">
-                        <PremiumIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-[#2D7A5F] dark:text-white/80" />
-                      </div>
+                  Criar meu Primeiro Calendário
+                </button>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={container}
+              initial="hidden"
+              animate="show"
+            >
+              {filteredCalendars.map((calendar, index) => {
+                const def = getThemeDefinition(BASE_THEMES, calendar.theme_id as any);
+                const colors = [
+                  'bg-[#FFF8E8]', 'bg-[#D4F4F0]', 'bg-[#E8F5E0]', 'bg-[#FFE5EC]'
+                ];
+                const cardBg = colors[index % colors.length];
+
+                return (
+                  <motion.div
+                    key={calendar.id}
+                    variants={item}
+                    className={cn(
+                      "group relative rounded-[2rem] p-6 bg-white border border-[rgba(0,0,0,0.06)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:-translate-y-2 transition-all duration-300 overflow-hidden cursor-pointer",
+                      cardBg
                     )}
-                  </div>
+                    onClick={() => navigate(`/calendario/${calendar.id}`)}
+                  >
+                    {/* Hover status background color change or pattern? */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-solidroad-accent to-solidroad-green opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-base text-solidroad-text dark:text-white truncate">
-                        {calendar.title}
-                      </h3>
-                      {calendar.status === 'ativo' && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-solidroad-green text-[#2D7A5F] text-[9px] font-bold uppercase tracking-wide">
-                          Ativo
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground/80 dark:text-white/50 truncate">
-                      {calendar.duration} dias • {(calendar.views || 0)} views
-                    </p>
-                  </div>
-
-                  <button className="p-2 text-muted-foreground/40">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                </motion.div>
-
-                {/* Desktop Card (Unchanged Grid Item) */}
-                <motion.div
-                  key={calendar.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(`/calendario/${calendar.id}`)}
-                  className="hidden md:flex group relative rounded-[2rem] p-6 lg:p-8 bg-white dark:bg-white/5 border border-border/10 cursor-pointer overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
-                >
-                  {/* Decorative Background Blur */}
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-solidroad-accent/10 rounded-full blur-3xl group-hover:bg-solidroad-accent/20 transition-all duration-500" />
-
-                  <div className="relative z-10 flex flex-col h-full w-full">
                     <div className="flex items-start justify-between mb-6">
-                      <div className="w-16 h-16 rounded-2xl bg-[#F9F9F9] dark:bg-white/10 flex items-center justify-center shadow-sm border border-border/5 overflow-hidden relative">
+                      <div className="w-16 h-16 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 overflow-hidden relative">
                         {def?.id && themeImages[def.id] ? (
                           <img
                             src={themeImages[def.id]}
                             alt={calendar.title}
-                            className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                            className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
                           />
                         ) : (
                           <PremiumIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-solidroad-accent" />
                         )}
+                        {/* Overlay with icon on hover */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                       </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={cn(
-                          "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
-                          calendar.status === 'ativo'
-                            ? "bg-solidroad-green text-[#2D7A5F] border-[#2D7A5F]/10 dark:bg-solidroad-green-dark dark:text-[#5DBF94]"
-                            : "bg-muted text-muted-foreground border-transparent"
-                        )}>
-                          {calendar.status}
-                        </span>
+
+                      <div className="flex flex-col items-end gap-1.5">
+                        {calendar.status === 'ativo' ? (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#2D7A5F]/10 text-[#2D7A5F] border border-[#2D7A5F]/10 animate-pulse-soft">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#2D7A5F]"></div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Ativo</span>
+                          </div>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Inativo</span>
+                        )}
                       </div>
                     </div>
 
-                    <h3 className="text-2xl font-bold tracking-tight text-solidroad-text dark:text-white mb-2 line-clamp-1 group-hover:text-solidroad-accent transition-colors">
-                      {calendar.title}
-                    </h3>
-
-                    <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground/60 dark:text-white/40 mb-8">
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" /> {calendar.duration} dias
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5" /> {(calendar.views || 0).toLocaleString()} reviews
-                      </span>
+                    <div className="space-y-1 mb-8">
+                      <h3 className="text-xl font-black text-[#1A3E3A] line-clamp-1 group-hover:text-solidroad-accent transition-colors tracking-tight">
+                        {calendar.title}
+                      </h3>
+                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-[#5A7470]/60">
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {calendar.duration} dias</span>
+                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {calendar.views || 0}</span>
+                      </div>
                     </div>
 
-                    <div className="mt-auto flex items-center justify-between pt-6 border-t border-border/10">
-                      <span className="text-xs font-bold text-solidroad-accent uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform -translate-x-4 group-hover:translate-x-0">
-                        Ver detalhes
+                    <div className="pt-5 border-t border-black/5 flex items-center justify-between">
+                      <span className="text-[10px] font-black text-solidroad-accent uppercase tracking-[0.2em] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
+                        Gerenciar <ChevronRight className="w-3 h-3" />
                       </span>
 
-                      <div className="flex items-center justify-end">
-                        {/* Actions Menu */}
+                      <div className="flex items-center gap-1">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
                               onClick={(e) => e.stopPropagation()}
-                              className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center text-muted-foreground transition-colors"
+                              className="w-9 h-9 rounded-xl hover:bg-black/5 transition-colors flex items-center justify-center text-[#5A7470]"
                             >
                               <MoreVertical className="w-5 h-5" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-white dark:bg-[#1C1A0E] border-border/10 shadow-xl">
+                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-white shadow-2xl border border-[rgba(0,0,0,0.08)]">
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); navigate(`/calendario/${calendar.id}`); }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-muted"
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-[#E8F5E0] text-[#1A3E3A]"
                             >
-                              <Eye className="w-4 h-4 mr-2" /> Visualizar
+                              <Eye className="w-4 h-4 mr-2 text-[#2D7A5F]" /> Visualizar
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); navigate(`/editar-dia/${calendar.id}/1`); }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-muted"
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-[#FFF8E8] text-[#1A3E3A]"
                             >
-                              <Edit2 className="w-4 h-4 mr-2" /> Editar Conteúdo
+                              <Edit2 className="w-4 h-4 mr-2 text-[#F9A03F]" /> Editar Conteúdo
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-border/10" />
+                            <DropdownMenuSeparator className="bg-black/5" />
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setCalendarToDelete({ id: calendar.id, title: calendar.title || '' });
                               }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-red-50 text-red-500 focus:bg-red-50 focus:text-red-600"
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-[#FFE5EC] text-red-500"
                             >
                               <Trash2 className="w-4 h-4 mr-2" /> Excluir
                             </DropdownMenuItem>
@@ -436,34 +403,36 @@ const MeusCalendarios = () => {
                         </DropdownMenu>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              </>
-            );
-          })
-        )}
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </div>
       </div>
 
       {/* Delete Dialog - Premium Style */}
       <AlertDialog open={!!calendarToDelete} onOpenChange={() => setCalendarToDelete(null)}>
-        <AlertDialogContent className="bg-white dark:bg-[#1C1A0E] rounded-[2rem] border-border/10 p-8 shadow-2xl">
+        <AlertDialogContent className="bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.08)] p-8 shadow-2xl overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
           <AlertDialogHeader>
-            <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-500/10 flex items-center justify-center mb-4">
-              <Trash2 className="w-7 h-7 text-red-500" />
+            <div className="w-16 h-16 rounded-[1.25rem] bg-red-50 flex items-center justify-center mb-6">
+              <Trash2 className="w-8 h-8 text-red-500" />
             </div>
-            <AlertDialogTitle className="text-2xl font-black text-solidroad-text dark:text-white">Excluir experiência?</AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-muted-foreground/80 font-medium mt-2">
-              Você está prestes a excluir <strong>"{calendarToDelete?.title}"</strong>.
-              Esta ação é irreversível e todos os dados serão perdidos.
+            <AlertDialogTitle className="text-3xl font-black text-[#1A3E3A] tracking-tight">Excluir Calendário?</AlertDialogTitle>
+            <AlertDialogDescription className="text-lg text-[#5A7470] font-medium mt-3">
+              Você está prestes a excluir permanentemente <strong>"{calendarToDelete?.title}"</strong>. Todos os momentos e surpresas serão perdidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-8 gap-3">
-            <AlertDialogCancel className="rounded-xl h-12 px-6 font-bold border-2 border-border/10 bg-transparent hover:bg-muted/50">Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="mt-10 gap-4 flex-col sm:flex-row">
+            <AlertDialogCancel className="w-full sm:flex-1 rounded-2xl h-14 font-black border-2 border-slate-100 bg-transparent hover:bg-slate-50 text-slate-400 transition-all">
+              VOLTAR
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-xl h-12 px-6 font-bold shadow-lg shadow-red-500/20"
+              className="w-full sm:flex-1 bg-red-500 hover:bg-red-600 text-white rounded-2xl h-14 font-black shadow-xl shadow-red-500/20 transition-all active:scale-95"
             >
-              Sim, excluir permanentemente
+              SIM, EXCLUIR
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
