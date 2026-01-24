@@ -11,23 +11,25 @@ import {
   Loader2,
   Save,
   LogOut,
+  Camera,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { supabase } from "@/lib/supabase/client";
+import AvatarPicker from "@/components/AvatarPicker";
 
 const ContaConfiguracoes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, profile, signOut, updateProfile } = useAuth();
+  const { user, profile, signOut, updateProfile, themePreference, updateThemePreference } = useAuth();
 
   const [displayName, setDisplayName] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   // Load user preferences from localStorage
   useEffect(() => {
@@ -36,25 +38,11 @@ const ContaConfiguracoes = () => {
     }
     // Load local preferences
     const storedNotifications = localStorage.getItem("fresta_notifications");
-    const storedDarkMode = localStorage.getItem("fresta_darkmode");
 
     if (storedNotifications !== null) {
       setNotifications(storedNotifications === "true");
     }
-    if (storedDarkMode !== null) {
-      setDarkMode(storedDarkMode === "true");
-    }
   }, [profile]);
-
-  // Handle dark mode toggle
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    localStorage.setItem("fresta_darkmode", String(darkMode));
-  }, [darkMode]);
 
   // Handle notifications toggle
   const handleNotificationsToggle = () => {
@@ -157,6 +145,34 @@ const ContaConfiguracoes = () => {
           >
             <h2 className="font-bold text-foreground mb-4">Perfil</h2>
             <div className="bg-card rounded-2xl shadow-card divide-y divide-border">
+              {/* Avatar Row */}
+              <div className="p-4 flex items-center gap-4">
+                <button
+                  onClick={() => setShowAvatarPicker(true)}
+                  className="w-16 h-16 rounded-full bg-muted overflow-hidden shrink-0 hover:ring-2 hover:ring-primary/50 transition-all group relative"
+                >
+                  {profile?.avatar ? (
+                    <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <img
+                      src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${user?.email || 'default'}&backgroundColor=b6e3f4`}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <Camera className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground">Avatar</p>
+                  <p className="text-sm text-muted-foreground">
+                    Toque para alterar sua foto
+                  </p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+              </div>
+
               {/* Name Row */}
               <div className="p-4 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center shrink-0">
@@ -258,13 +274,13 @@ const ContaConfiguracoes = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className={`w-12 h-7 rounded-full transition-colors shrink-0 ${darkMode ? "bg-primary" : "bg-muted"
+                  onClick={() => updateThemePreference(themePreference === 'dark' ? 'light' : 'dark')}
+                  className={`w-12 h-7 rounded-full transition-colors shrink-0 ${themePreference === 'dark' ? "bg-primary" : "bg-muted"
                     }`}
                 >
                   <motion.div
                     className="w-5 h-5 rounded-full bg-white shadow-md"
-                    animate={{ x: darkMode ? 26 : 4 }}
+                    animate={{ x: themePreference === 'dark' ? 26 : 4 }}
                     transition={{ duration: 0.2 }}
                   />
                 </button>
@@ -314,6 +330,13 @@ const ContaConfiguracoes = () => {
           </motion.section>
         </div>
       </div>
+
+      {/* Avatar Picker Modal */}
+      <AvatarPicker
+        isOpen={showAvatarPicker}
+        onClose={() => setShowAvatarPicker(false)}
+        currentAvatar={profile?.avatar}
+      />
     </div>
   );
 };

@@ -14,6 +14,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
+import { BASE_THEMES } from "@/lib/offline/themes";
 import { useEffect } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 
@@ -23,6 +24,7 @@ const Configuracoes = () => {
   const { toast } = useToast();
   const [calendar, setCalendar] = useState<any>(null);
   const [title, setTitle] = useState("");
+  const [themeId, setThemeId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [privacy, setPrivacy] = useState<"public" | "private">("public");
@@ -38,6 +40,7 @@ const Configuracoes = () => {
         if (data) {
           setCalendar(data);
           setTitle(data.title);
+          setThemeId(data.theme_id);
           setPrivacy(data.privacy);
           setStartDate(data.start_date ? data.start_date.split('T')[0] : "");
         }
@@ -77,6 +80,7 @@ const Configuracoes = () => {
     try {
       await CalendarsRepository.update(id, {
         title: title.trim(),
+        theme_id: themeId,
         privacy,
         start_date: startDate || null
       });
@@ -164,9 +168,18 @@ const Configuracoes = () => {
       </motion.header>
 
       {/* Desktop Header */}
-      <div className="hidden lg:block px-4 py-6 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-extrabold text-foreground">Configurações</h1>
-        <p className="text-sm text-muted-foreground">{calendar?.title || "Carregando..."}</p>
+      <div className="hidden lg:flex items-center gap-4 px-4 py-6 max-w-2xl mx-auto">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 rounded-xl bg-card border border-border/50 hover:bg-accent hover:text-accent-foreground flex items-center justify-center transition-colors"
+          title="Voltar"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-extrabold text-foreground">Configurações</h1>
+          <p className="text-sm text-muted-foreground">{calendar?.title || "Carregando..."}</p>
+        </div>
       </div>
 
       {loading ? (
@@ -206,6 +219,50 @@ const Configuracoes = () => {
                   className="w-full p-4 bg-background border-2 border-border rounded-2xl text-foreground focus:outline-none focus:border-primary transition-all"
                 />
                 <p className="text-[10px] text-muted-foreground ml-1">A contagem regressiva começará a partir desta data.</p>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Theme Selection Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+          >
+            <h2 className="text-xl font-bold text-foreground mb-4">
+              Personalização do Tema
+            </h2>
+            <div className="bg-card rounded-3xl p-6 shadow-card space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50 ml-1">Tema Visual</label>
+                  <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded-full">
+                    {BASE_THEMES.find(t => t.id === themeId)?.name}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                  {BASE_THEMES.filter(t => t.scope !== 'b2b').map((theme) => (
+                    <button
+                      key={theme.id}
+                      onClick={() => setThemeId(theme.id)}
+                      className={`relative p-3 rounded-xl border-2 text-left transition-all hover:scale-[1.02] active:scale-95 ${themeId === theme.id
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border/50 hover:border-primary/50 bg-background"
+                        }`}
+                    >
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 text-lg ${themeId === theme.id ? "bg-primary text-white" : "bg-muted"}`}>
+                        {/* We could render icon here if we had mapping, but name is enough */}
+                        {themeId === theme.id ? <Check className="w-4 h-4" /> : null}
+                      </div>
+                      <p className="font-bold text-xs text-foreground leading-tight">{theme.name}</p>
+                      <p className="text-[9px] text-muted-foreground line-clamp-2 mt-1">{theme.description}</p>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted-foreground ml-1">
+                  💡 Dica: Alterar o tema <strong>não apaga</strong> o conteúdo dos dias.
+                </p>
               </div>
             </div>
           </motion.section>

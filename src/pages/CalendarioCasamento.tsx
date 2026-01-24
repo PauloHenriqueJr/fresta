@@ -1,143 +1,133 @@
-import { motion } from "framer-motion";
-import { ArrowLeft, MoreHorizontal, Settings, Share2 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import FloatingDecorations from "@/components/calendar/FloatingDecorations";
-import CasamentoDayGrid from "@/components/calendar/CasamentoDayGrid";
-
-const calendarDays = Array.from({ length: 24 }, (_, i) => {
-  const day = i + 1;
-  if (day <= 6) return { day, status: "opened" as const, hasSpecialContent: day === 2 };
-  if (day === 7) return { day, status: "available" as const, hasSpecialContent: true };
-  const daysUntil = day - 7;
-  return {
-    day,
-    status: "locked" as const,
-    timeLeft: daysUntil === 1 ? "14h" : `${daysUntil}D`,
-  };
-});
+import { ArrowLeft, Settings, Share2, MoreHorizontal, SlidersHorizontal, Heart, Pencil } from "lucide-react";
+import {
+  WeddingBackground,
+  WeddingHeader,
+  WeddingProgress,
+  WeddingDayCard,
+  WeddingSpecialCard,
+  WeddingDiarySection,
+  WeddingFooter,
+  EditorHeader,
+  EditorFooter,
+  EmptyDayCard,
+  WeddingShower,
+  WeddingTopDecorations
+} from "@/lib/themes/themeComponents";
 
 export default function CalendarioCasamento() {
   const navigate = useNavigate();
+  // State for Editor Mode toggle
+  const [isEditor, setIsEditor] = useState(true);
+
+  // Mock data matching reference
+  const days = [
+    { day: 1, status: 'unlocked', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600&auto=format&fit=crop' },
+    { day: 2, status: 'unlocked', img: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=600&auto=format&fit=crop' },
+    { day: 3, status: 'unlocked', img: 'https://images.unsplash.com/photo-1511285560982-1351cdeb9821?q=80&w=600&auto=format&fit=crop' },
+    { day: 4, status: 'unlocked', img: 'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?q=80&w=600&auto=format&fit=crop' },
+    { day: 5, status: 'special' }, // The special day card
+    { day: 6, status: 'empty' },
+    { day: 7, status: 'empty' },
+    { day: 8, status: 'empty' },
+    { day: 9, status: 'locked', time: 'Em breve' },
+  ];
+
+  const handleOpenDay = (day: any) => {
+    console.log("Open day", day);
+  };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden theme-casamento">
-      <FloatingDecorations theme="casamento" />
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink bg-wedding-cream">
+      <WeddingBackground />
+      <WeddingShower />
+      <WeddingTopDecorations />
 
-      <motion.header
-        className="px-4 pt-6 pb-3 relative z-10"
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between">
+      {/* Editor Header or User Header */}
+      {isEditor ? (
+        <EditorHeader onPreview={() => setIsEditor(false)} />
+      ) : (
+        <div className="relative z-10">
+          <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
             <button
-              onClick={() => navigate("/meus-calendarios")}
-              className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card hover:shadow-festive transition-shadow"
-              aria-label="Voltar"
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
             >
-              <ArrowLeft className="w-5 h-5 text-foreground" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
 
-            <h1 className="text-sm font-black tracking-[0.35em] uppercase text-foreground">
-              Nosso grande dia
-            </h1>
+            <h2 className="text-[10px] font-bold text-wedding-gold tracking-[0.2em] uppercase">Private Event</h2>
 
             <button
-              type="button"
-              className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card hover:shadow-festive transition-shadow"
-              onClick={() => console.log("casamento menu")}
-              aria-label="Menu"
+              onClick={() => setIsEditor(true)} // Toggle back to editor for demo
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all"
             >
-              <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+              <MoreHorizontal className="w-5 h-5" />
             </button>
           </div>
-        </div>
-      </motion.header>
 
-      <motion.section
-        className="px-4 py-2 relative z-10"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
-        <div className="max-w-lg mx-auto">
-          <div className="bg-card rounded-3xl p-4 shadow-card">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-widest text-foreground bg-secondary px-4 py-2 rounded-full">
-                Caminho do altar
-              </span>
-              <span className="text-sm font-black text-foreground">92%</span>
-            </div>
-            <div className="mt-3 h-3 rounded-full bg-muted overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-wedding-gold"
-                initial={{ width: 0 }}
-                animate={{ width: "92%" }}
-                transition={{ duration: 1, delay: 0.25, ease: "easeOut" }}
+          <WeddingHeader isEditor={false} />
+          <WeddingProgress progress={90} />
+        </div>
+      )}
+
+      {/* Editor specific top content */}
+      {isEditor && (
+        <div className="relative z-10 -mt-2">
+          <WeddingHeader isEditor={true} />
+          <WeddingProgress progress={90} />
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className="flex-1 px-4 py-4 pb-36 relative z-0">
+        <div className="flex items-center justify-between mb-6 px-2">
+          <h2 className="text-sm font-bold text-wedding-gold uppercase tracking-[0.2em] flex items-center gap-2">
+            Calendário
+          </h2>
+          {isEditor && (
+            <button className="text-[10px] font-bold text-wedding-gold uppercase flex items-center gap-1 hover:text-wedding-gold-dark">
+              <span className="w-2 h-2 rounded-full bg-wedding-gold inline-block mr-1"></span> Aberto
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+          {days.map((d) => (
+            d.status === 'special' ? (
+              <WeddingSpecialCard
+                key={d.day}
+                dayNumber={d.day}
+                onClick={() => handleOpenDay(d)}
+                isEditor={isEditor}
               />
-            </div>
-            <p className="mt-3 text-sm italic text-muted-foreground text-right">
-              O momento mais esperado está chegando...
-            </p>
-          </div>
+            ) : d.status === 'unlocked' ? (
+              <WeddingDayCard
+                key={d.day}
+                dayNumber={d.day}
+                imageUrl={d.img!}
+                status="unlocked"
+                onClick={() => handleOpenDay(d)}
+                isEditor={isEditor}
+              />
+            ) : (isEditor && d.status === 'empty') ? (
+              <WeddingDayCard key={d.day} dayNumber={d.day} status="empty" />
+            ) : (
+              <WeddingDayCard
+                key={d.day}
+                dayNumber={d.day}
+                status="locked"
+                isEditor={isEditor}
+              />
+            )
+          ))}
         </div>
-      </motion.section>
 
-      <section className="px-4 mt-4 relative z-10">
-        <div className="max-w-lg mx-auto">
-          <CasamentoDayGrid days={calendarDays} onCtaClick={(d) => console.log("ver surpresa", d)} />
-        </div>
-      </section>
+        <WeddingDiarySection isEditor={isEditor} />
+      </main>
 
-      <section className="px-4 mt-8 relative z-10">
-        <div className="max-w-lg mx-auto">
-          <h2 className="text-xl font-black text-foreground">Nota dos Noivos</h2>
-          <div className="mt-3 rounded-3xl bg-card border border-border p-5 relative overflow-hidden">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-wedding-gold" />
-            <p className="text-sm leading-relaxed text-foreground/90 italic">
-              “Cada dia que passa é um passo mais próximo do nosso ‘felizes para sempre’. Obrigado por
-              fazerem parte dessa jornada inesquecível conosco!”
-            </p>
-            <p className="mt-4 text-sm font-black text-wedding-gold text-right italic">
-              — Com amor, Noivos
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom bar */}
-      <motion.div
-        className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.8 }}
-      >
-        <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <motion.button
-            className="flex-1 btn-festive flex items-center justify-center gap-2 bg-wedding-gold text-wedding-ink"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => console.log("compartilhar padrinhos")}
-          >
-            <Share2 className="w-5 h-5" />
-            COMPARTILHAR
-          </motion.button>
-
-          <motion.button
-            className="w-14 h-14 rounded-2xl bg-card shadow-card flex items-center justify-center hover:shadow-festive transition-shadow"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/configuracoes")}
-            aria-label="Configurações"
-          >
-            <Settings className="w-6 h-6 text-muted-foreground" />
-          </motion.button>
-        </div>
-      </motion.div>
-
-      <div className="h-28" />
+      {isEditor ? <EditorFooter /> : <WeddingFooter />}
     </div>
   );
 }

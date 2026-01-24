@@ -1,5 +1,17 @@
 import { motion } from "framer-motion";
-import { BriefcaseBusiness, LayoutDashboard, Megaphone, Palette, Users, BarChart3, LogOut, PlusCircle, UserPlus, ShieldCheck } from "lucide-react";
+import {
+  DoorOpen,
+  LayoutDashboard,
+  Megaphone,
+  Palette,
+  Users,
+  BarChart3,
+  LogOut,
+  PlusCircle,
+  UserPlus,
+  ShieldCheck,
+  ChevronRight
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -15,29 +27,30 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const navigationGroups = [
   {
     label: "Engajamento",
     items: [
-      { title: "Dashboard RH", url: "/b2b", icon: LayoutDashboard },
+      { title: "Dashboard", url: "/b2b", icon: LayoutDashboard },
       { title: "Relatório Executivo", url: "/b2b/relatorio", icon: BarChart3 },
     ]
   },
   {
     label: "Campanha",
     items: [
-      { title: "Gerenciar Campanhas", url: "/b2b/campanhas", icon: Megaphone },
+      { title: "Campanhas", url: "/b2b/campanhas", icon: Megaphone },
       { title: "Criar Jornada", url: "/b2b/campanhas/nova", icon: PlusCircle },
-      { title: "Editor de Conteúdo", url: "/b2b/editor", icon: Palette },
+      { title: "Editor", url: "/b2b/editor", icon: Palette },
     ]
   },
   {
-    label: "Segurança & Acesso",
+    label: "Segurança",
     items: [
       { title: "Privacidade & SSO", url: "/b2b/privacidade", icon: ShieldCheck },
-      { title: "Convite em Massa", url: "/b2b/convites", icon: UserPlus },
-      { title: "Gerenciar Equipe", url: "/b2b/equipe", icon: Users },
+      { title: "Convites", url: "/b2b/convites", icon: UserPlus },
+      { title: "Equipe", url: "/b2b/equipe", icon: Users },
       { title: "Branding", url: "/b2b/branding", icon: Palette },
     ]
   }
@@ -51,33 +64,51 @@ export default function B2BSidebar() {
   const navigate = useNavigate();
 
   return (
-    <Sidebar collapsible="icon" className={`${collapsed ? "w-14" : "w-64"} border-r border-border/50 bg-card/30 backdrop-blur-xl`}>
-      <div className="flex flex-col h-full bg-gradient-to-b from-card/50 to-background/50">
-        <SidebarHeader className="py-8 px-2">
+    <Sidebar
+      collapsible="icon"
+      className={cn(
+        "border-r transition-all duration-300",
+        collapsed ? "w-[72px]" : "w-[260px]",
+        "bg-white dark:bg-[#0E220E] border-border/10"
+      )}
+    >
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <SidebarHeader className={cn("border-b border-border/10 px-0 flex items-center justify-center", collapsed ? "h-20" : "h-20 px-4")}>
           <SidebarMenu>
-            <SidebarMenuItem className="flex justify-center">
-              <SidebarMenuButton size="lg" asChild className="hover:bg-transparent p-0 group-data-[collapsible=icon]:w-11 group-data-[collapsible=icon]:h-11">
-                <NavLink to="/b2b" className="flex items-center gap-3 w-full justify-start group-data-[collapsible=icon]:justify-center">
-                  <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-all duration-500 shadow-xl shadow-primary/20 border border-white/10">
-                    <BriefcaseBusiness className="w-6 h-6 text-white" />
+            <SidebarMenuItem className="flex justify-center w-full">
+              <SidebarMenuButton
+                size="lg"
+                asChild
+                className={cn(
+                  "hover:bg-transparent p-0 transition-all",
+                  collapsed ? "!w-full !h-14 justify-center" : "w-full"
+                )}
+              >
+                <NavLink
+                  to="/b2b"
+                  className={cn(
+                    "flex items-center gap-3 w-full",
+                    collapsed ? "justify-center" : "justify-start"
+                  )}
+                >
+                  {/* Logo - Yellow rounded square */}
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#F6D045]/20 bg-[#F6D045]">
+                    <DoorOpen className="w-6 h-6 text-[#0E220E]" strokeWidth={2.5} />
                   </div>
                   {!collapsed && (
-                    <div className="flex flex-col ml-1">
-                      <motion.span
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-xl font-black tracking-tighter text-foreground leading-none"
-                      >
-                        Fresta B2B
-                      </motion.span>
-                      <motion.span
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mt-1"
-                      >
-                        Business Platform
-                      </motion.span>
-                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex flex-col"
+                    >
+                      <span className="text-xl font-black tracking-tight leading-none text-solidroad-text dark:text-[#F6D045]">
+                        Fresta
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                        Business
+                      </span>
+                    </motion.div>
                   )}
                 </NavLink>
               </SidebarMenuButton>
@@ -85,34 +116,51 @@ export default function B2BSidebar() {
           </SidebarMenu>
         </SidebarHeader>
 
-        <SidebarContent className="px-3 overflow-y-auto no-scrollbar">
+        {/* Navigation */}
+        <SidebarContent className={cn("gap-0 overflow-y-auto flex-1", collapsed ? "px-0" : "px-3")}>
           {navigationGroups.map((group) => (
-            <SidebarGroup key={group.label} className="mt-4 first:mt-0">
+            <SidebarGroup key={group.label} className="mt-6 first:mt-0">
               {!collapsed && (
-                <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+                <SidebarGroupLabel className="px-3 text-xs font-bold uppercase tracking-widest mb-2 text-muted-foreground/40">
                   {group.label}
                 </SidebarGroupLabel>
               )}
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1">
-                  {group.items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild tooltip={item.title}>
-                        <NavLink
-                          to={item.url}
-                          end
-                          className="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-primary/5 hover:translate-x-1"
-                          activeClassName="bg-primary text-white shadow-lg shadow-primary/20 hover:translate-x-0"
-                        >
-                          <item.icon className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${pathname === item.url ? 'text-white' : 'text-primary'}`} />
-                          {!collapsed && <span className="text-sm font-bold tracking-tight">{item.title}</span>}
-                          {pathname === item.url && !collapsed && (
-                            <div className="absolute -left-3 w-1 h-6 bg-white rounded-full blur-[1px]" />
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                <SidebarMenu className="gap-0.5">
+                  {group.items.map((item) => {
+                    const isActive = pathname === item.url;
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild tooltip={item.title} size="lg" className={cn("transition-all", collapsed && "!w-full !h-14 !p-0 justify-center")}>
+                          <NavLink
+                            to={item.url}
+                            end
+                            className={cn(
+                              "group flex items-center gap-3 transition-all duration-200",
+                              collapsed ? "justify-center px-0 w-full h-full" : "px-3 py-2.5 rounded-xl w-full h-full",
+                              isActive
+                                ? "bg-[#F6D045] text-[#0E220E]"
+                                : "text-muted-foreground/70 hover:bg-[#F6D045]/10 hover:text-[#0E220E] dark:text-white/60 dark:hover:text-[#F6D045]"
+                            )}
+                          >
+                            <item.icon
+                              className={cn(
+                                isActive ? "text-[#0E220E]" : "text-muted-foreground/60 dark:text-white/40 group-hover:text-inherit",
+                                collapsed ? "w-8 h-8" : "w-5 h-5"
+                              )}
+                              strokeWidth={collapsed ? (isActive ? 2 : 1.5) : 2}
+                            />
+                            {!collapsed && (
+                              <span className="text-sm font-medium flex-1 truncate">{item.title}</span>
+                            )}
+                            {!collapsed && isActive && (
+                              <ChevronRight className="w-4 h-4 opacity-50 shrink-0" />
+                            )}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -120,47 +168,74 @@ export default function B2BSidebar() {
         </SidebarContent>
 
         {/* Bottom Profile Section */}
-        <div className="mt-auto px-3 border-t border-border/30 bg-card/20 py-8">
+        <div className={cn("mt-auto border-t border-border/10", collapsed ? "h-24 flex items-center justify-center p-0" : "py-4 px-3")}>
           {!collapsed ? (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3 px-2">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg">
-                  <span className="text-xl">{profile?.avatar ?? "👤"}</span>
+            <div className="flex flex-col gap-3">
+              {/* Profile card */}
+              <button
+                onClick={() => navigate("/b2b/perfil")}
+                className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 dark:bg-white/5 hover:bg-muted/50 transition-colors w-full text-left outline-none"
+              >
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden bg-[#F6D045] shrink-0">
+                  {profile?.avatar ? (
+                    <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm font-bold text-[#0E220E]">
+                      {(profile?.display_name || user?.email || 'U')[0].toUpperCase()}
+                    </span>
+                  )}
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-black text-foreground truncate">
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-sm font-semibold truncate text-[#0E220E] dark:text-white">
                     {profile?.display_name || user?.email?.split('@')[0] || "Usuário"}
                   </span>
-                  <span className="text-[10px] font-bold text-primary tracking-widest uppercase">
-                    Admin Empresa
+                  <span className="text-[11px] font-medium text-muted-foreground/50 dark:text-white/30 truncate">
+                    Admin
                   </span>
                 </div>
-              </div>
+              </button>
+
+              {/* Logout button */}
               <button
                 onClick={async () => {
                   await logout();
                   navigate("/entrar", { replace: true });
                 }}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-festive-red/10 hover:text-festive-red transition-all duration-300 group"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-500/10 group text-muted-foreground/60 dark:text-white/40 w-full"
               >
-                <LogOut className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-                <span className="text-sm font-bold">Encerrar Sessão</span>
+                <LogOut className="w-5 h-5 group-hover:text-red-500 transition-colors shrink-0" />
+                <span className="text-sm font-medium group-hover:text-red-500 transition-colors">Sair</span>
               </button>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-6">
-              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform duration-300" onClick={() => navigate("/b2b/conta")}>
-                <span className="text-sm">{profile?.avatar ?? "👤"}</span>
-              </div>
-              <button
-                onClick={async () => {
-                  await logout();
-                  navigate("/entrar", { replace: true });
-                }}
-                className="w-8 h-8 flex items-center justify-center rounded-xl text-muted-foreground hover:bg-festive-red/10 hover:text-festive-red transition-all"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
+            <div className="flex flex-col items-center gap-3 w-full">
+              <SidebarMenuButton asChild tooltip="Conta" size="lg" className="!w-full !h-14 !p-0 justify-center">
+                <button
+                  onClick={() => navigate("/b2b/perfil")}
+                  className="flex items-center justify-center w-full h-full"
+                >
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-[#F6D045] border border-border/10 shrink-0">
+                    {profile?.avatar ? (
+                      <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-sm font-bold text-[#0E220E]">
+                        {(profile?.display_name || user?.email || 'U')[0].toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              </SidebarMenuButton>
+              <SidebarMenuButton asChild tooltip="Sair" size="lg" className="!w-full !h-14 !p-0 justify-center">
+                <button
+                  onClick={async () => {
+                    await logout();
+                    navigate("/entrar", { replace: true });
+                  }}
+                  className="flex items-center justify-center w-full h-full text-muted-foreground/50 hover:text-red-500"
+                >
+                  <LogOut className="w-8 h-8" strokeWidth={1.5} />
+                </button>
+              </SidebarMenuButton>
             </div>
           )}
         </div>

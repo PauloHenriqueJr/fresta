@@ -94,6 +94,14 @@ const AuthHandler = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
+    const pathname = window.location.pathname;
+
+    // 0. Correção de Rota (Path -> Hash): Se acessar /c/ID diretamente
+    if (pathname.startsWith('/c/')) {
+      console.log("App: Convertendo rota de path para hash");
+      window.location.href = `${window.location.origin}/#${pathname}${hash}`;
+      return;
+    }
 
     // 1. Normalização Imediata: Se o hash é um fragmento de auth pura (#access_token)
     // Precisamos converter para #/access_token para o HashRouter não dar 404
@@ -106,8 +114,19 @@ const AuthHandler = () => {
     // 2. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
     if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
       if (session) {
-        console.log("App: Navegando para o painel principal");
-        navigate("/meus-calendarios", { replace: true });
+        // Ignorar se for link público
+        if (hash.includes("#/c/") || window.location.pathname.startsWith('/c/')) return;
+
+        // Check for onboarding status
+        const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+
+        if (!hasSeenOnboarding) {
+          console.log("App: Novo usuário detectado, indo para onboarding");
+          navigate("/onboarding", { replace: true });
+        } else {
+          console.log("App: Navegando para o painel principal");
+          navigate("/meus-calendarios", { replace: true });
+        }
       }
     }
   }, [session, isLoading, navigate]);

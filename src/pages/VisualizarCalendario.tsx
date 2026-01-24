@@ -7,6 +7,7 @@ import FloatingDecorations from "@/components/calendar/FloatingDecorations";
 import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
+import { getThemeConfig } from "@/lib/themes/registry";
 import { toast } from "sonner";
 import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -14,6 +15,7 @@ import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
@@ -286,6 +288,7 @@ const VisualizarCalendario = () => {
 
   const selectedDayData = days.find(d => d.day === selectedDay);
   const themeData = calendar ? getThemeDefinition(BASE_THEMES, calendar.theme_id as any) : null;
+  const premiumTheme = getThemeConfig(calendar?.theme_id);
 
   // Transform days for CalendarGrid
   const gridDays = days.map(d => {
@@ -345,28 +348,49 @@ const VisualizarCalendario = () => {
 
   return (
     <div className={`min-h-screen bg-background relative overflow-hidden theme-${calendar.theme_id}`}>
+      {/* Sao Joao Background Pattern */}
+      {calendar.theme_id === 'saojoao' && (
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
+          backgroundSize: "32px 32px",
+          backgroundPosition: "0 0, 16px 16px",
+          backgroundColor: "#FFF8E8"
+        }} />
+      )}
+      {/* Wedding Background Pattern */}
+      {calendar.theme_id === 'casamento' && (
+        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundColor: "#FFFCF5"
+        }} />
+      )}
+
       <FloatingDecorations theme={(themeData?.id || "natal") as any} />
 
       {/* Header */}
       <motion.header
-        className="relative z-10 px-4 py-4"
+        className="relative z-10 px-4 py-4 mt-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">
-              {calendar.title}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {themeData?.emoji} {themeData?.name}
-            </p>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          {calendar.theme_id === 'saojoao' && (
+            <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+              Vila de São João
+            </span>
+          )}
+          {calendar.theme_id === 'casamento' && (
+            <span className="px-3 py-1 bg-[#C5A059] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+              Rumo ao Altar
+            </span>
+          )}
+          <div className="flex-1" /> {/* Spacer */}
           <div className="flex items-center gap-2">
             <motion.button
               onClick={() => setLiked(!liked)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${liked ? "bg-festive-red" : "bg-card"
-                } shadow-card`}
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${liked ? "bg-red-500" : "bg-white/80 backdrop-blur-sm"
+                } shadow-sm border border-black/5`}
               whileTap={{ scale: 0.9 }}
             >
               <Heart
@@ -376,12 +400,27 @@ const VisualizarCalendario = () => {
             </motion.button>
             <motion.button
               onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card"
+              className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5"
               whileTap={{ scale: 0.9 }}
             >
               <Share2 className="w-5 h-5 text-foreground" />
             </motion.button>
           </div>
+        </div>
+
+        <div>
+          <h1 className={cn(
+            "text-3xl font-black mb-1 leading-tight",
+            calendar.theme_id === 'saojoao' ? "text-[#5D2E0B]" : "text-foreground"
+          )}>
+            {calendar.title}
+          </h1>
+          <p className={cn(
+            "text-sm font-medium",
+            calendar.theme_id === 'saojoao' ? "text-[#8B4513]/70" : "text-muted-foreground"
+          )}>
+            {themeData?.emoji} {themeData?.name}
+          </p>
         </div>
         {/* Romantic Progress Bar - Inspired by user reference */}
         {(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
@@ -435,7 +474,7 @@ const VisualizarCalendario = () => {
         <div className="bg-card/40 backdrop-blur-xl border border-white/20 rounded-[2.5rem] p-8 relative overflow-hidden group shadow-elevated">
           {/* Decorative icons in bg */}
           <div className="absolute top-4 right-4 text-primary/10 -rotate-12 transition-transform group-hover:rotate-0">
-            <Heart className="w-16 h-16 fill-current" />
+            {["namoro", "casamento", "noivado", "bodas"].includes(calendar.theme_id) ? <Heart className="w-16 h-16 fill-current" /> : <Sparkles className="w-16 h-16" />}
           </div>
           <div className="absolute bottom-4 left-4 text-accent/10 rotate-12 transition-transform group-hover:rotate-0">
             <Sparkles className="w-12 h-12" />
@@ -445,10 +484,51 @@ const VisualizarCalendario = () => {
             <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
               <Sparkles className="w-7 h-7 text-primary" />
             </div>
-            <h3 className="text-2xl font-black text-foreground mb-2">CÁPSULA DO TEMPO</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed italic">
-              "O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção."
-            </p>
+
+            {(() => {
+              const capsuleContent: Record<string, { title: string, message: string }> = {
+                saojoao: {
+                  title: "MEMÓRIAS DO ARRAIÁ",
+                  message: "Que a alegria dessa festa aqueça seu coração o ano todo! Guarde cada momento. 🔥🌽"
+                },
+                carnaval: {
+                  title: "FOLIA ETERNA",
+                  message: "A vida é um carnaval! Celebre cada dia com a mesma energia dessa festa. 🎉🎭"
+                },
+                natal: {
+                  title: "ESPÍRITO NATALINO",
+                  message: "O melhor presente é estar presente. Que estas memórias iluminem seu caminho. 🎄✨"
+                },
+                namoro: {
+                  title: "NOSSA CÁPSULA",
+                  message: "\"O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção.\""
+                },
+                casamento: {
+                  title: "NOSSA JORNADA",
+                  message: "Cada dia ao seu lado é um presente que quero abrir para sempre. 💍💖"
+                },
+                bodas: {
+                  title: "CELEBRAÇÃO DO AMOR",
+                  message: "Uma história construída dia após dia, com muito amor e cumplicidade."
+                },
+                default: {
+                  title: "CÁPSULA DO TEMPO",
+                  message: "Colecione momentos, não coisas. Este calendário é um pedacinho da sua história."
+                }
+              };
+
+              const content = capsuleContent[calendar.theme_id] || capsuleContent['default'];
+
+              return (
+                <>
+                  <h3 className="text-2xl font-black text-foreground mb-2 uppercase">{content.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed italic">
+                    "{content.message}"
+                  </p>
+                </>
+              );
+            })()}
+
           </div>
         </div>
       </motion.section>
@@ -502,10 +582,45 @@ const VisualizarCalendario = () => {
                   <Loader2 className="w-12 h-12 text-primary animate-spin-slow" />
                 </div>
 
-                <h2 className="text-3xl font-black text-foreground mb-3 leading-tight">Calma, coração!</h2>
-                <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
-                  Essa surpresa ainda está sendo preparada e só abre em breve. Segura a ansiedade! ✨
-                </p>
+                {(() => {
+                  const lockedContent: Record<string, { title: string, message: string }> = {
+                    saojoao: {
+                      title: "Opa, pera lá! 🌽",
+                      message: "A fogueira ainda tá esquentando! Segura a ansiedade que essa porta abre logo pro arraiá."
+                    },
+                    carnaval: {
+                      title: "O bloco ainda não saiu! 🎉",
+                      message: "Tudo tem sua hora na avenida. Aguarde a concentração para abrir esta porta!"
+                    },
+                    natal: {
+                      title: "O Papai Noel ainda não chegou! 🎅",
+                      message: "Essa surpresa está sendo embrulhada pelos elfos. Aguente firme!"
+                    },
+                    casamento: {
+                      title: "Ainda não é o momento... 💍",
+                      message: "Estamos preparando este detalhe com todo carinho do mundo. Em breve você verá!"
+                    },
+                    namoro: {
+                      title: "Calma, amor! ❤️",
+                      message: "Eu sei que você tá curiosa(o), mas essa surpresa é para o momento certo."
+                    },
+                    default: {
+                      title: "Calma, coração! ✨",
+                      message: "Essa surpresa ainda está sendo preparada e só abre em breve. Segura a ansiedade!"
+                    }
+                  };
+
+                  const content = lockedContent[calendar.theme_id] || lockedContent['default'];
+
+                  return (
+                    <>
+                      <h2 className="text-3xl font-black text-foreground mb-3 leading-tight">{content.title}</h2>
+                      <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+                        {content.message}
+                      </p>
+                    </>
+                  );
+                })()}
 
                 <div className="flex gap-3 mb-10">
                   <div className="flex flex-col items-center">

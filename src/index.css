@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -120,18 +120,18 @@
     --shadow-card: 0 8px 30px -10px hsl(145 30% 20% / 0.15);
     --shadow-elevated: 0 20px 50px -15px hsl(145 30% 20% / 0.2);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 100%; /* Pure White for separation */
+    --sidebar-foreground: 150 30% 15%;
+    --sidebar-primary: 145 63% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 145 30% 94%;
+    --sidebar-accent-foreground: 145 63% 32%;
+    --sidebar-border: 145 20% 92%;
+    --sidebar-ring: 145 63% 42%;
   }
 
   .dark {
-    --background: 150 30% 8%;
+    --background: 120 41% 9%; /* Premium B2B Green #0E220E */
     --foreground: 80 20% 95%;
 
     --card: 150 25% 12%;
@@ -159,14 +159,14 @@
     --input: 150 20% 20%;
     --ring: 145 63% 50%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 120 41% 6%; /* Slightly darker than background for depth */
+    --sidebar-foreground: 80 20% 95%;
+    --sidebar-primary: 145 63% 50%;
+    --sidebar-primary-foreground: 120 41% 6%;
+    --sidebar-accent: 145 63% 50%;
+    --sidebar-accent-foreground: 120 41% 6%;
+    --sidebar-border: 120 20% 15%;
+    --sidebar-ring: 145 63% 50%;
   }
 
   /* Theme variants */
@@ -283,7 +283,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-nunito antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {

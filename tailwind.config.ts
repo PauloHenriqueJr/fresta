@@ -13,8 +13,13 @@ export default {
       },
     },
     extend: {
+
       fontFamily: {
         nunito: ["Nunito", "system-ui", "sans-serif"],
+        sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        display: ["Plus Jakarta Sans", "sans-serif"],
+        romantic: ["Great Vibes", "cursive"],
+        festive: ["Dancing Script", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -22,6 +27,13 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "love-pink": "#fce7f3",
+        "love-rose": "#fb7185",
+        "love-red": "#e11d48",
+        "background-light": "#fff1f2",
+        "background-dark": "#18181b",
+        "surface-light": "#ffffff",
+        "surface-dark": "#27272a",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -59,6 +71,21 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        // Premium Solidroad Palette
+        solidroad: {
+          beige: "#FFF8E8",
+          "beige-dark": "#1C1A0E",
+          green: "#E8F5E0",
+          "green-dark": "#0E1A12",
+          turquoise: "#D4F4F0",
+          "turquoise-dark": "#0E1A1A",
+          pink: "#FFE5EC",
+          "pink-dark": "#2E1A1F",
+          purple: "#E8E4F5",
+          "purple-dark": "#1F1A2B",
+          accent: "#F6D045", // The signature yellow
+          text: "#0E220E",   // The signature dark green
         },
         festive: {
           green: "hsl(var(--festive-green))",
@@ -102,12 +129,13 @@ export default {
           bg: "hsl(var(--romance-bg))",
         },
         wedding: {
-          cream: "hsl(var(--wedding-cream))",
-          card: "hsl(var(--wedding-card))",
-          gold: "hsl(var(--wedding-gold))",
-          "gold-soft": "hsl(var(--wedding-gold-soft))",
-          ink: "hsl(var(--wedding-ink))",
-          muted: "hsl(var(--wedding-muted))",
+          cream: "#F9F6F0", // Soft cream background
+          card: "#FFFFFF",
+          gold: "#D4AF37", // Classic Gold
+          "gold-soft": "#E5CFAA", // Champagne Gold
+          "gold-dark": "#996515", // Darker metallic gold
+          ink: "#2C2C2C", // Soft Black for text
+          muted: "#8A8A8A",
         },
         reveillon: {
           violet: "hsl(var(--reveillon-violet))",

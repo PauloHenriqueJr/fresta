@@ -1,61 +1,76 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Download, FileText, TrendingUp, Users } from "lucide-react";
+import { Download, FileText, TrendingUp, Users, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function ExecutiveReport() {
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-end">
+        <div className="space-y-8 max-w-5xl">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-foreground">Relatório Executivo</h1>
-                    <p className="text-muted-foreground">Versão simplificada e elegante para apresentação à diretoria.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0E220E] dark:text-[#F6D045]">
+                        Relatório Executivo
+                    </h1>
+                    <p className="mt-1 text-muted-foreground/60 dark:text-white/40">
+                        Visão estratégica consolidada para tomada de decisão
+                    </p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-white text-xs font-black hover:bg-primary/90 transition-all uppercase tracking-widest shadow-lg shadow-primary/20">
-                    <Download className="w-4 h-4" />
-                    Exportar PDF
+                <button className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0E220E] dark:bg-[#F6D045] text-white dark:text-[#0E220E] font-bold transition-all hover:shadow-lg active:scale-95">
+                    <Download className="w-5 h-5" />
+                    Exportar Relatório
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card className="border-border/40 bg-card/50 backdrop-blur-sm p-8 flex flex-col items-center text-center">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                        <TrendingUp className="w-10 h-10 text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.div
+                    className="rounded-2xl p-8 border border-border/10 bg-white dark:bg-white/5 flex flex-col items-center text-center group transition-all hover:bg-[#F6D045]/5"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
+                    <div className="w-20 h-20 rounded-2xl bg-[#F6D045]/10 flex items-center justify-center mb-8 transition-transform group-hover:scale-110">
+                        <TrendingUp className="w-10 h-10 text-[#0E220E] dark:text-[#F6D045]" />
                     </div>
-                    <h3 className="text-2xl font-black mb-2">Engajamento Total</h3>
-                    <p className="text-5xl font-black text-primary mb-4">87.4%</p>
-                    <p className="text-sm font-medium text-muted-foreground max-w-[250px]">
-                        Dos colaboradores engajaram com pelo menos 5 portas na última campanha.
+                    <h3 className="text-sm font-bold text-muted-foreground/60 dark:text-white/40 uppercase tracking-widest mb-2">Engajamento Médio</h3>
+                    <p className="text-6xl font-black text-[#0E220E] dark:text-white mb-6">87.4%</p>
+                    <p className="text-sm text-muted-foreground/50 max-w-[300px]">
+                        Dos colaboradores interagiram com mais de 70% das notificações enviadas na última campanha.
                     </p>
-                </Card>
+                </motion.div>
 
-                <Card className="border-border/40 bg-card/50 backdrop-blur-sm p-8 flex flex-col items-center text-center">
-                    <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
-                        <Users className="w-10 h-10 text-emerald-500" />
+                <motion.div
+                    className="rounded-2xl p-8 border border-border/10 bg-white dark:bg-white/5 flex flex-col items-center text-center group transition-all hover:bg-[#2D7A5F]/5"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                >
+                    <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-8 transition-transform group-hover:scale-110">
+                        <Users className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    <h3 className="text-2xl font-black mb-2">Alcance da Rede</h3>
-                    <p className="text-5xl font-black text-emerald-500 mb-4">1,420</p>
-                    <p className="text-sm font-medium text-muted-foreground max-w-[250px]">
-                        Colaboradores ativos e participando das dinâmicas gamificadas.
+                    <h3 className="text-sm font-bold text-muted-foreground/60 dark:text-white/40 uppercase tracking-widest mb-2">Alcance Organizacional</h3>
+                    <p className="text-6xl font-black text-[#0E220E] dark:text-white mb-6">1.42k</p>
+                    <p className="text-sm text-muted-foreground/50 max-w-[300px]">
+                        Colaboradores únicos alcançados em todos os departamentos e canais de comunicação integrados.
                     </p>
-                </Card>
+                </motion.div>
             </div>
 
-            <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-xl font-black">Principais Insights</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <div className="rounded-2xl p-6 md:p-8 border border-border/10 bg-white dark:bg-white/5">
+                <h2 className="text-xl font-bold tracking-tight text-[#0E220E] dark:text-[#F6D045] mb-8">Destaques Estratégicos</h2>
+                <div className="space-y-4">
                     {[
-                        "O pico de acesso ocorre entre 08:30 e 09:15 da manhã.",
-                        "O tema 'Cultura Organizacional' teve 94% de feedbacks positivos.",
-                        "Usuários desktop representam 65% do engajamento total."
+                        { text: "Pico de acesso consolidado entre 08:45 e 09:30 AM.", type: "time" },
+                        { text: "Adesão de 94% ao tema de 'Inovação e Processos'.", type: "trend" },
+                        { text: "Dispositivos mobile representam 72% de todo o tráfego.", type: "device" }
                     ].map((insight, i) => (
-                        <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/10">
-                            <FileText className="w-5 h-5 text-primary mt-0.5" />
-                            <p className="text-sm font-bold text-foreground/80">{insight}</p>
+                        <div key={i} className="flex items-center gap-4 p-5 rounded-xl border border-border/5 bg-[#F9F9F9] dark:bg-white/5 group transition-all hover:translate-x-2">
+                            <div className="w-10 h-10 rounded-lg bg-[#F6D045] flex items-center justify-center shrink-0">
+                                <FileText className="w-5 h-5 text-[#0E220E]" />
+                            </div>
+                            <p className="text-sm font-bold text-[#0E220E]/80 dark:text-white/80 flex-1">{insight.text}</p>
+                            <ChevronRight className="w-4 h-4 text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-all" />
                         </div>
                     ))}
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }

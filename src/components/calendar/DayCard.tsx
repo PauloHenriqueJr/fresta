@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Lock, Check, Gift, Sparkles, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getThemeConfig } from "@/lib/themes/registry";
 
+// ... (in component) - removing this lines 6-20 block by replacing up to export
 export type DayStatus = "locked" | "available" | "opened";
 
 interface DayCardProps {
@@ -14,6 +16,26 @@ interface DayCardProps {
   dateLabel?: string;
 }
 
+// Pastel Color Maps for Themes
+const THEME_COLORS: Record<string, string> = {
+  carnaval: "from-purple-400 to-pink-400",
+  saojoao: "from-orange-400 to-red-400",
+  natal: "from-red-500 to-green-600",
+  reveillon: "from-yellow-400 to-yellow-600",
+  pascoa: "from-pink-300 to-purple-300",
+  namoro: "from-red-400 to-pink-500",
+  casamento: "from-slate-300 to-slate-400",
+  default: "from-solidroad-accent to-solidroad-accent/80", // Solidroad Gold
+};
+
+const THEME_BG_CLASSES: Record<string, string> = {
+  carnaval: "bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800",
+  saojoao: "bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-800",
+  natal: "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800",
+  reveillon: "bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800",
+  default: "bg-white dark:bg-white/5 border-border/10",
+};
+
 const DayCard = ({
   day,
   status,
@@ -23,119 +45,104 @@ const DayCard = ({
   hasSpecialContent = false,
   dateLabel,
 }: DayCardProps) => {
-  const getCardClasses = () => {
-    const base = "day-card relative overflow-hidden";
+  const premiumTheme = getThemeConfig(theme);
 
-    switch (status) {
-      case "locked":
-        return cn(base, "day-card-locked");
-      case "available":
-        return cn(base, "day-card-available");
-      case "opened":
-        return cn(base, "day-card-opened");
-      default:
-        return base;
-    }
+  const getThemeGradient = () => {
+    return THEME_COLORS[theme] || THEME_COLORS["default"];
+  };
+
+  const getThemeBg = () => {
+    if (status === 'opened') return "bg-gray-100 dark:bg-white/5 border-transparent";
+    return THEME_BG_CLASSES[theme] || THEME_BG_CLASSES["default"];
   };
 
   const getIcon = () => {
     switch (status) {
       case "locked":
-        return <Lock className="w-4 h-4 opacity-50" />;
+        if (premiumTheme.styles.card.lockedIcon) return premiumTheme.styles.card.lockedIcon;
+        return <Lock className="w-4 h-4 opacity-40" />;
       case "available":
-        const isRomance = theme === "namoro" || theme === "casamento" || theme === "noivado" || theme === "bodas";
-        return hasSpecialContent ? (
-          <Sparkles className="w-5 h-5" />
-        ) : isRomance ? (
-          <Heart className="w-5 h-5 fill-current animate-pulse" />
-        ) : (
-          <Gift className="w-5 h-5" />
-        );
+        const isRomance = ["namoro", "casamento", "noivado", "bodas"].includes(theme);
+        if (hasSpecialContent) return <Sparkles className="w-5 h-5 text-white animate-pulse" />;
+        if (isRomance) return <Heart className="w-5 h-5 text-white fill-current" />;
+        return <Gift className="w-5 h-5 text-white" />;
       case "opened":
-        return <Check className="w-4 h-4 text-primary" />;
+        return <Check className="w-5 h-5 text-solidroad-green dark:text-green-400" />;
       default:
         return null;
     }
   };
 
+  // Card Text Color
+  const getTextColor = () => {
+    if (status === 'available') return "text-white drop-shadow-sm";
+    return "text-solidroad-text dark:text-white";
+  };
+
   return (
     <motion.div
-      className={cn("relative w-full aspect-square perspective-1000")}
+      className={cn("relative w-full aspect-square perspective-1000 group")}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, delay: day * 0.02 }}
     >
       <div className="relative w-full h-full transform-style-3d transition-transform duration-700">
-        {/* Door Back (revealed content) */}
-        <button
-          onClick={onClick}
-          className="absolute inset-0 bg-muted/30 rounded-2xl flex items-center justify-center border-2 border-border/20 cursor-pointer hover:bg-muted/40 transition-colors"
-        >
-          <div className="text-center pointer-events-none">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-1">
-              <Check className="w-4 h-4 text-primary" />
-            </div>
-            <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest leading-none">Aberto</span>
-          </div>
-        </button>
 
-        {/* Door Front */}
+        {/* The Card */}
         <motion.button
           className={cn(
-            getCardClasses(),
-            "absolute inset-0 z-10 origin-left backface-hidden flex flex-col items-center justify-center rounded-2xl shadow-md border border-white/10"
+            "absolute inset-0 z-10 flex flex-col items-center justify-center rounded-[1.5rem] shadow-sm transition-all overflow-hidden border",
+            status === 'available' ? `bg-gradient-to-br ${getThemeGradient()} border-transparent shadow-lg shadow-black/5` : getThemeBg()
           )}
+          style={
+            status === 'locked' ? {
+              ...premiumTheme.styles.card.locked,
+              ...(premiumTheme.styles.card.boxShadow ? { boxShadow: premiumTheme.styles.card.boxShadow } : {})
+            } : undefined
+          }
           onClick={onClick}
-          initial={status === "opened" ? { rotateY: -110, scale: 1.05, translateZ: 20 } : { rotateY: 0, scale: 1, translateZ: 0 }}
-          animate={status === "opened" ? { rotateY: -110, scale: 1.05, translateZ: 20 } : { rotateY: 0, scale: 1, translateZ: 0 }}
           whileHover={status !== "opened" ? {
-            scale: 1.05,
-            rotateY: status === "available" ? -5 : 0,
-            boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)"
+            y: -4,
+            scale: 1.02,
+            boxShadow: "0 12px 24px -10px rgba(0,0,0,0.15)"
           } : {}}
           whileTap={{ scale: 0.95 }}
-          transition={{
-            type: "spring",
-            stiffness: 100,
-            damping: 15,
-            mass: 0.8
-          }}
         >
-          {/* Subtle light reflection on top */}
-          <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none rounded-t-2xl" />
-
-          {/* Day number or Date Label */}
-          {dateLabel && (
-            <span className="text-[10px] font-black opacity-60 uppercase mb-0.5 relative z-10">{dateLabel}</span>
-          )}
-          <span
-            className={cn(
-              "font-black relative z-10 leading-none text-center px-1 uppercase tracking-tighter",
-              status === "available" ? "text-xl" : "text-lg"
+          {/* Day Label */}
+          <div className="flex flex-col items-center relative z-10">
+            {dateLabel && (
+              <span className={cn("text-[8px] md:text-[10px] font-black uppercase tracking-widest opacity-80 mb-0.5", getTextColor())}>
+                {dateLabel}
+              </span>
             )}
-          >
-            PORTA {day.toString().padStart(2, "0")}
-          </span>
-
-          {/* Icon */}
-          <div className="mt-1 relative z-10">{getIcon()}</div>
-
-          {/* Handle indicator */}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-8 bg-black/10 rounded-full border border-white/5 flex flex-col items-center justify-center gap-1 dark:bg-white/5">
-            <div className="w-1 h-1 rounded-full bg-white/20" />
-            <div className="w-1 h-1 rounded-full bg-white/20" />
-            <div className="w-1 h-1 rounded-full bg-white/20" />
+            <span className={cn("text-2xl md:text-3xl font-black leading-none", getTextColor())}>
+              {day}
+            </span>
           </div>
 
-          {/* Time left indicator for locked cards */}
+          {/* Status Icon Area */}
+          <div className="mt-2 relative z-10">
+            {/* If available, show icon in white. If locked/opened, colored */}
+            <div className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center transition-all",
+              status === 'available' ? "bg-white/20 backdrop-blur-sm" : "bg-black/5 dark:bg-white/10"
+            )}>
+              {getIcon()}
+            </div>
+          </div>
+
+          {/* Locked State Time */}
           {status === "locked" && timeLeft && (
-            <span className="text-[10px] mt-1 opacity-60 italic relative z-10">{timeLeft}</span>
+            <span className="text-[9px] font-bold text-muted-foreground mt-2 px-2 py-0.5 bg-black/5 rounded-md">
+              {timeLeft}
+            </span>
           )}
 
-          {/* Shimmer effect for available cards */}
+          {/* Shine Effect for Available */}
           {status === "available" && (
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-shimmer bg-[length:200%_200%] rounded-2xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent skew-x-12 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
           )}
+
         </motion.button>
       </div>
     </motion.div >

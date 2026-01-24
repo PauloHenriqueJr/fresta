@@ -1,13 +1,16 @@
 /// <reference lib="webworker" />
 
 const CACHE_NAME = 'fresta-v1';
-const OFFLINE_URL = '/fresta/offline.html';
+// Detecta se está rodando no GitHub Pages (path /fresta/) ou Localhost
+const BASE_PATH = self.location.pathname.startsWith('/fresta') ? '/fresta' : '';
+
+const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-    '/fresta/',
-    '/fresta/index.html',
-    '/fresta/manifest.json'
+    `${BASE_PATH}/`,
+    `${BASE_PATH}/index.html`,
+    `${BASE_PATH}/manifest.json`
 ];
 
 // Install event - cache core assets

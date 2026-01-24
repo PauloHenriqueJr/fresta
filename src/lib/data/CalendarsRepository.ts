@@ -282,19 +282,23 @@ export const CalendarsRepository = {
   async getUserStats(userId: string) {
     const { data, error } = await supabase
       .from('calendars')
-      .select('views, likes, shares')
+      .select('views, likes, shares, status')
       .eq('owner_id', userId);
     
     if (error) throw error;
 
-    const totals = (data || []).reduce((acc, curr) => ({
+    const calendars = data || [];
+    const activeCalendars = calendars.filter((c: any) => c.status === 'ativo').length;
+    
+    const totals = calendars.reduce((acc, curr) => ({
       views: acc.views + (curr.views || 0),
       likes: acc.likes + (curr.likes || 0),
       shares: acc.shares + (curr.shares || 0),
     }), { views: 0, likes: 0, shares: 0 });
 
     return {
-      totalCalendars: data?.length || 0,
+      totalCalendars: calendars.length,
+      activeCalendars,
       ...totals
     };
   },

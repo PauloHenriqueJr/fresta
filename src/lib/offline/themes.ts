@@ -7,7 +7,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "natal",
     name: "Natal",
-    emoji: "🎄",
+    iconName: "TreePine",
     scope: "common",
     imageKey: "natal",
     gradientClass: "bg-gradient-festive",
@@ -17,7 +17,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "reveillon",
     name: "Réveillon",
-    emoji: "🎆",
+    iconName: "PartyPopper",
     scope: "common",
     imageKey: "reveillon",
     gradientClass: "bg-gradient-festive",
@@ -27,7 +27,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "pascoa",
     name: "Páscoa",
-    emoji: "🐣",
+    iconName: "Egg",
     scope: "common",
     imageKey: "pascoa",
     gradientClass: "bg-gradient-festive",
@@ -39,7 +39,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "carnaval",
     name: "Carnaval",
-    emoji: "🎭",
+    iconName: "Music",
     scope: "b2c",
     imageKey: "carnaval",
     gradientClass: "bg-gradient-carnaval",
@@ -49,7 +49,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "saojoao",
     name: "São João",
-    emoji: "🔥",
+    iconName: "Flame",
     scope: "b2c",
     imageKey: "saojoao",
     gradientClass: "bg-gradient-saojoao",
@@ -59,7 +59,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "independencia",
     name: "Independência",
-    emoji: "🇧🇷",
+    iconName: "Flag",
     scope: "b2c",
     imageKey: "independencia",
     gradientClass: "bg-gradient-festive",
@@ -69,7 +69,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "diadasmaes",
     name: "Dia das Mães",
-    emoji: "💐",
+    iconName: "Heart",
     scope: "b2c",
     imageKey: "diadasmaes",
     gradientClass: "bg-gradient-festive",
@@ -79,7 +79,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "diadospais",
     name: "Dia dos Pais",
-    emoji: "🧔",
+    iconName: "User",
     scope: "b2c",
     imageKey: "diadospais",
     gradientClass: "bg-gradient-festive",
@@ -89,7 +89,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "diadascriancas",
     name: "Dia das Crianças",
-    emoji: "🧸",
+    iconName: "Gamepad2",
     scope: "b2c",
     imageKey: "diadascriancas",
     gradientClass: "bg-gradient-carnaval",
@@ -101,7 +101,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "aniversario",
     name: "Aniversário",
-    emoji: "🎂",
+    iconName: "Cake",
     scope: "b2c",
     imageKey: "aniversario",
     gradientClass: "bg-gradient-festive",
@@ -111,7 +111,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "viagem",
     name: "Viagem",
-    emoji: "🧳",
+    iconName: "Plane",
     scope: "b2c",
     imageKey: "viagem",
     gradientClass: "bg-gradient-saojoao",
@@ -121,7 +121,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "estudos",
     name: "Estudos",
-    emoji: "📚",
+    iconName: "BookOpen",
     scope: "b2c",
     imageKey: "estudos",
     gradientClass: "bg-gradient-festive",
@@ -131,7 +131,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "metas",
     name: "Metas",
-    emoji: "🎯",
+    iconName: "Target",
     scope: "b2c",
     imageKey: "metas",
     gradientClass: "bg-gradient-carnaval",
@@ -143,7 +143,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "namoro",
     name: "Amor & Romance",
-    emoji: "❤️",
+    iconName: "Heart",
     scope: "b2c",
     imageKey: "namoro",
     gradientClass: "bg-gradient-romance",
@@ -153,7 +153,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "noivado",
     name: "Eternamente Juntos",
-    emoji: "💖",
+    iconName: "Sparkles",
     scope: "b2c",
     imageKey: "noivado",
     gradientClass: "bg-gradient-romance",
@@ -163,7 +163,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "casamento",
     name: "Nossa União",
-    emoji: "💍",
+    iconName: "Church",
     scope: "b2c",
     imageKey: "casamento",
     gradientClass: "bg-gradient-wedding",
@@ -173,7 +173,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "bodas",
     name: "Bodas",
-    emoji: "🥂",
+    iconName: "Wine",
     scope: "b2c",
     imageKey: "bodas",
     gradientClass: "bg-gradient-romance",
@@ -185,7 +185,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "campanha_lancamento",
     name: "Lançamento",
-    emoji: "🚀",
+    iconName: "Rocket",
     scope: "b2b",
     imageKey: "peeking",
     gradientClass: "bg-gradient-festive",
@@ -195,7 +195,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "campanha_promocao",
     name: "Promoção",
-    emoji: "🏷️",
+    iconName: "Tag",
     scope: "b2b",
     imageKey: "peeking",
     gradientClass: "bg-gradient-carnaval",
@@ -205,7 +205,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "rh_onboarding",
     name: "Onboarding RH",
-    emoji: "🧑‍💻",
+    iconName: "Monitor",
     scope: "b2b",
     imageKey: "peeking",
     gradientClass: "bg-gradient-saojoao",
@@ -215,7 +215,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "endomarketing",
     name: "Endomarketing",
-    emoji: "📣",
+    iconName: "Megaphone",
     scope: "b2b",
     imageKey: "peeking",
     gradientClass: "bg-gradient-festive",
@@ -225,7 +225,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "comunidade",
     name: "Comunidade",
-    emoji: "🫶",
+    iconName: "Users",
     scope: "b2b",
     imageKey: "peeking",
     gradientClass: "bg-gradient-carnaval",
@@ -235,7 +235,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
   {
     id: "encontro_remoto",
     name: "Encontro do time remoto",
-    emoji: "🧑‍🤝‍🧑",
+    iconName: "UserPlus", // Changed from twin user emoji
     scope: "b2b",
     imageKey: "peeking",
     gradientClass: "bg-gradient-saojoao",

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import type { Tables } from "@/lib/supabase/types";
+import DayCard from "@/components/calendar/DayCard";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
@@ -108,7 +109,23 @@ const EditarDia = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className={`min-h-screen bg-background pb-32 relative overflow-hidden theme-${calendar?.theme_id}`}>
+      {/* Dynamic Background Patterns */}
+      {calendar?.theme_id === 'saojoao' && (
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
+          backgroundSize: "32px 32px",
+          backgroundPosition: "0 0, 16px 16px",
+          backgroundColor: "#FFF8E8"
+        }} />
+      )}
+      {calendar?.theme_id === 'casamento' && (
+        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundColor: "#FFFCF5"
+        }} />
+      )}
       {/* Header - mobile only */}
       <motion.header
         className="px-4 py-4 flex items-center gap-4 lg:hidden"
@@ -148,26 +165,33 @@ const EditarDia = () => {
           <div className="lg:col-span-1 space-y-6">
             {/* Day Card Preview */}
             <motion.div
-              className="bg-card rounded-3xl p-6 shadow-card"
+              className="flex justify-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <div className="w-full h-2 bg-primary rounded-full mb-6" />
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mb-4">
-                  <span className="text-3xl font-extrabold text-primary">
-                    {dayNumber}
-                  </span>
-                </div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {calendar ? calendar.title : "Porta"}
-                </h2>
-                <p className="text-sm text-primary">
-                  Personalize a surpresa deste dia
-                </p>
+              <div className="w-48 h-48">
+                {calendar && (
+                  <DayCard
+                    day={dayNumber}
+                    status={dayData?.content_type ? "available" : "locked"}
+                    theme={calendar.theme_id || "default"}
+                    hasSpecialContent={!!dayData?.content_type}
+                    dateLabel={`DIA ${dayNumber}`}
+                    onClick={() => { }} // No-op in preview
+                  />
+                )}
               </div>
             </motion.div>
+
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-foreground mt-4">
+                {calendar ? calendar.title : "Porta"}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Visualização da porta no calendário
+              </p>
+            </div>
 
           </div>
 

@@ -1,25 +1,42 @@
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Crown,
   Settings,
   HelpCircle,
   LogOut,
   Calendar,
   Eye,
-  Heart,
+  Flame,
   Loader2,
+  ArrowRight,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { useEffect, useState } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
+import AvatarPicker from "@/components/AvatarPicker";
+
+// Solidroad-style pastel colors
+const STAT_COLORS = [
+  { bg: 'bg-[#E8F5E0]', icon: 'bg-[#2D7A5F]' },  // green
+  { bg: 'bg-[#FFF8E8]', icon: 'bg-[#F9A03F]' },  // beige/orange
+  { bg: 'bg-[#D4F4F0]', icon: 'bg-[#4ECDC4]' },  // turquoise
+];
+
+const MENU_COLORS = [
+  'bg-[#FFF8E8]', // beige
+  'bg-[#E8F5E0]', // green
+  'bg-[#D4F4F0]', // turquoise
+  'bg-[#FFE5EC]', // pink
+];
 
 export default function Perfil() {
   const navigate = useNavigate();
   const { user, profile, logout, isLoading: authLoading } = useAuth();
-  const [stats, setStats] = useState({ totalCalendars: 0, views: 0, likes: 0 });
+  const [stats, setStats] = useState({ totalCalendars: 0, activeCalendars: 0, views: 0, likes: 0 });
   const [loading, setLoading] = useState(true);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -42,77 +59,169 @@ export default function Perfil() {
 
   const statCards = [
     { label: "Calendários", value: stats.totalCalendars, icon: Calendar },
+    { label: "Ativos", value: stats.activeCalendars, icon: Flame },
     { label: "Visualizações", value: stats.views.toLocaleString(), icon: Eye },
-    { label: "Curtidas", value: stats.likes, icon: Heart },
   ];
 
   const menuItems = [
     { icon: Crown, label: "Seja Premium", description: "Desbloqueie recursos exclusivos", route: "/premium", highlight: true },
-    { icon: Settings, label: "Configurações da Conta", description: "Edite seu perfil e preferências", route: "/conta/configuracoes" },
-    { icon: HelpCircle, label: "Ajuda e Suporte", description: "Dúvidas frequentes e contato", route: "/ajuda" },
+    { icon: Settings, label: "Configurações", description: "Edite perfil e preferências", route: "/conta/configuracoes" },
+    { icon: HelpCircle, label: "Ajuda", description: "Dúvidas e suporte", route: "/ajuda" },
   ];
 
-  if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F9F5] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#2D7A5F]" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background pb-8">
-      <div className="hidden lg:block px-4 pt-12 max-w-[1600px] lg:mx-auto">
-        <motion.div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-card via-background to-card border border-border/50 p-12 shadow-2xl group" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48" />
-          <div className="relative z-10 flex items-center gap-12">
-            <div className="w-48 h-48 rounded-[2.5rem] bg-gradient-festive flex items-center justify-center shadow-2xl">
-              <span className="text-8xl">{profile?.avatar ?? "👤"}</span>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-4">
-                <span className="px-4 py-1.5 rounded-full bg-primary/10 text-xs font-black text-primary uppercase tracking-[0.2em]">Membro desde 2024</span>
-                <span className="px-4 py-1.5 rounded-full bg-accent/20 text-xs font-black text-accent-foreground uppercase tracking-[0.2em] border border-accent/20">🌟 Plano Free</span>
+    <div className="min-h-screen bg-[#F8F9F5] pb-12">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F]">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 1440 300">
+            <defs>
+              <pattern id="circles" width="60" height="60" patternUnits="userSpaceOnUse">
+                <circle cx="30" cy="30" r="4" fill="white" opacity="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#circles)" />
+          </svg>
+        </div>
+
+        {/* Floating elements */}
+        <div className="absolute top-10 right-[10%] w-32 h-32 bg-[#F9A03F]/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-[15%] w-24 h-24 bg-[#4ECDC4]/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 container mx-auto px-6 py-12 lg:py-16">
+          <motion.div
+            className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {/* Avatar */}
+            <button
+              onClick={() => setShowAvatarPicker(true)}
+              className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-3xl bg-white/10 backdrop-blur-sm overflow-hidden border-4 border-white/20 shadow-2xl hover:border-white/40 transition-all group"
+            >
+              {profile?.avatar ? (
+                <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <img
+                  src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${user?.email || 'default'}&backgroundColor=b6e3f4`}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <span className="text-white text-sm font-bold">Alterar</span>
               </div>
-              <h1 className="text-6xl font-black tracking-tighter text-foreground mb-4">{profile?.display_name || user?.email?.split('@')[0]}</h1>
-              <p className="text-xl text-muted-foreground/80 font-medium max-w-xl">Gerencie sua experiência festiva e acompanhe seus sucessos na comunidade Fresta.</p>
-            </div>
-            <button onClick={() => navigate("/conta/configuracoes")} className="px-8 py-4 rounded-[1.25rem] bg-card border border-border text-foreground font-black hover:bg-muted transition-all shadow-xl flex items-center gap-3">
-              <Settings className="w-5 h-5 text-primary" /> Editar Perfil
             </button>
-          </div>
+
+            {/* Info */}
+            <div className="text-center lg:text-left flex-1">
+              <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
+                <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-semibold">
+                  Membro desde 2024
+                </span>
+                <span className="px-3 py-1 rounded-full bg-[#F9A03F] text-white text-xs font-bold">
+                  Free
+                </span>
+              </div>
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-2 tracking-tight">
+                {profile?.display_name || user?.email?.split('@')[0]}
+              </h1>
+              <p className="text-white/60 max-w-md">
+                Gerencie sua experiência e acompanhe seus calendários
+              </p>
+            </div>
+
+            {/* Edit button - desktop */}
+            <button
+              onClick={() => navigate("/conta/configuracoes")}
+              className="hidden lg:flex items-center gap-2 px-6 py-3 bg-white text-[#1A3E3A] rounded-xl font-bold hover:shadow-lg transition-all"
+            >
+              <Settings className="w-5 h-5" />
+              Editar Perfil
+            </button>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6">
+        {/* Stats Cards */}
+        <motion.div
+          className="grid grid-cols-3 gap-4 -mt-8 relative z-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          {statCards.map((stat, index) => (
+            <div
+              key={stat.label}
+              className={`${STAT_COLORS[index].bg} rounded-2xl p-5 lg:p-8 border border-[rgba(0,0,0,0.06)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]`}
+            >
+              <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl ${STAT_COLORS[index].icon} flex items-center justify-center mb-4`}>
+                <stat.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+              </div>
+              <p className="text-2xl lg:text-3xl font-extrabold text-[#1A3E3A] tracking-tight">{stat.value}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#5A7470]">{stat.label}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Menu Items */}
+        <motion.div
+          className="mt-8 space-y-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2 className="text-sm font-bold text-[#5A7470] uppercase tracking-wider mb-4">Recursos</h2>
+
+          {menuItems.map((item, index) => (
+            <button
+              key={item.label}
+              onClick={() => navigate(item.route)}
+              className={`w-full flex items-center gap-4 p-4 lg:p-5 rounded-2xl border border-[rgba(0,0,0,0.06)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)] transition-all group ${MENU_COLORS[index]}`}
+            >
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.highlight ? 'bg-[#F9A03F]' : 'bg-white/50'}`}>
+                <item.icon className={`w-5 h-5 ${item.highlight ? 'text-white' : 'text-[#2D7A5F]'}`} />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-base font-bold text-[#1A3E3A]">{item.label}</p>
+                <p className="text-sm text-[#5A7470]">{item.description}</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-[#5A7470] opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          ))}
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 p-4 lg:p-5 rounded-2xl bg-white border border-[rgba(0,0,0,0.06)] hover:bg-red-50 hover:border-red-200 transition-all group"
+          >
+            <div className="w-12 h-12 rounded-xl bg-[#F8F9F5] flex items-center justify-center group-hover:bg-red-100 transition-colors">
+              <LogOut className="w-5 h-5 text-[#5A7470] group-hover:text-red-500 transition-colors" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-base font-bold text-[#1A3E3A] group-hover:text-red-600 transition-colors">Sair da conta</p>
+              <p className="text-sm text-[#5A7470]">Encerrar sua sessão</p>
+            </div>
+          </button>
         </motion.div>
       </div>
 
-      <div className="px-4 max-w-[1600px] lg:mx-auto pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 lg:mt-12">
-          {statCards.map((stat) => (
-            <div key={stat.label} className="bg-card rounded-[2rem] p-8 luxury-shadow flex flex-col gap-4 border border-transparent hover:border-primary/30 transition-all">
-              <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center"><stat.icon className="w-7 h-7 text-primary" /></div>
-              <div>
-                <p className="text-4xl font-black text-foreground tracking-tighter">{stat.value}</p>
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/50">{stat.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-8 mt-12 lg:mt-16">
-          <h2 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/40 px-4">Recursos & Preferências</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {menuItems.map((item) => (
-              <button key={item.label} onClick={() => navigate(item.route)} className={`group p-8 rounded-[2.5rem] flex flex-col gap-6 transition-all border border-border/30 hover:border-primary/40 luxury-shadow ${item.highlight ? "bg-primary/5 border-primary/20" : "bg-card"}`}>
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 ${item.highlight ? "bg-primary text-white shadow-lg shadow-primary/30" : "bg-muted text-primary"}`}><item.icon className="w-7 h-7" /></div>
-                <div className="flex-1 text-left">
-                  <p className="font-black text-xl text-foreground tracking-tight mb-1">{item.label}</p>
-                  <p className="text-sm text-muted-foreground font-medium leading-relaxed">{item.description}</p>
-                </div>
-              </button>
-            ))}
-            <button onClick={handleLogout} className="group p-8 rounded-[2.5rem] bg-card border border-border/30 flex flex-col gap-6 transition-all hover:border-muted-foreground/40 luxury-shadow">
-              <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center transition-all group-hover:scale-110"><LogOut className="w-7 h-7 text-muted-foreground" /></div>
-              <div className="flex-1 text-left">
-                <p className="font-black text-xl text-foreground tracking-tight mb-1">Encerrar Sessão</p>
-                <p className="text-sm text-muted-foreground font-medium leading-relaxed">Proteja sua privacidade ao sair</p>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Avatar Picker Modal */}
+      <AvatarPicker
+        isOpen={showAvatarPicker}
+        onClose={() => setShowAvatarPicker(false)}
+        currentAvatar={profile?.avatar}
+      />
     </div>
   );
 }

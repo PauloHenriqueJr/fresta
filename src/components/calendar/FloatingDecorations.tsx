@@ -1,25 +1,27 @@
 import { motion } from "framer-motion";
+import { HangingHearts, FlagBanner, WeddingShower } from "@/lib/themes/themeComponents";
 
 interface FloatingDecorationsProps {
-  theme?:
-  | "default"
-  | "carnaval"
-  | "saojoao"
-  | "natal"
-  | "reveillon"
-  | "pascoa"
-  | "independencia"
-  | "namoro"
-  | "casamento";
+  theme?: string;
 }
 
 const FloatingDecorations = ({ theme = "default" }: FloatingDecorationsProps) => {
+  if (theme === 'saojoao') {
+    return <FlagBanner />;
+  }
+
+  if (theme === 'casamento') {
+    return <WeddingShower />;
+  }
+
+  if (theme === 'namoro') {
+    return <HangingHearts />;
+  }
+
   const getDecorations = () => {
     switch (theme) {
       case "carnaval":
         return ["🎭", "✨", "🎊", "💜", "🎪"];
-      case "saojoao":
-        return ["🌽", "🔥", "🎆", "🌾", "🪗"];
       case "natal":
         return ["🎄", "⭐", "🎁", "❄️", "🔔"];
       case "reveillon":
@@ -40,7 +42,7 @@ const FloatingDecorations = ({ theme = "default" }: FloatingDecorationsProps) =>
   const decorations = getDecorations();
 
   return (
-    <div className="floating-icons">
+    <div className="floating-icons pointer-events-none">
       {decorations.map((emoji, index) => (
         <motion.span
           key={index}

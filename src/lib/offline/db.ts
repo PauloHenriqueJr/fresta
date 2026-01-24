@@ -148,7 +148,7 @@ export const db = {
       id: generateId(),
       ownerId,
       name: "Minha Empresa",
-      avatar: "🏢",
+      avatar: "Building2",
       createdAt,
     };
     storageSet(KEYS.b2bOrg, org);
@@ -156,7 +156,7 @@ export const db = {
     // default branding
     const branding: B2BBranding = {
       orgId: org.id,
-      logoEmoji: "🏢",
+      logoIconName: "Building2",
       primaryHue: 145,
       updatedAt: createdAt,
     };
@@ -168,7 +168,7 @@ export const db = {
       orgId: org.id,
       name: "Owner",
       email: ownerEmail,
-      avatar: "🧑‍💼",
+      avatar: "UserRound",
       role: "owner",
       status: "active",
       createdAt,
@@ -180,9 +180,9 @@ export const db = {
   getB2BBranding(orgId: string): B2BBranding {
     const existing = storageGet<B2BBranding | null>(KEYS.b2bBranding, null);
     if (existing && existing.orgId === orgId) return existing;
-    return { orgId, logoEmoji: "🏢", primaryHue: 145, updatedAt: nowIso() };
+    return { orgId, logoIconName: "Building2", primaryHue: 145, updatedAt: nowIso() };
   },
-  updateB2BBranding(orgId: string, patch: Partial<Pick<B2BBranding, "logoEmoji" | "primaryHue">>) {
+  updateB2BBranding(orgId: string, patch: Partial<Pick<B2BBranding, "logoIconName" | "primaryHue">>) {
     const current = db.getB2BBranding(orgId);
     const updated: B2BBranding = { ...current, ...patch, updatedAt: nowIso() };
     storageSet(KEYS.b2bBranding, updated);
@@ -249,7 +249,7 @@ export const db = {
     const overrides = storageGet<Record<string, Partial<ThemeDefinition>>>(KEYS.themeCatalog, {});
     return BASE_THEMES.map((t) => ({ ...t, ...(overrides[t.id] ?? {}) }));
   },
-  updateTheme(id: ThemeId, patch: Partial<Pick<ThemeDefinition, "name" | "emoji" | "scope" | "enabledByDefault" | "description">>) {
+  updateTheme(id: ThemeId, patch: Partial<Pick<ThemeDefinition, "name" | "iconName" | "scope" | "enabledByDefault" | "description">>) {
     const overrides = storageGet<Record<string, Partial<ThemeDefinition>>>(KEYS.themeCatalog, {});
     storageSet(KEYS.themeCatalog, { ...overrides, [id]: { ...(overrides[id] ?? {}), ...patch } });
   },
