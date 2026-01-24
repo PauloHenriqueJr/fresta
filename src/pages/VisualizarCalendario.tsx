@@ -16,6 +16,7 @@ import { ptBR } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { Clock } from "lucide-react";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
@@ -188,6 +189,9 @@ const VisualizarCalendario = () => {
       }
     }
   }, [id]);
+
+  const isFutureCalendar = calendar?.start_date && isAfter(parseISO(calendar.start_date), startOfDay(new Date()));
+  const daysUntilStart = calendar?.start_date ? Math.ceil((parseISO(calendar.start_date).getTime() - startOfDay(new Date()).getTime()) / (1000 * 60 * 60 * 24)) : 0;
 
   // Fetch calendar data
   useEffect(() => {
@@ -445,6 +449,29 @@ const VisualizarCalendario = () => {
                 animate={{ width: `${Math.round((openedDays.length / (days.length || 1)) * 100)}%` }}
                 transition={{ duration: 1, delay: 0.5 }}
               />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Future Calendar Banner */}
+        {isFutureCalendar && (
+          <motion.div
+            className="mt-6 p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-3xl border border-orange-200/50 shadow-sm"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
+                <Clock className="w-6 h-6 animate-pulse-soft" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-orange-900 dark:text-orange-200 leading-tight">
+                  Estreia em {daysUntilStart} {daysUntilStart === 1 ? 'dia' : 'dias'}
+                </h3>
+                <p className="text-sm text-orange-800/60 dark:text-orange-200/50 font-medium">
+                  Este calendário começa oficialmente em {format(parseISO(calendar.start_date!), "d 'de' MMMM", { locale: ptBR })}.
+                </p>
+              </div>
             </div>
           </motion.div>
         )}

@@ -26,6 +26,7 @@ import { BASE_THEMES } from "@/lib/offline/themes";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 const Configuracoes = () => {
   const { id } = useParams();
@@ -40,6 +41,7 @@ const Configuracoes = () => {
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     const fetchCalendar = async () => {
@@ -136,9 +138,6 @@ const Configuracoes = () => {
 
   const handleDelete = async () => {
     if (!id || !calendar) return;
-    if (!confirm(`Tem certeza que deseja excluir o calendário "${calendar.title}"? Esta ação é permanente.`)) {
-      return;
-    }
 
     setDeleting(true);
     try {
@@ -387,7 +386,7 @@ const Configuracoes = () => {
                   <p className="text-[#5A7470] text-sm font-medium mb-6">Ações irreversíveis. Tenha cuidado!</p>
 
                   <button
-                    onClick={handleDelete}
+                    onClick={() => setShowDeleteDialog(true)}
                     disabled={deleting}
                     className="w-full h-14 rounded-2xl bg-white border-2 border-red-100 text-red-500 font-black text-sm flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm"
                   >
@@ -422,6 +421,20 @@ const Configuracoes = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Dialog - Premium Style using Portal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDelete}
+        title="Excluir Calendário?"
+        description={
+          <>
+            Você está prestes a excluir permanentemente <strong>"{calendar?.title}"</strong>. Todos os momentos e surpresas serão perdidos.
+          </>
+        }
+        isLoading={deleting}
+      />
     </div>
   );
 };

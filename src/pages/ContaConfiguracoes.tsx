@@ -16,8 +16,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { supabase } from "@/lib/supabase/client";
 import AvatarPicker from "@/components/AvatarPicker";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 const ContaConfiguracoes = () => {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ const ContaConfiguracoes = () => {
   const [saving, setSaving] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
 
   // Load user preferences from localStorage
   useEffect(() => {
@@ -86,16 +89,11 @@ const ContaConfiguracoes = () => {
   };
 
   const handleLogout = async () => {
-    if (!confirm("Deseja sair da sua conta?")) return;
     await signOut();
     navigate("/", { replace: true });
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.")) {
-      return;
-    }
-
     setDeletingAccount(true);
     try {
       // In a real implementation, you would call an RPC or Edge Function to delete the user and their data
@@ -297,7 +295,7 @@ const ContaConfiguracoes = () => {
             <h2 className="font-bold text-foreground mb-4">Zona de Perigo</h2>
             <div className="space-y-3">
               <button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutDialog(true)}
                 className="w-full bg-card rounded-2xl p-4 shadow-card flex items-center gap-4 text-foreground hover:bg-muted transition-colors"
               >
                 <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
@@ -312,7 +310,7 @@ const ContaConfiguracoes = () => {
               </button>
 
               <button
-                onClick={handleDeleteAccount}
+                onClick={() => setShowDeleteAccountDialog(true)}
                 disabled={deletingAccount}
                 className="w-full bg-card rounded-2xl p-4 shadow-card flex items-center gap-4 text-festive-red hover:bg-destructive/5 transition-colors disabled:opacity-50"
               >
@@ -336,6 +334,34 @@ const ContaConfiguracoes = () => {
         isOpen={showAvatarPicker}
         onClose={() => setShowAvatarPicker(false)}
         currentAvatar={profile?.avatar}
+      />
+
+      {/* Logout Dialog - Premium Style using Portal */}
+      <ConfirmModal
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={handleLogout}
+        title="Sair da Conta? 👋"
+        description="Tem certeza que deseja encerrar sua sessão no Fresta?"
+        confirmText="SIM, SAIR"
+        cancelText="VOLTAR"
+        icon={LogOut}
+        iconClassName="text-[#1A3E3A]"
+        iconBgClassName="bg-[#F6D045]/20"
+        accentColor="bg-[#F6D045]"
+        confirmButtonClassName="bg-[#F6D045] hover:bg-[#e5c03f] text-[#1A3E3A] shadow-[#F6D045]/25"
+      />
+
+      {/* Delete Account Dialog - Premium Style using Portal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteAccountDialog}
+        onClose={() => setShowDeleteAccountDialog(false)}
+        onConfirm={handleDeleteAccount}
+        title="Excluir Conta Permanentemente? ⚠️"
+        description="Esta ação não pode ser desfeita. Todos os seus calendários, dados e preferências serão removidos para sempre."
+        confirmText="SIM, EXCLUIR TUDO"
+        cancelText="CANCELAR"
+        isLoading={deletingAccount}
       />
     </div>
   );

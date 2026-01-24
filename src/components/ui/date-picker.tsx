@@ -38,8 +38,8 @@ export function DatePicker({ date, setDate, placeholder = "Selecione uma data" }
                     <CalendarIcon className={cn("ml-auto h-5 w-5 opacity-50", date && "text-solidroad-accent opacity-100")} />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 rounded-3xl border-0 shadow-xl overflow-hidden" align="start">
-                <div className="bg-white dark:bg-[#1C1A0E] border border-border/10 p-2">
+            <PopoverContent className="w-auto p-0 rounded-[2.5rem] border-0 shadow-2xl overflow-hidden" align="start">
+                <div className="bg-white dark:bg-[#1C1A0E] border border-border/10 p-4">
                     <Calendar
                         mode="single"
                         selected={date}
@@ -52,9 +52,9 @@ export function DatePicker({ date, setDate, placeholder = "Selecione uma data" }
                             day_today: "bg-solidroad-accent/10 text-solidroad-text font-bold rounded-xl",
                             day: "h-10 w-10 p-0 font-medium aria-selected:opacity-100 hover:bg-solidroad-accent/20 rounded-xl transition-colors",
                             head_cell: "text-muted-foreground rounded-md w-10 font-normal text-[0.8rem] capitalize pb-2",
-                            caption: "flex justify-center pt-2 pb-4 relative items-center",
-                            caption_label: "text-base font-bold text-solidroad-text dark:text-white capitalize",
-                            nav_button: "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-solidroad-accent/10 rounded-xl transition-all",
+                            caption: "flex justify-center pt-1 pb-6 relative items-center",
+                            caption_label: "text-lg font-black text-solidroad-text dark:text-white capitalize",
+                            nav_button: "h-10 w-10 bg-transparent p-0 opacity-50 hover:opacity-100 hover:bg-solidroad-accent/10 rounded-2xl transition-all",
                         }}
                     />
                 </div>

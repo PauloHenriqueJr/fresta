@@ -72,16 +72,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 type CalendarType = Tables<'calendars'>;
 
@@ -411,32 +402,18 @@ const MeusCalendarios = () => {
         </div>
       </div>
 
-      {/* Delete Dialog - Premium Style */}
-      <AlertDialog open={!!calendarToDelete} onOpenChange={() => setCalendarToDelete(null)}>
-        <AlertDialogContent className="bg-white rounded-[2.5rem] border border-[rgba(0,0,0,0.08)] p-8 shadow-2xl overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
-          <AlertDialogHeader>
-            <div className="w-16 h-16 rounded-[1.25rem] bg-red-50 flex items-center justify-center mb-6">
-              <Trash2 className="w-8 h-8 text-red-500" />
-            </div>
-            <AlertDialogTitle className="text-3xl font-black text-[#1A3E3A] tracking-tight">Excluir Calendário?</AlertDialogTitle>
-            <AlertDialogDescription className="text-lg text-[#5A7470] font-medium mt-3">
-              Você está prestes a excluir permanentemente <strong>"{calendarToDelete?.title}"</strong>. Todos os momentos e surpresas serão perdidos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-10 gap-4 flex-col sm:flex-row">
-            <AlertDialogCancel className="w-full sm:flex-1 rounded-2xl h-14 font-black border-2 border-slate-100 bg-transparent hover:bg-slate-50 text-slate-400 transition-all">
-              VOLTAR
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="w-full sm:flex-1 bg-red-500 hover:bg-red-600 text-white rounded-2xl h-14 font-black shadow-xl shadow-red-500/20 transition-all active:scale-95"
-            >
-              SIM, EXCLUIR
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Dialog - Premium Style using Portal */}
+      <DeleteConfirmModal
+        isOpen={!!calendarToDelete}
+        onClose={() => setCalendarToDelete(null)}
+        onConfirm={handleDelete}
+        title="Excluir Calendário?"
+        description={
+          <>
+            Você está prestes a excluir permanentemente <strong>"{calendarToDelete?.title}"</strong>. Todos os momentos e surpresas serão perdidos.
+          </>
+        }
+      />
     </div>
   );
 };
