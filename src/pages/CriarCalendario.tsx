@@ -10,6 +10,10 @@ import {
   Palette,
   Check,
   Loader2,
+  Lock,
+  Unlock,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import mascotNoivado from "@/assets/mascot-noivado.jpg";
@@ -78,6 +82,8 @@ const CriarCalendario = () => {
   const [duration, setDuration] = useState(24);
   const [startDate, setStartDate] = useState("");
   const [privacy, setPrivacy] = useState<"public" | "private">("public");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -109,6 +115,7 @@ const CriarCalendario = () => {
           themeId: selectedTheme as ThemeId,
           duration,
           privacy,
+          password: password || undefined,
           startDate: startDate || undefined,
         });
 
@@ -268,18 +275,67 @@ const CriarCalendario = () => {
                   </div>
 
                   {/* Privacy */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50 ml-1">Visibilidade</label>
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50 ml-1">Visibilidade</label>
+                      <p className="text-[10px] text-muted-foreground/40 ml-1 italic">
+                        * Público: Seu calendário aparecerá na aba "Explorar" para toda a comunidade.
+                      </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <button onClick={() => setPrivacy('public')} className={cn("p-4 rounded-2xl border-2 text-left transition-all", privacy === 'public' ? "border-solidroad-accent bg-solidroad-accent/5" : "border-border/10 bg-white dark:bg-white/5")}>
-                        <span className="text-sm font-bold text-solidroad-text dark:text-white block mb-0.5">Público</span>
-                        <span className="text-xs text-muted-foreground/60">Aparece no Explorar</span>
+                      <button
+                        type="button"
+                        onClick={() => setPrivacy('public')}
+                        className={cn("p-4 rounded-2xl border-2 text-left transition-all", privacy === 'public' ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-border/10 bg-white dark:bg-white/5 opacity-60 hover:opacity-100")}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === 'public' ? "opacity-100" : "opacity-0")} />
+                          <span className="text-sm font-bold text-solidroad-text dark:text-white">Público</span>
+                        </div>
+                        <span className="text-[10px] font-medium text-muted-foreground/60 leading-tight">Aparece no "Explorar"</span>
                       </button>
-                      <button onClick={() => setPrivacy('private')} className={cn("p-4 rounded-2xl border-2 text-left transition-all", privacy === 'private' ? "border-solidroad-accent bg-solidroad-accent/5" : "border-border/10 bg-white dark:bg-white/5")}>
-                        <span className="text-sm font-bold text-solidroad-text dark:text-white block mb-0.5">Privado</span>
-                        <span className="text-xs text-muted-foreground/60">Apenas quem tem o link</span>
+                      <button
+                        type="button"
+                        onClick={() => setPrivacy('private')}
+                        className={cn("p-4 rounded-2xl border-2 text-left transition-all", privacy === 'private' ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-border/10 bg-white dark:bg-white/5 opacity-60 hover:opacity-100")}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === 'private' ? "opacity-100" : "opacity-0")} />
+                          <span className="text-sm font-bold text-solidroad-text dark:text-white">Privado</span>
+                        </div>
+                        <span className="text-[10px] font-medium text-muted-foreground/60 leading-tight">Apenas com seu link</span>
                       </button>
                     </div>
+                  </div>
+
+                  {/* Password Protection */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between ml-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50">Proteger com Senha</label>
+                      <span className="text-[10px] bg-solidroad-accent/20 text-solidroad-text dark:text-solidroad-accent px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">Opcional</span>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40">
+                        {password ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
+                      </div>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Ex: segredo123"
+                        className="w-full pl-14 pr-14 py-4 rounded-2xl bg-white dark:bg-white/5 border-2 border-border/10 text-lg font-bold text-solidroad-text dark:text-white placeholder:text-muted-foreground/30 focus:outline-none focus:border-solidroad-accent focus:ring-4 focus:ring-solidroad-accent/10 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-solidroad-accent transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/40 ml-1">
+                      Mesmo público, o conteúdo interno só abrirá com esta senha.
+                    </p>
                   </div>
                 </div>
 

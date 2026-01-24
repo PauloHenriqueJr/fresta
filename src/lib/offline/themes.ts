@@ -138,6 +138,16 @@ export const BASE_THEMES: ThemeDefinition[] = [
     description: "Micro-hábitos e progresso diário.",
     enabledByDefault: true,
   },
+  {
+    id: "custom",
+    name: "Personalizado",
+    iconName: "Palette",
+    scope: "common",
+    imageKey: "peeking",
+    gradientClass: "bg-gradient-festive",
+    description: "Crie o seu estilo único!",
+    enabledByDefault: true,
+  },
 
   // relacionamento
   {

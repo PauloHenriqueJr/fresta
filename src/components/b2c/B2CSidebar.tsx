@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
-import { CalendarDays, PlusCircle, User, Settings, Crown, HelpCircle, LogOut, LayoutDashboard, DoorOpen } from "lucide-react";
+import { CalendarDays, PlusCircle, User, Settings, Crown, HelpCircle, LogOut, LayoutDashboard, DoorOpen, Search } from "lucide-react";
 import { useAuth } from "@/state/auth/AuthProvider";
 import {
   Sidebar,
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { title: "Meus Calendários", url: "/meus-calendarios", icon: CalendarDays },
+  { title: "Explorar", url: "/explorar", icon: Search },
   { title: "Criar Novo", url: "/criar", icon: PlusCircle },
 ];
 

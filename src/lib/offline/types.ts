@@ -23,7 +23,8 @@ export type ThemeId =
   | "rh_onboarding"
   | "endomarketing"
   | "comunidade"
-  | "encontro_remoto";
+  | "encontro_remoto"
+  | "custom";
 
 export interface ThemeDefinition {
   id: ThemeId;

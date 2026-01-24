@@ -15,7 +15,11 @@ import {
   Calendar,
   ChevronRight,
   Trash2,
-  Loader2
+  Loader2,
+  Lock,
+  Unlock,
+  EyeOff,
+  Eye
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,6 +45,8 @@ const Configuracoes = () => {
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
@@ -53,6 +59,7 @@ const Configuracoes = () => {
           setTitle(data.title);
           setThemeId(data.theme_id);
           setPrivacy(data.privacy);
+          setPassword(data.password || "");
           setStartDate(data.start_date ? data.start_date.split('T')[0] : "");
         }
       } catch (err) {
@@ -94,6 +101,7 @@ const Configuracoes = () => {
         title: title.trim(),
         theme_id: themeId,
         privacy,
+        password: password || null,
         start_date: startDate || null
       });
 
@@ -305,32 +313,66 @@ const Configuracoes = () => {
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Privacy */}
-                  <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
-                    <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-2">
-                      Visibilidade
-                    </h3>
+                  <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors space-y-8">
                     <div className="space-y-4">
-                      {[
-                        { id: 'public', label: 'Público', desc: 'Aparece no Explorar', icon: Globe },
-                        { id: 'private', label: 'Privado', desc: 'Apenas com link', icon: Link }
-                      ].map(p => (
+                      <div className="flex flex-col gap-1">
+                        <h3 className="text-lg font-black text-foreground flex items-center gap-2">
+                          Visibilidade
+                        </h3>
+                        <p className="text-[10px] text-muted-foreground/40 italic">
+                          * Público: Aparecerá no "Explorar" para todos.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        {[
+                          { id: 'public', label: 'Público', desc: 'No Explorar', icon: Globe },
+                          { id: 'private', label: 'Privado', desc: 'Apenas Link', icon: Link }
+                        ].map(p => (
+                          <button
+                            key={p.id}
+                            onClick={() => setPrivacy(p.id as any)}
+                            className={cn(
+                              "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all",
+                              privacy === p.id ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
+                              <p className="font-black text-foreground text-sm">{p.label}</p>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">{p.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-2 border-t border-border/5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50">Senha de Acesso</label>
+                        <span className="text-[10px] bg-solidroad-accent/20 text-solidroad-text dark:text-solidroad-accent px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">Opcional</span>
+                      </div>
+                      <div className="relative">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40">
+                          {password ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
+                        </div>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Ex: segredo123"
+                          className="w-full pl-14 pr-14 h-14 rounded-xl bg-background dark:bg-black/20 border-2 border-transparent text-foreground font-bold focus:outline-none focus:border-solidroad-accent/20 transition-all shadow-inner"
+                        />
                         <button
-                          key={p.id}
-                          onClick={() => setPrivacy(p.id as any)}
-                          className={cn(
-                            "w-full p-4 rounded-2xl border-2 flex items-center gap-4 transition-all",
-                            privacy === p.id ? "border-solidroad-accent bg-solidroad-accent/5" : "border-transparent bg-background/50 dark:bg-white/5"
-                          )}
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-solidroad-accent transition-colors"
                         >
-                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", privacy === p.id ? "bg-solidroad-accent shadow-glow" : "bg-card border border-border/10")}>
-                            <p.icon className={cn("w-5 h-5", privacy === p.id ? "text-solidroad-text" : "text-muted-foreground")} />
-                          </div>
-                          <div className="text-left flex-1">
-                            <p className="font-black text-foreground text-sm">{p.label}</p>
-                            <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider">{p.desc}</p>
-                          </div>
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
-                      ))}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground/40 italic leading-tight">
+                        Se definida, o visitante precisará digitar esta senha para ver o conteúdo.
+                      </p>
                     </div>
                   </div>
 

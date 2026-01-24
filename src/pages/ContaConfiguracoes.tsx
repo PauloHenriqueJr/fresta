@@ -12,6 +12,7 @@ import {
   Save,
   LogOut,
   Camera,
+  Settings,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -114,26 +115,45 @@ const ContaConfiguracoes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 lg:pb-8">
-      {/* Header */}
-      <motion.header
-        className="px-4 py-4 lg:py-10 flex items-center gap-4 max-w-[1600px] lg:mx-auto"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card hover:bg-muted transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <div>
-          <h1 className="text-xl lg:text-2xl font-extrabold text-foreground">Configurações da Conta</h1>
-          <p className="hidden lg:block text-sm text-muted-foreground">Edite seu perfil e preferências</p>
+    <div className="min-h-screen bg-background transition-colors duration-300">
+      {/* Premium Hero Section - Minimal version for settings */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-12 pt-8">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 1440 400">
+            <defs>
+              <pattern id="dotPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="2" fill="white" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dotPattern)" />
+          </svg>
         </div>
-      </motion.header>
 
-      <div className="px-4 space-y-8 max-w-[1600px] lg:mx-auto pt-2 lg:pt-0 pb-12">
+        <div className="relative z-10 container mx-auto px-6">
+          <div className="flex items-center gap-6">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(-1)}
+              className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-sm hover:bg-white/20 transition-all"
+            >
+              <ArrowLeft className="w-6 h-6 stroke-[2.5px]" />
+            </motion.button>
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-2">
+                <Settings className="w-3 h-3 text-solidroad-accent" />
+                <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Ajustes Fresta</span>
+              </div>
+              <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
+                Configurações <span className="text-solidroad-accent">da Conta</span>
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 -mt-6 relative z-20 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Profile Section */}
           <motion.section
@@ -141,8 +161,8 @@ const ContaConfiguracoes = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h2 className="font-bold text-foreground mb-4">Perfil</h2>
-            <div className="bg-card rounded-2xl shadow-card divide-y divide-border">
+            <h2 className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.3em] mb-4 ml-1">Perfil do Usuário</h2>
+            <div className="bg-card rounded-[2.5rem] border border-border/10 shadow-xl overflow-hidden divide-y divide-border/5">
               {/* Avatar Row */}
               <div className="p-4 flex items-center gap-4">
                 <button
@@ -173,8 +193,8 @@ const ContaConfiguracoes = () => {
 
               {/* Name Row */}
               <div className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <User className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-solidroad-accent/10 flex items-center justify-center shrink-0">
+                  <User className="w-6 h-6 text-solidroad-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground">Nome</p>
@@ -214,8 +234,8 @@ const ContaConfiguracoes = () => {
 
               {/* Email Row (Read-only) */}
               <div className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <Mail className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-solidroad-turquoise/10 flex items-center justify-center shrink-0">
+                  <Mail className="w-6 h-6 text-solidroad-turquoise" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground">E-mail</p>
@@ -236,11 +256,11 @@ const ContaConfiguracoes = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h2 className="font-bold text-foreground mb-4">Preferências</h2>
-            <div className="bg-card rounded-2xl shadow-card divide-y divide-border">
+            <h2 className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.3em] mb-4 ml-1">Preferências</h2>
+            <div className="bg-card rounded-[2.5rem] border border-border/10 shadow-xl overflow-hidden divide-y divide-border/5">
               <div className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <Bell className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-solidroad-green/10 flex items-center justify-center shrink-0">
+                  <Bell className="w-6 h-6 text-solidroad-green" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Notificações</p>
@@ -250,11 +270,11 @@ const ContaConfiguracoes = () => {
                 </div>
                 <button
                   onClick={handleNotificationsToggle}
-                  className={`w-12 h-7 rounded-full transition-colors shrink-0 ${notifications ? "bg-primary" : "bg-muted"
+                  className={`w-12 h-7 rounded-full transition-colors shrink-0 ${notifications ? "bg-solidroad-accent" : "bg-muted"
                     }`}
                 >
                   <motion.div
-                    className="w-5 h-5 rounded-full bg-white shadow-md"
+                    className="w-5 h-5 rounded-full bg-solidroad-text shadow-md"
                     animate={{ x: notifications ? 26 : 4 }}
                     transition={{ duration: 0.2 }}
                   />
@@ -262,8 +282,8 @@ const ContaConfiguracoes = () => {
               </div>
 
               <div className="p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <Moon className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-solidroad-accent/10 flex items-center justify-center shrink-0">
+                  <Moon className="w-6 h-6 text-solidroad-accent" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Modo Escuro</p>
@@ -273,11 +293,11 @@ const ContaConfiguracoes = () => {
                 </div>
                 <button
                   onClick={() => updateThemePreference(themePreference === 'dark' ? 'light' : 'dark')}
-                  className={`w-12 h-7 rounded-full transition-colors shrink-0 ${themePreference === 'dark' ? "bg-primary" : "bg-muted"
+                  className={`w-12 h-7 rounded-full transition-colors shrink-0 ${themePreference === 'dark' ? "bg-solidroad-accent" : "bg-muted"
                     }`}
                 >
                   <motion.div
-                    className="w-5 h-5 rounded-full bg-white shadow-md"
+                    className="w-5 h-5 rounded-full bg-solidroad-text shadow-md"
                     animate={{ x: themePreference === 'dark' ? 26 : 4 }}
                     transition={{ duration: 0.2 }}
                   />
@@ -291,19 +311,20 @@ const ContaConfiguracoes = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
+            className="lg:col-span-2 mt-8"
           >
-            <h2 className="font-bold text-foreground mb-4">Zona de Perigo</h2>
-            <div className="space-y-3">
+            <h2 className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.3em] mb-4 ml-1 text-center">Gestão de Acesso</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <button
                 onClick={() => setShowLogoutDialog(true)}
-                className="w-full bg-card rounded-2xl p-4 shadow-card flex items-center gap-4 text-foreground hover:bg-muted transition-colors"
+                className="w-full bg-card rounded-[2.5rem] p-6 shadow-lg border border-border/10 flex items-center gap-4 text-foreground hover:shadow-2xl hover:-translate-y-1 transition-all group"
               >
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-                  <LogOut className="w-6 h-6 text-muted-foreground" />
+                <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <LogOut className="w-7 h-7 text-muted-foreground" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="font-bold">Sair da Conta</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-black text-lg">Sair da Conta</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
                     Encerrar sessão neste dispositivo
                   </p>
                 </div>
@@ -312,14 +333,14 @@ const ContaConfiguracoes = () => {
               <button
                 onClick={() => setShowDeleteAccountDialog(true)}
                 disabled={deletingAccount}
-                className="w-full bg-card rounded-2xl p-4 shadow-card flex items-center gap-4 text-festive-red hover:bg-destructive/5 transition-colors disabled:opacity-50"
+                className="w-full bg-card rounded-[2.5rem] p-6 shadow-lg border border-border/10 flex items-center gap-4 text-red-500 hover:shadow-2xl hover:-translate-y-1 transition-all group disabled:opacity-50"
               >
-                <div className="w-12 h-12 rounded-full bg-festive-red/10 flex items-center justify-center shrink-0">
-                  {deletingAccount ? <Loader2 className="w-6 h-6 text-festive-red animate-spin" /> : <Trash2 className="w-6 h-6 text-festive-red" />}
+                <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  {deletingAccount ? <Loader2 className="w-7 h-7 text-red-500 animate-spin" /> : <Trash2 className="w-7 h-7 text-red-500" />}
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="font-bold">Excluir Conta</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-black text-lg">Excluir Conta</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-red-500/60">
                     Esta ação não pode ser desfeita
                   </p>
                 </div>

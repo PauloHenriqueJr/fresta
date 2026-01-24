@@ -211,10 +211,10 @@ const Premium = () => {
       {/* Floating Save Button - logic for mobile checkout? No, just the internal scroll is fine. */}
       {/* Footer support text */}
       <div className="container mx-auto px-6 max-w-5xl pb-16 text-center">
-        <div className="flex items-center justify-center gap-4 text-xs font-bold text-[#5A7470]/60">
-          <button className="hover:text-solidroad-accent underline decoration-2 underline-offset-4">Termos de Uso</button>
+        <div className="flex items-center justify-center gap-4 text-xs font-bold text-muted-foreground/60">
+          <button onClick={() => navigate("/termos")} className="hover:text-solidroad-accent underline decoration-2 underline-offset-4">Termos de Uso</button>
           <span>•</span>
-          <button className="hover:text-solidroad-accent underline decoration-2 underline-offset-4">Privacidade</button>
+          <button onClick={() => navigate("/privacidade")} className="hover:text-solidroad-accent underline decoration-2 underline-offset-4">Privacidade</button>
         </div>
       </div>
     </div>

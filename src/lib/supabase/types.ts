@@ -326,6 +326,7 @@ export type Database = {
           id: string
           likes: number | null
           owner_id: string
+          password: string | null
           privacy: Database["public"]["Enums"]["calendar_privacy"]
           shares: number | null
           start_date: string | null
@@ -341,6 +342,7 @@ export type Database = {
           id?: string
           likes?: number | null
           owner_id: string
+          password?: string | null
           privacy?: Database["public"]["Enums"]["calendar_privacy"]
           shares?: number | null
           start_date?: string | null
@@ -356,6 +358,7 @@ export type Database = {
           id?: string
           likes?: number | null
           owner_id?: string
+          password?: string | null
           privacy?: Database["public"]["Enums"]["calendar_privacy"]
           shares?: number | null
           start_date?: string | null

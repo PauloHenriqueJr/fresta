@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
@@ -13,13 +13,48 @@ import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Clock } from "lucide-react";
+import {
+  LoveBackground,
+  HangingHearts,
+  LoveHeader,
+  LoveProgressBar,
+  EnvelopeCard,
+  UnlockedDayCard as LoveUnlockedCard,
+  LockedDayCard as LoveLockedCard,
+  LoveQuote,
+  LoveFooter,
+  LoveLetterModal,
+  WeddingBackground,
+  WeddingHeader,
+  WeddingProgress,
+  WeddingDayCard,
+  WeddingSpecialCard,
+  WeddingDiarySection,
+  WeddingFooter,
+  WeddingShower,
+  WeddingTopDecorations
+} from "@/lib/themes/themeComponents";
 
-type Calendar = Tables<'calendars'>;
+type Calendar = Tables<'calendars'> & {
+  primary_color?: string;
+  secondary_color?: string;
+  background_url?: string;
+};
 type CalendarDay = Tables<'calendar_days'>;
+
+const THEME_BG_COLORS: Record<string, string> = {
+  natal: 'bg-[#FFF8E8]',
+  namoro: 'bg-[#FFE5EC]',
+  casamento: 'bg-[#FFF8E8]',
+  carnaval: 'bg-[#E8E4F5]',
+  saojoao: 'bg-[#FFF8E8]',
+  pascoa: 'bg-[#D4F4F0]',
+  independencia: 'bg-[#E8F5E0]',
+  reveillon: 'bg-[#E8E4F5]',
+  aniversario: 'bg-[#FFF0E5]',
+};
 
 const VisualizarCalendario = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +67,9 @@ const VisualizarCalendario = () => {
   const [liked, setLiked] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [lockedDay, setLockedDay] = useState<number | null>(null);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const [openedDays, setOpenedDays] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -213,6 +251,12 @@ const VisualizarCalendario = () => {
 
         setCalendar(result.calendar);
         setDays(result.days);
+
+        // If no password or current user is owner, authorize immediately
+        if (!result.calendar.password || (user && result.calendar.owner_id === user.id)) {
+          setIsAuthorized(true);
+        }
+
         setError(null);
       } catch (err) {
         console.error('Error fetching calendar:', err);
@@ -350,8 +394,270 @@ const VisualizarCalendario = () => {
     );
   }
 
+  // Password Gate
+  if (!isAuthorized && calendar.password) {
+    return (
+      <div className={`min-h-screen bg-background flex items-center justify-center px-6 relative overflow-hidden theme-${calendar.theme_id}`}>
+        <FloatingDecorations theme={(themeData?.id || "natal") as any} />
+
+        <motion.div
+          className="relative z-10 w-full max-w-md"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="bg-card/80 backdrop-blur-xl rounded-[2.5rem] p-10 border border-border/10 shadow-elevated text-center">
+            <motion.div
+              className={cn(
+                "w-20 h-20 rounded-3xl mx-auto mb-8 flex items-center justify-center shadow-lg transition-colors",
+                passwordError ? "bg-red-500 text-white" : "bg-solidroad-accent text-solidroad-text"
+              )}
+              animate={passwordError ? { x: [-10, 10, -10, 10, 0] } : {}}
+              transition={{ duration: 0.4 }}
+            >
+              <Lock className="w-10 h-10" />
+            </motion.div>
+
+            <h2 className="text-3xl font-black text-foreground mb-3">{calendar.title}</h2>
+            <p className="text-muted-foreground font-medium mb-8 leading-relaxed">
+              Esta experiência está protegida. Digite a senha para abrir as portas.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (passwordInput === calendar.password) {
+                  setIsAuthorized(true);
+                  setPasswordError(false);
+                } else {
+                  setPasswordError(true);
+                  setTimeout(() => setPasswordError(false), 2000);
+                }
+              }}
+              className="space-y-4"
+            >
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Digite a senha..."
+                className={cn(
+                  "w-full px-6 py-5 rounded-2xl bg-background/50 border-2 font-bold text-lg text-center focus:outline-none transition-all",
+                  passwordError ? "border-red-500 ring-4 ring-red-500/10" : "border-border/10 focus:border-solidroad-accent focus:ring-4 focus:ring-solidroad-accent/10"
+                )}
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="w-full btn-festive py-5 rounded-2xl flex items-center justify-center gap-2"
+              >
+                ACESSAR AGORA
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </form>
+
+            <p className="text-[10px] text-muted-foreground/40 mt-8 font-black uppercase tracking-widest leading-relaxed">
+              A senha foi enviada para você por quem criou este calendário.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const bgColor = THEME_BG_COLORS[calendar.theme_id] || 'bg-background';
+
+  // --- RENDERIZADORES ESPECIALIZADOS ---
+
+  // 1. Renderizador para NAMORO
+  if (isAuthorized && calendar.theme_id === 'namoro') {
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display transition-colors duration-500", bgColor)}>
+        <LoveBackground />
+        <HangingHearts />
+        <div className="relative w-full bg-white/80 dark:bg-surface-dark/90 pb-6 rounded-b-[2.5rem] shadow-festive z-10 pt-10 backdrop-blur-sm">
+          <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200 transition-transform active:scale-95"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40">
+              <span className="text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
+            </div>
+            <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200">
+              <Share2 className="w-5 h-5" />
+            </button>
+          </div>
+          <LoveHeader title={calendar.title} subtitle="Uma jornada de amor para nós dois" isEditor={false} />
+          <LoveProgressBar progress={Math.round((openedDays.length / (days.length || 1)) * 100)} isEditor={false} />
+        </div>
+
+        <main className="flex-1 px-4 py-8 pb-36 relative z-0">
+          <div className="flex items-center justify-between mb-6 px-2">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2 font-festive">
+              <Sparkles className="text-love-red w-5 h-5" />
+              Memórias para Guardar
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+            {days.map((d) => {
+              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+              const doorDate = startOfDay(addDays(baseDate, d.day - 1));
+              const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+              if (isLocked) {
+                const diff = doorDate.getTime() - new Date().getTime();
+                const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                return <LoveLockedCard key={d.day} dayNumber={d.day} timeText={`${daysLeft}d`} />;
+              }
+
+              if (openedDays.includes(d.day) && d.url) {
+                return (
+                  <LoveUnlockedCard
+                    key={d.day}
+                    dayNumber={d.day}
+                    imageUrl={d.url}
+                    onClick={() => handleDayClick(d.day)}
+                  />
+                );
+              }
+
+              return (
+                <EnvelopeCard
+                  key={d.day}
+                  dayNumber={d.day}
+                  onClick={() => handleDayClick(d.day)}
+                />
+              );
+            })}
+          </div>
+          <LoveQuote isEditor={false} />
+        </main>
+        <LoveFooter isEditor={false} />
+        <DaySurpriseModal
+          isOpen={selectedDay !== null}
+          onClose={() => setSelectedDay(null)}
+          day={selectedDay || 1}
+          content={selectedDayData?.content_type === "text" ? {
+            type: "text",
+            message: selectedDayData?.message || "Surpresa! 🎉",
+          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
+            type: selectedDayData.content_type,
+            url: selectedDayData?.url || "",
+            message: selectedDayData?.message || "",
+          } : selectedDayData?.content_type === "link" ? {
+            type: "link",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Clique aqui",
+            message: selectedDayData?.message || "",
+          } : {
+            type: "text",
+            message: "Esta porta ainda está vazia... 📭",
+          }}
+          theme={calendar.theme_id}
+        />
+      </div>
+    );
+  }
+
+  // 2. Renderizador para CASAMENTO
+  if (isAuthorized && calendar.theme_id === 'casamento') {
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink transition-colors duration-500", bgColor)}>
+        <WeddingBackground />
+        <WeddingShower />
+        <WeddingTopDecorations />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h2 className="text-[10px] font-bold text-wedding-gold tracking-[0.2em] uppercase">Nossa União</h2>
+            <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all">
+              <Share2 className="w-5 h-5" />
+            </button>
+          </div>
+          <WeddingHeader title={calendar.title} subtitle="A contagem regressiva para o altar" isEditor={false} />
+          <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
+        </div>
+
+        <main className="flex-1 px-4 py-4 pb-36 relative z-0">
+          <div className="flex items-center justify-between mb-6 px-2">
+            <h2 className="text-sm font-bold text-wedding-gold uppercase tracking-[0.2em] flex items-center gap-2">
+              Calendário
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+            {days.map((d) => {
+              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+              const doorDate = startOfDay(addDays(baseDate, d.day - 1));
+              const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+              if (d.day === 5) { // Exemplo de card especial no dia 5 para casamentos
+                return (
+                  <WeddingSpecialCard
+                    key={d.day}
+                    dayNumber={d.day}
+                    onClick={() => handleDayClick(d.day)}
+                  />
+                );
+              }
+
+              return (
+                <WeddingDayCard
+                  key={d.day}
+                  dayNumber={d.day}
+                  imageUrl={d.url || undefined}
+                  status={isLocked ? 'locked' : (openedDays.includes(d.day) ? 'unlocked' : 'unlocked')} // Simplified for wedding components
+                  onClick={() => handleDayClick(d.day)}
+                />
+              );
+            })}
+          </div>
+          <WeddingDiarySection isEditor={false} />
+        </main>
+        <WeddingFooter isEditor={false} />
+        <DaySurpriseModal
+          isOpen={selectedDay !== null}
+          onClose={() => setSelectedDay(null)}
+          day={selectedDay || 1}
+          content={selectedDayData?.content_type === "text" ? {
+            type: "text",
+            message: selectedDayData?.message || "Surpresa! 🎉",
+          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
+            type: selectedDayData.content_type,
+            url: selectedDayData?.url || "",
+            message: selectedDayData?.message || "",
+          } : selectedDayData?.content_type === "link" ? {
+            type: "link",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Clique aqui",
+            message: selectedDayData?.message || "",
+          } : {
+            type: "text",
+            message: "Esta porta ainda está vazia... 📭",
+          }}
+          theme={calendar.theme_id}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className={`min-h-screen bg-background relative overflow-hidden theme-${calendar.theme_id}`}>
+    <div
+      className={cn("min-h-screen relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}
+      style={calendar.background_url ? {
+        backgroundImage: `url(${calendar.background_url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      } : undefined}
+    >
       {/* Sao Joao Background Pattern */}
       {calendar.theme_id === 'saojoao' && (
         <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
@@ -396,6 +702,7 @@ const VisualizarCalendario = () => {
               className={`w-10 h-10 rounded-full flex items-center justify-center ${liked ? "bg-red-500" : "bg-white/80 backdrop-blur-sm"
                 } shadow-sm border border-black/5`}
               whileTap={{ scale: 0.9 }}
+              style={liked && calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
             >
               <Heart
                 className={`w-5 h-5 ${liked ? "text-white fill-white" : "text-muted-foreground"
@@ -413,10 +720,13 @@ const VisualizarCalendario = () => {
         </div>
 
         <div>
-          <h1 className={cn(
-            "text-3xl font-black mb-1 leading-tight",
-            calendar.theme_id === 'saojoao' ? "text-[#5D2E0B]" : "text-foreground"
-          )}>
+          <h1
+            className={cn(
+              "text-3xl font-black mb-1 leading-tight",
+              calendar.theme_id === 'saojoao' ? "text-[#5D2E0B]" : "text-foreground"
+            )}
+            style={calendar.primary_color ? { color: calendar.primary_color } : undefined}
+          >
             {calendar.title}
           </h1>
           <p className={cn(
@@ -448,6 +758,7 @@ const VisualizarCalendario = () => {
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.round((openedDays.length / (days.length || 1)) * 100)}%` }}
                 transition={{ duration: 1, delay: 0.5 }}
+                style={calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
               />
             </div>
           </motion.div>

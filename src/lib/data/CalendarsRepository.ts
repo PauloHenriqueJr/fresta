@@ -15,7 +15,7 @@ export const CalendarsRepository = {
     try {
       const { data, error } = await (supabase
         .from('calendars') as any)
-        .select('*')
+        .select('*, primary_color, secondary_color, background_url')
         .eq('owner_id', ownerId)
         .order('created_at', { ascending: false });
       
@@ -36,7 +36,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getById:', id);
     const { data, error } = await supabase
       .from('calendars')
-      .select('*')
+      .select('*, primary_color, secondary_color, background_url')
       .eq('id', id)
       .single();
     
@@ -53,7 +53,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getWithDays:', id);
     const { data: calendar, error: calError } = await supabase
       .from('calendars')
-      .select('*')
+      .select('*, primary_color, secondary_color, background_url')
       .eq('id', id)
       .single();
     
@@ -82,7 +82,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getPublic:', id);
     const { data: calendar, error: calError } = await supabase
       .from('calendars')
-      .select('*')
+      .select('*, primary_color, secondary_color, background_url')
       .eq('id', id)
       .eq('privacy', 'public')
       .single();
@@ -140,6 +140,10 @@ export const CalendarsRepository = {
     duration: number;
     privacy: 'public' | 'private';
     startDate?: string;
+    password?: string;
+    primary_color?: string;
+    secondary_color?: string;
+    background_url?: string;
   }): Promise<Calendar> {
     console.log('CalendarsRepository.create: Starting insert', input);
 
@@ -152,8 +156,12 @@ export const CalendarsRepository = {
         theme_id: input.themeId,
         duration: input.duration,
         privacy: input.privacy,
+        password: input.password,
         start_date: input.startDate,
-        status: 'rascunho',
+        status: 'ativo',
+        primary_color: input.primary_color,
+        secondary_color: input.secondary_color,
+        background_url: input.background_url,
       })
       .select()
       .single();

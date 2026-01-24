@@ -16,6 +16,18 @@ import { cn } from "@/lib/utils";
 type CalendarType = Tables<"calendars">;
 type CalendarDay = Tables<"calendar_days">;
 
+const THEME_BG_COLORS: Record<string, string> = {
+  natal: 'bg-[#FFF8E8]',
+  namoro: 'bg-[#FFE5EC]',
+  casamento: 'bg-[#FFF8E8]',
+  carnaval: 'bg-[#E8E4F5]',
+  saojoao: 'bg-[#FFF8E8]',
+  pascoa: 'bg-[#D4F4F0]',
+  independencia: 'bg-[#E8F5E0]',
+  reveillon: 'bg-[#E8E4F5]',
+  aniversario: 'bg-[#FFF0E5]',
+};
+
 const ALL_THEMES = ["default", "carnaval", "saojoao", "natal", "reveillon", "pascoa", "independencia", "namoro", "casamento"] as const;
 
 const toUiTheme = (theme: string) =>
@@ -142,8 +154,10 @@ const CalendarioDetalhe = () => {
 
   const completionPercentage = Math.round((days.filter(d => d.hasSpecialContent).length / (calendar.duration || 1)) * 100);
 
+  const bgColor = THEME_BG_COLORS[calendar.theme_id] || 'bg-background';
+
   return (
-    <div className={`min-h-screen bg-background relative overflow-hidden theme-${calendar.theme_id}`}>
+    <div className={cn("min-h-screen relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}>
       {/* Sao Joao Background Pattern - Synced with VisualizarCalendario */}
       {calendar.theme_id === 'saojoao' && (
         <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5 pointer-events-none" style={{
