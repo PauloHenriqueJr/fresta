@@ -12,8 +12,32 @@ import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { format, addDays, parseISO, startOfDay, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import {
+  LoveBackground,
+  HangingHearts,
+  LoveHeader,
+  LoveProgressBar,
+  EnvelopeCard,
+  UnlockedDayCard as LoveUnlockedCard,
+  LockedDayCard as LoveLockedCard,
+  LoveQuote,
+  LoveFooter,
+  WeddingBackground,
+  WeddingHeader,
+  WeddingProgress,
+  WeddingDayCard,
+  WeddingSpecialCard,
+  WeddingDiarySection,
+  WeddingFooter,
+  WeddingTopDecorations,
+  LoveLetterModal
+} from "@/lib/themes/themeComponents";
 
-type CalendarType = Tables<"calendars">;
+type CalendarType = Tables<"calendars"> & {
+  primary_color?: string;
+  secondary_color?: string;
+  background_url?: string;
+};
 type CalendarDay = Tables<"calendar_days">;
 
 const THEME_BG_COLORS: Record<string, string> = {
@@ -156,6 +180,247 @@ const CalendarioDetalhe = () => {
 
   const bgColor = THEME_BG_COLORS[calendar.theme_id] || 'bg-background';
 
+  // --- RENDERIZADORES ESPECIALIZADOS ---
+
+  // 1. Renderizador para NAMORO
+  if (calendar.theme_id === 'namoro') {
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display transition-colors duration-500", bgColor)}>
+        <LoveBackground />
+        <HangingHearts />
+
+        {/* Editor Info Header */}
+        <div className="relative z-50 bg-white/50 dark:bg-black/20 backdrop-blur-md px-6 py-2 flex items-center justify-between border-b border-border/10">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/meus-calendarios')} className="text-rose-900/40 hover:text-rose-900 transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Modo {previewMode ? "Visualização" : "Edição"}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPreviewMode(!previewMode)}
+              className={cn("p-2 rounded-lg transition-all", previewMode ? "bg-rose-500 text-white shadow-lg" : "bg-rose-50 text-rose-500")}
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+              className="p-2 rounded-lg bg-rose-50 text-rose-500"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative w-full bg-white/80 dark:bg-surface-dark/90 pb-6 rounded-b-[2.5rem] shadow-festive z-10 pt-6 backdrop-blur-sm">
+          <LoveHeader
+            title={calendar.title}
+            subtitle="Configurando nossa jornada de amor"
+            isEditor={!previewMode}
+          />
+          <LoveProgressBar progress={Math.round((previewOpenedDays.length / (days.length || 1)) * 100)} isEditor={!previewMode} />
+        </div>
+
+        <main className="flex-1 px-4 py-8 pb-36 relative z-0">
+          {/* Dashboard Stats row (Subtle for Namoro) */}
+          <div className="grid grid-cols-2 gap-4 mb-8 px-2 max-w-lg mx-auto">
+            <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-rose-100/50 flex flex-col items-center text-center">
+              <span className="text-xl font-black text-rose-900 group-hover:scale-110 transition-transform">{calendar.views || 0}</span>
+              <span className="text-[8px] font-bold text-rose-400 uppercase tracking-widest">Visualizações</span>
+            </div>
+            <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-rose-100/50 flex flex-col items-center text-center">
+              <span className="text-xl font-black text-rose-900">{completionPercentage}%</span>
+              <span className="text-[8px] font-bold text-rose-400 uppercase tracking-widest">Concluído</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+            {days.map((d) => {
+              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+              const doorDate = startOfDay(addDays(baseDate, d.day - 1));
+              const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+              // In Editor Mode, show themed cards but with management controls
+              if (previewMode && isLocked) {
+                return <LoveLockedCard key={d.day} dayNumber={d.day} timeText="Bloqueado" isEditor={false} />;
+              }
+
+              if (d.status === 'opened' || (d.hasSpecialContent && !previewMode)) {
+                return (
+                  <LoveUnlockedCard
+                    key={d.day}
+                    dayNumber={d.day}
+                    imageUrl={daysData.find(dd => dd.day === d.day)?.url || ""}
+                    onClick={() => {
+                      if (previewMode) setSelectedDayPreview(d.day);
+                      else navigate(`/editar-dia/${calendar.id}/${d.day}`);
+                    }}
+                    isEditor={!previewMode}
+                  />
+                );
+              }
+
+              return (
+                <EnvelopeCard
+                  key={d.day}
+                  dayNumber={d.day}
+                  onClick={() => {
+                    if (previewMode) {
+                      setPreviewOpenedDays(prev => prev.includes(d.day) ? prev : [...prev, d.day]);
+                      setTimeout(() => setSelectedDayPreview(d.day), 600);
+                    } else {
+                      navigate(`/editar-dia/${calendar.id}/${d.day}`);
+                    }
+                  }}
+                  isEditor={!previewMode}
+                />
+              );
+            })}
+          </div>
+          <LoveQuote isEditor={!previewMode} />
+        </main>
+
+        {previewMode ? (
+          <LoveFooter isEditor={false} />
+        ) : (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[92%] max-w-lg p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
+            <button
+              onClick={handleShare}
+              className="flex-1 bg-love-red hover:bg-rose-700 text-white h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 transition-all active:scale-95"
+            >
+              <Share2 className="w-5 h-5" />
+              Compartilhar
+            </button>
+            <button className="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+              <BarChart3 className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
+        <DaySurpriseModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          day={selectedDayPreview || 1}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type as any,
+            message: selectedDayData?.message || "",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Abrir",
+          } : undefined}
+          theme={calendar.theme_id as any}
+        />
+      </div>
+    );
+  }
+
+  // 2. Renderizador para CASAMENTO
+  if (calendar.theme_id === 'casamento') {
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink transition-colors duration-500", bgColor)}>
+        <WeddingBackground />
+        <WeddingTopDecorations />
+
+        {/* Editor Info Header */}
+        <div className="relative z-50 bg-white/40 backdrop-blur-md px-6 py-2 flex items-center justify-between border-b border-wedding-gold/10">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/meus-calendarios')} className="text-wedding-gold/60 hover:text-wedding-gold transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-wedding-gold">Painel de União</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPreviewMode(!previewMode)}
+              className={cn("p-2 rounded-lg transition-all", previewMode ? "bg-wedding-gold text-white shadow-lg" : "bg-white/50 text-wedding-gold border border-wedding-gold/20")}
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+              className="p-2 rounded-lg bg-white/50 text-wedding-gold border border-wedding-gold/20"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-4">
+          <WeddingHeader title={calendar.title} subtitle="Preparativos para o grande dia" isEditor={!previewMode} />
+          <WeddingProgress progress={completionPercentage} />
+        </div>
+
+        <main className="flex-1 px-4 py-8 pb-36 relative z-0">
+          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+            {days.map((d) => {
+              if (d.day === 5 && !previewMode) {
+                return (
+                  <WeddingSpecialCard
+                    key={d.day}
+                    dayNumber={d.day}
+                    onClick={() => navigate(`/editar-dia/${calendar.id}/${d.day}`)}
+                    isEditor={true}
+                  />
+                );
+              }
+
+              return (
+                <WeddingDayCard
+                  key={d.day}
+                  dayNumber={d.day}
+                  imageUrl={daysData.find(dd => dd.day === d.day)?.url || undefined}
+                  status={previewMode ? (d.status === 'locked' ? 'locked' : (previewOpenedDays.includes(d.day) ? 'unlocked' : 'locked')) : 'unlocked'}
+                  onClick={() => {
+                    if (previewMode) {
+                      if (d.status !== 'locked') {
+                        setPreviewOpenedDays(prev => prev.includes(d.day) ? prev : [...prev, d.day]);
+                        setTimeout(() => setSelectedDayPreview(d.day), 600);
+                      }
+                    } else {
+                      navigate(`/editar-dia/${calendar.id}/${d.day}`);
+                    }
+                  }}
+                  isEditor={!previewMode}
+                />
+              );
+            })}
+          </div>
+          <WeddingDiarySection isEditor={!previewMode} />
+        </main>
+
+        {previewMode ? (
+          <WeddingFooter isEditor={false} />
+        ) : (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[92%] max-w-lg p-4 bg-white/90 backdrop-blur-xl border border-wedding-gold/10 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
+            <button
+              onClick={handleShare}
+              className="flex-1 bg-gradient-to-r from-wedding-gold to-wedding-gold-dark text-white h-12 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-wedding-gold/20"
+            >
+              <Share2 className="w-4 h-4" />
+              Compatilhar União
+            </button>
+            <button onClick={() => navigate(`/calendario/${calendar.id}/stats`)} className="h-12 w-12 rounded-2xl bg-[#F9F6F0] text-wedding-gold flex items-center justify-center border border-wedding-gold/20">
+              <BarChart3 className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
+        <DaySurpriseModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          day={selectedDayPreview || 1}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type as any,
+            message: selectedDayData?.message || "",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Abrir",
+          } : undefined}
+          theme={calendar.theme_id as any}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={cn("min-h-screen relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}>
       {/* Sao Joao Background Pattern - Synced with VisualizarCalendario */}
@@ -279,7 +544,13 @@ const CalendarioDetalhe = () => {
         </div>
 
         {/* Calendar Grid Container */}
-        <div className="bg-card rounded-[2.5rem] p-8 md:p-12 border border-border/10 shadow-sm min-h-[500px] transition-colors">
+        <div className="bg-card rounded-[2.5rem] p-8 md:p-12 border border-border/10 shadow-sm min-h-[500px] transition-colors overflow-hidden relative">
+          {calendar.background_url && (
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center opacity-10"
+              style={{ backgroundImage: `url(${calendar.background_url})` }}
+            />
+          )}
           <CalendarGrid
             title={calendar.title || "Calendário"}
             month={(() => {
@@ -301,18 +572,31 @@ const CalendarioDetalhe = () => {
         </div>
       </main>
 
-      <DaySurpriseModal
-        isOpen={selectedDayPreview !== null}
-        onClose={() => setSelectedDayPreview(null)}
-        day={selectedDayPreview || 1}
-        content={selectedDayData?.content_type ? {
-          type: selectedDayData.content_type as any,
-          message: selectedDayData?.message || "",
-          url: selectedDayData?.url || "",
-          label: selectedDayData?.label || "Abrir",
-        } : undefined}
-        theme={toUiTheme(calendar.theme_id) as any}
-      />
+      {calendar.theme_id === 'namoro' ? (
+        <LoveLetterModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type === 'text' ? 'text' : 'image',
+            title: `Porta ${selectedDayPreview}`,
+            message: selectedDayData?.message || "",
+            mediaUrl: selectedDayData?.url || undefined,
+          } : { type: 'text', message: "Surpresa! 🎉" }}
+        />
+      ) : (
+        <DaySurpriseModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          day={selectedDayPreview || 1}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type as any,
+            message: selectedDayData?.message || "",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Abrir",
+          } : undefined}
+          theme={toUiTheme(calendar.theme_id) as any}
+        />
+      )}
 
     </div>
   );

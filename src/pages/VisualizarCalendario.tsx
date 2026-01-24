@@ -536,27 +536,15 @@ const VisualizarCalendario = () => {
           <LoveQuote isEditor={false} />
         </main>
         <LoveFooter isEditor={false} />
-        <DaySurpriseModal
+        <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
-          day={selectedDay || 1}
-          content={selectedDayData?.content_type === "text" ? {
-            type: "text",
-            message: selectedDayData?.message || "Surpresa! 🎉",
-          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
-            type: selectedDayData.content_type,
-            url: selectedDayData?.url || "",
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type === 'text' ? 'text' : 'image',
+            title: `Porta ${selectedDay}`,
             message: selectedDayData?.message || "",
-          } : selectedDayData?.content_type === "link" ? {
-            type: "link",
-            url: selectedDayData?.url || "",
-            label: selectedDayData?.label || "Clique aqui",
-            message: selectedDayData?.message || "",
-          } : {
-            type: "text",
-            message: "Esta porta ainda está vazia... 📭",
-          }}
-          theme={calendar.theme_id}
+            mediaUrl: selectedDayData?.url || undefined,
+          } : { type: 'text', message: "Surpresa! 🎉" }}
         />
       </div>
     );
@@ -871,29 +859,42 @@ const VisualizarCalendario = () => {
         </div>
       </motion.section>
 
-      {/* Surprise Modal */}
-      <DaySurpriseModal
-        isOpen={selectedDay !== null}
-        onClose={() => setSelectedDay(null)}
-        day={selectedDay || 1}
-        content={selectedDayData?.content_type === "text" ? {
-          type: "text",
-          message: selectedDayData?.message || "Surpresa! 🎉",
-        } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
-          type: selectedDayData.content_type,
-          url: selectedDayData?.url || "",
-          message: selectedDayData?.message || "",
-        } : selectedDayData?.content_type === "link" ? {
-          type: "link",
-          url: selectedDayData?.url || "",
-          label: selectedDayData?.label || "Clique aqui",
-          message: selectedDayData?.message || "",
-        } : {
-          type: "text",
-          message: "Esta porta ainda está vazia... 📭",
-        }}
-        theme={calendar.theme_id}
-      />
+      {/* Surprise Modal / Love Letter */}
+      {calendar.theme_id === 'namoro' ? (
+        <LoveLetterModal
+          isOpen={selectedDay !== null}
+          onClose={() => setSelectedDay(null)}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type === 'text' ? 'text' : 'image',
+            title: `Porta ${selectedDay}`,
+            message: selectedDayData?.message || "",
+            mediaUrl: selectedDayData?.url || undefined,
+          } : { type: 'text', message: "Surpresa! 🎉" }}
+        />
+      ) : (
+        <DaySurpriseModal
+          isOpen={selectedDay !== null}
+          onClose={() => setSelectedDay(null)}
+          day={selectedDay || 1}
+          content={selectedDayData?.content_type === "text" ? {
+            type: "text",
+            message: selectedDayData?.message || "Surpresa! 🎉",
+          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
+            type: selectedDayData.content_type,
+            url: selectedDayData?.url || "",
+            message: selectedDayData?.message || "",
+          } : selectedDayData?.content_type === "link" ? {
+            type: "link",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Clique aqui",
+            message: selectedDayData?.message || "",
+          } : {
+            type: "text",
+            message: "Esta porta ainda está vazia... 📭",
+          }}
+          theme={calendar.theme_id}
+        />
+      )}
 
       {/* Locked Day Modal "Calma Coração" */}
       <AnimatePresence>

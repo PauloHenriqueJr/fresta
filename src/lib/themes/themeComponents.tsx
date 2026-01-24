@@ -293,15 +293,18 @@ export const EditorFooter = () => {
 // --- User Footer ---
 export const LoveFooter = ({ isEditor = false }: { isEditor?: boolean }) => {
   return (
-    <div className="fixed bottom-0 left-0 w-full p-6 pb-10 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border-t border-rose-100 dark:border-rose-900/50 z-50 font-display">
-      <div className="max-w-md mx-auto flex items-center gap-4">
-        <button className="flex-1 bg-love-red hover:bg-rose-700 text-white h-14 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 transition-all active:scale-95">
-          <Heart className="w-5 h-5 fill-white" />
+    <div className={cn(
+      "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 dark:border-rose-900/50 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10",
+      isEditor ? "bottom-24" : "bottom-10"
+    )}>
+      <div className="flex items-center gap-3">
+        <button className="flex-1 bg-love-red hover:bg-rose-700 text-white h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 transition-all active:scale-95">
+          <Heart className="w-4 h-4 fill-white" />
           Enviar Amor
         </button>
         {isEditor && (
-          <button className="h-14 w-14 rounded-2xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-800">
-            <Settings className="w-6 h-6" />
+          <button className="h-12 w-12 rounded-2xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-800">
+            <Settings className="w-5 h-5" />
           </button>
         )}
       </div>
