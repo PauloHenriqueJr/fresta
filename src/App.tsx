@@ -103,21 +103,14 @@ const AuthHandler = () => {
       return;
     }
 
-    // 1. Normalização Imediata: Se o hash é um fragmento de auth pura (#access_token)
-    // Precisamos converter para #/access_token para o HashRouter não dar 404
-    if (hash && (hash.includes("access_token=") || hash.includes("error_description=")) && !hash.startsWith("#/")) {
-      console.log("App: Normalizando sessão para o roteador");
-      window.location.hash = "/" + hash.substring(1);
-      return;
-    }
-
-    // 2. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
+    // 1. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
     if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
       if (session) {
         // Ignorar se for link público
         if (hash.includes("#/c/") || window.location.pathname.startsWith('/c/')) return;
 
-        // Check for onboarding status
+        // Limpar o fragmento de autenticação agora que temos a sessão
+        // Isso evita loops de normalização
         const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
 
         if (!hasSeenOnboarding) {
@@ -127,6 +120,10 @@ const AuthHandler = () => {
           console.log("App: Navegando para o painel principal");
           navigate("/meus-calendarios", { replace: true });
         }
+      } else if (!hash.startsWith("#/")) {
+        // Normalização preventiva para o HashRouter se ainda não tivermos sessão
+        // Mas o AppContent deve estar mostrando o Loader agora
+        console.log("App: Fragmento de auth detectado, aguardando sessão...");
       }
     }
   }, [session, isLoading, navigate]);
@@ -135,9 +132,15 @@ const AuthHandler = () => {
 };
 
 const AppContent = () => {
-  const { isLoading } = useAuth();
+  const { isLoading, session } = useAuth();
+  const hash = window.location.hash;
+  const isAuthenticating = hash.includes("access_token=") || hash.includes("error_description=");
 
-  if (isLoading) return <Loader />;
+  // Se estiver carregando auth inicial OU se tivermos um fragmento de token mas o Supabase ainda não emitiu a sessão,
+  // mostramos o Loader para evitar que o HashRouter interprete o token como uma rota inexistente (404).
+  if (isLoading || (isAuthenticating && !session)) {
+    return <Loader />;
+  }
 
   return (
     <HashRouter>
