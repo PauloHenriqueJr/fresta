@@ -125,10 +125,10 @@ const Entrar = () => {
         </div>
 
         {/* Lado Direito - Form Login */}
-        <div className={`flex flex-col justify-center p-8 lg:p-16 relative bg-white lg:rounded-r-[2.5rem] transition-all duration-700 ${imageReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          {/* Mascote FIXO na borda - Animação Suave (Slide Up) após o card */}
+        <div className={`flex flex-col justify-center p-8 lg:p-16 relative bg-white lg:rounded-r-[2.5rem] z-0 transition-all duration-700 ${imageReady ? 'opacity-100' : 'opacity-0'}`}>
+          {/* Mascote FIXO na borda - Atrás do Card (-z-10) e sem movimento */}
           <div
-            className={`absolute -top-[160px] lg:-top-[165px] left-1/2 -translate-x-1/2 z-20 w-56 lg:w-64 pointer-events-none transition-all duration-1000 delay-500 ease-out ${imageReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+            className={`absolute -top-[160px] lg:-top-[165px] left-1/2 -translate-x-1/2 -z-10 w-56 lg:w-64 pointer-events-none transition-opacity duration-1000 delay-500 ease-in ${imageReady ? 'opacity-100' : 'opacity-0'}`}
           >
             <img src={mascotLoginHeader} alt="Mascote" className="w-full drop-shadow-2xl" />
           </div>
