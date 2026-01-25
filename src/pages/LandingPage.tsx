@@ -10,7 +10,8 @@ import {
   Users,
   Zap,
   ArrowRight,
-  Lock
+  Lock,
+  DoorOpen
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -276,8 +277,8 @@ const LandingPage = () => {
             <div className="mt-4 rounded-2xl border border-border bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="flex items-center justify-between px-5 py-3">
                 <button onClick={() => navigate("/")} className="flex items-center gap-2">
-                  <div className={`w-10 h-10 rounded-xl ${currentTheme.primaryGradient} flex items-center justify-center text-xl`}>
-                    🚪
+                  <div className={`w-10 h-10 rounded-xl ${currentTheme.primaryGradient} flex items-center justify-center`}>
+                    <DoorOpen className="w-6 h-6 text-white" strokeWidth={2.5} />
                   </div>
                   <span className="font-extrabold text-xl">Fresta</span>
                 </button>
@@ -510,7 +511,12 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="py-24 px-4 bg-card border-t border-border/50 text-center">
         <div className="max-w-[1500px] mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-10"><span className="text-4xl">🚪</span><span className="font-black text-4xl tracking-tighter">Fresta</span></div>
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <div className={`w-14 h-14 rounded-2xl ${currentTheme.primaryGradient} flex items-center justify-center shadow-lg`}>
+              <DoorOpen className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+            <span className="font-black text-4xl tracking-tighter">Fresta</span>
+          </div>
           <p className="text-muted-foreground font-bold text-base">© 2024 Fresta. Feito com 💚 para o Brasil.</p>
           <div className="mt-8 flex justify-center gap-6 text-muted-foreground/60 font-black uppercase tracking-widest text-xs">
             <button className="hover:text-primary transition-colors">Ajuda</button>
