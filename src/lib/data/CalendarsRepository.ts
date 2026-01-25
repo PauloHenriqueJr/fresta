@@ -283,7 +283,12 @@ export const CalendarsRepository = {
   // Increment day opened count
   async incrementDayOpened(dayId: string): Promise<void> {
     console.log('CalendarsRepository.incrementDayOpened:', dayId);
-    await supabase.rpc('increment_day_opened', { _day_id: dayId });
+    const { error } = await supabase.rpc('increment_day_opened', { _day_id: dayId });
+    if (error) {
+      console.error('CalendarsRepository.incrementDayOpened ERROR:', error);
+    } else {
+      console.log('CalendarsRepository.incrementDayOpened SUCCESS');
+    }
   },
 
   // Get user-wide stats

@@ -2,6 +2,12 @@
 -- Run this in your Supabase SQL Editor (Dashboard > SQL Editor)
 
 -- ============================================
+-- 0. ENSURE opened_count COLUMN EXISTS
+-- ============================================
+ALTER TABLE public.calendar_days 
+ADD COLUMN IF NOT EXISTS opened_count integer DEFAULT 0;
+
+-- ============================================
 -- 1. INCREMENT DAY OPENED COUNT
 -- This is called when a visitor opens a door
 -- ============================================
