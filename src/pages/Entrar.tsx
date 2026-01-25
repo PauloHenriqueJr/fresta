@@ -98,7 +98,7 @@ const Entrar = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 lg:p-8">
-      <div className="w-full max-w-[1100px] bg-card rounded-[3rem] shadow-2xl overflow-hidden min-h-[600px] grid lg:grid-cols-2 border border-border/10 relative">
+      <div className="w-full max-w-[1100px] bg-card rounded-[3rem] shadow-2xl min-h-[600px] grid lg:grid-cols-2 border border-border/10 relative">
 
         {/* Lado Esquerdo - Visual (Desktop Only) */}
         <div className="hidden lg:block relative bg-solidroad-beige dark:bg-black/20 overflow-hidden rounded-l-[3rem] border-r border-border/10">
@@ -127,10 +127,10 @@ const Entrar = () => {
         </div>
 
         {/* Lado Direito - Form Login */}
-        <div className={`flex flex-col justify-center p-8 lg:p-20 relative bg-card lg:rounded-r-[3rem] transition-all duration-700 ${imageReady ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`flex flex-col justify-center p-8 lg:p-20 relative bg-card rounded-[3rem] lg:rounded-l-none lg:rounded-r-[3rem] transition-all duration-700 ${imageReady ? 'opacity-100' : 'opacity-0'}`}>
           {/* Mascote FIXO na borda - Atrás do Card (-z-10) */}
           <div
-            className={`absolute -top-[145px] lg:-top-[185px] left-1/2 -translate-x-1/2 -z-10 w-64 lg:w-80 pointer-events-none transition-opacity duration-1000 delay-500 ease-in ${imageReady ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute -top-[165px] lg:-top-[210px] left-1/2 -translate-x-1/2 z-10 w-64 lg:w-80 pointer-events-none transition-opacity duration-1000 delay-500 ease-in ${imageReady ? 'opacity-100' : 'opacity-0'}`}
           >
             <img src={mascotLoginHeader} alt="Mascote" className="w-full drop-shadow-2xl" />
           </div>
