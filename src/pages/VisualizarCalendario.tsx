@@ -8,7 +8,7 @@ import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import { getThemeConfig } from "@/lib/themes/registry";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
@@ -60,6 +60,7 @@ const THEME_BG_COLORS: Record<string, string> = {
 };
 
 const VisualizarCalendario = () => {
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -82,7 +83,8 @@ const VisualizarCalendario = () => {
     const newLiked = !liked;
     setLiked(newLiked);
     if (newLiked) {
-      toast.success("Amor enviado! ❤️", {
+      toast({
+        title: "Amor enviado! ❤️",
         description: "Que lindo gesto! O criador do calendário vai adorar.",
         duration: 3000,
       });
@@ -154,25 +156,29 @@ const VisualizarCalendario = () => {
     if (!isInstalled) {
       if (canInstallPWA()) {
         // Android/Desktop: Prompt user to install PWA
-        toast("📲 Instale o app para receber notificações!", {
+        toast({
+          title: "📲 Instale o app para receber notificações!",
           description: "A experiência fica muito melhor com o aplicativo instalado.",
-          action: {
-            label: "Instalar Agora",
-            onClick: async () => {
-              const installed = await promptInstall();
-              if (installed) {
-                // O ouvinte 'appinstalled' no useEffect cuidará de pedir a permissão
-              }
-            }
-          },
-          duration: 10000
+          action: (
+            <button
+              onClick={async () => {
+                const installed = await promptInstall();
+                if (installed) {
+                  // Handled by useEffect
+                }
+              }}
+              className="inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+            >
+              Instalar Agora
+            </button>
+          ),
         });
         return; // Não pede permissão no navegador comum para não ser invasivo
       } else if (isIOS) {
         // iOS: Show instructions
-        toast("📲 Ative as notificações!", {
+        toast({
+          title: "📲 Ative as notificações!",
           description: "Para ser avisado das portas, instale o app: toque em Compartilhar e 'Adicionar à Tela de Início'.",
-          duration: 10000
         });
         return;
       }
@@ -182,9 +188,22 @@ const VisualizarCalendario = () => {
     const permission = await requestNotificationPermission();
 
     if (permission !== 'granted') {
-      toast.error("Permissão de notificação negada", {
-        description: "Ative as notificações nas configurações do navegador."
-      });
+      const isDesktop = !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+      if (isDesktop) {
+        toast({
+          variant: "destructive",
+          title: "Notificações desativadas",
+          description: "No computador, clique no ícone de 🔒 (cadeado) na barra de endereço e altere 'Notificações' para 'Permitir'.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Permissão de notificação negada",
+          description: "Ative as notificações nas configurações do seu navegador."
+        });
+      }
+
       setLockedDay(null);
       setLockedModalData(null);
       return;
@@ -194,7 +213,9 @@ const VisualizarCalendario = () => {
     const subscription = await subscribeToPush();
 
     if (!subscription) {
-      toast.error("Erro ao configurar notificações", {
+      toast({
+        variant: "destructive",
+        title: "Erro ao configurar notificações",
         description: "Tente novamente mais tarde."
       });
       setLockedDay(null);
@@ -209,11 +230,13 @@ const VisualizarCalendario = () => {
     const success = await scheduleDoorReminder(calendar.id, targetDay, doorDate);
 
     if (success) {
-      toast.success("🎉 Lembrete configurado!", {
+      toast({
+        title: "🎉 Lembrete configurado!",
         description: `Você será notificado quando a Porta ${targetDay} abrir.`
       });
     } else {
-      toast("Lembrete salvo localmente!", {
+      toast({
+        title: "Lembrete salvo localmente!",
         description: "Você receberá a notificação quando abrir o app."
       });
     }
@@ -226,13 +249,17 @@ const VisualizarCalendario = () => {
   // Listen for successful installation
   useEffect(() => {
     const handleAppInstalled = () => {
-      toast.success("App instalado com sucesso! 🎉", {
+      toast({
+        title: "App instalado com sucesso! 🎉",
         description: "Agora ative as notificações para não perder nada.",
-        action: {
-          label: "Ativar Notificações",
-          onClick: () => handleNotifyMe()
-        },
-        duration: 10000
+        action: (
+          <button
+            onClick={() => handleNotifyMe()}
+            className="inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          >
+            Ativar Notificações
+          </button>
+        ),
       });
       // Clear the prompt
       (window as any).deferredPrompt = null;
@@ -387,7 +414,10 @@ const VisualizarCalendario = () => {
     } else {
       // Fallback: copy to clipboard
       await navigator.clipboard.writeText(window.location.href);
-      alert("Link copiado!");
+      toast({
+        title: "Link copiado! ✨",
+        description: "Agora você pode colar e enviar para quem quiser.",
+      });
     }
   };
 

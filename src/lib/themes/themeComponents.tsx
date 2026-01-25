@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar, Play, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
+import { useToast } from "@/hooks/use-toast";
 
 // --- Background ---
 export const LoveBackground = () => {
@@ -793,6 +794,7 @@ interface LoveLetterModalProps {
 }
 
 export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalProps) => {
+  const { toast } = useToast();
   if (!isOpen) return null;
 
   return (
@@ -944,7 +946,10 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
                 navigator.share(shareData).catch(console.error);
               } else {
                 navigator.clipboard.writeText(content.mediaUrl || window.location.href);
-                alert('Link copiado!');
+                toast({
+                  title: "Link copiado! ✨",
+                  description: "O link já está na sua área de transferência.",
+                });
               }
             }}
             className="flex-1 h-12 rounded-2xl bg-love-red text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-love-red/20 active:scale-95 transition-all"
