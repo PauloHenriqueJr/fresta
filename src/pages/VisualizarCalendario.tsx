@@ -525,222 +525,142 @@ const VisualizarCalendario = () => {
 
   // --- RENDERIZADORES ESPECIALIZADOS ---
 
-  // 1. Renderizador para NAMORO
-  if (isAuthorized && calendar.theme_id === 'namoro') {
-    return (
-      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display transition-colors duration-500", bgColor)}>
-        <LoveBackground />
-        <HangingHearts />
-        <div className="relative w-full bg-white/80 dark:bg-surface-dark/90 pb-6 rounded-b-[2.5rem] shadow-festive z-10 pt-10 backdrop-blur-sm">
-          <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
+  const renderNamoroView = () => (
+    <>
+      <LoveBackground />
+      <HangingHearts />
+      <div className="relative w-full bg-white/80 dark:bg-surface-dark/90 pb-6 rounded-b-[2.5rem] shadow-festive z-10 pt-10 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200 transition-transform active:scale-95"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40 shadow-sm pointer-events-none">
+            <span className="text-[10px] xs:text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
+          </div>
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200 transition-transform active:scale-95"
+              onClick={handleLike}
+              className={cn(
+                "flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-95",
+                liked
+                  ? "bg-love-red text-white"
+                  : "bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200"
+              )}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <Heart className={cn("w-5 h-5", liked && "fill-white")} />
             </button>
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40 shadow-sm pointer-events-none">
-              <span className="text-[10px] xs:text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleLike}
-                className={cn(
-                  "flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-95",
-                  liked
-                    ? "bg-love-red text-white"
-                    : "bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200"
-                )}
-              >
-                <Heart className={cn("w-5 h-5", liked && "fill-white")} />
-              </button>
-              <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200">
-                <Share2 className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-          <LoveHeader title={calendar.title} subtitle="Uma jornada de amor para nós dois" isEditor={false} />
-          <LoveProgressBar progress={Math.round((openedDays.length / (days.length || 1)) * 100)} isEditor={false} />
-        </div>
-
-        <main className="flex-1 px-4 py-8 pb-36 relative z-0">
-          <div className="flex items-center justify-between mb-6 px-2">
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2 font-festive">
-              <Sparkles className="text-love-red w-5 h-5" />
-              Memórias para Guardar
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-            {days.map((d) => {
-              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
-              const doorDate = startOfDay(addDays(baseDate, d.day - 1));
-              const isLocked = isAfter(doorDate, startOfDay(new Date()));
-
-              if (isLocked) {
-                const diff = doorDate.getTime() - new Date().getTime();
-                const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                return (
-                  <LoveLockedCard
-                    key={d.day}
-                    dayNumber={d.day}
-                    timeText={`${daysLeft}d`}
-                    onClick={() => handleLockedClick(d.day, doorDate)}
-                  />
-                );
-              }
-
-              if (openedDays.includes(d.day) || (d.opened_count || 0) > 0) {
-                return (
-                  <LoveUnlockedCard
-                    key={d.day}
-                    dayNumber={d.day}
-                    imageUrl={d.url || ""}
-                    onClick={() => handleDayClick(d.day)}
-                  />
-                );
-              }
-
-              return (
-                <EnvelopeCard
-                  key={d.day}
-                  dayNumber={d.day}
-                  onClick={() => handleDayClick(d.day)}
-                />
-              );
-            })}
-          </div>
-          <LoveQuote isEditor={false} />
-        </main>
-        <LoveFooter isEditor={false} onNavigate={() => navigate('/criar')} />
-        <LoveLetterModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          content={selectedDayData?.content_type ? {
-            type: selectedDayData.content_type === 'text' ? 'text' : 'image',
-            title: `Porta ${selectedDay}`,
-            message: selectedDayData?.message || "",
-            mediaUrl: selectedDayData?.url || undefined,
-          } : { type: 'text', message: "Surpresa! 🎉" }}
-        />
-      </div>
-    );
-  }
-
-  // 2. Renderizador para CASAMENTO
-  if (isAuthorized && calendar.theme_id === 'casamento') {
-    return (
-      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink transition-colors duration-500", bgColor)}>
-        <WeddingBackground />
-        <WeddingShower />
-        <WeddingTopDecorations />
-        <div className="relative z-10">
-          <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h2 className="text-[10px] font-bold text-wedding-gold tracking-[0.2em] uppercase">Nossa União</h2>
-            <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all">
+            <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200">
               <Share2 className="w-5 h-5" />
             </button>
           </div>
-          <WeddingHeader title={calendar.title} subtitle="A contagem regressiva para o altar" isEditor={false} />
-          <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
         </div>
+        <LoveHeader title={calendar.title} subtitle="Uma jornada de amor para nós dois" isEditor={false} />
+        <LoveProgressBar progress={Math.round((openedDays.length / (days.length || 1)) * 100)} isEditor={false} />
+      </div>
 
-        <main className="flex-1 px-4 py-4 pb-36 relative z-0">
-          <div className="flex items-center justify-between mb-6 px-2">
-            <h2 className="text-sm font-bold text-wedding-gold uppercase tracking-[0.2em] flex items-center gap-2">
-              Calendário
-            </h2>
-          </div>
+      <main className="flex-1 px-4 py-8 pb-36 relative z-0">
+        <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+          {days.map((d) => {
+            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+            const doorDate = startOfDay(addDays(baseDate, d.day - 1));
+            const isLocked = isAfter(doorDate, startOfDay(new Date()));
 
-          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-            {days.map((d) => {
-              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
-              const doorDate = startOfDay(addDays(baseDate, d.day - 1));
-              const isLocked = isAfter(doorDate, startOfDay(new Date()));
-
-              if (d.day === 5) { // Exemplo de card especial no dia 5 para casamentos
-                return (
-                  <WeddingSpecialCard
-                    key={d.day}
-                    dayNumber={d.day}
-                    onClick={() => handleDayClick(d.day)}
-                  />
-                );
-              }
-
+            if (isLocked) {
+              const diff = doorDate.getTime() - new Date().getTime();
+              const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
               return (
-                <WeddingDayCard
+                <LoveLockedCard
                   key={d.day}
                   dayNumber={d.day}
-                  imageUrl={d.url || undefined}
-                  status={isLocked ? 'locked' : (openedDays.includes(d.day) ? 'unlocked' : 'unlocked')} // Simplified for wedding components
+                  timeText={`${daysLeft}d`}
+                  onClick={() => handleLockedClick(d.day, doorDate)}
+                />
+              );
+            }
+
+            if (openedDays.includes(d.day) || (d.opened_count || 0) > 0) {
+              return (
+                <LoveUnlockedCard
+                  key={d.day}
+                  dayNumber={d.day}
+                  imageUrl={d.url || ""}
                   onClick={() => handleDayClick(d.day)}
                 />
               );
-            })}
-          </div>
-          <WeddingDiarySection isEditor={false} />
-        </main>
-        <WeddingFooter isEditor={false} />
-        <DaySurpriseModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          day={selectedDay || 1}
-          content={selectedDayData?.content_type === "text" ? {
-            type: "text",
-            message: selectedDayData?.message || "Surpresa! 🎉",
-          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
-            type: selectedDayData.content_type,
-            url: selectedDayData?.url || "",
-            message: selectedDayData?.message || "",
-          } : selectedDayData?.content_type === "link" ? {
-            type: "link",
-            url: selectedDayData?.url || "",
-            label: selectedDayData?.label || "Clique aqui",
-            message: selectedDayData?.message || "",
-          } : {
-            type: "text",
-            message: "Esta porta ainda está vazia... 📭",
-          }}
-          theme={calendar.theme_id}
-        />
+            }
+
+            return (
+              <EnvelopeCard
+                key={d.day}
+                dayNumber={d.day}
+                onClick={() => handleDayClick(d.day)}
+              />
+            );
+          })}
+        </div>
+        <LoveQuote isEditor={false} />
+      </main>
+      <LoveFooter isEditor={false} onNavigate={() => navigate('/criar')} />
+    </>
+  );
+
+  const renderWeddingView = () => (
+    <>
+      <WeddingBackground />
+      <WeddingShower />
+      <WeddingTopDecorations />
+      <div className="relative z-10">
+        <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-[10px] font-bold text-wedding-gold tracking-[0.2em] uppercase">Nossa União</h2>
+          <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all">
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+        <WeddingHeader title={calendar.title} subtitle="A contagem regressiva para o altar" isEditor={false} />
+        <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
       </div>
-    );
-  }
 
-  return (
-    <div
-      className={cn("min-h-screen relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}
-      style={calendar.background_url ? {
-        backgroundImage: `url(${calendar.background_url})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      } : undefined}
-    >
-      {/* Sao Joao Background Pattern */}
-      {calendar.theme_id === 'saojoao' && (
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
-          backgroundSize: "32px 32px",
-          backgroundPosition: "0 0, 16px 16px",
-          backgroundColor: "#FFF8E8"
-        }} />
-      )}
-      {/* Wedding Background Pattern */}
-      {calendar.theme_id === 'casamento' && (
-        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          backgroundColor: "#FFFCF5"
-        }} />
-      )}
+      <main className="flex-1 px-4 py-4 pb-36 relative z-0">
+        <div className="flex items-center justify-between mb-6 px-2">
+          <h2 className="text-sm font-bold text-wedding-gold uppercase tracking-[0.2em] flex items-center gap-2">
+            Calendário
+          </h2>
+        </div>
 
+        <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+          {days.map((d) => {
+            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+            const doorDate = startOfDay(addDays(baseDate, d.day - 1));
+            const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+            return (
+              <WeddingDayCard
+                key={d.day}
+                dayNumber={d.day}
+                imageUrl={d.url || undefined}
+                status={openedDays.includes(d.day) ? 'unlocked' : (isLocked ? 'locked' : 'unlocked')}
+                onClick={() => isLocked ? handleLockedClick(d.day, doorDate) : handleDayClick(d.day)}
+              />
+            );
+          })}
+        </div>
+        <WeddingDiarySection isEditor={false} />
+      </main>
+      <WeddingFooter isEditor={false} />
+    </>
+  );
+
+  const renderDefaultView = () => (
+    <>
       <FloatingDecorations theme={(themeData?.id || "natal") as any} />
 
       {/* Header */}
@@ -863,7 +783,17 @@ const VisualizarCalendario = () => {
             const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
             return format(baseDate, "MMMM", { locale: ptBR }).toUpperCase();
           })()}
-          days={gridDays}
+          days={gridDays.map(d => ({
+            ...d,
+            onClick: () => {
+              if (d.status === 'locked') {
+                const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
+                handleLockedClick(d.day, startOfDay(addDays(baseDate, d.day - 1)));
+              } else {
+                handleDayClick(d.day);
+              }
+            }
+          }))}
           onDayClick={handleDayClick}
           theme={(themeData?.id || "natal") as any}
         />
@@ -938,29 +868,49 @@ const VisualizarCalendario = () => {
         </div>
       </motion.section>
 
-      {/* Surprise Modal / Love Letter */}
-      {calendar.theme_id === 'namoro' ? (
-        <>
-          <LoveLetterModal
-            isOpen={selectedDay !== null}
-            onClose={() => setSelectedDay(null)}
-            content={selectedDayData ? {
-              type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
-              title: selectedDayData.label || `Porta ${selectedDay}`,
-              message: selectedDayData?.message || "",
-              mediaUrl: selectedDayData?.url || undefined,
-            } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
-          />
+      {/* Bottom CTA */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-20">
+        <motion.button
+          className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2"
+          onClick={() => navigate("/criar")}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          Criar meu próprio calendário
+        </motion.button>
+      </div>
+    </>
+  );
 
-          <LoveLockedModal
-            isOpen={!!lockedModalData?.isOpen}
-            onClose={() => setLockedModalData(null)}
-            dayNumber={lockedModalData?.day || 0}
-            unlockDate={lockedModalData?.date || new Date()}
-            onNotify={handleNotifyMe}
-          />
-        </>
-      ) : (
+  return (
+    <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}
+      style={calendar.background_url ? {
+        backgroundImage: `url(${calendar.background_url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      } : undefined}
+    >
+      {calendar.theme_id === 'namoro' ? renderNamoroView() :
+        calendar.theme_id === 'casamento' ? renderWeddingView() :
+          renderDefaultView()
+      }
+
+      {/* Love Letter Modal (Universal for romantic themes) */}
+      {(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && (
+        <LoveLetterModal
+          isOpen={selectedDay !== null}
+          onClose={() => setSelectedDay(null)}
+          content={selectedDayData?.content_type ? {
+            type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
+            title: selectedDayData.label || `Porta ${selectedDay}`,
+            message: selectedDayData?.message || "",
+            mediaUrl: selectedDayData?.url || undefined,
+          } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+        />
+      )}
+
+      {/* Surprise Modal (Global fallback for non-romantic themes) */}
+      {!(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && (
         <DaySurpriseModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
@@ -985,123 +935,15 @@ const VisualizarCalendario = () => {
         />
       )}
 
-      {/* Locked Day Modal "Calma Coração" */}
-      <AnimatePresence>
-        {lockedDay !== null && (
-          <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 theme-${calendar.theme_id}`}>
-            <motion.div
-              className="absolute inset-0 bg-foreground/60 backdrop-blur-md"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setLockedDay(null)}
-            />
-            <motion.div
-              className="relative bg-card rounded-[3rem] p-8 max-w-sm w-full shadow-elevated overflow-hidden"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col items-center text-center">
-                <div className="w-24 h-24 rounded-full border-4 border-primary/20 flex items-center justify-center mb-6 relative">
-                  <div className="absolute inset-0 rounded-full border-4 border-primary animate-ping opacity-20" />
-                  <Loader2 className="w-12 h-12 text-primary animate-spin-slow" />
-                </div>
-
-                {(() => {
-                  const lockedContent: Record<string, { title: string, message: string }> = {
-                    saojoao: {
-                      title: "Opa, pera lá! 🌽",
-                      message: "A fogueira ainda tá esquentando! Segura a ansiedade que essa porta abre logo pro arraiá."
-                    },
-                    carnaval: {
-                      title: "O bloco ainda não saiu! 🎉",
-                      message: "Tudo tem sua hora na avenida. Aguarde a concentração para abrir esta porta!"
-                    },
-                    natal: {
-                      title: "O Papai Noel ainda não chegou! 🎅",
-                      message: "Essa surpresa está sendo embrulhada pelos elfos. Aguente firme!"
-                    },
-                    casamento: {
-                      title: "Ainda não é o momento... 💍",
-                      message: "Estamos preparando este detalhe com todo carinho do mundo. Em breve você verá!"
-                    },
-                    namoro: {
-                      title: "Calma, amor! ❤️",
-                      message: "Eu sei que você tá curiosa(o), mas essa surpresa é para o momento certo."
-                    },
-                    default: {
-                      title: "Calma, coração! ✨",
-                      message: "Essa surpresa ainda está sendo preparada e só abre em breve. Segura a ansiedade!"
-                    }
-                  };
-
-                  const content = lockedContent[calendar.theme_id] || lockedContent['default'];
-
-                  return (
-                    <>
-                      <h2 className="text-3xl font-black text-foreground mb-3 leading-tight">{content.title}</h2>
-                      <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
-                        {content.message}
-                      </p>
-                    </>
-                  );
-                })()}
-
-                <div className="flex gap-3 mb-10">
-                  <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20">{timeLeft.hours.toString().padStart(2, '0')}</div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Horas</span>
-                  </div>
-                  <div className="text-2xl font-black pt-3 text-primary">:</div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20">{timeLeft.minutes.toString().padStart(2, '0')}</div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Minutos</span>
-                  </div>
-                  <div className="text-2xl font-black pt-3 text-primary">:</div>
-                  <div className="flex flex-col items-center">
-                    <div className="w-14 h-14 bg-primary/10 text-primary border-2 border-primary/20 rounded-2xl flex items-center justify-center font-black text-xl">{timeLeft.seconds.toString().padStart(2, '0')}</div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest mt-2 text-muted-foreground">Segundos</span>
-                  </div>
-                </div>
-
-                <motion.button
-                  onClick={handleNotifyMe}
-                  className="w-full btn-festive py-5 rounded-3xl flex items-center justify-center gap-3"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                    <Heart className="w-5 h-5 fill-current" />
-                  </motion.div>
-                  Me avise quando abrir
-                </motion.button>
-
-                <button
-                  onClick={() => setLockedDay(null)}
-                  className="mt-6 text-sm font-bold text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Voltar ao calendário
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-20">
-        <motion.button
-          className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2"
-          onClick={() => navigate("/criar")}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Criar meu próprio calendário
-        </motion.button>
-      </div>
+      {/* Love Locked Modal (Global - Fixed Interaction) */}
+      <LoveLockedModal
+        isOpen={!!lockedModalData?.isOpen}
+        onClose={() => setLockedModalData(null)}
+        dayNumber={lockedModalData?.day || 0}
+        unlockDate={lockedModalData?.date || new Date()}
+        onNotify={handleNotifyMe}
+        theme={calendar.theme_id}
+      />
     </div>
   );
 };

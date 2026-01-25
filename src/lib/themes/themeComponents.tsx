@@ -217,7 +217,8 @@ export const EnvelopeCard = ({ dayNumber, onClick, isEditor = false }: { dayNumb
 // UnlockedDayCard
 export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false }: { dayNumber: number | string, imageUrl: string, onClick?: () => void, isEditor?: boolean }) => {
   const [imgError, setImgError] = useState(false);
-  const hasImage = imageUrl && !imgError;
+  const isTikTok = imageUrl?.includes('tiktok.com');
+  const hasImage = imageUrl && !imgError && !isTikTok;
 
   return (
     <motion.div
@@ -229,7 +230,7 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
         <div
           className={cn(
             "absolute inset-0 bg-cover bg-center transition-all duration-500 group-hover:scale-105",
-            !isEditor && "blur-md" // Strict blur for privacy if not editor, only modal reveals content
+            !isEditor && "blur-[30px]" // High blur (3xl equivalent) for privacy
           )}
           style={{ backgroundImage: `url('${imageUrl}')` }}
         >
@@ -240,6 +241,15 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
             onError={() => setImgError(true)}
             alt=""
           />
+        </div>
+      ) : isTikTok ? (
+        <div className="absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center p-4">
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shadow-lg mb-2">
+            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
+            </svg>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-rose-500/10" />
         </div>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-rose-100/50 flex flex-col items-center justify-center p-4">
@@ -593,61 +603,124 @@ export const WeddingFooter = ({ isEditor = false }: { isEditor?: boolean }) => {
 
 }
 
-// --- Love Locked Modal (Notification) ---
-export const LoveLockedModal = ({
-  isOpen,
-  onClose,
-  dayNumber,
-  unlockDate,
-  onNotify
-}: {
-  isOpen: boolean,
-  onClose: () => void,
-  dayNumber: number,
-  unlockDate: Date,
-  onNotify: () => void
-}) => {
+interface LoveLockedModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  dayNumber: number;
+  unlockDate: Date;
+  onNotify?: () => void;
+  theme?: string;
+}
+
+export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNotify, theme = 'namoro' }: LoveLockedModalProps) => {
   if (!isOpen) return null;
 
-  const daysLeft = Math.ceil((unlockDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const now = new Date();
+  const diff = unlockDate.getTime() - now.getTime();
+  const daysLeft = Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+
+  const themeConfig: Record<string, {
+    title: string;
+    message: string;
+    buttonColor: string;
+    iconColor: string;
+    bgColor: string;
+    borderColor: string;
+    textColor: string;
+    descColor: string;
+    icon: any;
+  }> = {
+    namoro: {
+      title: "Ainda não é hora...",
+      message: "O amor é paciente! Esta surpresa especial só estará disponível em breve.",
+      buttonColor: "bg-love-red hover:bg-rose-700",
+      iconColor: "text-rose-500",
+      bgColor: "bg-white dark:bg-zinc-900",
+      borderColor: "border-rose-100 dark:border-rose-900",
+      textColor: "text-rose-900 dark:text-rose-100",
+      descColor: "text-rose-600/80 dark:text-rose-300/80",
+      icon: Lock
+    },
+    casamento: {
+      title: "Falta pouco para o Sim!",
+      message: "Estamos preparando esta memória com todo carinho. Aguarde a data!",
+      buttonColor: "bg-wedding-gold hover:bg-wedding-gold-dark",
+      iconColor: "text-wedding-gold",
+      bgColor: "bg-[#FDFBF7] dark:bg-zinc-900",
+      borderColor: "border-wedding-gold/20 dark:border-wedding-gold/10",
+      textColor: "text-wedding-gold-dark dark:text-wedding-gold",
+      descColor: "text-slate-500 dark:text-slate-400",
+      icon: Lock
+    },
+    natal: {
+      title: "O Papai Noel ainda não chegou!",
+      message: "Os elfos ainda estão embrulhando essa surpresa natalina.",
+      buttonColor: "bg-red-600 hover:bg-red-700",
+      iconColor: "text-red-500",
+      bgColor: "bg-[#FFF8E8] dark:bg-zinc-900",
+      borderColor: "border-red-100 dark:border-red-900",
+      textColor: "text-red-900 dark:text-red-100",
+      descColor: "text-red-800/60 dark:text-red-300/60",
+      icon: Lock
+    },
+    default: {
+      title: "Calma, Coração!",
+      message: "Essa surpresa ainda está sendo preparada. Segura a ansiedade!",
+      buttonColor: "bg-primary hover:bg-primary/90",
+      iconColor: "text-primary",
+      bgColor: "bg-white dark:bg-zinc-900",
+      borderColor: "border-border/50 dark:border-zinc-800",
+      textColor: "text-foreground",
+      descColor: "text-muted-foreground",
+      icon: Lock
+    }
+  };
+
+  const config = themeConfig[theme] || themeConfig['default'];
+  const Icon = config.icon;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative overflow-hidden font-display text-center border-4 border-rose-100 dark:border-rose-900"
+        className={cn(
+          "w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative overflow-hidden font-display text-center border-4",
+          config.bgColor,
+          config.borderColor
+        )}
       >
         {/* Header Icon */}
-        <div className="mx-auto w-16 h-16 bg-rose-50 dark:bg-rose-900/40 rounded-full flex items-center justify-center mb-4 text-rose-500 relative">
-          <Lock className="w-8 h-8" />
+        <div className={cn("mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 relative", config.iconColor, "bg-current/10")}>
+          <Icon className="w-8 h-8" />
           <div className="absolute -top-1 -right-1 bg-white dark:bg-zinc-800 rounded-full p-1 shadow-sm">
-            <Clock className="w-4 h-4 text-rose-400" />
+            <Clock className="w-4 h-4" />
           </div>
         </div>
 
-        <h3 className="text-2xl font-romantic text-rose-900 dark:text-rose-100 mb-2">Ainda não é hora...</h3>
+        <h3 className={cn("text-2xl font-black mb-2", config.textColor)}>{config.title}</h3>
 
-        <p className="text-rose-600/80 dark:text-rose-300/80 mb-6 leading-relaxed">
-          O amor é paciente! Esta surpresa especial do <span className="font-bold text-love-red">Dia {dayNumber}</span> só estará disponível em:
+        <p className={cn("text-sm mb-6 leading-relaxed", config.descColor)}>
+          {config.message} No <span className="font-bold">Dia {dayNumber}</span> você poderá ver.
         </p>
 
         {/* Countdown Box */}
-        <div className="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-4 mb-6 border border-rose-100 dark:border-rose-800/50">
-          <div className="flex items-center justify-center gap-2 text-love-red dark:text-rose-400 font-bold text-xl">
-            <Calendar className="w-5 h-5" />
+        <div className={cn("rounded-xl p-4 mb-6 border", config.bgColor, config.borderColor)}>
+          <div className={cn("flex items-center justify-center gap-2 font-black text-xl", config.textColor)}>
+            <Clock className="w-5 h-5" />
             <span>{daysLeft} {daysLeft === 1 ? 'dia' : 'dias'}</span>
           </div>
-          <p className="text-xs text-rose-400 uppercase tracking-widest mt-1 font-bold">Restantes</p>
+          <p className={cn("text-[10px] uppercase tracking-widest mt-1 font-black opacity-60", config.textColor)}>Restantes</p>
         </div>
 
         <div className="flex flex-col gap-3">
           <button
             onClick={onNotify}
-            className="w-full bg-love-red hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+            className={cn(
+              "w-full text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs",
+              config.buttonColor
+            )}
           >
             <Bell className="w-4 h-4" />
             Me avise quando abrir
@@ -655,7 +728,7 @@ export const LoveLockedModal = ({
 
           <button
             onClick={onClose}
-            className="text-sm text-rose-400 hover:text-rose-600 dark:text-rose-500 dark:hover:text-rose-400 font-bold py-2"
+            className={cn("text-[10px] font-black uppercase tracking-widest py-2 opacity-60 hover:opacity-100", config.textColor)}
           >
             Vou esperar ansiosamente
           </button>
