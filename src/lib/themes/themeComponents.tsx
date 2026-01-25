@@ -4,6 +4,7 @@ import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizonta
 import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 import { useToast } from "@/hooks/use-toast";
+import { shareContent } from "@/lib/utils/share-utils";
 
 // --- Background ---
 export const LoveBackground = () => {
@@ -761,10 +762,10 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
               onClick={promptInstall}
               className={cn(
                 "w-full text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs",
-                "bg-zinc-800 hover:bg-black"
+                "bg-zinc-800 hover:bg-black border-2 border-white/10"
               )}
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-5 h-5" />
               Instalar Aplicativo
             </button>
           )}
@@ -936,16 +937,15 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
         {/* Footer Actions */}
         <div className="p-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-rose-100 dark:border-rose-800 flex items-center gap-3 shrink-0">
           <button
-            onClick={() => {
-              const shareData = {
-                title: content.title || 'Um presente para você!',
-                text: content.message || '',
-                url: content.mediaUrl || window.location.href,
-              };
-              if (navigator.share) {
-                navigator.share(shareData).catch(console.error);
-              } else {
-                navigator.clipboard.writeText(content.mediaUrl || window.location.href);
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Um presente para você! ❤️",
+                text: content.message || "Veja o que preparei para hoje no Fresta.",
+                url: window.location.href,
+                imageUrl: content.mediaUrl || undefined
+              });
+
+              if (result === "copied") {
                 toast({
                   title: "Link copiado! ✨",
                   description: "O link já está na sua área de transferência.",

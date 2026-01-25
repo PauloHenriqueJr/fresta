@@ -39,6 +39,7 @@ import {
   WeddingTopDecorations
 } from "@/lib/themes/themeComponents";
 import { scheduleDoorReminder, subscribeToPush, promptInstall } from "@/lib/push/notifications";
+import { shareContent } from "@/lib/utils/share-utils";
 
 type Calendar = Tables<'calendars'> & {
   primary_color?: string;
@@ -149,13 +150,15 @@ const VisualizarCalendario = () => {
       scheduleDoorReminder
     } = await import('@/lib/push/notifications');
 
-    // Step 1: Check if PWA is installed
-    const isInstalled = isPWAInstalled();
+    // Step 1: Check device type
+    const isDesktop = !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isInstalled = isPWAInstalled();
 
-    if (!isInstalled) {
+    // MOBILE: Always prioritize PWA installation for background notifications
+    if (!isDesktop && !isInstalled) {
       if (canInstallPWA()) {
-        // Android/Desktop: Prompt user to install PWA
+        // Android: Prompt user to install PWA
         toast({
           title: "📲 Instale o app para receber notificações!",
           description: "A experiência fica muito melhor com o aplicativo instalado.",
@@ -173,7 +176,7 @@ const VisualizarCalendario = () => {
             </button>
           ),
         });
-        return; // Não pede permissão no navegador comum para não ser invasivo
+        return;
       } else if (isIOS) {
         // iOS: Show instructions
         toast({
@@ -184,24 +187,35 @@ const VisualizarCalendario = () => {
       }
     }
 
-    // Step 2: Request notification permission (Executado apenas se já instalado ou em Desktop)
-    const permission = await requestNotificationPermission();
+    // Step 2: Request notification permission
+    let permission = 'default' as NotificationPermission;
+    if ('Notification' in window) {
+      permission = Notification.permission;
+    }
+
+    // Se estiver no Desktop e for padrão, tenta pedir logo sem mensagens intermediárias
+    if (permission === 'default') {
+      permission = await requestNotificationPermission();
+    }
 
     if (permission !== 'granted') {
       const isDesktop = !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
-      if (isDesktop) {
-        toast({
-          variant: "destructive",
-          title: "Notificações desativadas",
-          description: "No computador, clique no ícone de 🔒 (cadeado) na barra de endereço e altere 'Notificações' para 'Permitir'.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Permissão de notificação negada",
-          description: "Ative as notificações nas configurações do seu navegador."
-        });
+      // Só mostra o toast de erro SE o usuário negou explicitamente ou se o sistema bloqueou
+      if (permission === 'denied') {
+        if (isDesktop) {
+          toast({
+            variant: "destructive",
+            title: "Notificações desativadas",
+            description: "Clique no ícone de 🔒 (cadeado) na barra de endereço e altere 'Notificações' para 'Permitir'.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Permissão de notificação negada",
+            description: "Ative as notificações nas configurações do seu navegador."
+          });
+        }
       }
 
       setLockedDay(null);
@@ -401,19 +415,16 @@ const VisualizarCalendario = () => {
 
 
   const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({
-        title: calendar?.title ?? "Calendário Fresta",
-        text: `Confira o calendário "${calendar?.title}"!`,
-        url: window.location.href,
-      });
+    const result = await shareContent({
+      title: calendar?.title ?? "Calendário Fresta",
+      text: `Confira o calendário "${calendar?.title}"!`,
+      url: window.location.href,
+      imageUrl: calendar?.background_url || undefined
+    });
 
-      if (id) {
-        await CalendarsRepository.incrementShares(id);
-      }
-    } else {
-      // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(window.location.href);
+    if (result === true && id) {
+      await CalendarsRepository.incrementShares(id);
+    } else if (result === "copied") {
       toast({
         title: "Link copiado! ✨",
         description: "Agora você pode colar e enviar para quem quiser.",
