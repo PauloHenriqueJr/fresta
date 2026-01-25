@@ -11,7 +11,7 @@ import {
   Zap,
   ArrowRight,
   Lock,
-  DoorOpen
+  DoorOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -302,6 +302,24 @@ const LandingPage = () => {
             </div>
           </div>
         </motion.header>
+
+        {/* Mobile Header - Floating Capsule */}
+        <div className="fixed top-0 left-0 right-0 z-50 p-4 lg:hidden pointer-events-none">
+          <div className="pointer-events-auto bg-white/90 backdrop-blur-md shadow-lg rounded-2xl px-5 py-3 flex items-center justify-between border border-white/20">
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-lg ${currentTheme.primaryGradient} flex items-center justify-center`}>
+                <DoorOpen className="w-5 h-5 text-white" strokeWidth={2.5} />
+              </div>
+              <span className="font-black text-lg tracking-tight text-foreground">Fresta</span>
+            </div>
+            <button
+              onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold text-white uppercase tracking-widest shadow-md active:scale-95 transition-transform ${currentTheme.primaryGradient}`}
+            >
+              Entrar
+            </button>
+          </div>
+        </div>
 
         {/* Hero Content */}
         <div className="relative z-10 w-full max-w-lg mx-auto text-center lg:max-w-[1500px] lg:px-8 lg:text-left">

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import LandingPage from "./pages/LandingPage";
+import LandingPageBrand from "./pages/LandingPageBrand";
 import Contato from "./pages/Contato";
 import Privacidade from "./pages/Privacidade";
 import Termos from "./pages/Termos";
@@ -147,6 +148,7 @@ const AppContent = () => {
       <AuthHandler />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/landing-brand" element={<LandingPageBrand />} />
         <Route path="/portal" element={<Gateway />} />
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />

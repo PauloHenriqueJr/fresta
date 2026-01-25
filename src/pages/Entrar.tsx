@@ -97,7 +97,15 @@ const Entrar = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 lg:p-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 lg:p-8 relative">
+      {/* Back Button - Visible on Mobile and Desktop */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 p-2 rounded-full bg-card border border-gray-100 shadow-sm text-gray-500 hover:text-primary transition-colors z-50 lg:top-8 lg:left-8 lg:bg-white/80 lg:backdrop-blur-md"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
       <div className="w-full max-w-[1100px] bg-card rounded-[3rem] shadow-2xl min-h-[600px] grid lg:grid-cols-2 border border-border/10 relative">
 
         {/* Lado Esquerdo - Visual (Desktop Only) */}
