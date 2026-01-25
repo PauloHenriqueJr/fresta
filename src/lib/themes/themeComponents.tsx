@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles } from "lucide-react";
+import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // --- Background ---
@@ -64,8 +64,8 @@ export const HangingHearts = () => {
 // --- Header ---
 export const LoveHeader = ({ title = "Nossa Jornada de Amor", subtitle = "Contando os dias para o nosso momento", isEditor = false }: { title?: string, subtitle?: string, isEditor?: boolean }) => {
   return (
-    <div className="px-6 mt-4 text-center relative z-10 font-display group">
-      <h1 className="text-[36px] font-romantic leading-tight text-rose-900 dark:text-rose-100 drop-shadow-sm relative inline-block">
+    <div className="px-6 mt-4 text-center relative z-10 font-display group flex flex-col items-center gap-2">
+      <h1 className="text-[36px] font-romantic leading-tight text-rose-900 dark:text-rose-50 drop-shadow-sm relative">
         {title}
         {isEditor && (
           <button className="absolute -top-2 -right-6 bg-white shadow-sm p-1.5 rounded-full text-rose-500 hover:text-rose-600 transition-colors">
@@ -73,8 +73,8 @@ export const LoveHeader = ({ title = "Nossa Jornada de Amor", subtitle = "Contan
           </button>
         )}
       </h1>
-      <div className="relative inline-block mt-1">
-        <p className="text-rose-500/80 dark:text-rose-300/60 font-medium font-festive text-lg">
+      <div className="relative">
+        <p className="text-rose-500/80 dark:text-rose-200/80 font-medium font-festive text-lg">
           {subtitle}
         </p>
         {isEditor && (
@@ -134,10 +134,11 @@ export const EmptyDayCard = ({ dayNumber }: { dayNumber: number | string }) => {
 
 // Locked Day (Future)
 // Locked Day (Future)
-export const LockedDayCard = ({ dayNumber, timeText, isEditor = false }: { dayNumber: number | string, timeText: string, isEditor?: boolean }) => {
+export const LockedDayCard = ({ dayNumber, timeText, isEditor = false, onClick }: { dayNumber: number | string, timeText: string, isEditor?: boolean, onClick?: () => void }) => {
   return (
     <div
-      className="aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl opacity-90 border border-rose-200/30 dark:border-rose-800/30 font-display overflow-hidden group"
+      className="aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl opacity-90 border border-rose-200/30 dark:border-rose-800/30 font-display overflow-hidden group cursor-pointer"
+      onClick={() => onClick && onClick()}
       style={{
         background: `
                 radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), rgba(255,230,230,0.5)),
@@ -145,7 +146,7 @@ export const LockedDayCard = ({ dayNumber, timeText, isEditor = false }: { dayNu
             `
       }}
     >
-      <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px] transition-opacity group-hover:opacity-80"></div>
+      <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px] transition-opacity group-hover:opacity-80 pointer-events-none"></div>
 
       {isEditor && (
         <button className="absolute top-1 right-1 bg-white p-1 rounded-full shadow-sm text-rose-500 z-20 hover:text-rose-700">
@@ -268,7 +269,7 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
 // --- Quote ---
 export const LoveQuote = ({ text = "Onde há amor, há vida. Prepare o coração, pois o que está por vir é eterno.", author = "Dica dos Namorados", isEditor = false }: { text?: string, author?: string, isEditor?: boolean }) => {
   return (
-    <div className="mt-10 p-5 rounded-2xl bg-white/60 dark:bg-rose-950/20 border-2 border-rose-100 dark:border-rose-900/50 flex flex-col items-center text-center gap-2 shadow-inner font-display max-w-lg mx-auto relative group">
+    <div className="mt-10 p-5 rounded-2xl bg-white/60 dark:bg-black/40 border-2 border-rose-100 dark:border-rose-900/50 flex flex-col items-center text-center gap-2 shadow-inner font-display max-w-lg mx-auto relative group">
       {isEditor && (
         <button className="absolute top-2 right-2 bg-rose-100 p-1.5 rounded-full shadow-sm text-rose-500 hover:text-rose-700 transition-colors">
           <Pencil className="w-3 h-3" />
@@ -277,7 +278,7 @@ export const LoveQuote = ({ text = "Onde há amor, há vida. Prepare o coração
       <Quote className="text-love-red w-8 h-8 fill-current opacity-80" />
       <div>
         <h3 className="text-lg font-bold text-rose-900 dark:text-rose-100 font-festive">{author}</h3>
-        <p className="text-sm text-rose-700/80 dark:text-rose-300 italic mt-1 leading-relaxed">
+        <p className="text-sm text-rose-700/80 dark:text-rose-200/90 italic mt-1 leading-relaxed">
           "{text}"
         </p>
       </div>
@@ -332,7 +333,7 @@ export const LoveFooter = ({
   return (
     <div
       className={cn(
-        "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/90 dark:bg-gray-900/95 backdrop-blur-lg border border-rose-100 dark:border-rose-800/50 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10 transition-all duration-300",
+        "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/90 dark:bg-zinc-900/95 backdrop-blur-lg border border-rose-100 dark:border-white/10 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10 transition-all duration-300",
         isEditor ? "bottom-24" : "bottom-6"
       )}
     >
@@ -591,6 +592,78 @@ export const WeddingFooter = ({ isEditor = false }: { isEditor?: boolean }) => {
 
 
 }
+
+// --- Love Locked Modal (Notification) ---
+export const LoveLockedModal = ({
+  isOpen,
+  onClose,
+  dayNumber,
+  unlockDate,
+  onNotify
+}: {
+  isOpen: boolean,
+  onClose: () => void,
+  dayNumber: number,
+  unlockDate: Date,
+  onNotify: () => void
+}) => {
+  if (!isOpen) return null;
+
+  const daysLeft = Math.ceil((unlockDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-white dark:bg-zinc-900 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl relative overflow-hidden font-display text-center border-4 border-rose-100 dark:border-rose-900"
+      >
+        {/* Header Icon */}
+        <div className="mx-auto w-16 h-16 bg-rose-50 dark:bg-rose-900/40 rounded-full flex items-center justify-center mb-4 text-rose-500 relative">
+          <Lock className="w-8 h-8" />
+          <div className="absolute -top-1 -right-1 bg-white dark:bg-zinc-800 rounded-full p-1 shadow-sm">
+            <Clock className="w-4 h-4 text-rose-400" />
+          </div>
+        </div>
+
+        <h3 className="text-2xl font-romantic text-rose-900 dark:text-rose-100 mb-2">Ainda não é hora...</h3>
+
+        <p className="text-rose-600/80 dark:text-rose-300/80 mb-6 leading-relaxed">
+          O amor é paciente! Esta surpresa especial do <span className="font-bold text-love-red">Dia {dayNumber}</span> só estará disponível em:
+        </p>
+
+        {/* Countdown Box */}
+        <div className="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-4 mb-6 border border-rose-100 dark:border-rose-800/50">
+          <div className="flex items-center justify-center gap-2 text-love-red dark:text-rose-400 font-bold text-xl">
+            <Calendar className="w-5 h-5" />
+            <span>{daysLeft} {daysLeft === 1 ? 'dia' : 'dias'}</span>
+          </div>
+          <p className="text-xs text-rose-400 uppercase tracking-widest mt-1 font-bold">Restantes</p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={onNotify}
+            className="w-full bg-love-red hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Bell className="w-4 h-4" />
+            Me avise quando abrir
+          </button>
+
+          <button
+            onClick={onClose}
+            className="text-sm text-rose-400 hover:text-rose-600 dark:text-rose-500 dark:hover:text-rose-400 font-bold py-2"
+          >
+            Vou esperar ansiosamente
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 // --- Love Letter Modal ---
 interface LoveLetterModalProps {

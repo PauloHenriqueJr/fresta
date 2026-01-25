@@ -27,6 +27,7 @@ import {
   LoveQuote,
   LoveFooter,
   LoveLetterModal,
+  LoveLockedModal,
   WeddingBackground,
   WeddingHeader,
   WeddingProgress,
@@ -37,6 +38,7 @@ import {
   WeddingShower,
   WeddingTopDecorations
 } from "@/lib/themes/themeComponents";
+import { scheduleDoorReminder, subscribeToPush, promptInstall } from "@/lib/push/notifications";
 
 type Calendar = Tables<'calendars'> & {
   primary_color?: string;
@@ -73,6 +75,7 @@ const VisualizarCalendario = () => {
   const [passwordError, setPasswordError] = useState(false);
 
   const [openedDays, setOpenedDays] = useState<number[]>([]);
+  const [lockedModalData, setLockedModalData] = useState<{ isOpen: boolean, day: number, date: Date } | null>(null);
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   const handleLike = () => {
@@ -120,7 +123,19 @@ const VisualizarCalendario = () => {
   }, [lockedDay, calendar]);
 
   const handleNotifyMe = async () => {
-    if (!calendar || lockedDay === null) return;
+    // Determine target day and date from either legacy lockedDay or new lockedModalData
+    let targetDay: number | null = lockedDay;
+    let targetDate: Date | null = null;
+
+    if (lockedModalData) {
+      targetDay = lockedModalData.day;
+      targetDate = lockedModalData.date;
+    } else if (lockedDay !== null && calendar) {
+      const baseDate = calendar?.start_date ? parseISO(calendar.start_date) : parseISO(calendar?.created_at || new Date().toISOString());
+      targetDate = startOfDay(addDays(baseDate, lockedDay - 1));
+    }
+
+    if (!calendar || targetDay === null || !targetDate) return;
 
     // Import push utilities dynamically to avoid SSR issues
     const {
@@ -171,6 +186,7 @@ const VisualizarCalendario = () => {
         description: "Ative as notificações nas configurações do navegador."
       });
       setLockedDay(null);
+      setLockedModalData(null);
       return;
     }
 
@@ -182,21 +198,19 @@ const VisualizarCalendario = () => {
         description: "Tente novamente mais tarde."
       });
       setLockedDay(null);
+      setLockedModalData(null);
       return;
     }
 
     // Step 4: Schedule the door reminder
-    const baseDate = calendar.start_date
-      ? parseISO(calendar.start_date)
-      : parseISO(calendar.created_at || new Date().toISOString());
-    const doorDate = startOfDay(addDays(baseDate, lockedDay - 1));
+    const doorDate = new Date(targetDate);
     doorDate.setHours(9, 0, 0, 0); // Notificar às 09:00 para melhor engajamento
 
-    const success = await scheduleDoorReminder(calendar.id, lockedDay, doorDate);
+    const success = await scheduleDoorReminder(calendar.id, targetDay, doorDate);
 
     if (success) {
       toast.success("🎉 Lembrete configurado!", {
-        description: `Você será notificado quando a Porta ${lockedDay} abrir.`
+        description: `Você será notificado quando a Porta ${targetDay} abrir.`
       });
     } else {
       toast("Lembrete salvo localmente!", {
@@ -205,6 +219,7 @@ const VisualizarCalendario = () => {
     }
 
     setLockedDay(null);
+    setLockedModalData(null);
   };
 
 
@@ -348,6 +363,15 @@ const VisualizarCalendario = () => {
       }
     }
   };
+
+  const handleLockedClick = (dayNum: number, openDate: Date) => {
+    setLockedModalData({
+      isOpen: true,
+      day: dayNum,
+      date: openDate
+    });
+  };
+
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -515,8 +539,8 @@ const VisualizarCalendario = () => {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40">
-              <span className="text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40 shadow-sm pointer-events-none">
+              <span className="text-[10px] xs:text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -556,7 +580,14 @@ const VisualizarCalendario = () => {
               if (isLocked) {
                 const diff = doorDate.getTime() - new Date().getTime();
                 const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                return <LoveLockedCard key={d.day} dayNumber={d.day} timeText={`${daysLeft}d`} />;
+                return (
+                  <LoveLockedCard
+                    key={d.day}
+                    dayNumber={d.day}
+                    timeText={`${daysLeft}d`}
+                    onClick={() => handleLockedClick(d.day, doorDate)}
+                  />
+                );
               }
 
               if (openedDays.includes(d.day) || (d.opened_count || 0) > 0) {
@@ -909,16 +940,26 @@ const VisualizarCalendario = () => {
 
       {/* Surprise Modal / Love Letter */}
       {calendar.theme_id === 'namoro' ? (
-        <LoveLetterModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          content={selectedDayData ? {
-            type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
-            title: selectedDayData.label || `Porta ${selectedDay}`,
-            message: selectedDayData?.message || "",
-            mediaUrl: selectedDayData?.url || undefined,
-          } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
-        />
+        <>
+          <LoveLetterModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            content={selectedDayData ? {
+              type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
+              title: selectedDayData.label || `Porta ${selectedDay}`,
+              message: selectedDayData?.message || "",
+              mediaUrl: selectedDayData?.url || undefined,
+            } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          />
+
+          <LoveLockedModal
+            isOpen={!!lockedModalData?.isOpen}
+            onClose={() => setLockedModalData(null)}
+            dayNumber={lockedModalData?.day || 0}
+            unlockDate={lockedModalData?.date || new Date()}
+            onNotify={handleNotifyMe}
+          />
+        </>
       ) : (
         <DaySurpriseModal
           isOpen={selectedDay !== null}
