@@ -329,8 +329,21 @@ const VisualizarCalendario = () => {
         const currentUserId = user?.id;
         const isOwner = calendar?.owner_id === currentUserId;
 
+        console.log('DEBUG handleDayClick:', {
+          dayId: dayData.id,
+          currentUserId,
+          ownerId: calendar?.owner_id,
+          isOwner,
+          willIncrement: !isOwner
+        });
+
         if (!isOwner) {
-          await CalendarsRepository.incrementDayOpened(dayData.id);
+          try {
+            await CalendarsRepository.incrementDayOpened(dayData.id);
+            console.log('DEBUG: incrementDayOpened called successfully');
+          } catch (err) {
+            console.error('DEBUG: incrementDayOpened failed:', err);
+          }
         }
       }
     }
@@ -370,8 +383,8 @@ const VisualizarCalendario = () => {
       dateLabel,
       status: isLocked
         ? ("locked" as const)
-        : (openedDays.includes(d.day) ? ("opened" as const) : ("available" as const)),
-      hasSpecialContent: !!d.content_type,
+        : (openedDays.includes(d.day) || (d.opened_count || 0) > 0 ? ("opened" as const) : ("available" as const)),
+      hasSpecialContent: !!(d.content_type || d.message || d.url || d.label),
     };
   });
 
@@ -505,9 +518,22 @@ const VisualizarCalendario = () => {
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40">
               <span className="text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
             </div>
-            <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200">
-              <Share2 className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleLike}
+                className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-95",
+                  liked
+                    ? "bg-love-red text-white"
+                    : "bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200"
+                )}
+              >
+                <Heart className={cn("w-5 h-5", liked && "fill-white")} />
+              </button>
+              <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200">
+                <Share2 className="w-5 h-5" />
+              </button>
+            </div>
           </div>
           <LoveHeader title={calendar.title} subtitle="Uma jornada de amor para nós dois" isEditor={false} />
           <LoveProgressBar progress={Math.round((openedDays.length / (days.length || 1)) * 100)} isEditor={false} />
@@ -555,7 +581,7 @@ const VisualizarCalendario = () => {
           </div>
           <LoveQuote isEditor={false} />
         </main>
-        <LoveFooter isEditor={false} liked={liked} onLike={handleLike} />
+        <LoveFooter isEditor={false} onNavigate={() => navigate('/criar')} />
         <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}

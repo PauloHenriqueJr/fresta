@@ -126,8 +126,9 @@ const CalendarioDetalhe = () => {
 
         if (previewMode) {
           status = previewOpenedDays.includes(dayNum) ? "opened" : status;
-        } else if (hasSpecialContent || isOpenedByVisitor) {
-          // In Editor (non-preview), if it has content or was opened by visitor, show as "Opened" letter
+        } else if (isOpenedByVisitor) {
+          // IMPORTANT: Only show as "Opened" letter in editor if a visitor actually opened it
+          // This allows creators to track engagement as requested.
           status = "opened";
         }
 
@@ -287,7 +288,7 @@ const CalendarioDetalhe = () => {
         </main>
 
         {previewMode ? (
-          <LoveFooter isEditor={false} liked={liked} onLike={() => setLiked(!liked)} />
+          <LoveFooter isEditor={false} onNavigate={() => navigate('/criar')} />
         ) : (
           <div className="fixed bottom-24 left-1/2 -translate-x-1/2 lg:bottom-8 lg:right-8 lg:left-auto lg:translate-x-0 w-[92%] max-w-lg lg:max-w-xs p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
             <button

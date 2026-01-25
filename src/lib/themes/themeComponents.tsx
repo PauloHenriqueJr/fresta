@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare } from "lucide-react";
+import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // --- Background ---
@@ -318,41 +318,29 @@ export const EditorFooter = () => {
   )
 }
 
-// --- User Footer ---
+// --- User Footer (Visitor CTA) ---
 export const LoveFooter = ({
   isEditor = false,
-  liked = false,
-  onLike,
+  onNavigate,
 }: {
   isEditor?: boolean;
-  liked?: boolean;
-  onLike?: () => void;
+  onNavigate?: () => void;
 }) => {
   return (
     <div
       className={cn(
-        "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/80 dark:bg-surface-dark/95 backdrop-blur-lg border border-rose-100 dark:border-rose-900/50 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10 transition-all duration-300",
-        isEditor ? "bottom-24" : "bottom-10"
+        "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/90 dark:bg-gray-900/95 backdrop-blur-lg border border-rose-100 dark:border-rose-800/50 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10 transition-all duration-300",
+        isEditor ? "bottom-24" : "bottom-6"
       )}
     >
       <div className="flex items-center gap-3">
         <button
-          onClick={onLike}
-          className={cn(
-            "flex-1 h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95",
-            liked
-              ? "bg-rose-500 text-white shadow-rose-500/20"
-              : "bg-love-red hover:bg-rose-700 text-white shadow-rose-500/30"
-          )}
+          onClick={onNavigate}
+          className="flex-1 h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95 bg-love-red hover:bg-rose-700 text-white shadow-rose-500/30"
         >
-          <Heart className={cn("w-4 h-4", liked ? "fill-white" : "fill-white")} />
-          {liked ? "Amor Enviado!" : "Enviar Amor"}
+          <Sparkles className="w-4 h-4" />
+          Criar meu calendário
         </button>
-        {isEditor && (
-          <button className="h-12 w-12 rounded-2xl bg-rose-50 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-100 dark:border-rose-800">
-            <Settings className="w-5 h-5" />
-          </button>
-        )}
       </div>
     </div>
   );
@@ -708,13 +696,24 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 bg-white/90 backdrop-blur-md border-t border-rose-100 flex items-center gap-3 shrink-0">
-          <button className="flex-1 bg-love-red hover:bg-rose-700 text-white h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/20 transition-all active:scale-95">
-            <Heart className="w-5 h-5 fill-white" />
-            Responder com Carinho
-          </button>
-          <button className="h-14 w-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 transition-colors hover:bg-rose-100">
-            <Quote className="w-5 h-5" />
+        <div className="p-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-rose-100 dark:border-rose-800 flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => {
+              if (navigator.share && content.mediaUrl) {
+                navigator.share({
+                  title: content.title || 'Uma surpresa para você',
+                  text: content.message || 'Olha o que recebi!',
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copiado!');
+              }
+            }}
+            className="flex-1 bg-love-red hover:bg-rose-700 text-white h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/20 transition-all active:scale-95"
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar Este Momento
           </button>
         </div>
 
