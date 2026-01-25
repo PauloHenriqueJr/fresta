@@ -900,12 +900,18 @@ const VisualizarCalendario = () => {
         <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
-          content={selectedDayData?.content_type ? {
-            type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
-            title: selectedDayData.label || `Porta ${selectedDay}`,
-            message: selectedDayData?.message || "",
-            mediaUrl: selectedDayData?.url || undefined,
-          } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          content={selectedDayData ? (() => {
+            const url = selectedDayData.url || "";
+            const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
+            const type = isVideo ? 'video' : (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text';
+
+            return {
+              type,
+              title: selectedDayData.label || `Porta ${selectedDay}`,
+              message: selectedDayData?.message || "",
+              mediaUrl: selectedDayData?.url || undefined,
+            };
+          })() : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
         />
       )}
 

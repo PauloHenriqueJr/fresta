@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar } from "lucide-react";
+import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // --- Background ---
@@ -805,14 +805,59 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
           {/* Media (Polaroid style) */}
           {content.mediaUrl && (
             <div className="w-full aspect-square rounded-2xl overflow-hidden border-8 border-white shadow-lg rotate-1 mb-6 relative shrink-0">
-              <img
-                src={content.mediaUrl}
-                alt="Memory"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=3786&auto=format&fit=crop";
-                }}
-              />
+              {content.type === 'video' ? (
+                <div className="w-full h-full bg-zinc-900 flex items-center justify-center overflow-hidden">
+                  {content.mediaUrl.includes('youtube.com') || content.mediaUrl.includes('youtu.be') ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${content.mediaUrl.includes('youtu.be') ? content.mediaUrl.split('/').pop() : new URLSearchParams(new URL(content.mediaUrl).search).get('v')}`}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : content.mediaUrl.includes('tiktok.com') ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-[#010101] to-[#25F4EE]/20 text-white">
+                      <div className="w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg mb-4 border border-white/20">
+                        <Play className="w-8 h-8 text-white fill-current translate-x-1" />
+                      </div>
+                      <p className="text-white font-black text-[10px] uppercase tracking-widest mb-1 text-center">Assista no TikTok</p>
+                      <a
+                        href={content.mediaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold transition-all border border-white/20 text-white"
+                      >
+                        ABRIR VÍDEO ↗
+                      </a>
+                    </div>
+                  ) : content.mediaUrl.includes('instagram.com') ? (
+                    <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] flex flex-col items-center justify-center">
+                      <Play className="w-12 h-12 text-white fill-current mb-4" />
+                      <a
+                        href={content.mediaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl"
+                      >
+                        VER REEL ↗
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white/40">
+                      <Play className="w-12 h-12" />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  alt="Memory"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=3786&auto=format&fit=crop";
+                  }}
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
             </div>
           )}
