@@ -559,12 +559,12 @@ const VisualizarCalendario = () => {
                 return <LoveLockedCard key={d.day} dayNumber={d.day} timeText={`${daysLeft}d`} />;
               }
 
-              if (openedDays.includes(d.day) && d.url) {
+              if (openedDays.includes(d.day) || (d.opened_count || 0) > 0) {
                 return (
                   <LoveUnlockedCard
                     key={d.day}
                     dayNumber={d.day}
-                    imageUrl={d.url}
+                    imageUrl={d.url || ""}
                     onClick={() => handleDayClick(d.day)}
                   />
                 );

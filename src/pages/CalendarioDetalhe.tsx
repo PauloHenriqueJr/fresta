@@ -88,6 +88,11 @@ const CalendarioDetalhe = () => {
         }
         setCalendar(result.calendar);
         setDaysData(result.days || []);
+        console.log('DEBUG CalendarioDetalhe - days data:', result.days?.map(d => ({
+          day: d.day,
+          opened_count: d.opened_count,
+          hasContent: !!(d.content_type || d.message || d.url)
+        })));
         setError(null);
       } catch (err) {
         console.error("CalendarioDetalhe: Error fetching calendar", err);
@@ -225,7 +230,13 @@ const CalendarioDetalhe = () => {
             subtitle="Configurando nossa jornada de amor"
             isEditor={!previewMode}
           />
-          <LoveProgressBar progress={Math.round((previewOpenedDays.length / (days.length || 1)) * 100)} isEditor={!previewMode} />
+          <LoveProgressBar
+            progress={previewMode
+              ? Math.round((previewOpenedDays.length / (days.length || 1)) * 100)
+              : Math.round((daysData.filter(d => (d.opened_count || 0) > 0).length / (calendar.duration || 1)) * 100)
+            }
+            isEditor={!previewMode}
+          />
         </div>
 
         <main className="flex-1 px-4 py-8 pb-36 relative z-0">
@@ -252,7 +263,7 @@ const CalendarioDetalhe = () => {
                 return <LoveLockedCard key={d.day} dayNumber={d.day} timeText="Bloqueado" isEditor={false} />;
               }
 
-              if (d.status === 'opened' || (d.hasSpecialContent && !previewMode)) {
+              if (d.status === 'opened') {
                 return (
                   <LoveUnlockedCard
                     key={d.day}

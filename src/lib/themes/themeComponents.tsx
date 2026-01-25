@@ -226,7 +226,10 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
     >
       {hasImage ? (
         <div
-          className="absolute inset-0 bg-cover bg-center grayscale-[0.2] transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
+          className={cn(
+            "absolute inset-0 bg-cover bg-center transition-all duration-500 group-hover:scale-105",
+            !isEditor && "blur-md" // Strict blur for privacy if not editor, only modal reveals content
+          )}
           style={{ backgroundImage: `url('${imageUrl}')` }}
         >
           {/* Hidden img to detect errors */}

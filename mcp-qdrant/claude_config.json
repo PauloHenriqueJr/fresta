@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "qdrant": {
+            "command": "node",
+            "args": [
+                "c:/Users/pauli/Downloads/fresta/mcp-qdrant/build/index.js"
+            ],
+            "env": {}
+        }
+    }
+}
