@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar, Play } from "lucide-react";
+import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar, Play, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 
 // --- Background ---
 export const LoveBackground = () => {
@@ -252,10 +253,19 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-rose-500/10" />
         </div>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-rose-100/50 flex flex-col items-center justify-center p-4">
-          <div className="w-12 h-12 rounded-full bg-white/80 flex items-center justify-center shadow-sm mb-2 text-rose-300">
-            <MessageSquare className="w-6 h-6" />
-          </div>
+        <div
+          className={cn(
+            "absolute inset-0 bg-[#fffafa] transition-opacity duration-500",
+            !isEditor && "blur-[15px] opacity-70"
+          )}
+          style={{
+            backgroundImage: `
+              linear-gradient(90deg, transparent 19px, #abced4 19px, #abced4 20px, transparent 20px),
+              linear-gradient(#eee 0.1em, transparent 0.1em)
+            `,
+            backgroundSize: '100% 0.8em'
+          }}
+        >
           <div className="absolute top-0 right-0 w-8 h-8 bg-rose-200/40 rounded-bl-3xl" />
         </div>
       )}
@@ -493,10 +503,29 @@ export const WeddingDayCard = ({ dayNumber, status, imageUrl, onClick, isEditor 
       } : {}}
     >
       {/* Content */}
-      {!isLocked && imageUrl ? (
+      {!isLocked && status === 'unlocked' ? (
         <>
-          <div className="absolute inset-0 bg-cover bg-center grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700" style={{ backgroundImage: `url('${imageUrl}')` }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A0E]/60 to-transparent opacity-60" />
+          {imageUrl ? (
+            <div className={cn(
+              "absolute inset-0 bg-cover bg-center grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 blur-[30px] hover:blur-0",
+              isEditor && "blur-0"
+            )} style={{ backgroundImage: `url('${imageUrl}')` }} />
+          ) : (
+            <div
+              className={cn(
+                "absolute inset-0 bg-[#fffafa] transition-opacity duration-500",
+                !isEditor && "blur-[15px]"
+              )}
+              style={{
+                backgroundImage: `
+                  linear-gradient(90deg, transparent 19px, #abced4 19px, #abced4 20px, transparent 20px),
+                  linear-gradient(#eee 0.1em, transparent 0.1em)
+                `,
+                backgroundSize: '100% 0.8em'
+              }}
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A0E]/40 to-transparent opacity-60" />
           <div className="absolute bottom-3 left-0 right-0 text-center">
             <span className="text-white font-romantic text-2xl drop-shadow-md">Dia {dayNumber}</span>
           </div>
@@ -726,6 +755,19 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
             Me avise quando abrir
           </button>
 
+          {canInstallPWA() && !isPWAInstalled() && (
+            <button
+              onClick={promptInstall}
+              className={cn(
+                "w-full text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs",
+                "bg-zinc-800 hover:bg-black"
+              )}
+            >
+              <Download className="w-4 h-4" />
+              Instalar Aplicativo
+            </button>
+          )}
+
           <button
             onClick={onClose}
             className={cn("text-[10px] font-black uppercase tracking-widest py-2 opacity-60 hover:opacity-100", config.textColor)}
@@ -893,26 +935,25 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
         <div className="p-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-rose-100 dark:border-rose-800 flex items-center gap-3 shrink-0">
           <button
             onClick={() => {
-              if (navigator.share && content.mediaUrl) {
-                navigator.share({
-                  title: content.title || 'Uma surpresa para você',
-                  text: content.message || 'Olha o que recebi!',
-                  url: window.location.href,
-                });
+              const shareData = {
+                title: content.title || 'Um presente para você!',
+                text: content.message || '',
+                url: content.mediaUrl || window.location.href,
+              };
+              if (navigator.share) {
+                navigator.share(shareData).catch(console.error);
               } else {
-                navigator.clipboard.writeText(window.location.href);
+                navigator.clipboard.writeText(content.mediaUrl || window.location.href);
                 alert('Link copiado!');
               }
             }}
-            className="flex-1 bg-love-red hover:bg-rose-700 text-white h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/20 transition-all active:scale-95"
+            className="flex-1 h-12 rounded-2xl bg-love-red text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-love-red/20 active:scale-95 transition-all"
           >
-            <Share2 className="w-5 h-5" />
+            <Share2 className="w-4 h-4" />
             Compartilhar Este Momento
           </button>
         </div>
-
       </motion.div>
     </div>
   );
 };
-

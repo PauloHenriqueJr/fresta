@@ -642,12 +642,14 @@ const VisualizarCalendario = () => {
             const doorDate = startOfDay(addDays(baseDate, d.day - 1));
             const isLocked = isAfter(doorDate, startOfDay(new Date()));
 
+            const isOpened = openedDays.includes(d.day) || (d.opened_count || 0) > 0;
+
             return (
               <WeddingDayCard
                 key={d.day}
                 dayNumber={d.day}
                 imageUrl={d.url || undefined}
-                status={openedDays.includes(d.day) ? 'unlocked' : (isLocked ? 'locked' : 'unlocked')}
+                status={isOpened ? 'unlocked' : (isLocked ? 'locked' : 'unlocked')}
                 onClick={() => isLocked ? handleLockedClick(d.day, doorDate) : handleDayClick(d.day)}
               />
             );
