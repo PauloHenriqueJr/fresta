@@ -865,6 +865,10 @@ const VisualizarCalendario = () => {
             try {
               const updated = await CalendarsRepository.update(calendar.id, data);
               setCalendar(updated);
+              toast({
+                title: "Salvo com sucesso! ✨",
+                description: "As alterações já estão ao vivo.",
+              });
             } catch (err) {
               toast({ variant: "destructive", title: "Erro ao salvar", description: "Tente novamente." });
               throw err;

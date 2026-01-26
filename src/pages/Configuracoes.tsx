@@ -179,7 +179,7 @@ const Configuracoes = () => {
   return (
     <div className="min-h-screen bg-background transition-colors">
       {/* Premium Hero Section */}
-      <div className="relative overflow-hidden bg-solidroad-text dark:bg-black/40 pb-24 pt-12 border-b border-border/10">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-24 pt-12 border-b border-white/5">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="w-full h-full" viewBox="0 0 1440 400">
@@ -204,7 +204,7 @@ const Configuracoes = () => {
             </motion.button>
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-2">
-                <Settings className="w-3 h-3 text-solidroad-accent" />
+                <Settings className="w-3 h-3 text-[#FFD166]" />
                 <span className="text-white/80 text-[10px] font-black uppercase tracking-widest">Ajustes Mágicos</span>
               </div>
               <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
@@ -216,14 +216,14 @@ const Configuracoes = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 bg-white/10 dark:bg-card/40 backdrop-blur-sm rounded-2xl p-4 border border-white/10 dark:border-border/10"
+            className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10"
           >
-            <div className="w-12 h-12 rounded-xl bg-solidroad-accent/20 flex items-center justify-center shrink-0 shadow-glow">
-              <Sparkles className="w-6 h-6 text-solidroad-accent" />
+            <div className="w-12 h-12 rounded-xl bg-[#F9A03F]/20 flex items-center justify-center shrink-0 shadow-glow">
+              <Sparkles className="w-6 h-6 text-[#FFD166]" />
             </div>
             <div className="min-w-0">
               <p className="text-white font-black truncate">{calendar?.title || "Carregando..."}</p>
-              <p className="text-white/60 dark:text-muted-foreground/60 text-[10px] font-black uppercase tracking-widest">Editando agora</p>
+              <p className="text-white/60 text-[10px] font-black uppercase tracking-widest">Editando agora</p>
             </div>
           </motion.div>
         </div>
@@ -232,7 +232,7 @@ const Configuracoes = () => {
       <div className="container mx-auto px-6 max-w-4xl -mt-12 relative z-20 pb-48 md:pb-32">
         {loading ? (
           <div className="bg-card rounded-[2.5rem] p-20 shadow-xl border border-border/10 flex flex-col items-center justify-center text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-solidroad-accent mb-4" />
+            <Loader2 className="w-12 h-12 animate-spin text-[#2D7A5F] mb-4" />
             <p className="font-bold text-muted-foreground">Preparando ajustes...</p>
           </div>
         ) : (
@@ -251,7 +251,7 @@ const Configuracoes = () => {
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <h2 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-solidroad-accent/10 flex items-center justify-center"><Calendar className="w-4 h-4 text-solidroad-accent" /></div>
+                    <div className="w-8 h-8 rounded-lg bg-[#E8F5E0] flex items-center justify-center"><Calendar className="w-4 h-4 text-[#2D7A5F]" /></div>
                     Informações Básicas
                   </h2>
 
@@ -263,7 +263,7 @@ const Configuracoes = () => {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Ex: Contagem para o Natal"
-                        className="w-full h-14 px-6 bg-background dark:bg-black/20 border-2 border-transparent rounded-2xl text-foreground font-bold text-lg focus:outline-none focus:border-solidroad-accent/20 focus:bg-card transition-all shadow-inner"
+                        className="w-full h-14 px-6 bg-[#F8F9F5] dark:bg-black/20 border-2 border-transparent rounded-2xl text-foreground font-bold text-lg focus:outline-none focus:border-[#2D7A5F]/20 focus:bg-card transition-all shadow-inner"
                       />
                     </div>
 
@@ -286,7 +286,7 @@ const Configuracoes = () => {
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <h2 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-solidroad-accent/10 flex items-center justify-center"><Lock className="w-4 h-4 text-solidroad-accent" /></div>
+                    <div className="w-8 h-8 rounded-lg bg-[#D4F4F0] flex items-center justify-center"><Lock className="w-4 h-4 text-[#4ECDC4]" /></div>
                     Privacidade e Senha
                   </h2>
 
@@ -310,11 +310,11 @@ const Configuracoes = () => {
                             onClick={() => setPrivacy(p.id as any)}
                             className={cn(
                               "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all text-left",
-                              privacy === p.id ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
+                              privacy === p.id ? "border-[#4ECDC4] bg-[#4ECDC4]/5 ring-4 ring-[#4ECDC4]/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
                             )}
                           >
                             <div className="flex items-center gap-2">
-                              <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
+                              <Check className={cn("w-3 h-3 text-[#4ECDC4] transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
                               <p className="font-black text-foreground text-sm">{p.label}</p>
                             </div>
                             <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">{p.desc}</p>
@@ -331,12 +331,12 @@ const Configuracoes = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Digite uma senha..."
-                          className="w-full h-14 px-6 bg-background dark:bg-black/20 border-2 border-transparent rounded-2xl text-foreground font-bold focus:outline-none focus:border-solidroad-accent/20 transition-all shadow-inner"
+                          className="w-full h-14 px-6 bg-[#F8F9F5] dark:bg-black/20 border-2 border-transparent rounded-2xl text-foreground font-bold focus:outline-none focus:border-[#4ECDC4]/20 transition-all shadow-inner"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-solidroad-accent transition-colors"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-[#4ECDC4] transition-colors"
                         >
                           {showPassword ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
                         </button>
@@ -350,7 +350,7 @@ const Configuracoes = () => {
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <h2 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-solidroad-turquoise/10 flex items-center justify-center"><Globe className="w-4 h-4 text-[#4ECDC4]" /></div>
+                    <div className="w-8 h-8 rounded-lg bg-[#E8F5E0] flex items-center justify-center"><Globe className="w-4 h-4 text-[#2D7A5F]" /></div>
                     Trocar Estilo Visual
                   </h2>
 
@@ -362,13 +362,13 @@ const Configuracoes = () => {
                         className={cn(
                           "relative p-4 rounded-3xl border-2 text-left transition-all duration-300 group overflow-hidden",
                           themeId === theme.id
-                            ? "border-solidroad-accent bg-solidroad-accent/5 shadow-lg"
-                            : "border-border/10 hover:border-solidroad-accent/30 bg-background/50 dark:bg-white/5"
+                            ? "border-[#F9A03F] bg-[#FFF8E8] shadow-lg"
+                            : "border-border/10 hover:border-[#F9A03F]/30 bg-background/50 dark:bg-white/5"
                         )}
                       >
                         {themeId === theme.id && (
-                          <div className="absolute top-2 right-2 w-5 h-5 bg-solidroad-accent rounded-full flex items-center justify-center shadow-glow">
-                            <Check className="w-3 h-3 text-solidroad-text stroke-[3px]" />
+                          <div className="absolute top-2 right-2 w-5 h-5 bg-[#F9A03F] rounded-full flex items-center justify-center shadow-glow">
+                            <Check className="w-3 h-3 text-white stroke-[3px]" />
                           </div>
                         )}
                         <div className="w-10 h-10 rounded-xl bg-card border border-border/5 shadow-sm flex items-center justify-center text-xl mb-3 mb-3 group-hover:scale-110 transition-transform">
@@ -406,11 +406,11 @@ const Configuracoes = () => {
                             onClick={() => setPrivacy(p.id as any)}
                             className={cn(
                               "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all",
-                              privacy === p.id ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
+                              privacy === p.id ? "border-[#4ECDC4] bg-[#4ECDC4]/5 ring-4 ring-[#4ECDC4]/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
                             )}
                           >
                             <div className="flex items-center gap-2">
-                              <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
+                              <Check className={cn("w-3 h-3 text-[#4ECDC4] transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
                               <p className="font-black text-foreground text-sm">{p.label}</p>
                             </div>
                             <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">{p.desc}</p>
@@ -422,7 +422,7 @@ const Configuracoes = () => {
                     <div className="space-y-3 pt-2 border-t border-border/5">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50">Senha de Acesso</label>
-                        <span className="text-[10px] bg-solidroad-accent/20 text-solidroad-text dark:text-solidroad-accent px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">Opcional</span>
+                        <span className="text-[10px] bg-[#F9A03F]/20 text-[#1B4D3E] dark:text-[#F9A03F] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">Opcional</span>
                       </div>
                       <div className="relative">
                         <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40">
@@ -433,12 +433,12 @@ const Configuracoes = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Ex: segredo123"
-                          className="w-full pl-14 pr-14 h-14 rounded-xl bg-background dark:bg-black/20 border-2 border-transparent text-foreground font-bold focus:outline-none focus:border-solidroad-accent/20 transition-all shadow-inner"
+                          className="w-full pl-14 pr-14 h-14 rounded-xl bg-[#F8F9F5] dark:bg-black/20 border-2 border-transparent text-foreground font-bold focus:outline-none focus:border-[#4ECDC4]/20 transition-all shadow-inner"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-solidroad-accent transition-colors"
+                          className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-[#4ECDC4] transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -450,8 +450,8 @@ const Configuracoes = () => {
                   </div>
 
                   {/* Quick Link */}
-                  <div className="bg-solidroad-text dark:bg-card rounded-[2.5rem] p-8 shadow-xl text-white border border-border/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-solidroad-accent/10 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="bg-[#1B4D3E] dark:bg-card rounded-[2.5rem] p-8 shadow-xl text-white border border-border/10 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#F9A03F]/10 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                     <h3 className="text-lg font-black mb-6 flex items-center gap-2 relative z-10">Link da Experiência</h3>
                     <div className="bg-white/10 dark:bg-black/20 rounded-2xl p-4 border border-white/10 mb-6 shrink-0 min-w-0 relative z-10">
                       <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">Link Único</p>
@@ -461,7 +461,7 @@ const Configuracoes = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleCopyLink}
-                      className="w-full h-14 rounded-2xl bg-solidroad-accent text-solidroad-text font-black text-sm flex items-center justify-center gap-2 relative z-10 shadow-glow"
+                      className="w-full h-14 rounded-2xl bg-[#F9A03F] text-white font-black text-sm flex items-center justify-center gap-2 relative z-10 shadow-glow"
                     >
                       {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                       {copied ? "COPIADO!" : "COPIAR LINK"}
@@ -481,8 +481,8 @@ const Configuracoes = () => {
                         alt="QR Code"
                         className="w-full h-full object-contain"
                       />
-                      <div className="absolute inset-0 bg-solidroad-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
-                        <span className="text-[10px] font-black text-solidroad-text tracking-widest bg-solidroad-accent/80 px-3 py-1 rounded-full">ESCANEIE</span>
+                      <div className="absolute inset-0 bg-[#F9A03F]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                        <span className="text-[10px] font-black text-[#1B4D3E] tracking-widest bg-[#F9A03F]/80 px-3 py-1 rounded-full">ESCANEIE</span>
                       </div>
                     </div>
 
@@ -493,7 +493,7 @@ const Configuracoes = () => {
                       <div className="flex flex-wrap justify-center md:justify-start gap-4">
                         <button onClick={() => handleSocialShare('whatsapp')} className="w-14 h-14 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><MessageCircle className="w-7 h-7" /></button>
                         <button onClick={() => handleSocialShare('instagram')} className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#FFB344] via-[#EA384D] to-[#8D2791] text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all"><Instagram className="w-7 h-7" /></button>
-                        <button onClick={() => handleSocialShare('tiktok')} className="w-14 h-14 rounded-2xl bg-solidroad-text dark:bg-black/40 text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all shadow-glow"><span className="text-2xl font-bold">🎵</span></button>
+                        <button onClick={() => handleSocialShare('tiktok')} className="w-14 h-14 rounded-2xl bg-[#1B4D3E] dark:bg-black/40 text-white flex items-center justify-center shadow-lg hover:-translate-y-1 transition-all shadow-glow"><span className="text-2xl font-bold">🎵</span></button>
                       </div>
                     </div>
                   </div>
@@ -521,22 +521,22 @@ const Configuracoes = () => {
         )}
       </div>
 
-      {/* Save Button - Floating Footer */}
+      {/* Save Button - Fixed Footer (Following Pattern) */}
       {!loading && (
-        <div className="fixed bottom-[72px] md:bottom-0 left-0 right-0 p-6 bg-background/80 dark:bg-card/80 backdrop-blur-xl border-t border-border/10 z-[60] transition-colors">
-          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-4">
-            <div className="hidden md:block flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Modo de Edição</p>
-              <p className="text-sm font-bold text-foreground truncate opacity-80">Suas mudanças serão refletidas imediatamente no link público.</p>
+        <div className="fixed bottom-0 left-0 lg:left-[--sidebar-width] right-0 p-4 md:p-6 bg-background/80 dark:bg-card/80 backdrop-blur-xl border-t border-border/10 z-50 transition-all duration-300">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+            <div className="hidden md:flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#2D7A5F] dark:text-[#F9A03F]">Ajustes Ativos</span>
+              <p className="text-[11px] font-bold text-muted-foreground truncate opacity-70">As mudanças refletem no link público.</p>
             </div>
             <motion.button
               onClick={handleSave}
               disabled={saving}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full md:w-auto md:min-w-[240px] h-16 bg-solidroad-accent text-solidroad-text rounded-[1.25rem] font-black text-lg shadow-xl shadow-solidroad-accent/20 flex items-center justify-center gap-2 group shadow-glow"
+              className="w-full md:w-auto md:min-w-[200px] h-14 bg-[#F9A03F] text-white rounded-2xl font-black text-sm shadow-glow flex items-center justify-center gap-2 group"
             >
-              {saving ? <Loader2 className="w-6 h-6 animate-spin" /> : <Check className="w-6 h-6 stroke-[3.5px] group-hover:scale-110 transition-transform" />}
+              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5 stroke-[3px] group-hover:scale-110 transition-transform" />}
               {saving ? "SALVANDO..." : "SALVAR TUDO"}
             </motion.button>
           </div>

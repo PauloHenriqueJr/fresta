@@ -445,11 +445,13 @@ export const EditorFooter = () => {
 export const UniversalFooter = ({
   isEditor = false,
   onNavigate,
-  config
+  config,
+  buttonText
 }: {
   isEditor?: boolean;
   onNavigate?: () => void;
   config: any;
+  buttonText?: string;
 }) => {
   return (
     <div
@@ -465,7 +467,7 @@ export const UniversalFooter = ({
           className={cn(config.footer.button, "w-full sm:w-auto px-12 min-w-[200px]")}
         >
           {config.icons.footer && <config.icons.footer className="w-4 h-4" />}
-          {isEditor ? "Salvar Alterações" : "Criar meu calendário"}
+          {buttonText ? buttonText : (isEditor ? "Salvar Alterações" : "Criar meu calendário")}
         </button>
       </div>
     </div>
