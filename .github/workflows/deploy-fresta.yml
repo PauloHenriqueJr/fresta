@@ -4,6 +4,11 @@ on:
   push:
     branches: [ main, dev ]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão para Rollback (ex: v1.2.0). Deixe vazio para deploy normal.'
+        required: false
+        default: ''
 
 env:
   REGISTRY: ghcr.io
@@ -33,9 +38,9 @@ jobs:
   # 2. Build e Push da Imagem
   build-and-push:
     runs-on: ubuntu-latest
-    # Se for main, espera o release. Se for dev, roda direto.
+    # Pula o build se uma versão específica for informada para rollback
+    if: github.event.inputs.version == ''
     needs: release
-    if: always()
     permissions:
       contents: read
       packages: write
@@ -100,7 +105,9 @@ jobs:
       env:
         SERVICE_NAME: ${{ env.SERVICE_NAME }}
         DOMAIN_URL: ${{ env.DOMAIN_URL }}
-        IMAGE_TAG: ${{ needs.build-and-push.outputs.version }}
+        # Se veio do input (ROLLBACK), usa o input. Senão usa o output do build (DEPLOY). 
+        # Se os dois falharem (caso raro de falha no build sem input), usa 'latest' como fallback.
+        IMAGE_TAG: ${{ github.event.inputs.version != '' && github.event.inputs.version || needs.build-and-push.outputs.version || 'latest' }}
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USER }}
