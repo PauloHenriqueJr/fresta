@@ -234,6 +234,7 @@ const CalendarioDetalhe = () => {
               throw err;
             }
           }}
+          onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
         />
 
         {/* Modals */}

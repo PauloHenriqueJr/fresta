@@ -15,7 +15,7 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import mascotNoivado from "@/assets/mascot-noivado.jpg";
 import mascotPeeking from "@/assets/mascot-peeking.png";
 import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
@@ -75,13 +75,20 @@ const durationOptions = [
 
 const CriarCalendario = () => {
   const navigate = useNavigate();
+  const { search } = useLocation();
   const { user } = useAuth();
-  const [step, setStep] = useState(1);
-  const [selectedTheme, setSelectedTheme] = useState<ThemeId | "">("");
-  const [calendarName, setCalendarName] = useState("");
+
+  // Parse query params
+  const queryParams = new URLSearchParams(search);
+  const initialTheme = queryParams.get("theme") as ThemeId || "";
+  const initialTitle = queryParams.get("title") || "";
+
+  const [step, setStep] = useState(initialTheme ? 2 : 1);
+  const [selectedTheme, setSelectedTheme] = useState<ThemeId | "">(initialTheme);
+  const [calendarName, setCalendarName] = useState(initialTitle);
   const [duration, setDuration] = useState(24);
   const [startDate, setStartDate] = useState("");
-  const [privacy, setPrivacy] = useState<"public" | "private">("public");
+  const [privacy, setPrivacy] = useState<"public" | "private">("private");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [creating, setCreating] = useState(false);

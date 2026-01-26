@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft } from "lucide-react";
+import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
@@ -73,6 +73,17 @@ const VisualizarCalendario = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   const isOwner = calendar?.owner_id === user?.id;
+  const isTemplatePreview = calendar?.privacy === 'public' && !isOwner;
+
+  const handleCloneTheme = () => {
+    if (!calendar) return;
+    const params = new URLSearchParams({
+      theme: calendar.theme_id,
+      title: `Copiado de ${calendar.title}`,
+      from_template: calendar.id
+    });
+    navigate(`/criar?${params.toString()}`);
+  };
 
   const handleLike = () => {
     const newLiked = !liked;
@@ -826,15 +837,33 @@ const VisualizarCalendario = () => {
 
       {/* Bottom CTA - Only for visitors */}
       {!isOwner && (
-        <div className="relative w-full px-4 py-24 flex items-center justify-center mt-12">
+        <div className="relative w-full px-4 py-24 flex flex-col items-center justify-center mt-12 gap-4">
+          {isTemplatePreview && (
+            <motion.button
+              className="w-full max-w-lg mx-auto bg-solidroad-accent text-solidroad-text font-black py-5 rounded-2xl shadow-glow overflow-hidden relative group"
+              onClick={handleCloneTheme}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <Sparkles className="w-6 h-6" />
+                USAR ESTE TEMA AGORA
+              </span>
+            </motion.button>
+          )}
+
           <motion.button
-            className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2 px-8"
+            className={cn(
+              "w-full max-w-lg mx-auto flex items-center justify-center gap-2 px-8 py-5 rounded-2xl font-bold transition-all",
+              isTemplatePreview ? "bg-white/10 border border-border/10 text-foreground" : "btn-festive"
+            )}
             onClick={handleShare}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <Share2 className="w-5 h-5" />
-            Compartilhar
+            {isTemplatePreview ? "Compartilhar este Modelo" : "Compartilhar"}
           </motion.button>
         </div>
       )}
@@ -874,6 +903,7 @@ const VisualizarCalendario = () => {
               throw err;
             }
           }}
+          onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
         />
 
         {/* Surprise Modals (Shared for Universal themes) */}
@@ -903,9 +933,61 @@ const VisualizarCalendario = () => {
           onNotify={handleNotifyMe}
           theme={calendar.theme_id}
         />
+
+        {/* Template Preview Banner */}
+        {isTemplatePreview && (
+          <motion.div
+            className="fixed top-0 left-0 right-0 z-50 p-4"
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+          >
+            <div className="max-w-xl mx-auto bg-card/80 backdrop-blur-xl border border-solidroad-accent/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-solidroad-accent/10 flex items-center justify-center">
+                  <Palette className="w-5 h-5 text-solidroad-accent" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-foreground uppercase tracking-wider leading-none">Modo Visualização</p>
+                  <p className="text-[10px] text-muted-foreground font-medium mt-1">Dados pessoais protegidos. Use este modelo para você!</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloneTheme}
+                className="px-4 py-2 bg-solidroad-accent text-solidroad-text rounded-xl font-bold text-[10px] hover:scale-105 transition-all shadow-sm whitespace-nowrap"
+              >
+                USAR MODELO
+              </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     );
   }
+
+  const getRedactedContent = (day: CalendarDay) => {
+    const isRomantic = (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas');
+
+    if (isOwner || calendar?.privacy === 'private') {
+      const url = day.url || "";
+      const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
+      const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
+
+      return {
+        type,
+        title: day.label || `Porta ${day.day}`,
+        message: day.message || "",
+        mediaUrl: day.url || undefined,
+      };
+    }
+
+    // Template Mode Redaction
+    return {
+      type: 'text',
+      title: `Exemplo da Porta ${day.day}`,
+      message: `Este é um modelo do tema "${themeData?.name}". \n\nNo seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ❤️`,
+      mediaUrl: undefined,
+    };
+  };
 
   return (
     <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}
@@ -924,18 +1006,7 @@ const VisualizarCalendario = () => {
         <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
-          content={selectedDayData ? (() => {
-            const url = selectedDayData.url || "";
-            const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-            const type = isVideo ? 'video' : (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text';
-
-            return {
-              type,
-              title: selectedDayData.label || `Porta ${selectedDay}`,
-              message: selectedDayData?.message || "",
-              mediaUrl: selectedDayData?.url || undefined,
-            };
-          })() : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
         />
       )}
 
@@ -945,22 +1016,7 @@ const VisualizarCalendario = () => {
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
           day={selectedDay || 1}
-          content={selectedDayData?.content_type === "text" ? {
-            type: "text",
-            message: selectedDayData?.message || "Surpresa! 🎉",
-          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
-            type: selectedDayData.content_type,
-            url: selectedDayData?.url || "",
-            message: selectedDayData?.message || "",
-          } : selectedDayData?.content_type === "link" ? {
-            type: "link",
-            url: selectedDayData?.url || "",
-            label: selectedDayData?.label || "Clique aqui",
-            message: selectedDayData?.message || "",
-          } : {
-            type: "text",
-            message: "Esta porta ainda está vazia... 📭",
-          }}
+          content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
           theme={calendar.theme_id}
         />
       )}

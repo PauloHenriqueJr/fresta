@@ -47,7 +47,7 @@ const DayCard = ({
   const getIcon = () => {
     switch (status) {
       case "locked":
-        if (premiumTheme.styles.card.lockedIcon) return premiumTheme.styles.card.lockedIcon;
+        if (premiumTheme.styles?.card?.lockedIcon) return premiumTheme.styles.card.lockedIcon;
         return <Lock className="w-4 h-4 opacity-40" />;
       case "available":
         const isRomance = ["namoro", "casamento", "noivado", "bodas"].includes(theme);
@@ -85,8 +85,8 @@ const DayCard = ({
           style={
             status === 'available' ? { background: `var(--gradient-${theme === 'default' ? 'festive' : (theme === 'namoro' || theme === 'casamento' ? 'romance' : theme)})` } :
               status === 'locked' ? {
-                ...premiumTheme.styles.card.locked,
-                ...(premiumTheme.styles.card.boxShadow ? { boxShadow: premiumTheme.styles.card.boxShadow } : {})
+                ...premiumTheme.styles?.card?.locked,
+                ...(premiumTheme.styles?.card?.boxShadow ? { boxShadow: premiumTheme.styles.card.boxShadow } : {})
               } : undefined
           }
           onClick={onClick}

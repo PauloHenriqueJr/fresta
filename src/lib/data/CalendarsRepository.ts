@@ -82,9 +82,8 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getPublic:', id);
     const { data: calendar, error: calError } = await supabase
       .from('calendars')
-      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
+      .select('*, profiles:owner_id(display_name, avatar)')
       .eq('id', id)
-      .eq('privacy', 'public')
       .single();
     
     if (calError) {

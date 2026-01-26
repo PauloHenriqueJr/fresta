@@ -2,7 +2,7 @@ import { UniversalHeader, UniversalProgress, UniversalQuote, UniversalFooter, Un
 import { parseISO, startOfDay, isAfter, addDays } from "date-fns";
 import type { Tables } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Eye, Settings, Clock, Save, X, Check, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Eye, Settings, Clock, Save, X, Check, Heart, Share2, BarChart3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import type { PremiumThemeConfig } from "@/lib/themes/registry";
@@ -26,6 +26,7 @@ interface UniversalTemplateProps {
     onTogglePreview?: () => void;
     previewMode?: boolean;
     onUpdateCalendar?: (data: Partial<Tables<"calendars">>) => Promise<void>;
+    onStats?: () => void;
 }
 
 export const UniversalTemplate = ({
@@ -43,7 +44,8 @@ export const UniversalTemplate = ({
     onSettings,
     onTogglePreview,
     previewMode = false,
-    onUpdateCalendar
+    onUpdateCalendar,
+    onStats
 }: UniversalTemplateProps) => {
     const ui = config.ui!;
     const FloatingComponent = config.FloatingComponent;
@@ -152,7 +154,10 @@ export const UniversalTemplate = ({
                             }}
                             disabled={isSaving}
                             type="button"
-                            className="bg-green-600 text-white px-5 py-2.5 rounded-full shadow-[0_8px_20px_rgba(22,163,74,0.4)] hover:bg-green-700 active:scale-95 transition-all text-xs font-black flex items-center gap-2 ring-2 ring-white relative z-[100]"
+                            className={cn(
+                                "text-white px-5 py-2.5 rounded-full shadow-lg hover:brightness-110 active:scale-95 transition-all text-xs font-black flex items-center gap-2 ring-2 ring-white relative z-[100]",
+                                ui.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary"
+                            )}
                         >
                             {isSaving ? <Check className="w-4 h-4 animate-pulse" /> : <Save className="w-4 h-4" />}
                             SALVAR
@@ -390,15 +395,40 @@ export const UniversalTemplate = ({
                 />
             </main>
 
-            <UniversalFooter
-                config={ui}
-                isEditor={isEditorContext && !previewMode}
-                onNavigate={() => {
-                    console.log("[UniversalTemplate] Navigating to settings via footer...");
-                    onSettings?.();
-                }}
-                buttonText={isEditorContext && !previewMode ? "Configurações" : undefined}
-            />
+            {showEditingControls ? null : (
+                <UniversalFooter
+                    config={ui}
+                    isEditor={false}
+                    onNavigate={() => window.open('/', '_blank')}
+                />
+            )}
+
+            {/* Floating Editor Action Bar (Owners Only) */}
+            {showEditingControls && (
+                <div className="fixed bottom-24 right-6 lg:bottom-8 lg:right-8 w-auto p-2.5 bg-white/95 backdrop-blur-xl border border-primary/10 z-[70] flex items-center gap-2 rounded-full shadow-2xl animate-in slide-in-from-bottom-8 duration-500 ring-1 ring-black/5">
+                    <button
+                        onClick={onShare}
+                        className={cn(
+                            "flex items-center justify-center gap-2 h-11 px-4 lg:px-6 rounded-full font-black text-[10px] uppercase tracking-widest text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap",
+                            ui.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary"
+                        )}
+                    >
+                        <Share2 className="w-4 h-4" />
+                        <span className="hidden lg:inline">Compartilhar</span>
+                    </button>
+                    <button
+                        onClick={onStats}
+                        className={cn(
+                            "w-11 h-11 rounded-full bg-zinc-50 flex items-center justify-center border transition-all active:scale-90 hover:bg-zinc-100",
+                            ui.footer.secondaryButton.split(' ').find(c => c.startsWith('text-')) || "text-primary",
+                            "border-current/10"
+                        )}
+                        title="Ver Estatísticas"
+                    >
+                        <BarChart3 className="w-5 h-5 text-current" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
