@@ -8,6 +8,7 @@ import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import { getThemeConfig } from "@/lib/themes/registry";
+import { BrandWatermark } from "@/components/calendar/BrandWatermark";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -74,6 +75,31 @@ const VisualizarCalendario = () => {
 
   const isOwner = calendar?.owner_id === user?.id;
   const isTemplatePreview = calendar?.privacy === 'public' && !isOwner;
+
+  const getRedactedContent = (day: CalendarDay) => {
+    if (!calendar) return { type: 'text', message: "Carregando...", title: "" };
+
+    if (isOwner || calendar?.privacy === 'private') {
+      const url = day.url || "";
+      const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
+      const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
+
+      return {
+        type,
+        title: day.label || `Porta ${day.day}`,
+        message: day.message || "",
+        mediaUrl: day.url || undefined,
+      };
+    }
+
+    // Template Mode Redaction - Strangers browsing public calendars see this
+    return {
+      type: 'text',
+      title: `Exemplo da Porta ${day.day}`,
+      message: `Este é um modelo do tema "${themeData?.name}". \n\nNo seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ❤️`,
+      mediaUrl: undefined,
+    };
+  };
 
   const handleCloneTheme = () => {
     if (!calendar) return;
@@ -325,7 +351,7 @@ const VisualizarCalendario = () => {
         const result = await CalendarsRepository.getPublic(id);
 
         if (!result) {
-          setError("Este calendário não existe ou é privado.");
+          setError("Este calendário não foi encontrado ou não está disponível.");
           setLoading(false);
           return;
         }
@@ -359,6 +385,8 @@ const VisualizarCalendario = () => {
       }
     }
   }, [calendar, user]);
+
+  const isOwnerPremium = (calendar as any)?.profiles?.subscriptions?.some((s: any) => s.status === 'active');
 
   const handleDayClick = async (dayNum: number) => {
     // Check if locked
@@ -911,18 +939,7 @@ const VisualizarCalendario = () => {
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
           config={premiumConfig}
-          content={selectedDayData ? (() => {
-            const url = selectedDayData.url || "";
-            const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-            const type = isVideo ? 'video' : (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text';
-
-            return {
-              type,
-              title: selectedDayData.label || `Porta ${selectedDay}`,
-              message: selectedDayData?.message || "",
-              mediaUrl: selectedDayData?.url || undefined,
-            };
-          })() : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
         />
 
         <LoveLockedModal
@@ -964,30 +981,7 @@ const VisualizarCalendario = () => {
     );
   }
 
-  const getRedactedContent = (day: CalendarDay) => {
-    const isRomantic = (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas');
 
-    if (isOwner || calendar?.privacy === 'private') {
-      const url = day.url || "";
-      const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-      const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
-
-      return {
-        type,
-        title: day.label || `Porta ${day.day}`,
-        message: day.message || "",
-        mediaUrl: day.url || undefined,
-      };
-    }
-
-    // Template Mode Redaction
-    return {
-      type: 'text',
-      title: `Exemplo da Porta ${day.day}`,
-      message: `Este é um modelo do tema "${themeData?.name}". \n\nNo seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ❤️`,
-      mediaUrl: undefined,
-    };
-  };
 
   return (
     <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}
@@ -1002,7 +996,7 @@ const VisualizarCalendario = () => {
       }
 
       {/* Love Letter Modal (Universal for romantic themes) */}
-      {(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && (
+      {(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && !isTemplatePreview && (
         <LoveLetterModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
@@ -1010,14 +1004,15 @@ const VisualizarCalendario = () => {
         />
       )}
 
-      {/* Surprise Modal (Global fallback for non-romantic themes) */}
-      {!(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && (
+      {/* Surprise Modal (Global fallback for non-romantic themes or Template Mode) */}
+      {(isTemplatePreview || !(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) && (
         <DaySurpriseModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
           day={selectedDay || 1}
           content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
           theme={calendar.theme_id}
+          isTemplate={isTemplatePreview}
         />
       )}
 
@@ -1030,6 +1025,12 @@ const VisualizarCalendario = () => {
         onNotify={handleNotifyMe}
         theme={calendar.theme_id}
       />
+      {/* Brand Branding for Free Users */}
+      {!isOwnerPremium && (
+        <div className="py-12 flex justify-center relative z-10">
+          <BrandWatermark />
+        </div>
+      )}
     </div>
   );
 };

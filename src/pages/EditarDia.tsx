@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import type { Tables } from "@/lib/supabase/types";
+import { cn } from "@/lib/utils";
+import { getThemeConfig } from "@/lib/themes/registry";
 import DayCard from "@/components/calendar/DayCard";
 
 type Calendar = Tables<'calendars'>;
@@ -42,6 +44,7 @@ const EditarDia = () => {
   const [hasChanges, setHasChanges] = useState(false);
 
   const dayNumber = parseInt(dia || "1", 10);
+  const themeConfig = calendar ? getThemeConfig(calendar.theme_id) : null;
 
   // Fetch calendar and day data
   useEffect(() => {
@@ -141,24 +144,23 @@ const EditarDia = () => {
     );
   }
 
+  const bgStyle = themeConfig ? {
+    ...themeConfig.styles.background,
+    backgroundImage: themeConfig.ui?.layout.bgSvg
+      ? `${themeConfig.ui.layout.bgSvg}, ${themeConfig.styles.background?.backgroundImage || 'none'}`
+      : themeConfig.styles.background?.backgroundImage
+  } : undefined;
+
+  const primaryBtnClass = themeConfig?.ui?.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary";
+
+  // Extract a visible accent color (avoiding transparent for gradient themes)
+  const accentTextClass = themeConfig?.ui?.header.title.split(' ').find(c => c.startsWith('text-') && !c.includes('transparent'))
+    || themeConfig?.ui?.header.title.split(' ').find(c => c.startsWith('from-'))?.replace('from-', 'text-')
+    || "text-primary";
+
   return (
-    <div className={`min-h-screen bg-background pb-32 relative overflow-hidden theme-${calendar?.theme_id}`}>
-      {/* Dynamic Background Patterns */}
-      {calendar?.theme_id === 'saojoao' && (
-        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
-          backgroundSize: "32px 32px",
-          backgroundPosition: "0 0, 16px 16px",
-          backgroundColor: "#FFF8E8"
-        }} />
-      )}
-      {calendar?.theme_id === 'casamento' && (
-        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{
-          backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-          backgroundColor: "#FFFCF5"
-        }} />
-      )}
+    <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500 font-sans", themeConfig?.ui?.layout.bgClass)} style={bgStyle}>
+      {themeConfig?.FloatingComponent && <themeConfig.FloatingComponent />}
       {/* Header - mobile only */}
       <motion.header
         className="px-4 py-4 flex items-center gap-4 lg:hidden"
@@ -171,23 +173,23 @@ const EditarDia = () => {
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-lg font-bold text-foreground">
+        <h1 className={cn("text-lg font-black tracking-tight font-display", accentTextClass)}>
           O que tem na Porta {dayNumber}?
         </h1>
       </motion.header>
 
       {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-4 py-8 max-w-[1600px] mx-auto">
+      <div className="hidden lg:flex items-center justify-between px-4 py-8 max-w-[1200px] mx-auto w-full relative z-10">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card hover:bg-muted transition-colors"
+            className="w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-border/40 hover:scale-110 transition-transform"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
-            <h1 className="text-3xl font-extrabold text-foreground">O que tem na Porta {dayNumber}?</h1>
-            <p className="text-sm text-muted-foreground">{calendar ? calendar.title : "Personalize sua surpresa"}</p>
+            <h1 className={cn("text-2xl font-black tracking-tight font-display", accentTextClass)}>O que tem na Porta {dayNumber}?</h1>
+            <p className="text-sm font-medium text-muted-foreground/80">{calendar ? calendar.title : "Personalize sua surpresa"}</p>
           </div>
         </div>
 
@@ -206,7 +208,7 @@ const EditarDia = () => {
         </div>
       </div>
 
-      <div className="px-4 max-w-[1600px] lg:mx-auto pb-12">
+      <div className="px-4 max-w-[1200px] lg:mx-auto pb-32 w-full relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Left Column: Preview */}
           <div className="lg:col-span-1 space-y-6">
@@ -250,34 +252,31 @@ const EditarDia = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h3 className="font-bold text-foreground mb-4">
-                Escolha o tipo de conteúdo
+              <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                Tipo de conteúdo
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-3">
                 {contentOptions.map((option) => (
                   <button
                     key={option.type}
                     onClick={() => setSelectedType(option.type)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${selectedType === option.type
-                      ? "border-primary bg-secondary/50 shadow-sm"
-                      : "border-border bg-card hover:border-primary/50"
-                      }`}
+                    className={cn(
+                      "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
+                      selectedType === option.type
+                        ? cn("bg-white text-foreground border-transparent shadow-lg ring-2", accentTextClass.replace('text-', 'ring-'))
+                        : "border-border/30 bg-white/40 backdrop-blur-sm hover:border-primary/50 text-muted-foreground"
+                    )}
                   >
                     <span
-                      className={
-                        selectedType === option.type
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      }
+                      className={cn(
+                        "transition-colors",
+                        selectedType === option.type ? accentTextClass : "opacity-60"
+                      )}
                     >
                       {option.icon}
                     </span>
-                    <span
-                      className={`text-sm font-bold ${selectedType === option.type
-                        ? "text-primary"
-                        : "text-muted-foreground"
-                        }`}
-                    >
+                    <span className="text-xs font-bold uppercase tracking-wider">
                       {option.label}
                     </span>
                   </button>
@@ -293,14 +292,20 @@ const EditarDia = () => {
                 transition={{ delay: 0.3 }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-foreground">Sua Mensagem</h3>
-                  <span className="text-xs text-muted-foreground transition-all">{message.length} caracteres</span>
+                  <h3 className={cn("font-bold flex items-center gap-2 font-display", accentTextClass)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    Sua Mensagem
+                  </h3>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{message.length} caracteres</span>
                 </div>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Escreva sua mensagem festiva aqui..."
-                  className="w-full h-48 lg:h-64 p-6 bg-card border-2 border-border rounded-3xl text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary transition-all shadow-sm"
+                  className={cn(
+                    "w-full h-48 lg:h-64 p-6 bg-white/80 backdrop-blur-sm border-2 border-border rounded-3xl text-foreground placeholder:text-muted-foreground resize-none focus:outline-none transition-all shadow-sm",
+                    accentTextClass.replace('text-', 'focus:border-')
+                  )}
                 />
               </motion.section>
             )}
@@ -312,7 +317,10 @@ const EditarDia = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className="font-bold text-foreground mb-4">Mídia da Surpresa</h3>
+                <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                  Mídia da Surpresa
+                </h3>
 
                 <div className="space-y-6">
                   {/* Upload Area */}
@@ -326,10 +334,7 @@ const EditarDia = () => {
 
                         setSaving(true);
                         try {
-                          // Import compression utility
                           const { compressImage } = await import("@/lib/image-utils");
-
-                          // Compress only if it's an image
                           let file = originalFile;
                           if (originalFile.type.startsWith('image/')) {
                             toast({ title: "Otimizando foto...", description: "Isso economiza espaço e carrega mais rápido. 🚀" });
@@ -344,17 +349,10 @@ const EditarDia = () => {
 
                           const publicUrl = await CalendarsRepository.uploadMedia(file, fileName);
                           setUrl(publicUrl);
-                          toast({
-                            title: "Foto enviada!",
-                            description: "A imagem foi otimizada e salva no servidor.",
-                          });
+                          toast({ title: "Foto enviada!", description: "A imagem foi otimizada e salva no servidor." });
                         } catch (err: any) {
                           console.error('Upload error:', err);
-                          toast({
-                            title: "Erro no envio",
-                            description: err.message || "Não foi possível enviar a foto.",
-                            variant: "destructive",
-                          });
+                          toast({ title: "Erro no envio", description: err.message || "Não foi possível enviar a foto.", variant: "destructive" });
                         } finally {
                           setSaving(false);
                         }
@@ -362,9 +360,12 @@ const EditarDia = () => {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                       disabled={saving}
                     />
-                    <div className={`p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 transition-all ${url ? 'border-primary/40 bg-primary/5' : 'border-border bg-card group-hover:border-primary/50'}`}>
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Camera className="w-6 h-6 text-primary" />
+                    <div className={cn(
+                      "p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 transition-all",
+                      url ? "border-primary/40 bg-white/40" : "border-border/50 bg-white/20 backdrop-blur-sm group-hover:border-primary/50"
+                    )}>
+                      <div className={cn("w-12 h-12 rounded-full flex items-center justify-center bg-white shadow-sm")}>
+                        <Camera className={cn("w-6 h-6", accentTextClass)} />
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-bold text-foreground">
@@ -434,7 +435,7 @@ const EditarDia = () => {
                       <span className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-                      <span className="bg-background px-4 text-muted-foreground">OU USE UM LINK EXTERNO</span>
+                      <span className="bg-background/20 px-4 text-muted-foreground backdrop-blur-sm">OU USE UM LINK EXTERNO</span>
                     </div>
                   </div>
 
@@ -445,7 +446,10 @@ const EditarDia = () => {
                       value={url.includes('.supabase.co') ? '' : url}
                       onChange={(e) => setUrl(e.target.value)}
                       placeholder="TikTok, Instagram Reels, YouTube ou link de imagem..."
-                      className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
+                      className={cn(
+                        "w-full p-6 bg-white/80 backdrop-blur-sm border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none transition-all shadow-sm",
+                        accentTextClass.replace('text-', 'focus:border-')
+                      )}
                     />
                   </div>
                 </div>
@@ -465,13 +469,19 @@ const EditarDia = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className="font-bold text-foreground mb-4">URL do GIF</h3>
+                <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                  Link do GIF
+                </h3>
                 <input
                   type="url"
                   value={url.includes('.supabase.co') ? '' : url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://media.giphy.com/..."
-                  className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
+                  className={cn(
+                    "w-full p-6 bg-white/80 backdrop-blur-sm border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none transition-all shadow-sm",
+                    accentTextClass.replace('text-', 'focus:border-')
+                  )}
                 />
 
                 {url && (
@@ -499,23 +509,35 @@ const EditarDia = () => {
                 className="space-y-6"
               >
                 <div>
-                  <h3 className="font-bold text-foreground mb-4">URL do Link</h3>
+                  <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    URL do Link
+                  </h3>
                   <input
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://exemplo.com/cupom"
-                    className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
+                    className={cn(
+                      "w-full p-6 bg-white/80 backdrop-blur-sm border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none transition-all shadow-sm",
+                      accentTextClass.replace('text-', 'focus:border-')
+                    )}
                   />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground mb-4">Texto do botão</h3>
+                  <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    Texto do botão
+                  </h3>
                   <input
                     type="text"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
                     placeholder="Clique para ver"
-                    className="w-full p-6 bg-card border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-all shadow-sm"
+                    className={cn(
+                      "w-full p-6 bg-white/80 backdrop-blur-sm border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none transition-all shadow-sm",
+                      accentTextClass.replace('text-', 'focus:border-')
+                    )}
                   />
                 </div>
               </motion.section>
@@ -524,14 +546,20 @@ const EditarDia = () => {
         </div>
       </div>
 
-      {/* Save Button - Always visible at bottom */}
-      <div className="fixed bottom-0 left-0 lg:left-64 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-[110] transition-all duration-300">
+      {/* Save Button - Floating Style, no Bar */}
+      <div className="fixed bottom-8 right-4 left-4 lg:left-auto lg:right-10 z-[120]">
         <motion.button
-          className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2"
+          className={cn(
+            "w-full lg:w-auto lg:px-12 flex items-center justify-center gap-3 h-14 rounded-full font-black text-sm uppercase tracking-widest text-white shadow-2xl hover:scale-[1.05] active:scale-[0.95] transition-all",
+            primaryBtnClass,
+            "backdrop-blur-sm border border-white/20"
+          )}
           onClick={handleSave}
           disabled={saving}
-          whileHover={!saving ? { scale: 1.02 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95, y: 0 }}
         >
           {saving ? (
             <>
@@ -539,7 +567,10 @@ const EditarDia = () => {
               Salvando...
             </>
           ) : (
-            "Salvar Surpresa"
+            <>
+              <span>Salvar Surpresa</span>
+              <Check className="w-5 h-5" />
+            </>
           )}
         </motion.button>
       </div>

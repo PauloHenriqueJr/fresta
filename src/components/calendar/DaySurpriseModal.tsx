@@ -7,12 +7,14 @@ interface DaySurpriseModalProps {
   onClose: () => void;
   day: number;
   content?: {
-    type: "text" | "photo" | "gif" | "link";
+    type: "text" | "photo" | "gif" | "link" | "image" | "video";
     message?: string;
     url?: string;
     label?: string;
+    title?: string;
   };
   theme?: string;
+  isTemplate?: boolean;
 }
 
 import { LoveLetterModal } from "@/lib/themes/themeComponents";
@@ -23,8 +25,77 @@ const DaySurpriseModal = ({
   day,
   content,
   theme = "default",
+  isTemplate = false,
 }: DaySurpriseModalProps) => {
   const { toast } = useToast();
+
+  if (isTemplate) {
+    // Force a generic "Explore Template" design for strangers
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-foreground/60 backdrop-blur-md z-[100]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+            />
+            <motion.div
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[101] max-w-sm mx-auto"
+              initial={{ opacity: 0, scale: 0.9, y: "-40%" }}
+              animate={{ opacity: 1, scale: 1, y: "-50%" }}
+              exit={{ opacity: 0, scale: 0.9, y: "-40%" }}
+            >
+              <div className="bg-card rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
+                <div className="bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] p-8 text-center relative">
+                  <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto mb-4 border border-white/20">
+                    <Sparkles className="w-8 h-8 text-[#FFD166]" />
+                  </div>
+                  <h2 className="text-2xl font-black text-white">Visualização</h2>
+                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-1">Modelo de Exemplo</p>
+
+                  <button
+                    onClick={onClose}
+                    className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+
+                <div className="p-8 text-center space-y-6">
+                  <p className="text-foreground/80 font-medium leading-relaxed">
+                    Este é um modelo do tema <span className="font-black text-primary">"{theme}"</span>.
+                  </p>
+                  <div className="bg-muted/50 rounded-2xl p-4 border border-border/5">
+                    <p className="text-xs text-muted-foreground italic">
+                      "No seu calendário, você poderá colocar mensagens carinhosas, fotos ou vídeos especiais aqui! ❤️"
+                    </p>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      onClick={() => window.location.href = '#/criar'}
+                      className="w-full bg-[#F9A03F] text-white font-black py-4 rounded-2xl shadow-glow hover:scale-[1.02] transition-all"
+                    >
+                      CRIAR MEU CALENDÁRIO
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="w-full mt-3 text-muted-foreground text-xs font-bold uppercase tracking-widest"
+                    >
+                      Continuar Explorando
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    );
+  }
 
   if (theme === "namoro") {
     return (

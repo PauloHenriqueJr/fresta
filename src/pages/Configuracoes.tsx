@@ -282,7 +282,7 @@ const Configuracoes = () => {
                 </div>
               </motion.section>
 
-              {/* Privacy & Sharing Section - Moved up */}
+              {/* Privacy & Sharing Section */}
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <h2 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
@@ -346,7 +346,7 @@ const Configuracoes = () => {
                 </div>
               </motion.section>
 
-              {/* Theme Selection - Modernized */}
+              {/* Theme Selection */}
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <h2 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
@@ -382,91 +382,24 @@ const Configuracoes = () => {
                 </div>
               </motion.section>
 
-              {/* Privacy & Sharing */}
+              {/* Quick Link Container */}
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Privacy */}
-                  <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors space-y-8">
-                    <div className="space-y-4">
-                      <div className="flex flex-col gap-1">
-                        <h3 className="text-lg font-black text-foreground flex items-center gap-2">
-                          Visibilidade
-                        </h3>
-                        <p className="text-[10px] text-muted-foreground/40 italic">
-                          * Público: Aparecerá no "Explorar" para todos.
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {[
-                          { id: 'public', label: 'Público', desc: 'No Explorar', icon: Globe },
-                          { id: 'private', label: 'Privado', desc: 'Apenas Link', icon: Link }
-                        ].map(p => (
-                          <button
-                            key={p.id}
-                            onClick={() => setPrivacy(p.id as any)}
-                            className={cn(
-                              "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all",
-                              privacy === p.id ? "border-[#4ECDC4] bg-[#4ECDC4]/5 ring-4 ring-[#4ECDC4]/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Check className={cn("w-3 h-3 text-[#4ECDC4] transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
-                              <p className="font-black text-foreground text-sm">{p.label}</p>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">{p.desc}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-2 border-t border-border/5">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50">Senha de Acesso</label>
-                        <span className="text-[10px] bg-[#F9A03F]/20 text-[#1B4D3E] dark:text-[#F9A03F] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">Opcional</span>
-                      </div>
-                      <div className="relative">
-                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40">
-                          {password ? <Lock className="w-5 h-5" /> : <Unlock className="w-5 h-5" />}
-                        </div>
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Ex: segredo123"
-                          className="w-full pl-14 pr-14 h-14 rounded-xl bg-[#F8F9F5] dark:bg-black/20 border-2 border-transparent text-foreground font-bold focus:outline-none focus:border-[#4ECDC4]/20 transition-all shadow-inner"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-[#4ECDC4] transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground/40 italic leading-tight">
-                        Se definida, o visitante precisará digitar esta senha para ver o conteúdo.
-                      </p>
-                    </div>
+                <div className="bg-[#1B4D3E] dark:bg-card rounded-[2.5rem] p-8 shadow-xl text-white border border-border/10 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#F9A03F]/10 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <h3 className="text-lg font-black mb-6 flex items-center gap-2 relative z-10">Link da Experiência</h3>
+                  <div className="bg-white/10 dark:bg-black/20 rounded-2xl p-4 border border-white/10 mb-6 shrink-0 min-w-0 relative z-10">
+                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">Link Único</p>
+                    <p className="text-sm font-bold truncate opacity-90">{`${window.location.origin}${import.meta.env.BASE_URL}#/c/${id}`}</p>
                   </div>
-
-                  {/* Quick Link */}
-                  <div className="bg-[#1B4D3E] dark:bg-card rounded-[2.5rem] p-8 shadow-xl text-white border border-border/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#F9A03F]/10 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <h3 className="text-lg font-black mb-6 flex items-center gap-2 relative z-10">Link da Experiência</h3>
-                    <div className="bg-white/10 dark:bg-black/20 rounded-2xl p-4 border border-white/10 mb-6 shrink-0 min-w-0 relative z-10">
-                      <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-1">Link Único</p>
-                      <p className="text-sm font-bold truncate opacity-90">{`${window.location.origin}${import.meta.env.BASE_URL}#/c/${id}`}</p>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleCopyLink}
-                      className="w-full h-14 rounded-2xl bg-[#F9A03F] text-white font-black text-sm flex items-center justify-center gap-2 relative z-10 shadow-glow"
-                    >
-                      {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                      {copied ? "COPIADO!" : "COPIAR LINK"}
-                    </motion.button>
-                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleCopyLink}
+                    className="w-full h-14 rounded-2xl bg-[#F9A03F] text-white font-black text-sm flex items-center justify-center gap-2 relative z-10 shadow-glow"
+                  >
+                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                    {copied ? "COPIADO!" : "COPIAR LINK"}
+                  </motion.button>
                 </div>
               </motion.section>
 
@@ -522,24 +455,21 @@ const Configuracoes = () => {
       </div>
 
       {/* Save Button - Fixed Footer (Following Pattern) */}
+      {/* Save Fab - Floating Button */}
       {!loading && (
-        <div className="fixed bottom-0 left-0 lg:left-[--sidebar-width] right-0 p-4 md:p-6 bg-background/80 dark:bg-card/80 backdrop-blur-xl border-t border-border/10 z-50 transition-all duration-300">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-            <div className="hidden md:flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#2D7A5F] dark:text-[#F9A03F]">Ajustes Ativos</span>
-              <p className="text-[11px] font-bold text-muted-foreground truncate opacity-70">As mudanças refletem no link público.</p>
-            </div>
-            <motion.button
-              onClick={handleSave}
-              disabled={saving}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full md:w-auto md:min-w-[200px] h-14 bg-[#F9A03F] text-white rounded-2xl font-black text-sm shadow-glow flex items-center justify-center gap-2 group"
-            >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5 stroke-[3px] group-hover:scale-110 transition-transform" />}
-              {saving ? "SALVANDO..." : "SALVAR TUDO"}
-            </motion.button>
-          </div>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-8 z-50 w-full md:w-auto flex justify-center md:block pointer-events-none md:pointer-events-auto">
+          <motion.button
+            onClick={handleSave}
+            disabled={saving}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="pointer-events-auto h-14 px-8 bg-[#F9A03F] text-white rounded-full font-black text-sm shadow-2xl shadow-orange-500/20 flex items-center gap-3 hover:brightness-110 transition-all border border-white/20 backdrop-blur-md"
+          >
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5 stroke-[3px]" />}
+            {saving ? "SALVANDO..." : "SALVAR ALTERAÇÕES"}
+          </motion.button>
         </div>
       )}
 
