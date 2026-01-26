@@ -1,0 +1,37 @@
+name: 🧪 CI (Lint & Test)
+
+on:
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout código
+      uses: actions/checkout@v4
+
+    - name: 🟢 Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: 📦 Instalar dependências
+      run: npm ci
+
+    - name: 🧹 Verificar Linting
+      run: npm run lint
+
+    - name: 🧪 Rodar Testes (Vitest)
+      run: npm run test
+
+    - name: 🏗️ Verificar Build
+      run: npm run build
+      env:
+        # Variáveis dummy para o build não falhar por falta de config
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
