@@ -24,6 +24,8 @@ const DaySurpriseModal = ({
   content,
   theme = "default",
 }: DaySurpriseModalProps) => {
+  const { toast } = useToast();
+
   if (theme === "namoro") {
     return (
       <LoveLetterModal
@@ -38,7 +40,7 @@ const DaySurpriseModal = ({
       />
     );
   }
-  const { toast } = useToast();
+
   const getGradientClass = () => {
     switch (theme) {
       case "carnaval":
