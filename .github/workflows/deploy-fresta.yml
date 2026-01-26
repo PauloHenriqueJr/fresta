@@ -39,8 +39,12 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     # Pula o build se uma versão específica for informada para rollback
-    if: github.event.inputs.version == ''
-    needs: release
+    # always() garante que rode mesmo se release for pulado (caso da dev)
+    if: always() && github.event.inputs.version == ''
+    # Só depende do release na main, na dev roda diretamente
+    needs: [release]
+    # Permite rodar mesmo se release for pulado (caso da dev)
+    # O "if: always()" combinado com a checagem abaixo garante isso
     permissions:
       contents: read
       packages: write
