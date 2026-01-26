@@ -1,101 +1,109 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Plus, Search, MoreVertical, Loader2, Eye, Edit2, Settings, BarChart3, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  Loader2,
+  Eye,
+  Edit2,
+  Settings,
+  BarChart3,
+  Trash2,
+  Calendar,
+  ArrowRight,
+  Sparkles,
+  Gift,
+  PartyPopper,
+  ChevronRight
+} from "lucide-react";
+import { PremiumIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import type { Tables } from "@/lib/supabase/types";
-import EmptyState from "@/components/common/EmptyState";
+import { cn } from "@/lib/utils";
+
+// Theme Images
+import mascotNatal from "@/assets/mascot-natal.jpg";
+import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
+import mascotSaoJoao from "@/assets/mascot-saojoao.png";
+import mascotPascoa from "@/assets/mascot-pascoa.jpg";
+import mascotIndependencia from "@/assets/mascot-independencia.jpg";
+import mascotDiaDasMaes from "@/assets/mascot-diadasmaes.jpg";
+import mascotDiaDosPais from "@/assets/mascot-diadospais.jpg";
+import mascotDiaDasCriancas from "@/assets/mascot-diadascriancas.jpg";
+import mascotAniversario from "@/assets/mascot-aniversario.jpg";
+import mascotViagem from "@/assets/mascot-viagem.jpg";
+import mascotEstudos from "@/assets/mascot-estudo.jpg";
+import mascotMetas from "@/assets/mascot-metas.jpg";
+import mascotNamoro from "@/assets/mascot-namoro.jpg";
+import mascotNoivado from "@/assets/mascot-noivado.jpg";
+import mascotCasamento from "@/assets/mascot-casamento.jpg";
+import mascotBodas from "@/assets/mascot-bodas.jpg";
+import mascotReveillon from "@/assets/mascot-reveillon.jpg";
+
+const themeImages: Record<string, string> = {
+  natal: mascotNatal,
+  carnaval: mascotCarnaval,
+  saojoao: mascotSaoJoao,
+  pascoa: mascotPascoa,
+  independencia: mascotIndependencia,
+  diadasmaes: mascotDiaDasMaes,
+  diadospais: mascotDiaDosPais,
+  diadascriancas: mascotDiaDasCriancas,
+  aniversario: mascotAniversario,
+  viagem: mascotViagem,
+  estudos: mascotEstudos,
+  metas: mascotMetas,
+  namoro: mascotNamoro,
+  noivado: mascotNoivado,
+  casamento: mascotCasamento,
+  bodas: mascotBodas,
+  reveillon: mascotReveillon,
+};
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
-type Calendar = Tables<'calendars'>;
 
-const getStatusBadge = (status: Calendar["status"]) => {
-  const styles = {
-    ativo: "bg-primary text-primary-foreground",
-    rascunho: "bg-accent text-accent-foreground",
-    finalizado: "bg-muted text-muted-foreground",
-  };
-  const labels = {
-    ativo: "ATIVO",
-    rascunho: "RASCUNHO",
-    finalizado: "FINALIZADO",
-  };
-  return (
-    <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  );
-};
+import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
-const getThemeBg = (themeId: string) => {
-  const def = getThemeDefinition(BASE_THEMES, themeId as any);
-  return def?.gradientClass ?? "bg-gradient-festive";
-};
+type CalendarType = Tables<'calendars'>;
 
-const getThemeEmoji = (themeId: string) => {
-  const def = getThemeDefinition(BASE_THEMES, themeId as any);
-  return def?.emoji ?? "✨";
-};
+// Premium Bento Stats for B2C
+const STATS = [
+  { label: "Calendários Ativos", key: "active", icon: Calendar, bg: "bg-solidroad-beige dark:bg-solidroad-beige-dark", iconColor: "text-[#F9A03F]" },
+  { label: "Total de Visualizações", key: "views", icon: Eye, bg: "bg-solidroad-turquoise dark:bg-solidroad-turquoise-dark", iconColor: "text-[#4ECDC4]" },
+  { label: "Momentos Criados", key: "total", icon: Gift, bg: "bg-solidroad-green dark:bg-solidroad-green-dark", iconColor: "text-[#2D7A5F]" },
+];
 
 const MeusCalendarios = () => {
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
 
-  console.log('MeusCalendarios: Render cycle. User:', user?.email, 'AuthLoading:', authLoading);
-
   const [query, setQuery] = useState("");
-  const [calendars, setCalendars] = useState<Calendar[]>([]);
+  const [calendars, setCalendars] = useState<CalendarType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [calendarToDelete, setCalendarToDelete] = useState<{ id: string, title: string } | null>(null);
 
   const fetchCalendars = async (userId: string) => {
-    console.log('MeusCalendarios: Starting fetchCalendars for', userId);
     setLoading(true);
     setError(null);
-
     try {
       const data = await CalendarsRepository.listByOwner(userId);
-      console.log('MeusCalendarios: Fetch completed with', data?.length, 'results');
       setCalendars(data || []);
     } catch (err: any) {
       console.error('MeusCalendarios: Fetch failed', err);
-      setError('A conexão com o banco de dados falhou. Tente atualizar a página.');
+      setError('Não foi possível carregar seus calendários. Verifique sua conexão.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const [calendarToDelete, setCalendarToDelete] = useState<{ id: string, title: string } | null>(null);
-
-  const handleDelete = async () => {
-    if (!calendarToDelete) return;
-
-    try {
-      await CalendarsRepository.delete(calendarToDelete.id);
-      setCalendars(prev => prev.filter(c => c.id !== calendarToDelete.id));
-      setCalendarToDelete(null);
-    } catch (err) {
-      console.error('Error deleting calendar:', err);
-      // Still using standard toast for errors as it's cleaner
     }
   };
 
@@ -106,294 +114,308 @@ const MeusCalendarios = () => {
       setLoading(false);
     }
   }, [user?.id, authLoading]);
+
+  const handleDelete = async () => {
+    if (!calendarToDelete) return;
+    try {
+      await CalendarsRepository.delete(calendarToDelete.id);
+      setCalendars(prev => prev.filter(c => c.id !== calendarToDelete.id));
+      setCalendarToDelete(null);
+    } catch (err) {
+      console.error('Error deleting calendar:', err);
+    }
+  };
+
   const filteredCalendars = calendars.filter((c) => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
     return c.title.toLowerCase().includes(q);
   });
 
+  const statsData = useMemo(() => {
+    return {
+      active: calendars.filter(c => c.status === 'ativo').length,
+      views: calendars.reduce((acc, c) => acc + (c.views || 0), 0),
+      total: calendars.length
+    };
+  }, [calendars]);
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Carregando calendários...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-solidroad-accent/20 flex items-center justify-center animate-pulse">
+            <Calendar className="w-8 h-8 text-solidroad-accent" />
+          </div>
+          <p className="font-bold text-muted-foreground animate-pulse">Carregando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section - Desktop Only */}
-      <div className="hidden lg:block px-4 pt-12 max-w-[1600px] lg:mx-auto">
-        <motion.div
-          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-card to-background border border-border/50 p-12 shadow-2xl hover:shadow-primary/10 transition-all duration-500 group"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          {/* Decorative background elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -mr-48 -mt-48 group-hover:bg-primary/10 transition-colors duration-700" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-festive-red/5 rounded-full blur-[80px] -ml-32 -mb-32 group-hover:bg-festive-red/10 transition-colors duration-700" />
+    <div className="min-h-screen bg-background pb-24 transition-colors duration-300">
+      {/* Premium Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-20 pt-10">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 1440 400">
+            <defs>
+              <pattern id="dotPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="2" fill="white" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dotPattern)" />
+          </svg>
+        </div>
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        {/* Floating elements */}
+        <div className="absolute top-16 right-[10%] w-40 h-40 bg-[#F9A03F]/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-10 left-[15%] w-32 h-32 bg-[#4ECDC4]/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+
+        <div className="relative z-10 container mx-auto px-6">
+          <motion.div
+            className="flex flex-col md:flex-row md:items-center justify-between gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="px-4 py-1.5 rounded-full bg-primary/10 text-xs font-black text-primary uppercase tracking-[0.2em] animate-pulse">
-                  Snapshot do Dia
-                </span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-4">
+                <Sparkles className="w-3 h-3 text-solidroad-accent" />
+                <span className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Painel de Controle</span>
               </div>
-              <h2 className="text-5xl font-black tracking-tighter text-foreground mb-4">
-                Olá, {profile?.display_name || user?.email?.split('@')[0]}!
-              </h2>
-              <p className="text-xl text-muted-foreground/80 font-medium max-w-md leading-relaxed">
-                Você tem <span className="text-foreground font-black">{calendars.length} calendários</span> ativos. Continue espalhando alegria com suas contagens regressivas.
+              <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">
+                Meus <span className="text-solidroad-accent">Calendários</span>
+              </h1>
+              <p className="text-lg text-white/60 font-medium">
+                Gerencie suas experiências e acompanhe os momentos
               </p>
-
-              <div className="flex items-center gap-4 mt-10">
-                <button
-                  onClick={() => navigate("/criar")}
-                  className="px-8 py-4 rounded-2xl bg-gradient-festive text-white font-black shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-lg"
-                >
-                  + Criar Novo Calendário
-                </button>
-                <button
-                  onClick={() => user?.id && fetchCalendars(user.id)}
-                  className="px-6 py-4 rounded-2xl bg-card border border-border/50 text-foreground font-bold hover:bg-muted transition-all flex items-center gap-3"
-                >
-                  <Loader2 className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                  Atualizar
-                </button>
-              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-background/40 backdrop-blur-xl rounded-[2rem] p-8 border border-border/30 hover:border-primary/30 transition-colors group/card">
-                <span className="text-3xl mb-4 block group-hover/card:scale-110 transition-transform">👁️</span>
-                <span className="text-3xl font-black block text-foreground tracking-tighter">
-                  {calendars.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString()}
-                </span>
-                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Total Visualizações</span>
-              </div>
-              <div className="bg-background/40 backdrop-blur-xl rounded-[2rem] p-8 border border-border/30 hover:border-primary/30 transition-colors group/card">
-                <span className="text-3xl mb-4 block group-hover/card:scale-110 transition-transform">🔥</span>
-                <span className="text-3xl font-black block text-foreground tracking-tighter">
-                  {calendars.filter(c => c.status === 'ativo').length}
-                </span>
-                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Calendários Ativos</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/criar")}
+              className="flex items-center justify-center gap-2 px-8 py-4 bg-white dark:bg-card text-[#1B4D3E] dark:text-white rounded-2xl font-black shadow-2xl hover:shadow-white/10 transition-all group"
+            >
+              <Plus className="w-5 h-5 stroke-[3px] group-hover:rotate-90 transition-transform duration-300" />
+              CRIAR NOVO
+            </motion.button>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Search & Actions Bar */}
-      <div className="px-4 mt-16 mb-12 max-w-[1600px] lg:mx-auto relative z-20">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-card/30 p-6 rounded-[2rem] border border-border/50 backdrop-blur-md">
-          <motion.div
-            className="flex items-center gap-4 bg-muted/30 backdrop-blur-xl rounded-[1.5rem] px-6 py-4 border border-border/50 lg:w-[480px] group focus-within:border-primary/50 transition-all shadow-sm"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Search className="w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+      <div className="container mx-auto px-6">
+        {/* Stats Grid - Overlapping Hero */}
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-3 gap-4 -mt-12 relative z-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          {STATS.map((stat, idx) => (
+            <div
+              key={stat.label}
+              className={cn(
+                "rounded-2xl p-5 md:p-8 bg-card border border-border/10 shadow-sm group hover:shadow-xl transition-all duration-300",
+                idx === 2 ? "col-span-2 md:col-span-1" : ""
+              )}
+            >
+              <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110", stat.bg)}>
+                <stat.icon className={cn("w-5 h-5 md:w-6 md:h-6", stat.iconColor)} />
+              </div>
+              <p className="text-2xl md:text-4xl font-black text-foreground tracking-tighter">
+                {stat.key === 'views' ? statsData.views.toLocaleString() : statsData[stat.key as keyof typeof statsData]}
+              </p>
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-muted-foreground/60">{stat.label}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Search Bar - Floating White Card style from Explorar */}
+        <motion.div
+          className="mt-8 bg-card rounded-2xl shadow-sm p-4 flex items-center gap-4 border border-border/10"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-center gap-3 flex-1">
+            <Search className="w-5 h-5 text-muted-foreground/60" />
             <input
               type="text"
-              placeholder="Buscar por título do calendário..."
+              placeholder="Buscar por título ou tema..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/50 focus:outline-none font-medium"
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/40 focus:outline-none font-medium"
             />
-          </motion.div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/40 mr-2">Filtros:</span>
-            <button className="px-5 py-2.5 rounded-xl bg-card border border-border shadow-sm text-sm font-bold text-foreground hover:border-primary transition-all">Todos</button>
-            <button className="px-5 py-2.5 rounded-xl bg-card border border-border shadow-sm text-sm font-bold text-muted-foreground hover:border-primary transition-all">Ativos</button>
-            <button className="px-5 py-2.5 rounded-xl bg-card border border-border shadow-sm text-sm font-bold text-muted-foreground hover:border-primary transition-all">Rascunhos</button>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Error */}
-      {error && (
-        <div className="px-4 mb-4">
-          <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-4 text-destructive text-sm">
-            {error}
-          </div>
-        </div>
-      )}
-
-      {/* Calendar List */}
-      <div className="px-4 pb-12 max-w-[1600px] lg:mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-8">
-          {filteredCalendars.map((calendar, index) => {
-            console.log('MeusCalendarios: Rendering card for', calendar.id, calendar.title);
-            return (
-              <motion.div
-                key={calendar.id}
-                className="group relative bg-card rounded-[2.5rem] p-8 shadow-card flex flex-col gap-6 cursor-pointer border border-border/30 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 overflow-hidden"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + index * 0.05 }}
-                onClick={() => navigate(`/calendario/${calendar.id}`)}
-              >
-                {/* Visual Flair background */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[40px] -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
-
-                <div className="flex items-center justify-between gap-4">
-                  {/* Thumbnail larger */}
-                  <div
-                    className={`w-20 h-20 rounded-[1.5rem] ${getThemeBg(
-                      calendar.theme_id
-                    )} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500`}
-                  >
-                    <span className="text-4xl animate-bounce-slow">
-                      {getThemeEmoji(calendar.theme_id)}
-                    </span>
-                  </div>
-
-                  {/* Top Actions */}
-                  <div className="flex flex-col items-end gap-2">
-                    {getStatusBadge(calendar.status)}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="w-10 h-10 rounded-xl hover:bg-primary/10 flex items-center justify-center transition-all group/more"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreVertical className="w-5 h-5 text-muted-foreground group-hover/more:text-primary" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 backdrop-blur-xl rounded-2xl p-2 shadow-2xl">
-                        <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
-                          Ações do Calendário
-                        </DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/calendario/${calendar.id}`);
-                          }}
-                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
-                        >
-                          <Eye className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-bold">Visualizar</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/editar-dia/${calendar.id}/1`);
-                          }}
-                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
-                        >
-                          <Edit2 className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-bold">Editar Surpresas</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/calendario/${calendar.id}/configuracoes`);
-                          }}
-                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
-                        >
-                          <Settings className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-bold">Configurações</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/calendario/${calendar.id}/estatisticas`);
-                          }}
-                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
-                        >
-                          <BarChart3 className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-bold">Estatísticas</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-border/50 my-2" />
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCalendarToDelete({ id: calendar.id, title: calendar.title });
-                          }}
-                          className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-festive-red/10 text-festive-red transition-colors group"
-                        >
-                          <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-bold">Excluir Permanente</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-
-                {/* Info expanded */}
-                <div className="space-y-2">
-                  <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-2">
-                    {calendar.title}
-                  </h3>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm text-primary font-black uppercase tracking-widest flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {calendar.duration} PORTAS
-                    </p>
-                    <p className="text-xs text-muted-foreground font-bold flex items-center gap-1.5">
-                      📊 {(calendar.views ?? 0).toLocaleString()} visualizações
-                    </p>
-                  </div>
-                </div>
-
-                {/* Stats bar indicator */}
-                <div className="mt-2 h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all duration-1000" style={{ width: '65%' }} />
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Editado recent.</span>
-                  <div className="w-8 h-8 rounded-full border-2 border-background bg-card flex items-center justify-center text-[10px] font-black shadow-sm">
-                    {profile?.avatar || 'PH'}
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </div>
-
-        {filteredCalendars.length === 0 && !loading && (
-          <EmptyState
-            title="Ainda não há calendários por aqui"
-            description="Crie sua primeira contagem regressiva para o Carnaval, festas ou surpresas agora mesmo!"
-            buttonText="Criar Meu Primeiro Calendário"
-            onClick={() => navigate("/criar")}
-          />
-        )}
-      </div>
-      {/* Delete Confirmation Modal */}
-      <AlertDialog open={!!calendarToDelete} onOpenChange={(open) => !open && setCalendarToDelete(null)}>
-        <AlertDialogContent className="bg-card border-border/50 backdrop-blur-2xl rounded-[2.5rem] p-8 max-w-md">
-          <AlertDialogHeader>
-            <div className="w-16 h-16 rounded-2xl bg-festive-red/10 flex items-center justify-center mb-6 mx-auto">
-              <Trash2 className="w-8 h-8 text-festive-red" />
-            </div>
-            <AlertDialogTitle className="text-2xl font-black text-center text-foreground tracking-tight">
-              Excluir Calendário?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-muted-foreground font-medium pt-2">
-              Você está prestes a excluir <span className="text-foreground font-black">"{calendarToDelete?.title}"</span>. Esta ação removerá todas as surpresas e não poderá ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col sm:flex-row gap-3 mt-8">
-            <AlertDialogCancel className="flex-1 rounded-2xl border-border bg-background hover:bg-muted font-bold py-6">
-              Manter Calendário
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="flex-1 rounded-2xl bg-festive-red hover:bg-festive-red/90 text-white font-black py-6 shadow-lg shadow-festive-red/20 transition-all active:scale-95"
+        {/* List Content */}
+        <div className="mt-12">
+          {filteredCalendars.length === 0 ? (
+            <motion.div
+              className="py-20 text-center bg-card rounded-[2.5rem] border border-border/10 shadow-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
             >
-              Sim, Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+              <div className="w-20 h-20 bg-solidroad-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-solidroad-accent" />
+              </div>
+              <h2 className="text-2xl font-black text-foreground mb-2">Nada por aqui ainda</h2>
+              <p className="text-muted-foreground/60 max-w-xs mx-auto mb-8">
+                {query ? `Nenhum calendário com "${query}" foi encontrado.` : "Seus calendários aparecerão aqui. Que tal criar o primeiro agora?"}
+              </p>
+              {!query && (
+                <button
+                  onClick={() => navigate("/criar")}
+                  className="px-8 py-3.5 bg-solidroad-accent text-solidroad-text rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-glow"
+                >
+                  Criar meu Primeiro Calendário
+                </button>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={container}
+              initial="hidden"
+              animate="show"
+            >
+              {filteredCalendars.map((calendar, index) => {
+                const def = getThemeDefinition(BASE_THEMES, calendar.theme_id as any);
+                const colors = [
+                  'bg-[#FFF8E8]', 'bg-[#D4F4F0]', 'bg-[#E8F5E0]', 'bg-[#FFE5EC]'
+                ];
+                const cardBg = colors[index % colors.length];
+
+                return (
+                  <motion.div
+                    key={calendar.id}
+                    variants={item}
+                    className={cn(
+                      "group relative rounded-[2rem] p-6 bg-card border border-border/10 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden cursor-pointer",
+                      // Allow theme colors only in light mode? Or just use semantic card bg
+                      "dark:!bg-card"
+                    )}
+                    onClick={() => navigate(`/calendario/${calendar.id}`)}
+                  >
+                    {/* Hover status background color change or pattern? */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-solidroad-accent to-solidroad-green opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="w-16 h-16 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 overflow-hidden relative">
+                        {def?.id && themeImages[def.id] ? (
+                          <img
+                            src={themeImages[def.id]}
+                            alt={calendar.title}
+                            className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
+                          />
+                        ) : (
+                          <PremiumIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-solidroad-accent" />
+                        )}
+                        {/* Overlay with icon on hover */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1.5">
+                        {calendar.status === 'ativo' ? (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#2D7A5F]/10 text-[#2D7A5F] border border-[#2D7A5F]/10 animate-pulse-soft">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#2D7A5F]"></div>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Ativo</span>
+                          </div>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Inativo</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 mb-8">
+                      <h3 className="text-xl font-black text-foreground line-clamp-1 group-hover:text-solidroad-accent transition-colors tracking-tight">
+                        {calendar.title}
+                      </h3>
+                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {calendar.duration} dias</span>
+                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {calendar.views || 0}</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-5 border-t border-black/5 flex items-center justify-between">
+                      <span className="text-[10px] font-black text-solidroad-accent uppercase tracking-[0.2em] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
+                        Gerenciar <ChevronRight className="w-3 h-3" />
+                      </span>
+
+                      <div className="flex items-center gap-1">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-9 h-9 rounded-xl hover:bg-muted transition-colors flex items-center justify-center text-muted-foreground/60"
+                            >
+                              <MoreVertical className="w-5 h-5" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-card shadow-2xl border border-border/10">
+                            <DropdownMenuItem
+                              onClick={(e) => { e.stopPropagation(); navigate(`/calendario/${calendar.id}`); }}
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
+                            >
+                              <Eye className="w-4 h-4 mr-2" /> Visualizar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => { e.stopPropagation(); navigate(`/editar-dia/${calendar.id}/1`); }}
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
+                            >
+                              <Edit2 className="w-4 h-4 mr-2" /> Editar Conteúdo
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="border-border/10" />
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCalendarToDelete({ id: calendar.id, title: calendar.title || '' });
+                              }}
+                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-red-500/10 text-red-500 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Delete Dialog - Premium Style using Portal */}
+      <DeleteConfirmModal
+        isOpen={!!calendarToDelete}
+        onClose={() => setCalendarToDelete(null)}
+        onConfirm={handleDelete}
+        title="Excluir Calendário?"
+        description={
+          <>
+            Você está prestes a excluir permanentemente <strong>"{calendarToDelete?.title}"</strong>. Todos os momentos e surpresas serão perdidos.
+          </>
+        }
+      />
+    </div >
   );
 };
 

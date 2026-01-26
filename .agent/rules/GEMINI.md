@@ -83,12 +83,13 @@ When user's prompt is NOT in English:
 2. **Respond in user's language** - match their communication
 3. **Code comments/variables** remain in English
 
-### 🧹 Clean Code (Global Mandatory)
+### 🧹 Clean Code & Mandatory TDD (Global Mandatory)
 
-**ALL code MUST follow `@[skills/clean-code]` rules. No exceptions.**
+**ALL code MUST follow `@[skills/clean-code]` and `@[skills/tdd-workflow]` rules. No exceptions.**
 
+- **TDD Enforcement:** Always write the test (RED) before the implementation (GREEN).
 - **Code**: Concise, direct, no over-engineering. Self-documenting.
-- **Testing**: Mandatory. Pyramid (Unit > Int > E2E) + AAA Pattern.
+- **Testing**: Mandatory. Pyramid (Unit > Int > E2E) + AAA Pattern. Use Mocks for unit tests.
 - **Performance**: Measure first. Adhere to 2025 standards (Core Web Vitals).
 - **Infra/Safety**: 5-Phase Deployment. Verify secrets security.
 
@@ -199,11 +200,15 @@ When user's prompt is NOT in English:
 
 ### 🎭 Gemini Mode Mapping
 
-| Mode     | Agent             | Behavior                                     |
-| -------- | ----------------- | -------------------------------------------- |
-| **plan** | `project-planner` | 4-phase methodology. NO CODE before Phase 4. |
-| **ask**  | -                 | Focus on understanding. Ask questions.       |
-| **edit** | `orchestrator`    | Execute. Check `{task-slug}.md` first.       |
+| **PLANNING**   | `project-planner` | TDD Strategy Required.                    |
+| **EXECUTION**  | `orchestrator`    | **STOP!** Write Failing Test FIRST.       |
+| **VERIFICATION**| `debugger`        | Run tests. REFACTOR only if green.        |
+
+**TDD Protocol (MANDATORY):**
+1. **RED:** Write a failing unit test in `src/test/` or alongside the file.
+2. **GREEN:** Implement only what's necessary to pass.
+3. **REFACTOR:** Clean up code while keeping tests green.
+4. **REPEAT:** Next small behavior.
 
 **Plan Mode (4-Phase):**
 

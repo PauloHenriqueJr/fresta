@@ -1,243 +1,188 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Flame, Sparkles, PartyPopper } from "lucide-react";
+import { ArrowRight, Check, Sparkles, X, ChevronRight, Flame, PartyPopper, Gift, Music } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroMascot from "@/assets/hero-mascot.png";
+import mascotNatal from "@/assets/mascot-natal.jpg";
+import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
+import mascotSaoJoao from "@/assets/mascot-saojoao.png";
+import mascotPascoa from "@/assets/mascot-pascoa.jpg";
 
-interface OnboardingSlide {
-  id: string;
-  theme: "carnaval" | "saojoao" | "natal";
-  title: string;
-  highlight: string;
-  description: string;
-  buttonText: string;
-  buttonIcon: React.ReactNode;
-  bgClass: string;
-  accentClass: string;
-}
+// --- Visual Components ---
 
-const slides: OnboardingSlide[] = [
+const PhoneMockup = () => (
+  <div className="relative w-48 h-80 bg-gray-900 rounded-[2.5rem] border-[6px] border-gray-800 shadow-2xl overflow-hidden flex flex-col items-center justify-center">
+    {/* Screen */}
+    <div className="absolute inset-0 bg-white flex flex-col">
+      {/* Header */}
+      <div className="h-12 bg-green-500/10 flex items-center px-4 gap-2">
+        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-[10px] text-white font-bold">F</div>
+        <div className="h-2 w-20 bg-gray-200 rounded-full" />
+      </div>
+      {/* Chat Bubble */}
+      <div className="flex-1 p-4 bg-gray-50 flex items-center justify-center">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white p-3 rounded-2xl rounded-tl-none shadow-lg border border-gray-100 max-w-[160px]"
+        >
+          <div className="h-2 w-12 bg-green-100 rounded-full mb-2" />
+          <p className="text-[10px] text-gray-500 leading-tight">
+            Olha só o que criei! Abre o link para contarmos juntos até o Natal:
+            <br /><span className="text-blue-500">fresta.app/natal</span>
+          </p>
+        </motion.div>
+      </div>
+    </div>
+    {/* Dynamic Island */}
+    <div className="absolute top-2 w-20 h-5 bg-black rounded-full z-20" />
+  </div>
+);
+
+const ThemeCard = ({ image, title, color }: { image: string; title: string, color: string }) => (
+  <div className="bg-white rounded-2xl p-2 pb-3 shadow-[0_4px_12px_rgba(0,0,0,0.08)] border border-gray-100 flex flex-col gap-2 relative overflow-hidden">
+    <div className={`aspect-square rounded-xl overflow-hidden ${color}`}>
+      <img src={image} alt={title} className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500" />
+    </div>
+    <span className="text-[10px] font-bold text-gray-700 text-center uppercase tracking-wide">{title}</span>
+  </div>
+);
+
+const ThemeCollage = () => (
+  <div className="relative w-72 h-72">
+    <div className="absolute inset-0 grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-[2.5rem] border border-gray-100 rotate-6 transition-transform hover:rotate-3 shadow-inner">
+      <ThemeCard image={mascotCarnaval} title="Carnaval" color="bg-purple-100" />
+      <ThemeCard image={mascotSaoJoao} title="São João" color="bg-orange-100" />
+      <ThemeCard image={mascotNatal} title="Natal" color="bg-red-100" />
+      <ThemeCard image={mascotPascoa} title="Páscoa" color="bg-pink-100" />
+    </div>
+
+    {/* Decor */}
+    <motion.div
+      className="absolute -top-4 -right-4 bg-[#F6D045] p-3 rounded-2xl shadow-xl rotate-12 z-20"
+      animate={{ y: [0, -8, 0] }}
+      transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+    >
+      <Sparkles className="w-6 h-6 text-[#0E220E]" fill="#0E220E" />
+    </motion.div>
+  </div>
+);
+
+// --- Slides Data ---
+
+const slides = [
   {
-    id: "carnaval",
-    theme: "carnaval",
-    title: "Sinta a energia do",
-    highlight: "Carnaval!",
-    description: "Crie contagens regressivas vibrantes para blocos, desfiles e as festas mais animadas do ano.",
-    buttonText: "Entrar no Ritmo",
-    buttonIcon: <PartyPopper className="w-5 h-5" />,
-    bgClass: "bg-gradient-to-b from-carnaval-purple-light to-background",
-    accentClass: "bg-gradient-carnaval",
+    id: "welcome",
+    title: "Bem-vindo ao\nFresta!",
+    description: "Crie contagens regressivas incríveis para o Carnaval, São João e muito mais.",
+    visual: (
+      <div className="relative w-64 h-64 flex items-center justify-center">
+        <div className="absolute inset-0 bg-[#F6D045]/20 rounded-full blur-3xl" />
+        <img src={heroMascot} alt="Mascote" className="relative w-full h-full object-contain drop-shadow-2xl z-10" />
+      </div>
+    ),
+    btnText: "Próximo",
   },
   {
-    id: "saojoao",
-    theme: "saojoao",
-    title: "O melhor do",
-    highlight: "São João está aqui!",
-    description: "Crie contagens regressivas incríveis para o São João, Festas Juninas e muito mais.",
-    buttonText: "Começar a Festa",
-    buttonIcon: <Flame className="w-5 h-5" />,
-    bgClass: "bg-gradient-to-b from-saojoao-orange-light to-background",
-    accentClass: "bg-gradient-saojoao",
+    id: "personalize",
+    title: "Personalize com\nsua Cara",
+    description: "Escolha temas, adicione surpresas diárias e deixe tudo com o seu estilo.",
+    visual: <ThemeCollage />,
+    btnText: "Próximo",
   },
   {
     id: "share",
-    theme: "natal",
-    title: "Compartilhe a",
-    highlight: "Magia",
+    title: "Compartilhe a\nMagia",
     description: "Envie para amigos e família e acompanhe a diversão conforme eles abrem as portas.",
-    buttonText: "Começar agora",
-    buttonIcon: <Sparkles className="w-5 h-5" />,
-    bgClass: "bg-gradient-to-b from-festive-green-light to-background",
-    accentClass: "bg-gradient-festive",
+    visual: <PhoneMockup />,
+    btnText: "Começar agora",
   },
 ];
 
-const FloatingIcons = ({ theme }: { theme: string }) => {
-  const icons = {
-    carnaval: ["🎭", "🎪", "✨", "🎵"],
-    saojoao: ["🌽", "🔥", "🎆", "🪗"],
-    natal: ["🎄", "⭐", "🎁", "❄️"],
-  };
-
-  const themeIcons = icons[theme as keyof typeof icons] || icons.natal;
-
-  return (
-    <div className="absolute top-0 left-0 right-0 flex justify-around py-4">
-      {themeIcons.map((icon, i) => (
-        <motion.span
-          key={i}
-          className="text-2xl opacity-40"
-          animate={{ y: [0, -5, 0] }}
-          transition={{ duration: 2, delay: i * 0.2, repeat: Infinity }}
-        >
-          {icon}
-        </motion.span>
-      ))}
-    </div>
-  );
-};
-
-const Onboarding = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+export default function Onboarding() {
+  const [current, setCurrent] = useState(0);
   const navigate = useNavigate();
 
-  const slide = slides[currentSlide];
-  const isLastSlide = currentSlide === slides.length - 1;
-
   const handleNext = () => {
-    if (isLastSlide) {
+    if (current === slides.length - 1) {
+      localStorage.setItem("hasSeenOnboarding", "true");
       navigate("/meus-calendarios");
     } else {
-      setCurrentSlide((prev) => prev + 1);
+      setCurrent((prev) => prev + 1);
     }
   };
 
-  const handleBack = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide((prev) => prev - 1);
-    }
+  const handleSkip = () => {
+    localStorage.setItem("hasSeenOnboarding", "true");
+    navigate("/meus-calendarios");
   };
 
   return (
-    <div className={`min-h-screen ${slide.bgClass} relative overflow-hidden lg:flex lg:items-center lg:justify-center`}>
-      <FloatingIcons theme={slide.theme} />
-
-      <div className="w-full lg:max-w-[1000px] lg:mx-auto lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center lg:bg-card/30 lg:backdrop-blur-xl lg:p-12 lg:rounded-[3rem] lg:border lg:border-white/20 lg:shadow-2xl relative z-10">
-        {/* Left Column (Desktop) / Top (Mobile) - Hero Image */}
-        <div className="flex flex-col items-center">
-          {/* Header - Mobile Only */}
-          <div className="flex items-center justify-between w-full px-4 pt-4 lg:hidden">
-            {currentSlide > 0 ? (
-              <button
-                onClick={handleBack}
-                className="w-10 h-10 rounded-full bg-card/50 flex items-center justify-center shadow-sm"
-              >
-                <ArrowLeft className="w-5 h-5 text-foreground" />
-              </button>
-            ) : (
-              <div className="w-10" />
-            )}
-            <span className="text-sm font-bold text-muted-foreground/60">
-              {currentSlide + 1} / {slides.length}
-            </span>
-            <div className="w-10" />
-          </div>
-
-          <div className="px-6 pt-8 lg:p-0 w-full flex flex-col items-center lg:items-start">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={slide.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                className="flex flex-col items-center lg:items-start w-full"
-              >
-                {/* Image */}
-                <div className="relative w-full max-w-[340px] aspect-square mb-8 lg:max-w-none lg:mb-0">
-                  <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden shadow-2xl lg:rounded-[3rem] border-4 border-white/30">
-                    <img
-                      src={heroMascot}
-                      alt="Mascote"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Theme badge */}
-                  {slide.theme === "carnaval" && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-accent flex items-center justify-center shadow-xl border-4 border-white"
-                    >
-                      <span className="text-3xl">🎭</span>
-                    </motion.div>
-                  )}
-                  {slide.theme === "saojoao" && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-saojoao-orange flex items-center justify-center shadow-xl border-4 border-white"
-                    >
-                      <Flame className="w-8 h-8 text-white" />
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+    <div className="min-h-screen bg-white md:bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white md:rounded-[3rem] md:shadow-2xl md:p-8 h-[90vh] md:h-auto flex flex-col relative overflow-hidden">
+        {/* Skip Button */}
+        <div className="absolute top-6 right-6 z-20">
+          {current < slides.length - 1 && (
+            <button
+              onClick={handleSkip}
+              className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Pular
+            </button>
+          )}
         </div>
 
-        {/* Right Column (Desktop) / Bottom (Mobile) - Content */}
-        <div className="flex flex-col px-6 lg:px-0">
+        {/* Content Area */}
+        <div className="flex-1 flex flex-col">
           <AnimatePresence mode="wait">
             <motion.div
-              key={slide.id + "_text"}
+              key={current}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="flex flex-col items-center lg:items-start text-center lg:text-left"
+              transition={{ duration: 0.3 }}
+              className="flex-1 flex flex-col items-center justify-center text-center pt-10 pb-6 px-6"
             >
-              <h1 className="text-4xl font-black text-foreground leading-[1.1] lg:text-5xl lg:tracking-tighter">
-                {slide.title}{" "}
-                <span
-                  className={
-                    slide.theme === "carnaval"
-                      ? "text-carnaval-purple"
-                      : slide.theme === "saojoao"
-                        ? "text-saojoao-orange"
-                        : "text-primary"
-                  }
-                >
-                  {slide.highlight}
-                </span>
+              {/* Visual Slot */}
+              <div className="mb-10 flex items-center justify-center min-h-[280px]">
+                {slides[current].visual}
+              </div>
+
+              {/* Text */}
+              <h1 className="text-3xl font-black text-[#0E220E] mb-4 whitespace-pre-line tracking-tight">
+                {slides[current].title}
               </h1>
-              <p className="text-muted-foreground mt-6 text-lg font-medium leading-relaxed lg:text-xl lg:max-w-md">
-                {slide.description}
+              <p className="text-gray-500 font-medium text-base leading-relaxed max-w-[280px]">
+                {slides[current].description}
               </p>
             </motion.div>
           </AnimatePresence>
+        </div>
 
-          {/* Dots & Nav */}
-          <div className="flex flex-col gap-10 mt-12 lg:mt-16">
-            <div className="flex justify-center lg:justify-start gap-3">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className={`h-2.5 rounded-full transition-all duration-500 ${i === currentSlide
-                      ? `w-12 ${slide.accentClass} shadow-lg shadow-primary/20`
-                      : "w-2.5 bg-muted/40 hover:bg-muted"
-                    }`}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-4 items-center">
-              <motion.button
-                onClick={handleNext}
-                className={`w-full max-w-lg lg:max-w-xs btn-festive py-5 text-lg flex items-center justify-center gap-2 ${slide.accentClass} shadow-2xl shadow-primary/20`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="font-black tracking-tight">{slide.buttonText}</span>
-                {slide.buttonIcon}
-              </motion.button>
-
-              {currentSlide > 0 && (
-                <button
-                  onClick={handleBack}
-                  className="hidden lg:flex items-center gap-2 text-muted-foreground hover:text-foreground font-black uppercase tracking-widest text-xs transition-colors px-6"
-                >
-                  Voltar
-                </button>
-              )}
-            </div>
+        {/* Footer Controls */}
+        <div className="mt-auto px-6 pb-6 pt-4">
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mb-8">
+            {slides.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "w-8 bg-[#2D7A5F]" : "w-1.5 bg-gray-200"
+                  }`}
+              />
+            ))}
           </div>
+
+          {/* Action Button */}
+          <button
+            onClick={handleNext}
+            className="w-full h-14 bg-[#2D7A5F] hover:bg-[#23634c] active:scale-[0.98] text-white rounded-2xl font-bold text-lg shadow-lg shadow-[#2D7A5F]/20 flex items-center justify-center gap-2 transition-all"
+          >
+            {slides[current].btnText}
+            <ArrowRight className="w-5 h-5" strokeWidth={3} />
+          </button>
         </div>
       </div>
     </div>
   );
-};
-
-export default Onboarding;
+}

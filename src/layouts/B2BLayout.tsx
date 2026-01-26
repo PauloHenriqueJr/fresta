@@ -2,150 +2,202 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/state/auth/AuthProvider";
 import B2BSidebar from "@/components/b2b/B2BSidebar";
-import { LayoutDashboard, Megaphone, Plus, BarChart3, CircleUser, Settings } from "lucide-react";
+import { Plus, Settings, Menu, CircleUser, LayoutDashboard, Megaphone, BarChart3, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function B2BLayout() {
-  const { profile, logout } = useAuth();
+  const { profile, logout, themePreference, updateThemePreference } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const isTabActive = (path: string) => location.pathname === path;
 
+  const toggleTheme = () => {
+    const nextTheme = themePreference === "dark" ? "light" : "dark";
+    updateThemePreference(nextTheme);
+  };
+
   return (
     <SidebarProvider>
-      <div className="min-h-screen w-full bg-background">
+      <div className="min-h-screen w-full bg-[#F9F9F9] dark:bg-[#0E220E] transition-colors duration-300">
         {/* Desktop app shell (lg+) */}
         <div className="hidden lg:flex min-h-screen w-full">
           <B2BSidebar />
 
-          <div className="flex-1 min-w-0">
-            <header className="h-24 flex items-center justify-between border-b border-border/40 px-12 bg-card/60 backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 hover:bg-card/70">
-              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-              <div className="flex items-center gap-2">
-                <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
-                <div className="h-6 w-[1px] bg-border/50 mx-2" />
+          <div className="flex-1 min-w-0 flex flex-col">
+            {/* Header - Premium Glassmorphic Solidroad style */}
+            <header className="h-20 flex items-center justify-between px-8 sticky top-0 z-50 border-b border-border/10 bg-white/80 dark:bg-[#0E220E]/80 backdrop-blur-xl transition-colors duration-300">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger className="hover:bg-muted transition-colors rounded-lg p-2 text-solidroad-text dark:text-white/80" />
+                <div className="h-5 w-px bg-border/10" />
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Controle B2B</span>
-                  <span className="text-xl font-black tracking-tight text-foreground -mt-1 leading-none">Painel Empresarial</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/40 dark:text-white/30">
+                    Painel Empresarial
+                  </span>
+                  <span className="text-base font-bold tracking-tight -mt-0.5 text-solidroad-text dark:text-solidroad-accent">
+                    Fresta B2B
+                  </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
+                {/* Theme Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#F9F9F9] dark:bg-white/5 text-[#0E220E] dark:text-[#F6D045] transition-all hover:scale-105"
+                  title={themePreference === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
+                >
+                  {themePreference === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                {/* Create button */}
+                <button
+                  onClick={() => navigate("/b2b/campanhas/nova")}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all hover:shadow-md bg-[#F6D045] text-[#0E220E]"
+                >
+                  <Plus className="w-4 h-4" />
+                  Nova Campanha
+                </button>
+
+                {/* Logout */}
                 <button
                   onClick={() => {
                     logout();
                     navigate("/entrar");
                   }}
-                  className="px-6 py-2.5 rounded-2xl bg-muted text-foreground text-xs font-black hover:bg-muted/80 transition-all uppercase tracking-widest"
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-muted text-muted-foreground/60 dark:text-white/40"
                 >
                   Sair
                 </button>
               </div>
             </header>
 
-            <main className="p-8 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full">
+            {/* Main content */}
+            <main className="flex-1 p-6 lg:p-8 xl:p-10 max-w-[1400px] mx-auto w-full">
               <Outlet />
             </main>
           </div>
         </div>
 
-        {/* Mobile View with Bottom Nav */}
+        {/* Mobile View */}
         <div className="lg:hidden flex-1 flex flex-col relative pb-20">
-          <header className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/60 backdrop-blur-xl sticky top-0 z-50">
-            <div className="flex flex-col">
-              <span className="text-[8px] font-black uppercase tracking-widest text-primary/60">Corporativo</span>
-              <span className="text-lg font-black tracking-tight text-foreground -mt-1 leading-none">Fresta B2B</span>
+          {/* Mobile Header */}
+          <header className="h-14 flex items-center justify-between px-4 sticky top-0 z-50 border-b bg-white dark:bg-[#0E220E] border-border/10 transition-colors duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#F6D045]">
+                <Menu className="w-4 h-4 text-[#0E220E]" />
+              </div>
+              <span className="text-base font-bold text-[#0E220E] dark:text-white">
+                Fresta B2B
+              </span>
             </div>
-            <button
-              onClick={() => navigate("/b2b/privacidade")}
-              className="w-10 h-10 rounded-2xl bg-muted/50 flex items-center justify-center border border-border/50"
-            >
-              <Settings className="w-5 h-5 text-muted-foreground" />
-            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#F9F9F9] dark:bg-white/5 text-[#0E220E] dark:text-[#F6D045]"
+              >
+                {themePreference === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button
+                onClick={() => navigate("/b2b/privacidade")}
+                className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#F9F9F9] dark:bg-white/5 text-muted-foreground/60 dark:text-white/40"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
           </header>
 
+          {/* Mobile Content */}
           <main className="flex-1 p-4 overflow-x-hidden">
             <Outlet />
           </main>
 
-          {/* SHARED BOTTOM NAV - B2B MOBILE */}
-          <div className="fixed bottom-0 left-0 right-0 z-[100] safe-area-bottom bg-background/80 backdrop-blur-xl border-t border-border/40 px-2 py-1">
-            <nav className="flex items-center justify-around max-w-lg mx-auto h-16 relative">
-
-              {/* DASHBOARD */}
+          {/* Bottom Navigation - Solidroad style */}
+          <div className="fixed bottom-0 left-0 right-0 z-[100] safe-area-bottom border-t bg-white dark:bg-[#0E220E] border-border/10 px-2 py-2">
+            <nav className="flex items-center justify-around max-w-lg mx-auto h-14 relative">
+              {/* Dashboard */}
               <button
                 onClick={() => navigate("/b2b")}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/b2b") ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
-                  }`}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all",
+                  isTabActive("/b2b") ? "text-[#0E220E] dark:text-[#F6D045]" : "text-muted-foreground/40"
+                )}
               >
-                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/b2b") ? "bg-primary/10" : ""}`}>
-                  <LayoutDashboard className="w-6 h-6" />
+                <div className={cn(
+                  "p-2 rounded-xl transition-colors",
+                  isTabActive("/b2b") ? "bg-[#F6D045]" : "transparent"
+                )}>
+                  <LayoutDashboard className="w-5 h-5" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest">Painel</span>
+                <span className="text-[10px] font-semibold">Painel</span>
               </button>
 
-              {/* CAMPANHAS */}
+              {/* Campanhas */}
               <button
                 onClick={() => navigate("/b2b/campanhas")}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/b2b/campanhas") ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
-                  }`}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all",
+                  isTabActive("/b2b/campanhas") ? "text-[#0E220E] dark:text-[#F6D045]" : "text-muted-foreground/40"
+                )}
               >
-                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/b2b/campanhas") ? "bg-primary/10" : ""}`}>
-                  <Megaphone className="w-6 h-6" />
+                <div className={cn(
+                  "p-2 rounded-xl transition-colors",
+                  isTabActive("/b2b/campanhas") ? "bg-[#F6D045]" : "transparent"
+                )}>
+                  <Megaphone className="w-5 h-5" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-center">Campanhas</span>
+                <span className="text-[10px] font-semibold">Campanhas</span>
               </button>
 
-              {/* NOVO (+) */}
-              <div className="flex-1 flex justify-center -mt-8">
+              {/* Create Button (FAB) */}
+              <div className="flex-1 flex justify-center -mt-6">
                 <motion.button
-                  className="bg-primary text-primary-foreground w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg bg-[#F6D045]"
                   onClick={() => navigate("/b2b/campanhas/nova")}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <Plus className="w-8 h-8" strokeWidth={3} />
+                  <Plus className="w-6 h-6 text-[#0E220E]" strokeWidth={2.5} />
                 </motion.button>
               </div>
 
-              {/* ANALYTICS */}
+              {/* Analytics */}
               <button
                 onClick={() => navigate("/b2b/analytics")}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/b2b/analytics") ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
-                  }`}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all",
+                  isTabActive("/b2b/analytics") ? "text-[#0E220E] dark:text-[#F6D045]" : "text-muted-foreground/40"
+                )}
               >
-                <div className={`p-1.5 rounded-xl transition-colors ${isTabActive("/b2b/analytics") ? "bg-primary/10" : ""}`}>
-                  <BarChart3 className="w-6 h-6" />
+                <div className={cn(
+                  "p-2 rounded-xl transition-colors",
+                  isTabActive("/b2b/analytics") ? "bg-[#F6D045]" : "transparent"
+                )}>
+                  <BarChart3 className="w-5 h-5" />
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest">Relatórios</span>
+                <span className="text-[10px] font-semibold">Relatórios</span>
               </button>
 
-              {/* PERFIL */}
+              {/* Profile */}
               <button
                 onClick={() => navigate("/b2b/perfil")}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/b2b/perfil") ? "text-primary" : "text-muted-foreground/60"
-                  }`}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all",
+                  isTabActive("/b2b/perfil") ? "text-[#0E220E] dark:text-[#F6D045]" : "text-muted-foreground/40"
+                )}
               >
-                <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl p-0.5 transition-colors ${isTabActive("/b2b/perfil") ? "bg-primary/10" : ""}`}>
-                  {profile && profile.avatar ? (
-                    <div className={`w-full h-full rounded-full overflow-hidden border transition-colors ${isTabActive("/b2b/perfil") ? "border-primary" : "border-border/50"
-                      }`}>
-                      <img
-                        src={profile.avatar}
-                        alt="Perfil"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                      <CircleUser className="w-full h-full text-muted-foreground hidden" />
-                    </div>
+                <div className={cn(
+                  "p-2 rounded-xl transition-colors",
+                  isTabActive("/b2b/perfil") ? "bg-[#F6D045]" : "transparent"
+                )}>
+                  {profile?.avatar ? (
+                    <img src={profile.avatar} alt="" className="w-5 h-5 rounded-full object-cover" />
                   ) : (
-                    <CircleUser className={`w-6 h-6 ${isTabActive("/b2b/perfil") ? "text-primary" : "text-muted-foreground"}`} />
+                    <CircleUser className="w-5 h-5" />
                   )}
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest">Perfil</span>
+                <span className="text-[10px] font-semibold">Perfil</span>
               </button>
             </nav>
           </div>

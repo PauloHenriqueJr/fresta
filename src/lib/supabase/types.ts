@@ -319,6 +319,45 @@ export type Database = {
           },
         ]
       }
+      theme_defaults: {
+        Row: {
+          theme_id: string
+          default_title: string
+          default_header_message: string | null
+          default_footer_message: string | null
+          default_capsule_title: string | null
+          default_capsule_message: string | null
+          default_locked_title: string | null
+          default_locked_message: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          theme_id: string
+          default_title: string
+          default_header_message?: string | null
+          default_footer_message?: string | null
+          default_capsule_title?: string | null
+          default_capsule_message?: string | null
+          default_locked_title?: string | null
+          default_locked_message?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          theme_id?: string
+          default_title?: string
+          default_header_message?: string | null
+          default_footer_message?: string | null
+          default_capsule_title?: string | null
+          default_capsule_message?: string | null
+          default_locked_title?: string | null
+          default_locked_message?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       calendars: {
         Row: {
           created_at: string | null
@@ -326,6 +365,7 @@ export type Database = {
           id: string
           likes: number | null
           owner_id: string
+          password: string | null
           privacy: Database["public"]["Enums"]["calendar_privacy"]
           shares: number | null
           start_date: string | null
@@ -334,6 +374,12 @@ export type Database = {
           title: string
           updated_at: string | null
           views: number | null
+          header_message: string | null
+          footer_message: string | null
+          capsule_title: string | null
+          capsule_message: string | null
+          locked_title: string | null
+          locked_message: string | null
         }
         Insert: {
           created_at?: string | null
@@ -341,6 +387,7 @@ export type Database = {
           id?: string
           likes?: number | null
           owner_id: string
+          password?: string | null
           privacy?: Database["public"]["Enums"]["calendar_privacy"]
           shares?: number | null
           start_date?: string | null
@@ -349,6 +396,12 @@ export type Database = {
           title: string
           updated_at?: string | null
           views?: number | null
+          header_message?: string | null
+          footer_message?: string | null
+          capsule_title?: string | null
+          capsule_message?: string | null
+          locked_title?: string | null
+          locked_message?: string | null
         }
         Update: {
           created_at?: string | null
@@ -356,6 +409,7 @@ export type Database = {
           id?: string
           likes?: number | null
           owner_id?: string
+          password?: string | null
           privacy?: Database["public"]["Enums"]["calendar_privacy"]
           shares?: number | null
           start_date?: string | null
@@ -364,6 +418,12 @@ export type Database = {
           title?: string
           updated_at?: string | null
           views?: number | null
+          header_message?: string | null
+          footer_message?: string | null
+          capsule_title?: string | null
+          capsule_message?: string | null
+          locked_title?: string | null
+          locked_message?: string | null
         }
         Relationships: []
       }

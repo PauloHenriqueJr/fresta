@@ -1,13 +1,16 @@
 /// <reference lib="webworker" />
 
 const CACHE_NAME = 'fresta-v1';
-const OFFLINE_URL = '/fresta/offline.html';
+// Detecta se está rodando no GitHub Pages (path /fresta/) ou Localhost
+const BASE_PATH = self.location.pathname.startsWith('/fresta') ? '/fresta' : '';
+
+const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-    '/fresta/',
-    '/fresta/index.html',
-    '/fresta/manifest.json'
+    `${BASE_PATH}/`,
+    `${BASE_PATH}/index.html`,
+    `${BASE_PATH}/manifest.json`
 ];
 
 // Install event - cache core assets
@@ -80,11 +83,11 @@ self.addEventListener('push', (event) => {
 
     const options = {
         body: data.body,
-        icon: '/fresta/icon-192.png',
-        badge: '/fresta/icon-192.png',
+        icon: `${BASE_PATH}/icon-192.png`,
+        badge: `${BASE_PATH}/icon-192.png`,
         vibrate: [100, 50, 100],
         data: {
-            url: data.url || '/fresta/',
+            url: data.url || `${BASE_PATH}/`,
             dateOfArrival: Date.now()
         },
         actions: [
@@ -108,13 +111,13 @@ self.addEventListener('notificationclick', (event) => {
 
     if (event.action === 'close') return;
 
-    const urlToOpen = event.notification.data?.url || '/fresta/';
+    const urlToOpen = event.notification.data?.url || `${BASE_PATH}/`;
 
     event.waitUntil(
         self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
             // Focus existing window if available
             for (const client of clients) {
-                if (client.url.includes('/fresta/') && 'focus' in client) {
+                if (client.url.includes(`${BASE_PATH}/`) && 'focus' in client) {
                     return client.focus();
                 }
             }

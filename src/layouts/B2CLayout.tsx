@@ -2,11 +2,11 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import B2CSidebar from "@/components/b2c/B2CSidebar";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { Plus, Search, Calendar, CircleUser, Home } from "lucide-react";
+import { Plus, Search, Calendar, CircleUser, Home, Moon, Sun, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function B2CLayout() {
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, themePreference, updateThemePreference } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,44 +21,46 @@ export default function B2CLayout() {
           <B2CSidebar />
 
           <div className="flex-1 min-w-0">
-            <header className="h-24 flex items-center justify-between border-b border-border/40 px-12 bg-card/60 backdrop-blur-2xl sticky top-0 z-50 transition-all duration-300 hover:bg-card/70">
-              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-              <div className="flex items-center gap-2">
-                <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
-                <div className="h-6 w-[1px] bg-border/50 mx-2" />
+            {/* Header - Premium Glassmorphic Solidroad style (Matching B2B) */}
+            <header className="h-20 flex items-center justify-between px-8 sticky top-0 z-40 border-b border-border/10 bg-white/80 dark:bg-[#0E220E]/80 backdrop-blur-xl transition-colors duration-300">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger className="hover:bg-muted transition-colors rounded-lg p-2 text-solidroad-text dark:text-white/80" />
+                <div className="h-5 w-px bg-border/10" />
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Controle</span>
-                  <span className="text-xl font-black tracking-tight text-foreground -mt-1 leading-none">Painel Central</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">
+                    Olá, {profile?.display_name?.split(' ')[0] || 'usuário'}
+                  </span>
+                  <span className="text-lg font-medium tracking-tight text-solidroad-text dark:text-[#F6D045] -mt-0.5">Painel Central</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="hidden xl:flex items-center bg-muted/50 rounded-2xl px-4 py-2 border border-border/50 group focus-within:border-primary/50 transition-all">
-                  <span className="text-muted-foreground mr-2">🔍</span>
+                <div className="hidden xl:flex items-center bg-muted/50 dark:bg-card rounded-2xl px-4 py-2.5 border border-border/10 group focus-within:border-solidroad-accent/50 focus-within:ring-2 focus-within:ring-solidroad-accent/10 transition-all">
+                  <Search className="w-4 h-4 text-muted-foreground/60 mr-2" />
                   <input
                     type="text"
                     placeholder="Busca global..."
-                    className="bg-transparent border-none outline-none text-sm w-64 placeholder:text-muted-foreground/50"
+                    className="bg-transparent border-none outline-none text-sm w-64 placeholder:text-muted-foreground/40 font-medium text-foreground"
                   />
                 </div>
 
                 {/* Dark Mode Toggle */}
                 <button
                   onClick={() => {
-                    const isDark = document.documentElement.classList.toggle("dark");
-                    localStorage.setItem("fresta_darkmode", String(isDark));
+                    const nextTheme = themePreference === "dark" ? "light" : "dark";
+                    updateThemePreference(nextTheme);
                   }}
-                  className="p-3 rounded-2xl bg-muted/50 border border-border/50 text-foreground hover:bg-muted transition-all"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center bg-muted/50 dark:bg-card text-foreground dark:text-solidroad-accent transition-all hover:scale-105 border border-border/10"
                   title="Alternar modo claro/escuro"
                 >
-                  <span className="dark:hidden">🌙</span>
-                  <span className="hidden dark:inline">☀️</span>
+                  {themePreference === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
 
                 <button
                   onClick={() => navigate("/premium")}
-                  className="px-6 py-2.5 rounded-2xl bg-gradient-festive text-white text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                  className="px-6 py-2.5 rounded-xl bg-solidroad-accent text-solidroad-text text-sm font-black shadow-glow-accent hover:scale-105 transition-all flex items-center gap-2"
                 >
+                  <Sparkles className="w-4 h-4" />
                   Seja Premium
                 </button>
               </div>

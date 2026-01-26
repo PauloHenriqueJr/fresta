@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import LandingPage from "./pages/LandingPage";
+import LandingPageBrand from "./pages/LandingPageBrand";
 import Contato from "./pages/Contato";
 import Privacidade from "./pages/Privacidade";
 import Termos from "./pages/Termos";
@@ -94,20 +95,36 @@ const AuthHandler = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
+    const pathname = window.location.pathname;
 
-    // 1. Normalização Imediata: Se o hash é um fragmento de auth pura (#access_token)
-    // Precisamos converter para #/access_token para o HashRouter não dar 404
-    if (hash && (hash.includes("access_token=") || hash.includes("error_description=")) && !hash.startsWith("#/")) {
-      console.log("App: Normalizando sessão para o roteador");
-      window.location.hash = "/" + hash.substring(1);
+    // 0. Correção de Rota (Path -> Hash): Se acessar /c/ID diretamente
+    if (pathname.startsWith('/c/')) {
+      console.log("App: Convertendo rota de path para hash");
+      window.location.href = `${window.location.origin}/#${pathname}${hash}`;
       return;
     }
 
-    // 2. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
+    // 1. Redirecionamento Pós-Login: Se a sessão já foi estabelecida e ainda temos o token na URL
     if (hash && (hash.includes("access_token=") || hash.includes("error_description="))) {
       if (session) {
-        console.log("App: Navegando para o painel principal");
-        navigate("/meus-calendarios", { replace: true });
+        // Ignorar se for link público
+        if (hash.includes("#/c/") || window.location.pathname.startsWith('/c/')) return;
+
+        // Limpar o fragmento de autenticação agora que temos a sessão
+        // Isso evita loops de normalização
+        const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+
+        if (!hasSeenOnboarding) {
+          console.log("App: Novo usuário detectado, indo para onboarding");
+          navigate("/onboarding", { replace: true });
+        } else {
+          console.log("App: Navegando para o painel principal");
+          navigate("/meus-calendarios", { replace: true });
+        }
+      } else if (!hash.startsWith("#/")) {
+        // Normalização preventiva para o HashRouter se ainda não tivermos sessão
+        // Mas o AppContent deve estar mostrando o Loader agora
+        console.log("App: Fragmento de auth detectado, aguardando sessão...");
       }
     }
   }, [session, isLoading, navigate]);
@@ -116,15 +133,22 @@ const AuthHandler = () => {
 };
 
 const AppContent = () => {
-  const { isLoading } = useAuth();
+  const { isLoading, session } = useAuth();
+  const hash = window.location.hash;
+  const isAuthenticating = hash.includes("access_token=") || hash.includes("error_description=");
 
-  if (isLoading) return <Loader />;
+  // Se estiver carregando auth inicial OU se tivermos um fragmento de token mas o Supabase ainda não emitiu a sessão,
+  // mostramos o Loader para evitar que o HashRouter interprete o token como uma rota inexistente (404).
+  if (isLoading || (isAuthenticating && !session)) {
+    return <Loader />;
+  }
 
   return (
     <HashRouter>
       <AuthHandler />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/landing-brand" element={<LandingPageBrand />} />
         <Route path="/portal" element={<Gateway />} />
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />

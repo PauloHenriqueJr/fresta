@@ -15,6 +15,8 @@ interface DaySurpriseModalProps {
   theme?: string;
 }
 
+import { LoveLetterModal } from "@/lib/themes/themeComponents";
+
 const DaySurpriseModal = ({
   isOpen,
   onClose,
@@ -23,6 +25,22 @@ const DaySurpriseModal = ({
   theme = "default",
 }: DaySurpriseModalProps) => {
   const { toast } = useToast();
+
+  if (theme === "namoro") {
+    return (
+      <LoveLetterModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Porta ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    );
+  }
+
   const getGradientClass = () => {
     switch (theme) {
       case "carnaval":

@@ -1,0 +1,166 @@
+name: 🚀 Deploy Fresta (Docker & Traefik)
+
+on:
+  push:
+    branches: [ main, dev ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão para Rollback (ex: v1.2.0). Deixe vazio para deploy normal.'
+        required: false
+        default: ''
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: paulohenriquejr/fresta
+  # Configuração Dinâmica baseada na Branch
+  SERVICE_NAME: ${{ github.ref == 'refs/heads/main' && 'fresta-app' || 'fresta-dev' }}
+  DOMAIN_URL: ${{ github.ref == 'refs/heads/main' && 'fresta.storyspark.com.br' || 'dev-fresta.storyspark.com.br' }}
+
+jobs:
+  # 1. Job de Release (Apenas Main) - Cria Tag e Changelog AUTOMÁTICO
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+
+  # 2. Build e Push da Imagem
+  build-and-push:
+    runs-on: ubuntu-latest
+    # Pula o build se uma versão específica for informada para rollback
+    # always() garante que rode mesmo se release for pulado (caso da dev)
+    if: always() && github.event.inputs.version == ''
+    # Só depende do release na main, na dev roda diretamente
+    needs: [release]
+    # Permite rodar mesmo se release for pulado (caso da dev)
+    # O "if: always()" combinado com a checagem abaixo garante isso
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: 📥 Checkout código
+      uses: actions/checkout@v4
+
+    - name: 🐳 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: 🔑 Login no GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🏷️ Definir Tags
+      id: meta
+      run: |
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          # Se criou release, usa a tag (v1.0.0) E latest
+          if [ "${{ needs.release.outputs.release_created }}" = "true" ]; then
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.tag_name }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+            echo "version=${{ needs.release.outputs.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
+            echo "version=latest" >> $GITHUB_OUTPUT
+          fi
+        else
+          # Dev branch
+          echo "tags=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev" >> $GITHUB_OUTPUT
+          echo "version=dev" >> $GITHUB_OUTPUT
+        fi
+
+    - name: 🏗️ Build and Push Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+    
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+
+  # 3. Deploy na VPS
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, release]
+    # Executa se for dev OU se for main (garante que rode mesmo sem release novo)
+    if: always() && (needs.build-and-push.result == 'success')
+    
+    steps:
+    - name: 🚀 Atualizar serviço na VPS via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      env:
+        SERVICE_NAME: ${{ env.SERVICE_NAME }}
+        DOMAIN_URL: ${{ env.DOMAIN_URL }}
+        # Se veio do input (ROLLBACK), usa o input. Senão usa o output do build (DEPLOY). 
+        # Se os dois falharem (caso raro de falha no build sem input), usa 'latest' como fallback.
+        IMAGE_TAG: ${{ github.event.inputs.version != '' && github.event.inputs.version || needs.build-and-push.outputs.version || 'latest' }}
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        envs: SERVICE_NAME,DOMAIN_URL,IMAGE_TAG
+        script: |
+          echo "🚀 Iniciando deploy do $SERVICE_NAME ($IMAGE_TAG) em $DOMAIN_URL..."
+          
+          # 1. Configurações
+          INFRA_PATH="${{ secrets.VPS_INFRA_PATH || '/root' }}"
+          COMPOSE_FILE="docker-compose.$SERVICE_NAME.yml"
+          
+          echo "📂 Acessando diretório: $INFRA_PATH"
+          cd "$INFRA_PATH" || { echo "❌ Erro: Diretório $INFRA_PATH não encontrado"; exit 1; }
+
+          # 2. Login no GHCR
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # 3. Gerar Arquivo Docker Compose Dedicado (Mais Seguro)
+          echo "📝 Criando arquivo de deploy: $COMPOSE_FILE"
+          cat <<EOF > "$COMPOSE_FILE"
+          services:
+            $SERVICE_NAME:
+              image: ghcr.io/paulohenriquejr/fresta:$IMAGE_TAG
+              container_name: $SERVICE_NAME
+              restart: unless-stopped
+              networks:
+                - traefik
+              labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.$SERVICE_NAME.rule=Host(\`$DOMAIN_URL\`)"
+                - "traefik.http.routers.$SERVICE_NAME.entrypoints=websecure"
+                - "traefik.http.routers.$SERVICE_NAME.tls.certresolver=mytlschallenge"
+                - "traefik.http.services.$SERVICE_NAME.loadbalancer.server.port=80"
+
+          networks:
+            traefik:
+              external: true
+          EOF
+
+          # 4. Pull e Update
+          echo "📥 Baixando imagem..."
+          docker compose -f "$COMPOSE_FILE" pull
+          
+          echo "🚀 Subindo serviço..."
+          docker compose -f "$COMPOSE_FILE" up -d
+          
+          # 5. Limpeza
+          docker image prune -f
+          
+          echo "✅ Deploy de $SERVICE_NAME ($IMAGE_TAG) concluído com sucesso!"

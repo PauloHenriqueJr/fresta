@@ -26,32 +26,16 @@ const CalendarGrid = ({
   theme = "default",
 }: CalendarGridProps) => {
   const visibleDays = days;
-  const remainingDays = 0;
 
   return (
     <motion.div
-      className="card-festive"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">
-            {month}
-          </span>
-          <h3 className="text-xl font-extrabold text-foreground mt-1">
-            {title}
-          </h3>
-        </div>
-        <button className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent-foreground hover:bg-accent/30 transition-colors">
-          <Calendar className="w-5 h-5 text-primary" />
-        </button>
-      </div>
-
+      {/* Clean Grid Header if needed, or remove if parent handles it. Keeping it clean inside grid. */}
       {/* Calendar Grid */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
         {visibleDays.map((dayData) => (
           <DayCard
             key={dayData.day}
@@ -65,17 +49,6 @@ const CalendarGrid = ({
           />
         ))}
       </div>
-
-      {/* See all days link */}
-      {remainingDays > 0 && (
-        <motion.button
-          className="w-full mt-4 py-3 text-sm font-semibold text-primary bg-secondary rounded-xl hover:bg-secondary/80 transition-colors"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Ver todos os {days.length} dias
-        </motion.button>
-      )}
     </motion.div>
   );
 };

@@ -4,9 +4,9 @@ import {
   MoreVertical,
   Eye,
   Edit2,
-  Archive,
   Trash2,
-  BarChart2
+  BarChart2,
+  ChevronRight
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -14,9 +14,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 type Props = {
   campaigns: B2BCampaign[];
@@ -32,99 +32,96 @@ const statusLabel: Record<B2BCampaign["status"], string> = {
 export default function B2BCampaignsTable({ campaigns, onOpen }: Props) {
   const navigate = useNavigate();
   return (
-    <div className="rounded-3xl border border-border bg-card shadow-card overflow-hidden">
+    <div className="rounded-2xl border border-border/10 bg-white dark:bg-white/5 shadow-sm overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Campanha</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Tema</TableHead>
-            <TableHead className="text-right">Views</TableHead>
-            <TableHead className="text-right">Aberturas</TableHead>
-            <TableHead className="text-right">Leads</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
+        <TableHeader className="bg-[#F9F9F9] dark:bg-white/5">
+          <TableRow className="hover:bg-transparent border-border/5">
+            <TableHead className="py-4 text-[#0E220E] dark:text-white/60 font-bold uppercase text-[10px] tracking-widest pl-6">Campanha</TableHead>
+            <TableHead className="py-4 text-[#0E220E] dark:text-white/60 font-bold uppercase text-[10px] tracking-widest">Status</TableHead>
+            <TableHead className="py-4 text-[#0E220E] dark:text-white/60 font-bold uppercase text-[10px] tracking-widest">Tema</TableHead>
+            <TableHead className="py-4 text-[#0E220E] dark:text-white/60 font-bold uppercase text-[10px] tracking-widest text-right">Views</TableHead>
+            <TableHead className="py-4 text-[#0E220E] dark:text-white/60 font-bold uppercase text-[10px] tracking-widest text-right">Aberturas</TableHead>
+            <TableHead className="py-4 text-[#0E220E] dark:text-white/60 font-bold uppercase text-[10px] tracking-widest text-right">Engajamento</TableHead>
+            <TableHead className="py-4 text-right pr-6"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {campaigns.map((c) => (
-            <TableRow key={c.id} className="cursor-pointer" onClick={() => onOpen(c.id)}>
-              <TableCell>
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground truncate">{c.title}</p>
-                  <p className="text-xs text-muted-foreground">{c.duration} dias</p>
+            <TableRow
+              key={c.id}
+              className="group cursor-pointer border-border/5 hover:bg-[#F9F9F9] dark:hover:bg-white/5 transition-colors"
+              onClick={() => onOpen(c.id)}
+            >
+              <TableCell className="py-4 pl-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#F6D045] flex items-center justify-center font-bold text-[#0E220E] shrink-0">
+                    {c.title.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#0E220E] dark:text-white truncate lg:max-w-[200px]">{c.title}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground/60 dark:text-white/30 uppercase">{c.duration} dias de jornada</p>
+                  </div>
                 </div>
               </TableCell>
               <TableCell>
-                <span className="text-xs font-bold px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                <span className={cn(
+                  "text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider",
+                  c.status === 'active' ? "bg-[#E8F5E0] text-[#2D7A5F]" : "bg-muted dark:bg-white/10 text-muted-foreground/60"
+                )}>
                   {statusLabel[c.status]}
                 </span>
               </TableCell>
               <TableCell>
-                <span className="text-xs font-bold px-2 py-1 rounded-full bg-muted text-foreground">
-                  {c.theme.toUpperCase()}
-                </span>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#F6D045]" />
+                  <span className="text-xs font-bold text-[#0E220E] dark:text-white/80 uppercase tracking-tight">
+                    {c.theme}
+                  </span>
+                </div>
               </TableCell>
-              <TableCell className="text-right font-semibold text-foreground">{c.stats.views}</TableCell>
-              <TableCell className="text-right font-semibold text-foreground">{c.stats.opens}</TableCell>
-              <TableCell className="text-right font-semibold text-foreground">{c.stats.leads}</TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-card border-border/50 backdrop-blur-xl rounded-2xl p-2 shadow-2xl">
-                    <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 px-3 py-2">
-                      Ações da Campanha
-                    </DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpen(c.id);
-                      }}
-                      className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group"
-                    >
-                      <Eye className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-bold">Ver Detalhes</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
-                      <BarChart2 className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-bold">Relatório Full</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors group">
-                      <Edit2 className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-bold">Editar Setup</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-border/50 my-2" />
-                    <DropdownMenuItem className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-orange-500/10 text-orange-500 transition-colors group">
-                      <Archive className="w-4 h-4" />
-                      <span className="text-sm font-bold">Arquivar</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer hover:bg-rose-500/10 text-rose-500 transition-colors group"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span className="text-sm font-bold">Excluir</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{c.stats.views}</TableCell>
+              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{c.stats.opens}</TableCell>
+              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{c.stats.leads}</TableCell>
+              <TableCell className="text-right pr-6">
+                <div className="flex items-center justify-end gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-2 rounded-lg hover:bg-white dark:hover:bg-white/10 text-muted-foreground/40 transition-all"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-[#163316] border border-border/10 rounded-xl p-2 shadow-xl">
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpen(c.id);
+                        }}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-muted dark:hover:bg-white/5"
+                      >
+                        <Eye className="w-4 h-4 text-[#0E220E] dark:text-white" />
+                        <span className="text-sm font-bold text-[#0E220E] dark:text-white">Ver Detalhes</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-muted dark:hover:bg-white/5">
+                        <Edit2 className="w-4 h-4 text-[#0E220E] dark:text-white" />
+                        <span className="text-sm font-bold text-[#0E220E] dark:text-white">Editar</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-border/10" />
+                      <DropdownMenuItem className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500">
+                        <Trash2 className="w-4 h-4" />
+                        <span className="text-sm font-bold">Excluir</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-
-      {campaigns.length === 0 && (
-        <div className="p-8 text-center border-t border-border bg-background/30">
-          <p className="font-bold text-foreground">Nenhuma campanha ainda</p>
-          <p className="text-sm text-muted-foreground mt-1">Crie sua primeira campanha para começar a medir resultados.</p>
-        </div>
-      )}
     </div>
   );
 }

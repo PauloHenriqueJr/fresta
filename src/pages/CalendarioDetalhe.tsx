@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Settings, BarChart3, Share2, Loader2, Eye, Edit, Info } from "lucide-react";
+import { ArrowLeft, Settings, BarChart3, Share2, Loader2, Eye, Edit, Info, Sparkles, Calendar, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
@@ -9,15 +9,42 @@ import { useAuth } from "@/state/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/lib/supabase/types";
 import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
-import { format, addDays, parseISO, startOfDay } from "date-fns";
+import { format, addDays, parseISO, startOfDay, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { getThemeConfig } from "@/lib/themes/registry";
+import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
 import { cn } from "@/lib/utils";
+import {
+  LoveLetterModal,
+  WeddingBackground,
+  WeddingHeader,
+  WeddingProgress,
+  WeddingDayCard,
+  WeddingSpecialCard,
+  WeddingDiarySection,
+  WeddingFooter,
+  WeddingTopDecorations
+} from "@/lib/themes/themeComponents";
 
-type Calendar = Tables<"calendars">;
+type CalendarType = Tables<"calendars"> & {
+  primary_color?: string;
+  secondary_color?: string;
+  background_url?: string;
+};
 type CalendarDay = Tables<"calendar_days">;
 
-// A UI do calend??rio hoje suporta apenas: default | carnaval | saojoao.
-// Outros temas entram como "default" at?? criarmos varia????es visuais espec??ficas.
+const THEME_BG_COLORS: Record<string, string> = {
+  natal: 'bg-[#FFF8E8]',
+  namoro: 'bg-[#FFE5EC]',
+  casamento: 'bg-[#FFF8E8]',
+  carnaval: 'bg-[#E8E4F5]',
+  saojoao: 'bg-[#FFF8E8]',
+  pascoa: 'bg-[#D4F4F0]',
+  independencia: 'bg-[#E8F5E0]',
+  reveillon: 'bg-[#E8E4F5]',
+  aniversario: 'bg-[#FFF0E5]',
+};
+
 const ALL_THEMES = ["default", "carnaval", "saojoao", "natal", "reveillon", "pascoa", "independencia", "namoro", "casamento"] as const;
 
 const toUiTheme = (theme: string) =>
@@ -28,47 +55,45 @@ const CalendarioDetalhe = () => {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
   const { toast } = useToast();
-  const [calendar, setCalendar] = useState<Calendar | null>(null);
+  const [calendar, setCalendar] = useState<CalendarType | null>(null);
   const [daysData, setDaysData] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [selectedDayPreview, setSelectedDayPreview] = useState<number | null>(null);
+  const [liked, setLiked] = useState(false);
   const [previewOpenedDays, setPreviewOpenedDays] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchCalendar = async () => {
       if (!id) {
-        console.warn("CalendarioDetalhe: No ID provided");
         setLoading(false);
         return;
       }
-
-      console.log("CalendarioDetalhe: Starting fetch for ID", id);
       setLoading(true);
-
       try {
         const result = await CalendarsRepository.getWithDays(id);
-        console.log("CalendarioDetalhe: Fetch result", result);
-
         if (!result) {
           setCalendar(null);
           setDaysData([]);
           setError("Calendário não encontrado.");
           return;
         }
-
         setCalendar(result.calendar);
         setDaysData(result.days || []);
+        console.log('DEBUG CalendarioDetalhe - days data:', result.days?.map(d => ({
+          day: d.day,
+          opened_count: d.opened_count,
+          hasContent: !!(d.content_type || d.message || d.url)
+        })));
         setError(null);
       } catch (err) {
         console.error("CalendarioDetalhe: Error fetching calendar", err);
-        setError("Erro ao carregar calendário. Verifique sua conexão.");
+        setError("Erro ao carregar calendário.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchCalendar();
   }, [id]);
 
@@ -84,18 +109,31 @@ const CalendarioDetalhe = () => {
       const dayMap = new Map((daysData || []).map((day) => [day.day, day]));
       return Array.from({ length: calendar.duration || 0 }, (_, i) => {
         const dayNum = i + 1;
-        const dayData = dayMap.get(dayNum);
-        const hasSpecialContent = !!(dayData?.content_type || dayData?.message || dayData?.url || dayData?.label);
+        const currentDayData = dayMap.get(dayNum);
+        const hasSpecialContent = !!(currentDayData?.content_type || currentDayData?.message || currentDayData?.url || currentDayData?.label);
+        const isOpenedByVisitor = (currentDayData?.opened_count || 0) > 0;
 
         const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
         const doorDate = startOfDay(addDays(baseDate, dayNum - 1));
         const dateLabel = format(doorDate, "dd MMM", { locale: ptBR });
+        const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+        // Logic sync: Creator sees what user sees (Locked/Available), unless in Preview Mode interactively opening
+        // But click always goes to Edit if not preview mode
+        let status: "locked" | "available" | "opened" = isLocked ? "locked" : "available";
+
+        if (previewMode) {
+          status = previewOpenedDays.includes(dayNum) ? "opened" : status;
+        } else if (isOpenedByVisitor) {
+          // IMPORTANT: Only show as "Opened" letter in editor if a visitor actually opened it
+          // This allows creators to track engagement as requested.
+          status = "opened";
+        }
 
         return {
           day: dayNum,
           dateLabel,
-          // No dashboard, a porta s?? abre visualmente se estiver em previewMode e for clicada
-          status: (previewMode && previewOpenedDays.includes(dayNum)) ? ("opened" as const) : ("available" as const),
+          status,
           hasSpecialContent,
         };
       });
@@ -112,228 +150,392 @@ const CalendarioDetalhe = () => {
 
   const handleShare = async () => {
     if (!calendar) return;
-    try {
-      await CalendarsRepository.incrementShares(calendar.id);
-    } catch (err) {
-      console.error("CalendarioDetalhe: erro ao incrementar compartilhamentos", err);
-    }
-    const url = `${window.location.origin}${import.meta.env.BASE_URL}#/c/${calendar.id}`;
+    const url = `${window.location.origin}/#/c/${calendar.id}`;
     try {
       if (navigator.share) {
         await navigator.share({ title: calendar.title, url });
       } else {
         await navigator.clipboard.writeText(url);
-        toast({ title: "Link copiado!", description: "O link do seu calend??rio foi copiado." });
+        toast({ title: "Link copiado!", description: "O link foi copiado para a área de transferência." });
       }
     } catch {
       // ignore
     }
   };
 
-  console.log("CalendarioDetalhe: Rendering. Loading:", loading, "Calendar:", !!calendar, "Days:", daysData.length);
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-solidroad-accent" />
       </div>
     );
   }
 
   if (!calendar) {
     return (
-      <div className="min-h-screen bg-background px-4 py-10">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card"
-        >
-          <ArrowLeft className="w-5 h-5 text-foreground" />
-        </button>
-        <h1 className="mt-6 text-xl font-bold text-foreground">Calend??rio n??o encontrado</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          {error ?? "Este calend??rio n??o existe neste dispositivo."}
-        </p>
+      <div className="min-h-screen px-4 py-10 flex flex-col items-center justify-center text-center">
+        <h1 className="text-xl font-bold text-solidroad-text">Calendário não encontrado</h1>
+        <button onClick={() => navigate(-1)} className="mt-4 text-solidroad-accent font-bold hover:underline">Voltar</button>
+      </div>
+    );
+  }
+
+  const completionPercentage = Math.round((days.filter(d => d.hasSpecialContent).length / (calendar.duration || 1)) * 100);
+
+  const bgColor = THEME_BG_COLORS[calendar.theme_id] || 'bg-background';
+
+  // --- RENDERIZADORES ESPECIALIZADOS ---
+
+  // --- UNIVERSAL RENDERER (Namoro, Carnaval, etc) ---
+  const premiumTheme = getThemeConfig(calendar.theme_id);
+
+  if (premiumTheme.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval')) {
+    const ui = premiumTheme.ui;
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500 font-display", premiumTheme.ui.layout.bgClass)}>
+        <UniversalTemplate
+          config={premiumTheme}
+          calendar={calendar}
+          days={daysData}
+          openedDays={previewMode ? (previewOpenedDays || []) : daysData.filter(d => (d.opened_count || 0) > 0).map(d => d.day)}
+          isEditorContext={true}
+          isEditor={!previewMode}
+          previewMode={previewMode}
+          onNavigateBack={() => navigate('/meus-calendarios')}
+          onShare={handleShare}
+          onDayClick={(day) => {
+            if (previewMode) {
+              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+              const doorDate = startOfDay(addDays(baseDate, day - 1));
+              const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+              if (isLocked) return;
+
+              setPreviewOpenedDays(prev => prev.includes(day) ? prev : [...prev, day]);
+              setTimeout(() => setSelectedDayPreview(day), 600);
+            } else {
+              navigate(`/editar-dia/${calendar.id}/${day}`);
+            }
+          }}
+          onLockedClick={() => { }}
+          onSettings={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+          onTogglePreview={() => setPreviewMode(!previewMode)}
+        />
+
+        {/* Modals */}
+        {calendar.theme_id === 'namoro' ? (
+          <LoveLetterModal
+            isOpen={selectedDayPreview !== null}
+            onClose={() => setSelectedDayPreview(null)}
+            content={selectedDayData ? {
+              type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
+              title: selectedDayData.label || `Porta ${selectedDayPreview}`,
+              message: selectedDayData.message || "",
+              mediaUrl: selectedDayData.url || undefined,
+            } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDayPreview}` }}
+          />
+        ) : (
+          <DaySurpriseModal
+            isOpen={selectedDayPreview !== null}
+            onClose={() => setSelectedDayPreview(null)}
+            day={selectedDayPreview || 1}
+            content={selectedDayData?.content_type ? {
+              type: selectedDayData.content_type as any,
+              message: selectedDayData?.message || "",
+              url: selectedDayData?.url || "",
+              label: selectedDayData?.label || "Abrir",
+            } : undefined}
+            theme={toUiTheme(calendar.theme_id) as any}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // 2. Renderizador para CASAMENTO
+  if (calendar.theme_id === 'casamento') {
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink transition-colors duration-500", bgColor)}>
+        <WeddingBackground />
+        <WeddingTopDecorations />
+
+        {/* Editor Info Header */}
+        <div className="relative z-50 bg-white/40 backdrop-blur-md px-6 py-2 flex items-center justify-between border-b border-wedding-gold/10">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate('/meus-calendarios')} className="text-wedding-gold/60 hover:text-wedding-gold transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-wedding-gold">Painel de União</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPreviewMode(!previewMode)}
+              className={cn("p-2 rounded-lg transition-all", previewMode ? "bg-wedding-gold text-white shadow-lg" : "bg-white/50 text-wedding-gold border border-wedding-gold/20")}
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+              className="p-2 rounded-lg bg-white/50 text-wedding-gold border border-wedding-gold/20"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-4">
+          <WeddingHeader title={calendar.title} subtitle="Preparativos para o grande dia" isEditor={!previewMode} />
+          <WeddingProgress progress={completionPercentage} />
+        </div>
+
+        <main className="flex-1 px-4 py-8 pb-36 relative z-0">
+          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
+            {days.map((d) => {
+              if (d.day === 5 && !previewMode) {
+                return (
+                  <WeddingSpecialCard
+                    key={d.day}
+                    dayNumber={d.day}
+                    onClick={() => navigate(`/editar-dia/${calendar.id}/${d.day}`)}
+                    isEditor={true}
+                  />
+                );
+              }
+
+              return (
+                <WeddingDayCard
+                  key={d.day}
+                  dayNumber={d.day}
+                  imageUrl={daysData.find(dd => dd.day === d.day)?.url || undefined}
+                  status={previewMode ? (d.status === 'locked' ? 'locked' : (previewOpenedDays.includes(d.day) ? 'unlocked' : 'locked')) : 'unlocked'}
+                  onClick={() => {
+                    if (previewMode) {
+                      if (d.status !== 'locked') {
+                        setPreviewOpenedDays(prev => prev.includes(d.day) ? prev : [...prev, d.day]);
+                        setTimeout(() => setSelectedDayPreview(d.day), 600);
+                      }
+                    } else {
+                      navigate(`/editar-dia/${calendar.id}/${d.day}`);
+                    }
+                  }}
+                  isEditor={!previewMode}
+                />
+              );
+            })}
+          </div>
+          <WeddingDiarySection isEditor={!previewMode} />
+        </main>
+
+        {previewMode ? (
+          <WeddingFooter isEditor={false} />
+        ) : (
+          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 lg:bottom-8 lg:right-8 lg:left-auto lg:translate-x-0 w-[92%] max-w-lg lg:max-w-xs p-4 bg-white/90 backdrop-blur-xl border border-wedding-gold/10 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
+            <button
+              onClick={handleShare}
+              className="flex-1 bg-gradient-to-r from-wedding-gold to-wedding-gold-dark text-white h-12 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-wedding-gold/20"
+            >
+              <Share2 className="w-4 h-4" />
+              Compartilhar União
+            </button>
+            <button onClick={() => navigate(`/calendario/${calendar.id}/stats`)} className="h-12 w-12 rounded-2xl bg-[#F9F6F0] text-wedding-gold flex items-center justify-center border border-wedding-gold/20">
+              <BarChart3 className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
+        <DaySurpriseModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          day={selectedDayPreview || 1}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type as any,
+            message: selectedDayData?.message || "",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Abrir",
+          } : undefined}
+          theme={calendar.theme_id as any}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden pb-24">
+    <div className={cn("min-h-screen relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}>
+      {/* Sao Joao Background Pattern - Synced with VisualizarCalendario */}
+      {calendar.theme_id === 'saojoao' && (
+        <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
+          backgroundSize: "32px 32px",
+          backgroundPosition: "0 0, 16px 16px"
+        }} />
+      )}
+      {calendar.theme_id === 'casamento' && (
+        <div className="absolute inset-0 z-0 opacity-5 dark:opacity-2 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px"
+        }} />
+      )}
+
       <FloatingDecorations theme={toUiTheme(calendar.theme_id)} />
 
+      {/* Premium Header - Solidroad Style */}
       <motion.header
-        className="px-4 py-3 relative z-10 lg:hidden"
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
+        className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/10 px-6 py-4 transition-colors"
       >
-        <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={() => navigate("/meus-calendarios")}
-            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card"
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
-
-          <span className="badge-festive bg-secondary text-secondary-foreground text-xs">
-            {isOwner ? "CRIADOR" : "VISITANTE"}
-          </span>
-
-          <button
-            onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
-            className="w-10 h-10 rounded-full bg-card flex items-center justify-center shadow-card"
-          >
-            <Settings className="w-5 h-5 text-foreground" />
-          </button>
-        </div>
-
-        <div>
-          <h1 className="text-2xl font-extrabold text-foreground">{calendar.title}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {calendar.privacy === "public" ? "Público" : "Privado (apenas link)"} • {calendar.duration} portas
-          </p>
-        </div>
-      </motion.header>
-
-      {/* Desktop Header & Command Bar */}
-      <div className="hidden lg:block relative z-10 px-8 py-8 max-w-[1700px] mx-auto">
-        <div className="glass-premium rounded-[2.5rem] p-8 luxury-shadow flex items-center justify-between gap-12">
-          <div className="flex items-center gap-8">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-6">
             <button
-              onClick={() => navigate("/meus-calendarios")}
-              className="w-14 h-14 rounded-2xl bg-background flex items-center justify-center shadow-sm hover:bg-muted transition-all group"
+              onClick={() => navigate('/meus-calendarios')}
+              className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition-colors"
             >
-              <ArrowLeft className="w-6 h-6 text-foreground group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="w-5 h-5 text-solidroad-text dark:text-white" strokeWidth={2.5} />
             </button>
-            <div className="h-12 w-[1px] bg-border/50" />
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <span className="px-3 py-1 rounded-full bg-primary/10 text-[10px] font-black text-primary uppercase tracking-widest">
-                  {isOwner ? "Proprietário" : "Visualização"}
+
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest",
+                  isOwner ? "bg-solidroad-accent/20 text-solidroad-text dark:text-solidroad-accent" : "bg-blue-100 text-blue-700"
+                )}>
+                  {isOwner ? "Proprietário" : "Visitante"}
                 </span>
-                <span className="text-muted-foreground/40 text-xs font-bold">•</span>
-                <span className="text-xs font-black text-muted-foreground/60 uppercase tracking-widest leading-none">
-                  {calendar.privacy === "public" ? "🌎 Público" : "🔒 Privado"}
+                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+                  {calendar.privacy === 'public' ? "Público" : "Privado"}
                 </span>
               </div>
-              <h1 className="text-4xl font-black text-foreground tracking-tighter leading-none">{calendar.title}</h1>
+              <h1 className="text-xl md:text-2xl font-black text-solidroad-text dark:text-white leading-none mt-1 truncate max-w-md">
+                {calendar.title}
+              </h1>
             </div>
           </div>
 
-          <div className="flex-1 flex justify-center gap-12 border-x border-border/30 px-12">
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-black text-foreground tracking-tighter">{(calendar.views || 0).toLocaleString()}</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Visualizações</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-black text-foreground tracking-tighter">{days.filter(d => d.hasSpecialContent).length}/{calendar.duration}</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Dias Configur.</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-black text-primary tracking-tighter">
-                {Math.round((days.filter(d => d.hasSpecialContent).length / calendar.duration) * 100)}%
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Concluido</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
+          {/* Actions - Responsive (Mobile Icons, Desktop Text) */}
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setPreviewMode(!previewMode)}
               className={cn(
-                "w-14 h-14 rounded-2xl border flex items-center justify-center transition-all group",
-                previewMode
-                  ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                  : "bg-background border-border/50 hover:bg-muted text-foreground"
+                "flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm transition-all border",
+                !previewMode
+                  ? "bg-solidroad-accent/10 text-solidroad-text dark:text-white border-solidroad-accent/20"
+                  : "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
               )}
-              title={previewMode ? "Sair do Modo Visualização" : "Modo Visualização"}
+              title={previewMode ? "Modo Visualização" : "Modo Edição"}
             >
-              {previewMode ? <Edit className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+              {previewMode ? <Eye className="w-4 h-4 md:w-5 md:h-5 dark:text-white" /> : <Edit className="w-4 h-4 md:w-5 md:h-5 dark:text-solidroad-accent" />}
+              <span className="hidden sm:inline">{previewMode ? "Visualização" : "Edição"}</span>
             </button>
-            <motion.button
-              className="px-8 py-4 rounded-[1.25rem] bg-gradient-festive text-white font-black shadow-xl shadow-primary/20 hover:scale-105 transition-all text-sm flex items-center gap-2"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleShare}
-            >
-              <Share2 className="w-5 h-5" />
-              Compartilhar
-            </motion.button>
+
             <button
-              onClick={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
-              className="w-14 h-14 rounded-2xl bg-background border border-border/50 flex items-center justify-center hover:bg-muted transition-all group"
-              title="Estatísticas Detalhadas"
+              onClick={handleShare}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-background/50 dark:bg-card border border-border/10 font-bold text-sm text-solidroad-text dark:text-white hover:bg-muted transition-all"
+              title="Compartilhar"
             >
-              <BarChart3 className="w-6 h-6 text-foreground group-hover:text-primary transition-colors" />
+              <Share2 className="w-4 h-4 md:w-5 md:h-5 dark:text-white" />
+              <span className="hidden sm:inline">Compartilhar</span>
             </button>
+
+            <div className="hidden md:block h-8 w-px bg-border/10 mx-1" />
+
             <button
               onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
-              className="w-14 h-14 rounded-2xl bg-background border border-border/50 flex items-center justify-center hover:bg-muted transition-all group"
-              title="Configurações do Calendário"
+              className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition-colors border border-transparent dark:border-border/10"
+              title="Configurações"
             >
-              <Settings className="w-6 h-6 text-foreground group-hover:text-primary transition-colors" />
+              <Settings className="w-5 h-5 text-muted-foreground dark:text-white" />
             </button>
           </div>
         </div>
-      </div>
+      </motion.header>
 
-      <main className="relative z-10 px-8 max-w-[1700px] lg:mx-auto lg:pb-12">
-        <CalendarGrid
-          title={calendar.title || "Calendário"}
-          month={(() => {
-            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
-            return format(baseDate, "MMMM", { locale: ptBR }).toUpperCase();
-          })()}
-          days={days as any}
-          onDayClick={(day) => {
-            if (!isOwner) return;
-            if (previewMode) {
-              // No modo preview, abrimos a porta (anima????o 3D) e depois o modal
-              setPreviewOpenedDays(prev => prev.includes(day) ? prev : [...prev, day]);
-              setTimeout(() => {
-                setSelectedDayPreview(day);
-              }, 600);
-            } else {
-              navigate(`/editar-dia/${calendar.id}/${day}`);
-            }
-          }}
-          theme={toUiTheme(calendar.theme_id)}
-        />
+      <main className="px-6 py-8 max-w-[1600px] mx-auto space-y-8 relative z-10">
+        {/* Stats Row - Bento Grid Lite */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-card rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-300">
+              <Eye className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-solidroad-text dark:text-white">{(calendar.views || 0).toLocaleString()}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">Visualizações</p>
+            </div>
+          </div>
+          <div className="bg-card rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-300">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-solidroad-text dark:text-white">{completionPercentage}%</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">Concluído</p>
+            </div>
+          </div>
+          <div className="bg-card rounded-3xl p-6 border border-border/10 shadow-sm flex items-center gap-4 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-300">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-solidroad-text dark:text-white">{days.filter(d => d.hasSpecialContent).length} / {calendar.duration}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 dark:text-white/40">Dias Configurados</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar Grid Container */}
+        <div className="bg-card rounded-[2.5rem] p-8 md:p-12 border border-border/10 shadow-sm min-h-[500px] transition-colors overflow-hidden relative">
+          {calendar.background_url && (
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center opacity-10"
+              style={{ backgroundImage: `url(${calendar.background_url})` }}
+            />
+          )}
+          <CalendarGrid
+            title={calendar.title || "Calendário"}
+            month={(() => {
+              const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+              return format(baseDate, "MMMM", { locale: ptBR }).toUpperCase();
+            })()}
+            days={days as any}
+            onDayClick={(day) => {
+              if (!isOwner) return;
+              if (previewMode) {
+                setPreviewOpenedDays(prev => prev.includes(day) ? prev : [...prev, day]);
+                setTimeout(() => setSelectedDayPreview(day), 600);
+              } else {
+                navigate(`/editar-dia/${calendar.id}/${day}`);
+              }
+            }}
+            theme={toUiTheme(calendar.theme_id)}
+          />
+        </div>
       </main>
 
-      <DaySurpriseModal
-        isOpen={selectedDayPreview !== null}
-        onClose={() => setSelectedDayPreview(null)}
-        day={selectedDayPreview || 1}
-        content={selectedDayData?.content_type ? {
-          type: selectedDayData.content_type as any,
-          message: selectedDayData?.message || "",
-          url: selectedDayData?.url || "",
-          label: selectedDayData?.label || "Abrir",
-        } : undefined}
-        theme={toUiTheme(calendar.theme_id) as any}
-      />
+      {calendar.theme_id === 'namoro' ? (
+        <LoveLetterModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          content={selectedDayData ? {
+            type: (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text',
+            title: selectedDayData.label || `Porta ${selectedDayPreview}`,
+            message: selectedDayData?.message || "",
+            mediaUrl: selectedDayData?.url || undefined,
+          } : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDayPreview}` }}
+        />
+      ) : (
+        <DaySurpriseModal
+          isOpen={selectedDayPreview !== null}
+          onClose={() => setSelectedDayPreview(null)}
+          day={selectedDayPreview || 1}
+          content={selectedDayData?.content_type ? {
+            type: selectedDayData.content_type as any,
+            message: selectedDayData?.message || "",
+            url: selectedDayData?.url || "",
+            label: selectedDayData?.label || "Abrir",
+          } : undefined}
+          theme={toUiTheme(calendar.theme_id) as any}
+        />
+      )}
 
-      {/* Bottom bar - mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border lg:hidden">
-        <div className="flex items-center gap-3 max-w-lg mx-auto">
-          <motion.button
-            className="flex-1 btn-festive flex items-center justify-center gap-2"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleShare}
-          >
-            <Share2 className="w-5 h-5" />
-            Compartilhar
-          </motion.button>
-          <motion.button
-            className="w-14 h-14 rounded-2xl bg-card shadow-card flex items-center justify-center"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
-          >
-            <BarChart3 className="w-6 h-6 text-muted-foreground" />
-          </motion.button>
-        </div>
-      </div>
     </div>
   );
 };

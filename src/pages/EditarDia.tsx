@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play } from "lucide-react";
+import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play, Check } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import type { Tables } from "@/lib/supabase/types";
+import DayCard from "@/components/calendar/DayCard";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
@@ -37,6 +38,8 @@ const EditarDia = () => {
   const [message, setMessage] = useState("");
   const [url, setUrl] = useState("");
   const [label, setLabel] = useState("");
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const dayNumber = parseInt(dia || "1", 10);
 
@@ -69,6 +72,37 @@ const EditarDia = () => {
 
     fetchData();
   }, [calendarId, dayNumber]);
+
+  // Track changes for autosave
+  useEffect(() => {
+    if (loading) return;
+    setHasChanges(true);
+  }, [message, url, label, selectedType, loading]);
+
+  // Debounced Auto-save
+  useEffect(() => {
+    if (!hasChanges || saving || !calendarId) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setSaving(true);
+        await CalendarsRepository.updateDay(calendarId, dayNumber, {
+          contentType: selectedType,
+          message: message.trim() || null,
+          url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
+          label: selectedType === "link" ? label : null,
+        });
+        setLastSaved(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+        setHasChanges(false);
+      } catch (err) {
+        console.error('Autosave error:', err);
+      } finally {
+        setSaving(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [message, url, label, selectedType, hasChanges, saving, calendarId, dayNumber]);
 
   const handleSave = async () => {
     if (!calendarId) return;
@@ -108,7 +142,23 @@ const EditarDia = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className={`min-h-screen bg-background pb-32 relative overflow-hidden theme-${calendar?.theme_id}`}>
+      {/* Dynamic Background Patterns */}
+      {calendar?.theme_id === 'saojoao' && (
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#F9A03F 2px, transparent 2px), radial-gradient(#F9A03F 2px, transparent 2px)",
+          backgroundSize: "32px 32px",
+          backgroundPosition: "0 0, 16px 16px",
+          backgroundColor: "#FFF8E8"
+        }} />
+      )}
+      {calendar?.theme_id === 'casamento' && (
+        <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{
+          backgroundImage: "radial-gradient(#C5A059 1.5px, transparent 1.5px)",
+          backgroundSize: "24px 24px",
+          backgroundColor: "#FFFCF5"
+        }} />
+      )}
       {/* Header - mobile only */}
       <motion.header
         className="px-4 py-4 flex items-center gap-4 lg:hidden"
@@ -140,6 +190,20 @@ const EditarDia = () => {
             <p className="text-sm text-muted-foreground">{calendar ? calendar.title : "Personalize sua surpresa"}</p>
           </div>
         </div>
+
+        <div className="flex items-center gap-4">
+          {saving ? (
+            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground/60 uppercase tracking-widest animate-pulse">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Salvando...
+            </div>
+          ) : lastSaved ? (
+            <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 uppercase tracking-widest">
+              <Check className="w-3 h-3" />
+              Salvo às {lastSaved}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="px-4 max-w-[1600px] lg:mx-auto pb-12">
@@ -148,26 +212,33 @@ const EditarDia = () => {
           <div className="lg:col-span-1 space-y-6">
             {/* Day Card Preview */}
             <motion.div
-              className="bg-card rounded-3xl p-6 shadow-card"
+              className="flex justify-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <div className="w-full h-2 bg-primary rounded-full mb-6" />
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mb-4">
-                  <span className="text-3xl font-extrabold text-primary">
-                    {dayNumber}
-                  </span>
-                </div>
-                <h2 className="text-lg font-bold text-foreground">
-                  {calendar ? calendar.title : "Porta"}
-                </h2>
-                <p className="text-sm text-primary">
-                  Personalize a surpresa deste dia
-                </p>
+              <div className="w-48 h-48">
+                {calendar && (
+                  <DayCard
+                    day={dayNumber}
+                    status={dayData?.content_type ? "available" : "locked"}
+                    theme={calendar.theme_id || "default"}
+                    hasSpecialContent={!!dayData?.content_type}
+                    dateLabel={`DIA ${dayNumber}`}
+                    onClick={() => { }} // No-op in preview
+                  />
+                )}
               </div>
             </motion.div>
+
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-foreground mt-4">
+                {calendar ? calendar.title : "Porta"}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Visualização da porta no calendário
+              </p>
+            </div>
 
           </div>
 

@@ -23,12 +23,14 @@ export type ThemeId =
   | "rh_onboarding"
   | "endomarketing"
   | "comunidade"
-  | "encontro_remoto";
+  | "encontro_remoto"
+  | "custom";
 
 export interface ThemeDefinition {
   id: ThemeId;
   name: string;
-  emoji: string;
+  emoji?: string;
+  iconName: string;
   scope: ThemeScope;
   imageKey:
     | "peeking"
@@ -69,7 +71,7 @@ export interface Profile {
   id: string;
   email: string;
   displayName: string;
-  avatar: string; // emoji
+  avatar: string; // iconName
   createdAt: string;
 }
 
@@ -114,13 +116,13 @@ export interface B2BOrganization {
   id: string;
   ownerId: string;
   name: string;
-  avatar: string; // emoji
+  avatar: string; // iconName
   createdAt: string;
 }
 
 export interface B2BBranding {
   orgId: string;
-  logoEmoji: string;
+  logoIconName: string;
   primaryHue: number; // 0-360 (documenta para futura migração)
   updatedAt: string;
 }
@@ -130,7 +132,7 @@ export interface B2BMember {
   orgId: string;
   name: string;
   email: string;
-  avatar: string; // emoji
+  avatar: string; // iconName
   role: B2BRole;
   status: "active" | "invited";
   createdAt: string;

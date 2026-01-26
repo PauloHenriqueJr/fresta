@@ -5,18 +5,22 @@ import type { Tables } from "@/lib/supabase/types";
 
 type Profile = Tables<'profiles'>;
 
+type ThemePreference = 'light' | 'dark' | 'system';
+
 type AuthContextValue = {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   role: string | null;
   permissions: string[];
+  themePreference: ThemePreference;
   isAuthenticated: boolean;
   isLoading: boolean;
   signInWithEmail: (email: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar">>) => Promise<void>;
+  updateThemePreference: (theme: ThemePreference) => Promise<void>;
   // Legacy compatibility
   loginWithEmail: (email: string) => void;
   loginWithGoogle: () => void;
@@ -31,7 +35,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
+  const [themePreference, setThemePreference] = useState<ThemePreference>('system');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Apply theme to document
+  const applyTheme = (theme: ThemePreference) => {
+    const root = document.documentElement;
+    if (theme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.classList.toggle('dark', prefersDark);
+    } else {
+      root.classList.toggle('dark', theme === 'dark');
+    }
+    localStorage.setItem('fresta_theme', theme);
+  };
 
   const fetchProfileAndRole = async (userId: string) => {
     try {
@@ -108,6 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setProfile(p);
               setRole(r);
               setPermissions(perms);
+              // Apply theme from profile
+              const theme = (p as any)?.theme_preference as ThemePreference || 'system';
+              setThemePreference(theme);
+              applyTheme(theme);
             }
           });
         } else {
@@ -248,6 +269,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(updated);
   };
 
+  // Update theme preference
+  const updateThemePreference = async (theme: ThemePreference) => {
+    setThemePreference(theme);
+    applyTheme(theme);
+
+    if (!user) return;
+
+    try {
+      await (supabase
+        .from('profiles') as any)
+        .update({ theme_preference: theme })
+        .eq('id', user.id);
+    } catch (err) {
+      console.error('Erro ao salvar preferência de tema:', err);
+    }
+  };
+
   // Legacy compatibility methods
   const loginWithEmail = (email: string) => {
     signInWithEmail(email);
@@ -268,18 +306,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       role,
       permissions,
+      themePreference,
       isAuthenticated: !!session,
       isLoading,
       signInWithEmail,
       signInWithGoogle,
       signOut,
       updateProfile,
+      updateThemePreference,
       // Legacy
       loginWithEmail,
       loginWithGoogle,
       logout,
     }),
-    [user, session, profile, role, permissions, isLoading]
+    [user, session, profile, role, permissions, themePreference, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
