@@ -53,13 +53,13 @@ const THEMES: Record<string, ThemeConfig> = {
   carnaval: {
     id: 'carnaval',
     name: 'Carnaval',
-    primaryGradient: 'bg-gradient-festive',
+    primaryGradient: 'bg-gradient-carnaval',
     accentGradient: 'bg-gradient-carnaval',
     floatingElement: 'confetti',
     mascot: mascotPeeking,
     emojis: {
       logo: '🎭',
-      hero: '🎊',
+      hero: '🎉',
       section: '🕺'
     },
     colors: {

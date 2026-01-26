@@ -17,15 +17,6 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
 import {
-  LoveBackground,
-  HangingHearts,
-  LoveHeader,
-  LoveProgressBar,
-  EnvelopeCard,
-  UnlockedDayCard as LoveUnlockedCard,
-  LockedDayCard as LoveLockedCard,
-  LoveQuote,
-  LoveFooter,
   LoveLetterModal,
   LoveLockedModal,
   WeddingBackground,
@@ -38,6 +29,7 @@ import {
   WeddingShower,
   WeddingTopDecorations
 } from "@/lib/themes/themeComponents";
+import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
 import { scheduleDoorReminder, subscribeToPush, promptInstall } from "@/lib/push/notifications";
 import { shareContent } from "@/lib/utils/share-utils";
 
@@ -79,6 +71,8 @@ const VisualizarCalendario = () => {
   const [openedDays, setOpenedDays] = useState<number[]>([]);
   const [lockedModalData, setLockedModalData] = useState<{ isOpen: boolean, day: number, date: Date } | null>(null);
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  const isOwner = calendar?.owner_id === user?.id;
 
   const handleLike = () => {
     const newLiked = !liked;
@@ -566,87 +560,6 @@ const VisualizarCalendario = () => {
 
   // --- RENDERIZADORES ESPECIALIZADOS ---
 
-  const renderNamoroView = () => (
-    <>
-      <LoveBackground />
-      <HangingHearts />
-      <div className="relative w-full bg-white/80 dark:bg-surface-dark/90 pb-6 rounded-b-[2.5rem] shadow-festive z-10 pt-10 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200 transition-transform active:scale-95"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-900/40 shadow-sm pointer-events-none">
-            <span className="text-[10px] xs:text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide uppercase">Amor e Romance</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleLike}
-              className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-full transition-all active:scale-95",
-                liked
-                  ? "bg-love-red text-white"
-                  : "bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200"
-              )}
-            >
-              <Heart className={cn("w-5 h-5", liked && "fill-white")} />
-            </button>
-            <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-200">
-              <Share2 className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-        <LoveHeader title={calendar.title} subtitle="Uma jornada de amor para nós dois" isEditor={false} />
-        <LoveProgressBar progress={Math.round((openedDays.length / (days.length || 1)) * 100)} isEditor={false} />
-      </div>
-
-      <main className="flex-1 px-4 py-8 pb-36 relative z-0">
-        <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-          {days.map((d) => {
-            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
-            const doorDate = startOfDay(addDays(baseDate, d.day - 1));
-            const isLocked = isAfter(doorDate, startOfDay(new Date()));
-
-            if (isLocked) {
-              const diff = doorDate.getTime() - new Date().getTime();
-              const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-              return (
-                <LoveLockedCard
-                  key={d.day}
-                  dayNumber={d.day}
-                  timeText={`${daysLeft}d`}
-                  onClick={() => handleLockedClick(d.day, doorDate)}
-                />
-              );
-            }
-
-            if (openedDays.includes(d.day) || (d.opened_count || 0) > 0) {
-              return (
-                <LoveUnlockedCard
-                  key={d.day}
-                  dayNumber={d.day}
-                  imageUrl={d.url || ""}
-                  onClick={() => handleDayClick(d.day)}
-                />
-              );
-            }
-
-            return (
-              <EnvelopeCard
-                key={d.day}
-                dayNumber={d.day}
-                onClick={() => handleDayClick(d.day)}
-              />
-            );
-          })}
-        </div>
-        <LoveQuote isEditor={false} />
-      </main>
-      <LoveFooter isEditor={false} onNavigate={() => navigate('/criar')} />
-    </>
-  );
 
   const renderWeddingView = () => (
     <>
@@ -725,20 +638,19 @@ const VisualizarCalendario = () => {
           )}
           <div className="flex-1" /> {/* Spacer */}
           <div className="flex items-center gap-2">
-            {!(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
-              <motion.button
-                onClick={() => setLiked(!liked)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${liked ? "bg-red-500" : "bg-white/80 backdrop-blur-sm"
-                  } shadow-sm border border-black/5`}
-                whileTap={{ scale: 0.9 }}
-                style={liked && calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
-              >
-                <Heart
-                  className={`w-5 h-5 ${liked ? "text-white fill-white" : "text-muted-foreground"
-                    }`}
-                />
-              </motion.button>
-            )}
+            <motion.button
+              onClick={() => setLiked(!liked)}
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center shadow-sm border border-black/5 transition-all",
+                liked ? "bg-red-500 text-white fill-white" : "bg-white/80 backdrop-blur-sm text-muted-foreground"
+              )}
+              whileTap={{ scale: 0.9 }}
+              style={liked && calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
+            >
+              <Heart
+                className={cn("w-5 h-5", liked && "fill-current")}
+              />
+            </motion.button>
             <motion.button
               onClick={handleShare}
               className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5"
@@ -766,6 +678,7 @@ const VisualizarCalendario = () => {
             {themeData?.emoji} {themeData?.name}
           </p>
         </div>
+
         {/* Romantic Progress Bar - Inspired by user reference */}
         {(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
           <motion.div
@@ -819,7 +732,7 @@ const VisualizarCalendario = () => {
       </motion.header>
 
       {/* Calendar Grid */}
-      <main className="relative z-10 px-4 pb-24">
+      < main className="relative z-10 px-4 pb-24" >
         <CalendarGrid
           title={calendar.title}
           month={(() => {
@@ -840,10 +753,10 @@ const VisualizarCalendario = () => {
           onDayClick={handleDayClick}
           theme={(themeData?.id || "natal") as any}
         />
-      </main>
+      </main >
 
       {/* Time Capsule - User Reference */}
-      <motion.section
+      < motion.section
         className="relative z-10 px-4 mt-8 mb-24 max-w-lg mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -909,21 +822,86 @@ const VisualizarCalendario = () => {
 
           </div>
         </div>
-      </motion.section>
+      </motion.section >
 
-      {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-20">
-        <motion.button
-          className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2"
-          onClick={() => navigate("/criar")}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Criar meu próprio calendário
-        </motion.button>
-      </div>
+      {/* Bottom CTA - Only for visitors */}
+      {!isOwner && (
+        <div className="relative w-full px-4 py-24 flex items-center justify-center mt-12">
+          <motion.button
+            className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2 px-8"
+            onClick={handleShare}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar
+          </motion.button>
+        </div>
+      )}
     </>
   );
+
+  const premiumConfig = getThemeConfig(calendar.theme_id);
+
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) {
+    return (
+      <div className="min-h-screen flex flex-col relative overflow-hidden">
+        <UniversalTemplate
+          config={premiumConfig}
+          calendar={calendar}
+          days={days as any}
+          openedDays={openedDays}
+          isEditor={false}
+          isEditorContext={isOwner}
+          onNavigateBack={() => navigate('/')}
+          onShare={handleShare}
+          onLike={() => setLiked(!liked)}
+          liked={liked}
+          onDayClick={handleDayClick}
+          onLockedClick={handleLockedClick}
+          onSettings={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
+          onUpdateCalendar={async (data) => {
+            if (!calendar?.id) return;
+            try {
+              const updated = await CalendarsRepository.update(calendar.id, data);
+              setCalendar(updated);
+            } catch (err) {
+              toast({ variant: "destructive", title: "Erro ao salvar", description: "Tente novamente." });
+              throw err;
+            }
+          }}
+        />
+
+        {/* Surprise Modals (Shared for Universal themes) */}
+        <LoveLetterModal
+          isOpen={selectedDay !== null}
+          onClose={() => setSelectedDay(null)}
+          config={premiumConfig}
+          content={selectedDayData ? (() => {
+            const url = selectedDayData.url || "";
+            const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
+            const type = isVideo ? 'video' : (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text';
+
+            return {
+              type,
+              title: selectedDayData.label || `Porta ${selectedDay}`,
+              message: selectedDayData?.message || "",
+              mediaUrl: selectedDayData?.url || undefined,
+            };
+          })() : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+        />
+
+        <LoveLockedModal
+          isOpen={!!lockedModalData?.isOpen}
+          onClose={() => setLockedModalData(null)}
+          dayNumber={lockedModalData?.day || 0}
+          unlockDate={lockedModalData?.date || new Date()}
+          onNotify={handleNotifyMe}
+          theme={calendar.theme_id}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}
@@ -933,9 +911,8 @@ const VisualizarCalendario = () => {
         backgroundPosition: 'center'
       } : undefined}
     >
-      {calendar.theme_id === 'namoro' ? renderNamoroView() :
-        calendar.theme_id === 'casamento' ? renderWeddingView() :
-          renderDefaultView()
+      {calendar.theme_id === 'casamento' ? renderWeddingView() :
+        renderDefaultView()
       }
 
       {/* Love Letter Modal (Universal for romantic themes) */}

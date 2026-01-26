@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Great+Vibes&family=Bungee&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Luckiest+Guy&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -493,5 +493,22 @@
 
   .backface-hidden {
     backface-visibility: hidden;
+  }
+
+  .font-romantic {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+
+  .font-festive {
+    font-family: 'Luckiest Guy', cursive;
+  }
+
+  .font-handwritten {
+    font-family: 'Great Vibes', cursive;
+  }
+
+  .font-serif-premium {
+    font-family: 'Playfair Display', serif;
   }
 }

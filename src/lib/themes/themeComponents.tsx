@@ -1,10 +1,56 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, ReactNode, forwardRef } from "react";
 import { motion } from "framer-motion";
-import { Heart, Lock, Quote, Pencil, Plus, Settings, Rocket, Save, GripHorizontal, Eye, X, MessageSquare, Share2, Sparkles, Bell, Clock, Calendar, Play, Download } from "lucide-react";
+import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
+import { getThemeConfig, type PremiumThemeConfig } from "./registry";
+
+// --- Legacy Compatibility Aliases ---
+// These allow older theme-specific pages to continue working after the standardization
+export const EmptyDayCard = ({ dayNumber, isEditor }: { dayNumber: number | string, isEditor?: boolean }) => (
+  <UniversalEmptyCard dayNumber={dayNumber} config={getThemeConfig('namoro').ui} />
+);
+
+export const LockedDayCard = ({ dayNumber, timeText, isEditor, onClick }: { dayNumber: number | string, timeText: string, isEditor?: boolean, onClick?: () => void }) => (
+  <UniversalLockedCard dayNumber={dayNumber} timeText={timeText} config={getThemeConfig('namoro').ui} isEditor={isEditor} onClick={onClick} />
+);
+
+export const EnvelopeCard = ({ dayNumber, isEditor, onClick }: { dayNumber: number | string, isEditor?: boolean, onClick?: () => void }) => (
+  <UniversalEnvelopeCard dayNumber={dayNumber} config={getThemeConfig('namoro').ui} isEditor={isEditor} onClick={onClick} />
+);
+
+export const UnlockedDayCard = ({ dayNumber, imageUrl, isEditor, onClick }: { dayNumber: number | string, imageUrl: string, isEditor?: boolean, onClick?: () => void }) => (
+  <UniversalUnlockedCard dayNumber={dayNumber} imageUrl={imageUrl} config={getThemeConfig('namoro').ui} isEditor={isEditor} onClick={onClick} />
+);
+
+export const LoveHeader = ({ isEditor, onEdit }: { isEditor?: boolean, onEdit?: () => void }) => (
+  <UniversalHeader
+    title="Nossa Jornada de Amor"
+    subtitle="Uma jornada de amor para nós dois"
+    config={getThemeConfig('namoro')}
+    isEditor={isEditor}
+    onEdit={onEdit}
+  />
+);
+
+export const LoveProgressBar = ({ progress, isEditor }: { progress: number, isEditor?: boolean }) => (
+  <UniversalProgress progress={progress} config={getThemeConfig('namoro').ui} isEditor={isEditor} />
+);
+
+export const LoveQuote = ({ isEditor }: { isEditor?: boolean }) => (
+  <UniversalQuote
+    text="O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção."
+    author="Dica dos Namorados"
+    config={getThemeConfig('namoro')}
+    isEditor={isEditor}
+  />
+);
+
+export const LoveFooter = () => (
+  <UniversalFooter config={getThemeConfig('namoro').ui} />
+);
 
 // --- Background ---
 export const LoveBackground = () => {
@@ -65,24 +111,42 @@ export const HangingHearts = () => {
 };
 
 // --- Header ---
-export const LoveHeader = ({ title = "Nossa Jornada de Amor", subtitle = "Contando os dias para o nosso momento", isEditor = false }: { title?: string, subtitle?: string, isEditor?: boolean }) => {
+export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onEditSubtitle, onShare, onLike, liked, headerBgSvg }: { title?: React.ReactNode, subtitle?: React.ReactNode, config: PremiumThemeConfig, isEditor?: boolean, onEdit?: (e: React.MouseEvent) => void, onEditSubtitle?: (e: React.MouseEvent) => void, onShare?: () => void, onLike?: () => void, liked?: boolean, headerBgSvg?: string }) => {
+  const titleFont = config.ui?.layout.titleFont || "";
+  const subtitleFont = config.ui?.layout.secondaryFont || "";
   return (
-    <div className="px-6 mt-4 text-center relative z-10 font-display group flex flex-col items-center gap-2">
-      <h1 className="text-[36px] font-romantic leading-tight text-rose-900 dark:text-rose-50 drop-shadow-sm relative">
+    <div className={cn(config.ui?.header.container, "group pointer-events-auto")}>
+      <h1
+        className={cn(config.ui?.header.title, titleFont, "relative cursor-pointer transition-all active:scale-[0.99]")}
+        onClick={isEditor ? (e) => onEdit?.(e) : undefined}
+      >
         {title}
         {isEditor && (
-          <button className="absolute -top-2 -right-6 bg-white shadow-sm p-1.5 rounded-full text-rose-500 hover:text-rose-600 transition-colors">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.(e);
+            }}
+            className="absolute -top-2 -right-10 bg-white/90 shadow-lg p-2 rounded-full text-rose-500 hover:text-rose-600 transition-all hover:scale-110 active:scale-95 border border-rose-100 z-50 disabled:opacity-50"
+          >
             <Pencil className="w-3 h-3" />
           </button>
         )}
       </h1>
-      <div className="relative">
-        <p className="text-rose-500/80 dark:text-rose-200/80 font-medium font-festive text-lg">
-          {subtitle}
-        </p>
+      <div
+        className="relative cursor-pointer transition-all active:scale-[0.99]"
+        onClick={isEditor ? (e) => onEditSubtitle?.(e) : undefined}
+      >
+        <div className={cn(config.ui?.header.subtitle, subtitleFont)}>{subtitle}</div>
         {isEditor && (
-          <button className="absolute -top-1 -right-6 bg-white shadow-sm p-1 rounded-full text-rose-500 hover:text-rose-600 transition-colors">
-            <Pencil className="w-3 h-3" />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditSubtitle?.(e);
+            }}
+            className="absolute -top-1 -right-8 bg-white/90 shadow-lg p-1.5 rounded-full text-rose-500 hover:text-rose-600 transition-all hover:scale-110 active:scale-95 border border-rose-100 z-50"
+          >
+            <Pencil className="w-2.5 h-2.5" />
           </button>
         )}
       </div>
@@ -90,28 +154,36 @@ export const LoveHeader = ({ title = "Nossa Jornada de Amor", subtitle = "Contan
   )
 }
 
-// --- Progress Bar ---
-export const LoveProgressBar = ({ progress = 70, isEditor = false }: { progress?: number, isEditor?: boolean }) => {
+export const UniversalProgress = ({ progress = 0, config, isEditor, onEdit, labelText }: { progress?: number, config: any, isEditor?: boolean, onEdit?: () => void, labelText?: React.ReactNode }) => {
   return (
-    <div className="flex flex-col gap-3 px-8 mt-6 relative z-10 font-display">
+    <div
+      className={cn(config.progress.container, "cursor-pointer pointer-events-auto transition-all active:scale-[0.99]")}
+      onClick={isEditor ? onEdit : undefined}
+    >
       <div className="flex justify-between items-center mb-1">
-        <span className="text-love-red dark:text-rose-400 text-xs font-bold uppercase tracking-wider">{progress}% de puro amor</span>
-        {isEditor ? (
-          <button className="text-rose-400 hover:text-rose-600 text-xs font-medium italic underline decoration-dashed underline-offset-4">
-            Configurar progresso
+        <span className={config.progress.label}>
+          {progress}{labelText || config.progress.labelText}
+        </span>
+        {isEditor && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.();
+            }}
+            className="text-[10px] font-bold text-rose-500/60 hover:text-rose-600 transition-colors uppercase tracking-widest flex items-center gap-1"
+          >
+            <Pencil className="w-2.5 h-2.5" /> Editar
           </button>
-        ) : (
-          <span className="text-rose-400 dark:text-rose-500 text-xs font-medium italic">Quase lá, vida...</span>
         )}
       </div>
-      <div className="h-3 w-full rounded-full bg-rose-100 dark:bg-rose-950/50 overflow-hidden border border-rose-200 dark:border-rose-900 shadow-inner">
+      <div className={config.progress.barContainer}>
         <motion.div
-          className="h-full rounded-full bg-love-red relative"
+          className={config.progress.barFill}
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 1.5, ease: "easeOut" }}
         >
-          <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+          <div className={config.progress.barShimmer}></div>
         </motion.div>
       </div>
     </div>
@@ -121,88 +193,100 @@ export const LoveProgressBar = ({ progress = 70, isEditor = false }: { progress?
 // --- Day Components ---
 
 // Empty Day (For Editor "Add Surprise")
-export const EmptyDayCard = ({ dayNumber }: { dayNumber: number | string }) => {
+export const UniversalEmptyCard = ({ dayNumber, config, onClick }: { dayNumber: number | string, config: any, onClick?: () => void }) => {
   return (
-    <div className="aspect-[4/5] bg-rose-50/50 relative flex flex-col items-center justify-center p-2 rounded-xl border-2 border-rose-200 border-dashed font-display cursor-pointer hover:bg-rose-100/50 transition-colors group">
-      <span className="text-rose-300 font-romantic text-2xl mb-2">{dayNumber}</span>
+    <div
+      onClick={onClick}
+      className={cn(config.cards.empty.container, "group cursor-pointer")}
+    >
+      <span className={config.cards.empty.number}>{dayNumber}</span>
       <div className="flex flex-col items-center gap-1 group-hover:scale-105 transition-transform">
-        <div className="w-8 h-8 rounded-full bg-love-red text-white flex items-center justify-center shadow-md">
+        <div className={config.cards.empty.iconWrapper}>
           <Plus className="w-5 h-5" />
         </div>
-        <span className="text-[8px] font-bold text-love-red uppercase text-center leading-tight mt-1">Adicionar<br />Surpresa</span>
+        <span className="text-[8px] font-bold uppercase text-center leading-tight mt-1 opacity-70">Adicionar<br />Surpresa</span>
       </div>
     </div>
   )
 }
 
 // Locked Day (Future)
-// Locked Day (Future)
-export const LockedDayCard = ({ dayNumber, timeText, isEditor = false, onClick }: { dayNumber: number | string, timeText: string, isEditor?: boolean, onClick?: () => void }) => {
+export interface UniversalLockedCardProps {
+  dayNumber: number | string;
+  timeText: string;
+  config: any;
+  isEditor?: boolean;
+  onClick?: () => void;
+}
+
+export const UniversalLockedCard = ({ dayNumber, timeText, config, isEditor = false, onClick }: UniversalLockedCardProps) => {
   return (
-    <div
-      className="aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl opacity-90 border border-rose-200/30 dark:border-rose-800/30 font-display overflow-hidden group cursor-pointer"
-      onClick={() => onClick && onClick()}
-      style={{
-        background: `
-                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), rgba(255,230,230,0.5)),
-                repeating-linear-gradient(45deg, #ffe4e6 0, #ffe4e6 10px, #fecdd3 10px, #fecdd3 11px)
-            `
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(config.cards.locked.container, "cursor-pointer active:scale-95 transition-transform group")}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
       }}
+      style={config.cards.locked.style}
     >
-      <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px] transition-opacity group-hover:opacity-80 pointer-events-none"></div>
+      <div className={cn(config.cards.locked.overlay, "pointer-events-none")}></div>
 
       {isEditor && (
-        <button className="absolute top-1 right-1 bg-white p-1 rounded-full shadow-sm text-rose-500 z-20 hover:text-rose-700">
+        <button className="absolute top-1 right-1 bg-white p-1 rounded-full shadow-sm text-gray-500 z-20 hover:text-gray-700">
           <Pencil className="w-3 h-3" />
         </button>
       )}
-      <div className="relative z-10 flex flex-col items-center transform transition-transform group-hover:scale-105">
-        <span className="text-rose-400 dark:text-rose-300 font-romantic text-3xl mb-1 drop-shadow-sm">{dayNumber}</span>
-        <div className="flex flex-col items-center gap-1 bg-white/60 px-3 py-1 rounded-full border border-rose-100 shadow-sm backdrop-blur-sm">
-          <Lock className="w-3 h-3 text-rose-400" />
-          <span className="text-[8px] font-bold text-rose-500/80 uppercase tracking-wide">{timeText}</span>
+      <div className="relative z-10 flex flex-col items-center transform transition-transform group-hover:scale-105 pointer-events-none text-center">
+        <span className={config.cards.locked.number}>{dayNumber}</span>
+        <div className={config.cards.locked.iconWrapper}>
+          {config.icons.locked && <config.icons.locked className={config.cards.locked.iconClass} />}
+          <span className={config.cards.locked.text}>{timeText}</span>
         </div>
       </div>
 
       {isEditor && (
-        <div className="absolute bottom-2 left-0 right-0 text-center relative z-10">
-          <span className="text-[8px] font-bold text-rose-400 uppercase bg-white/80 px-2 py-0.5 rounded-full shadow-sm">ABRE EM<br />{timeText}</span>
+        <div className="absolute bottom-2 left-0 right-0 text-center relative z-10 pointer-events-none">
+          <span className={config.cards.locked.badge}>Abre em<br />{timeText}</span>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
 
 // Envelope Card (Current Day - To Open)
-export const EnvelopeCard = ({ dayNumber, onClick, isEditor = false }: { dayNumber: number | string, onClick?: () => void, isEditor?: boolean }) => {
+export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, config, openedCount = 0 }: { dayNumber: number | string, onClick?: () => void, isEditor?: boolean, config: any, openedCount?: number }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-xl shadow-lg cursor-pointer transition-transform duration-300 border-2 border-love-red/20 bg-[#fdf2f8] overflow-hidden group"
+      className={cn(config.cards.envelope.container, "group")}
     >
       {/* Envelope Pattern Background */}
-      <div className="absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(135deg,transparent_50%,#fce7f3_50%),linear-gradient(225deg,transparent_50%,#fce7f3_50%)] bg-[length:50%_100%] bg-no-repeat bg-[position:left_top,right_top] z-[1]"></div>
+      <div className={config.cards.envelope.pattern}></div>
 
       {/* Wax Seal */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[radial-gradient(circle,#f43f5e_0%,#be123c_100%)] shadow-md z-[2] flex items-center justify-center">
+      <div className={config.cards.envelope.seal}>
         <Heart className="w-4 h-4 text-white fill-white" />
       </div>
 
       {/* Glow Aura */}
-      <div className="absolute inset-0 shadow-[0_0_20px_5px_rgba(225,29,72,0.3)] z-0 pointer-events-none rounded-xl"></div>
+      {config.cards.envelope.glowClass && (
+        <div className={cn("absolute inset-0 z-0 pointer-events-none rounded-xl", config.cards.envelope.glowClass)}></div>
+      )}
 
       <div className="relative z-10 mt-8 flex flex-col items-center text-center font-display">
         <span className="text-rose-900 font-romantic text-3xl mb-1">Dia {dayNumber}</span>
 
         {isEditor ? (
-          <button className="bg-love-red text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:bg-rose-700 transition-colors tracking-widest uppercase flex items-center gap-1">
-            <Pencil className="w-3 h-3" /> EDITAR CONTEÚDO
+          <button className={config.cards.envelope.button}>
+            <Pencil className="w-3 h-3 inline mr-1" /> EDITAR
           </button>
         ) : (
-          <button className="bg-love-red text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:bg-rose-700 transition-colors tracking-widest uppercase">
-            ABRIR O CORAÇÃO
+          <button className={config.cards.envelope.button}>
+            {config.cards.envelope.buttonText || "ABRIR"}
           </button>
         )}
       </div>
@@ -212,28 +296,34 @@ export const EnvelopeCard = ({ dayNumber, onClick, isEditor = false }: { dayNumb
           <Pencil className="w-3 h-3" />
         </button>
       )}
+
+      {!isEditor && openedCount > 0 && (
+        <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-0.5 rounded-full z-20">
+          <Eye className="w-2 h-2 text-white" />
+          <span className="text-[8px] font-black text-white">{openedCount}</span>
+        </div>
+      )}
     </motion.div>
   )
 }
 
 // Unlocked Day (Past/Opened)
-// UnlockedDayCard
-export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false }: { dayNumber: number | string, imageUrl: string, onClick?: () => void, isEditor?: boolean }) => {
+export const UniversalUnlockedCard = ({ dayNumber, imageUrl, onClick, isEditor = false, config, contentType = 'photo', openedCount = 0 }: { dayNumber: number | string, imageUrl: string, onClick?: () => void, isEditor?: boolean, config: any, contentType?: string, openedCount?: number }) => {
   const [imgError, setImgError] = useState(false);
-  const isTikTok = imageUrl?.includes('tiktok.com');
-  const hasImage = imageUrl && !imgError && !isTikTok;
+  const isVideo = contentType === 'video' || imageUrl?.includes('tiktok.com') || imageUrl?.includes('youtube.com') || imageUrl?.includes('instagram.com');
+  const hasImage = imageUrl && !imgError && !isVideo;
 
   return (
     <motion.div
       whileHover={{ y: -2 }}
       onClick={onClick}
-      className="aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl bg-white border-2 border-rose-100 shadow-sm overflow-hidden group font-display cursor-pointer"
+      className={cn(config.cards.unlocked.container, "group")}
     >
       {hasImage ? (
         <div
           className={cn(
             "absolute inset-0 bg-cover bg-center transition-all duration-500 group-hover:scale-105",
-            !isEditor && "blur-[30px]" // High blur (3xl equivalent) for privacy
+            !isEditor && config.cards.unlocked.imageOverlay
           )}
           style={{ backgroundImage: `url('${imageUrl}')` }}
         >
@@ -245,12 +335,10 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
             alt=""
           />
         </div>
-      ) : isTikTok ? (
+      ) : isVideo ? (
         <div className="absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center p-4">
           <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shadow-lg mb-2">
-            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
-            </svg>
+            <Play className="w-6 h-6 text-white" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-rose-500/10" />
         </div>
@@ -258,51 +346,60 @@ export const UnlockedDayCard = ({ dayNumber, imageUrl, onClick, isEditor = false
         <div
           className={cn(
             "absolute inset-0 bg-[#fffafa] transition-opacity duration-500",
-            !isEditor && "blur-[15px] opacity-70"
+            !isEditor && config.cards.unlocked.placeholderWrapper
           )}
-          style={{
-            backgroundImage: `
-              linear-gradient(90deg, transparent 19px, #abced4 19px, #abced4 20px, transparent 20px),
-              linear-gradient(#eee 0.1em, transparent 0.1em)
-            `,
-            backgroundSize: '100% 0.8em'
-          }}
+          style={config.cards.unlocked.placeholderPattern || {}}
         >
           <div className="absolute top-0 right-0 w-8 h-8 bg-rose-200/40 rounded-bl-3xl" />
         </div>
       )}
 
-      <div className="absolute top-1 right-1 text-love-red bg-white/80 rounded-full p-1 shadow-sm z-20">
-        {isEditor ? <Pencil className="w-3 h-3" /> : <Heart className="w-3 h-3 fill-current" />}
+      <div className={config.cards.unlocked.iconWrapper}>
+        {isEditor ? <Pencil className="w-3 h-3" /> : (openedCount > 0 ? <Eye className="w-3 h-3" /> : <Heart className="w-3 h-3 fill-current" />)}
       </div>
 
       <div className="relative z-10 text-center flex flex-col items-center">
         <span className={cn(
           "text-[10px] font-bold px-2 rounded-full mb-1",
-          hasImage ? "text-white bg-black/30 backdrop-blur-sm" : "text-rose-600 bg-rose-50/80"
+          (hasImage || isVideo) ? "text-white bg-black/30 backdrop-blur-sm" : config.cards.unlocked.badge
         )}>
           Dia {dayNumber}
         </span>
       </div>
+      {!isEditor && openedCount > 0 && (
+        <div className="absolute top-2 right-8 flex items-center gap-1 bg-black/20 backdrop-blur-md px-2 py-0.5 rounded-full z-20">
+          <Eye className="w-2 h-2 text-white" />
+          <span className="text-[8px] font-black text-white">{openedCount}</span>
+        </div>
+      )}
     </motion.div>
   )
 }
 
 // --- Quote ---
-export const LoveQuote = ({ text = "Onde há amor, há vida. Prepare o coração, pois o que está por vir é eterno.", author = "Dica dos Namorados", isEditor = false }: { text?: string, author?: string, isEditor?: boolean }) => {
+export const UniversalQuote = ({ text, author, config, isEditor, onEdit, calendarMessage }: { text?: React.ReactNode, author?: React.ReactNode, config: any, isEditor?: boolean, onEdit?: () => void, calendarMessage?: string }) => {
   return (
-    <div className="mt-10 p-5 rounded-2xl bg-white/60 dark:bg-black/40 border-2 border-rose-100 dark:border-rose-900/50 flex flex-col items-center text-center gap-2 shadow-inner font-display max-w-lg mx-auto relative group">
+    <div
+      className={cn(config.ui?.quote.container, "group relative cursor-pointer transition-all active:scale-[0.99] pointer-events-auto")}
+      onClick={isEditor ? onEdit : undefined}
+    >
       {isEditor && (
-        <button className="absolute top-2 right-2 bg-rose-100 p-1.5 rounded-full shadow-sm text-rose-500 hover:text-rose-700 transition-colors">
-          <Pencil className="w-3 h-3" />
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit?.();
+          }}
+          className="absolute -top-2 -right-2 bg-white/90 shadow-lg p-2 rounded-full text-rose-500 hover:text-rose-600 transition-all hover:scale-110 active:scale-95 border border-rose-100 z-50"
+        >
+          <Pencil className="w-4 h-4" />
         </button>
       )}
-      <Quote className="text-love-red w-8 h-8 fill-current opacity-80" />
+      <Quote className={config.ui?.quote.icon} />
       <div>
-        <h3 className="text-lg font-bold text-rose-900 dark:text-rose-100 font-festive">{author}</h3>
-        <p className="text-sm text-rose-700/80 dark:text-rose-200/90 italic mt-1 leading-relaxed">
-          "{text}"
-        </p>
+        <h3 className={cn(config.ui?.quote.title, config.ui?.layout.secondaryFont)}>{author}</h3>
+        <div className={cn(config.ui?.quote.text, config.ui?.layout.messageFont)}>
+          {typeof text === 'string' ? `"${text}"` : text}
+        </div>
       </div>
     </div>
   )
@@ -345,27 +442,30 @@ export const EditorFooter = () => {
 }
 
 // --- User Footer (Visitor CTA) ---
-export const LoveFooter = ({
+export const UniversalFooter = ({
   isEditor = false,
   onNavigate,
+  config
 }: {
   isEditor?: boolean;
   onNavigate?: () => void;
+  config: any;
 }) => {
   return (
     <div
       className={cn(
-        "fixed left-1/2 -translate-x-1/2 w-[92%] max-w-md p-4 bg-white/90 dark:bg-zinc-900/95 backdrop-blur-lg border border-rose-100 dark:border-white/10 z-50 font-display rounded-3xl shadow-2xl shadow-rose-500/10 transition-all duration-300",
-        isEditor ? "bottom-24" : "bottom-6"
+        config.footer.container,
+        "max-w-md mx-auto",
+        isEditor ? "pb-24" : "pb-12"
       )}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 w-full justify-center">
         <button
           onClick={onNavigate}
-          className="flex-1 h-12 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95 bg-love-red hover:bg-rose-700 text-white shadow-rose-500/30"
+          className={cn(config.footer.button, "w-full sm:w-auto px-12 min-w-[200px]")}
         >
-          <Sparkles className="w-4 h-4" />
-          Criar meu calendário
+          {config.icons.footer && <config.icons.footer className="w-4 h-4" />}
+          {isEditor ? "Salvar Alterações" : "Criar meu calendário"}
         </button>
       </div>
     </div>
@@ -694,6 +794,17 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
       descColor: "text-red-800/60 dark:text-red-300/60",
       icon: Lock
     },
+    carnaval: {
+      title: "Segura a empolgação!",
+      message: "O bloco ainda não saiu! Essa surpresa é para o momento certo.",
+      buttonColor: "bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600",
+      iconColor: "text-purple-500",
+      bgColor: "bg-[#FDF4FF] dark:bg-zinc-900",
+      borderColor: "border-purple-200 dark:border-purple-900",
+      textColor: "text-purple-900 dark:text-purple-100",
+      descColor: "text-purple-600/80 dark:text-purple-300/80",
+      icon: PartyPopper
+    },
     default: {
       title: "Calma, Coração!",
       message: "Essa surpresa ainda está sendo preparada. Segura a ansiedade!",
@@ -711,7 +822,7 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
   const Icon = config.icon;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -786,6 +897,7 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
 interface LoveLetterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  config?: any;
   content: {
     type: 'text' | 'image' | 'video';
     title?: string;
@@ -794,9 +906,13 @@ interface LoveLetterModalProps {
   };
 }
 
-export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalProps) => {
+export const LoveLetterModal = ({ isOpen, onClose, content, config }: LoveLetterModalProps) => {
   const { toast } = useToast();
   if (!isOpen) return null;
+
+  const messageFont = config?.layout?.messageFont || "font-festive";
+  const titleFont = config?.layout?.titleFont || "font-serif italic";
+  const closingFont = config?.layout?.messageFont || "font-festive";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-rose-900/40 backdrop-blur-sm animate-in fade-in duration-300">
@@ -909,24 +1025,24 @@ export const LoveLetterModal = ({ isOpen, onClose, content }: LoveLetterModalPro
 
           {/* Text Content */}
           <div className="text-center space-y-3 relative z-10 w-full">
-            <h2 className="font-romantic text-4xl text-rose-900 leading-tight block">
+            <h2 className={cn("text-4xl text-rose-900 leading-tight block", titleFont)}>
               {content.title || "Uma Surpresa para Você"}
             </h2>
 
             <div className="px-2">
-              <p className="font-festive text-xl text-rose-800 leading-relaxed block break-words">
+              <p className={cn("text-xl text-rose-800 leading-relaxed block break-words", messageFont)}>
                 {content.message || "Às vezes as palavras não são suficientes para expressar o que eu sinto..."}
               </p>
             </div>
 
             {content.mediaUrl && content.type === 'image' && !content.message && (
-              <p className="font-festive text-lg text-rose-700/60 leading-relaxed italic">
+              <p className={cn("text-lg text-rose-700/60 leading-relaxed italic", messageFont)}>
                 Uma imagem vale mais que mil palavras. ❤️
               </p>
             )}
 
             <div className="pt-8">
-              <span className="font-romantic text-3xl text-rose-700 block">Com todo meu coração,</span>
+              <span className={cn("text-3xl text-rose-700 block", closingFont)}>Com todo meu coração,</span>
               <div className="flex justify-center mt-1">
                 <Heart className="w-5 h-5 text-love-red fill-current" />
               </div>

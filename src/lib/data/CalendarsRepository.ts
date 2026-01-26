@@ -15,7 +15,7 @@ export const CalendarsRepository = {
     try {
       const { data, error } = await (supabase
         .from('calendars') as any)
-        .select('*, primary_color, secondary_color, background_url')
+        .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
         .eq('owner_id', ownerId)
         .order('created_at', { ascending: false });
       
@@ -36,7 +36,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getById:', id);
     const { data, error } = await supabase
       .from('calendars')
-      .select('*, primary_color, secondary_color, background_url')
+      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
       .eq('id', id)
       .single();
     
@@ -53,7 +53,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getWithDays:', id);
     const { data: calendar, error: calError } = await supabase
       .from('calendars')
-      .select('*, primary_color, secondary_color, background_url')
+      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
       .eq('id', id)
       .single();
     
@@ -82,7 +82,7 @@ export const CalendarsRepository = {
     console.log('CalendarsRepository.getPublic:', id);
     const { data: calendar, error: calError } = await supabase
       .from('calendars')
-      .select('*, primary_color, secondary_color, background_url')
+      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
       .eq('id', id)
       .eq('privacy', 'public')
       .single();
@@ -145,14 +145,24 @@ export const CalendarsRepository = {
     secondary_color?: string;
     background_url?: string;
   }): Promise<Calendar> {
-    console.log('CalendarsRepository.create: Starting insert', input);
+    console.log('CalendarsRepository.create: Fetching theme defaults for', input.themeId);
+    
+    const { data: themeDefaults, error: defaultsError } = await supabase
+      .from('theme_defaults')
+      .select('*')
+      .eq('theme_id', input.themeId)
+      .single();
+
+    if (defaultsError) {
+      console.warn('CalendarsRepository.create: Could not fetch theme defaults, using fallback', defaultsError);
+    }
 
     // Create calendar
     const { data: calendar, error: calError } = await supabase
       .from('calendars')
       .insert({
         owner_id: input.ownerId,
-        title: input.title,
+        title: input.title || themeDefaults?.default_title || 'Cápsula do Tempo',
         theme_id: input.themeId,
         duration: input.duration,
         privacy: input.privacy,
@@ -162,6 +172,12 @@ export const CalendarsRepository = {
         primary_color: input.primary_color,
         secondary_color: input.secondary_color,
         background_url: input.background_url,
+        header_message: themeDefaults?.default_header_message,
+        footer_message: themeDefaults?.default_footer_message,
+        capsule_title: themeDefaults?.default_capsule_title,
+        capsule_message: themeDefaults?.default_capsule_message,
+        locked_title: themeDefaults?.default_locked_title,
+        locked_message: themeDefaults?.default_locked_message,
       })
       .select()
       .single();

@@ -22,9 +22,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   }
 
   try {
-    const registration = await navigator.serviceWorker.register('/fresta/sw.js', {
-      scope: '/fresta/'
-    });
+    const registration = await navigator.serviceWorker.register('sw.js');
     console.log('[Push] Service Worker registered:', registration.scope);
     return registration;
   } catch (error) {

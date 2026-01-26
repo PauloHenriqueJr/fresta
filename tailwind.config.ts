@@ -20,6 +20,8 @@ export default {
         display: ["Plus Jakarta Sans", "sans-serif"],
         romantic: ["Great Vibes", "cursive"],
         festive: ["Dancing Script", "cursive"],
+        serif: ["Playfair Display", "serif"],
+        luckiest: ["Luckiest Guy", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
