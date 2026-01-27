@@ -99,8 +99,9 @@ const AuthHandler = () => {
 
     // 0. Correção de Rota (Path -> Hash): Se acessar /c/ID diretamente
     if (pathname.startsWith('/c/')) {
-      console.log("App: Convertendo rota de path para hash");
-      window.location.href = `${window.location.origin}/#${pathname}${hash}`;
+      const targetHash = `#${pathname}${hash || ''}`;
+      console.log(`App: Redirecionando de path para hash: ${targetHash}`);
+      window.location.replace(`${window.location.origin}/${targetHash}`);
       return;
     }
 
