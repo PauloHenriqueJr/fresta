@@ -49,7 +49,7 @@ ssh $REMOTE_USER@$REMOTE_HOST << EOF
     rm $ARCHIVE_NAME
     
     # Criar rede externa se não existir
-    docker network inspect traefik-public >/dev/null 2>&1 || docker network create traefik-public
+    docker network inspect traefik >/dev/null 2>&1 || docker network create traefik
 
     # Build com variáveis específicas
     DOMAIN_NAME=$DOMAIN_NAME \
