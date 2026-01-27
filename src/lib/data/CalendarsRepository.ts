@@ -80,18 +80,45 @@ export const CalendarsRepository = {
   // Get public calendar (for /c/:id)
   async getPublic(id: string): Promise<{ calendar: Calendar; days: CalendarDay[] } | null> {
     console.log('CalendarsRepository.getPublic:', id);
-    const { data: calendar, error: calError } = await supabase
-      .from('calendars')
-      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
-      .eq('id', id)
-      .eq('privacy', 'public')
-      .single();
     
-    if (calError) {
-      if (calError.code === 'PGRST116') return null;
+    // 1. Fetch the calendar record first
+    const { data: calendars, error: calError } = await supabase
+      .from('calendars')
+      .select('*')
+      .eq('id', id)
+      .limit(1);
+    
+    const calendar = calendars?.[0];
+
+    if (calError || !calendar) {
+      if (calError?.code === 'PGRST116' || !calendar) return null;
       console.error('CalendarsRepository.getPublic: Calendar error', calError);
       throw calError;
     }
+
+    // 2. Fetch owner's profile separately
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('display_name, avatar')
+      .eq('id', calendar.owner_id)
+      .limit(1);
+
+    const profile = profiles?.[0];
+
+    // 3. Fetch owner's subscription separately
+    const { data: subscriptions } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', calendar.owner_id);
+
+    // Merge into the expected structure for the UI
+    const calendarWithData = {
+      ...calendar,
+      profiles: profile ? {
+        ...profile,
+        subscriptions: subscriptions ?? []
+      } : null
+    };
 
     const { data: days, error: daysError } = await supabase
       .from('calendar_days')
@@ -104,7 +131,7 @@ export const CalendarsRepository = {
       throw daysError;
     }
 
-    return { calendar, days: days ?? [] };
+    return { calendar: calendarWithData as any, days: days ?? [] };
   },
 
   // Increment view count

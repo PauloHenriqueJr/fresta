@@ -13,7 +13,9 @@ import {
     Lock,
     DoorOpen,
     Sparkles,
-    Menu
+    Menu,
+    Sun,
+    Moon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, useMemo } from "react";
@@ -145,6 +147,24 @@ const LandingPageBrand = () => {
     // Theme state
     const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.fresta);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const [isDark, setIsDark] = useState(() => {
+        return document.documentElement.classList.contains('dark');
+    });
+
+    const toggleTheme = () => {
+        const newDark = !isDark;
+        setIsDark(newDark);
+        if (newDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.backgroundColor = '#0E220E';
+            localStorage.setItem('fresta_theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.backgroundColor = '#F8F9F5';
+            localStorage.setItem('fresta_theme', 'light');
+        }
+    };
+
     const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
 
     const { role: authRole } = useAuth();
@@ -287,6 +307,13 @@ const LandingPageBrand = () => {
                     </nav>
 
                     <div className="flex items-center gap-6">
+                        <button
+                            onClick={toggleTheme}
+                            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                            title={isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+                        >
+                            {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-700" />}
+                        </button>
                         <button onClick={() => navigate(isAuthenticated ? "/portal" : "/entrar")} className="font-bold hover:opacity-70 transition-opacity" style={{ color: currentTheme.colors.primary }}>
                             Entrar
                         </button>
@@ -304,8 +331,16 @@ const LandingPageBrand = () => {
                 <div className="lg:hidden fixed top-0 inset-x-0 z-50 p-2 pointer-events-none">
                     <div className="bg-white rounded-xl shadow-lg border border-gray-100 px-5 py-3 flex justify-between items-center pointer-events-auto">
                         <div className="flex items-center gap-2">
-                            <DoorOpen className="w-6 h-6" style={{ color: currentTheme.colors.primary }} strokeWidth={2.5} />
-                            <span className="font-extrabold text-lg" style={{ color: currentTheme.colors.primary }}>Fresta Folia</span>
+                            <button
+                                onClick={toggleTheme}
+                                className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mr-1"
+                            >
+                                {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-slate-700" />}
+                            </button>
+                            <div className="flex items-center gap-2">
+                                <DoorOpen className="w-6 h-6" style={{ color: currentTheme.colors.primary }} strokeWidth={2.5} />
+                                <span className="font-extrabold text-lg" style={{ color: currentTheme.colors.primary }}>Fresta Folia</span>
+                            </div>
                         </div>
                         <button className="p-2 -mr-2 text-gray-600 hover:text-gray-900">
                             <Menu className="w-6 h-6" strokeWidth={2.5} />

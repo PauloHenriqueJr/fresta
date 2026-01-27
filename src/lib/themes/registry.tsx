@@ -122,6 +122,22 @@ export interface PremiumThemeConfig {
       button: string;
       secondaryButton: string;
     };
+    editor?: {
+      topBar: {
+        container: string;
+        backButton: string;
+        modeText: string;
+        badgeText: string;
+        previewButtonActive: string;
+        previewButtonInactive: string;
+        settingsButton: string;
+      };
+      stats: {
+        card: string;
+        number: string;
+        label: string;
+      };
+    };
     quote: {
       container: string;
       icon: string;
@@ -237,6 +253,22 @@ export const natalTheme: PremiumThemeConfig = {
       button: "bg-red-600 hover:bg-red-700 text-white px-8 h-14 rounded-full font-bold shadow-xl shadow-red-500/20 active:scale-95 transition-all",
       secondaryButton: "h-14 w-14 rounded-full bg-green-50 text-green-700 border border-green-100"
     },
+    editor: {
+      topBar: {
+        container: "border-red-100",
+        backButton: "text-red-500",
+        modeText: "text-red-500",
+        badgeText: "text-red-900",
+        previewButtonActive: "bg-red-500 text-white shadow-red-500/20",
+        previewButtonInactive: "bg-zinc-50 text-red-500 border-red-100",
+        settingsButton: "bg-zinc-50 text-red-500 border-red-100"
+      },
+      stats: {
+        card: "border-red-100/50",
+        number: "text-red-900",
+        label: "text-red-400"
+      }
+    },
     quote: {
       container: "mt-10 p-6 rounded-[2rem] bg-white/80 border-2 border-red-100 flex flex-col items-center text-center gap-2 shadow-sm max-w-lg mx-auto relative group",
       icon: "text-red-600 w-8 h-8 fill-current opacity-90",
@@ -351,6 +383,22 @@ export const weddingTheme: PremiumThemeConfig = {
       editorContainer: "relative w-full px-4 pt-8 pb-16 flex items-center justify-center gap-4",
       button: "bg-wedding-gold hover:bg-wedding-gold-dark text-white px-8 h-14 rounded-full font-bold shadow-lg shadow-wedding-gold/20 transition-all",
       secondaryButton: "h-14 w-14 rounded-full bg-wedding-cream text-wedding-gold border border-wedding-gold/10"
+    },
+    editor: {
+      topBar: {
+        container: "border-wedding-gold/10",
+        backButton: "text-wedding-gold",
+        modeText: "text-wedding-gold",
+        badgeText: "text-wedding-gold-dark",
+        previewButtonActive: "bg-wedding-gold text-white shadow-wedding-gold/20",
+        previewButtonInactive: "bg-wedding-cream text-wedding-gold border-wedding-gold/10",
+        settingsButton: "bg-wedding-cream text-wedding-gold border-wedding-gold/10"
+      },
+      stats: {
+        card: "border-wedding-gold/10",
+        number: "text-wedding-gold-dark",
+        label: "text-wedding-gold"
+      }
     },
     quote: {
       container: "mt-10 p-8 rounded-[3rem] bg-white border border-wedding-gold/10 flex flex-col items-center text-center gap-4 shadow-sm max-w-lg mx-auto relative group",
@@ -473,6 +521,22 @@ export const namoroTheme: PremiumThemeConfig = {
       button: "bg-love-red hover:bg-rose-700 text-white w-14 h-14 sm:w-auto sm:px-8 sm:h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-rose-500/30 transition-all active:scale-95 whitespace-nowrap",
       secondaryButton: "h-14 w-14 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 transition-colors hover:bg-rose-100"
     },
+    editor: {
+      topBar: {
+        container: "border-rose-100",
+        backButton: "text-rose-500",
+        modeText: "text-rose-500",
+        badgeText: "text-rose-900",
+        previewButtonActive: "bg-rose-500 text-white shadow-rose-500/20",
+        previewButtonInactive: "bg-zinc-50 text-rose-500 border-rose-100",
+        settingsButton: "bg-zinc-50 text-rose-500 border-rose-100"
+      },
+      stats: {
+        card: "border-rose-100/50",
+        number: "text-rose-900",
+        label: "text-rose-400"
+      }
+    },
     quote: {
       container: "mt-10 p-6 sm:p-8 rounded-[2rem] bg-white/70 border-2 border-rose-100 flex flex-col items-center text-center gap-2 shadow-sm max-w-lg mx-auto relative group backdrop-blur-sm",
       icon: "text-red-500 w-8 h-8 fill-current opacity-90",
@@ -585,6 +649,22 @@ export const carnavalTheme: PremiumThemeConfig = {
       editorContainer: "relative w-full px-4 pt-8 pb-16 flex items-center justify-center gap-4 transition-all",
       button: "bg-purple-600 hover:bg-purple-700 text-white w-14 h-14 sm:w-auto sm:px-8 sm:h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-purple-500/30 transition-all active:scale-95 whitespace-nowrap",
       secondaryButton: "h-14 w-14 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 transition-colors hover:bg-purple-100"
+    },
+    editor: {
+      topBar: {
+        container: "border-purple-100",
+        backButton: "text-purple-500",
+        modeText: "text-purple-500",
+        badgeText: "text-purple-900",
+        previewButtonActive: "bg-purple-500 text-white shadow-purple-500/20",
+        previewButtonInactive: "bg-zinc-50 text-purple-500 border-purple-100",
+        settingsButton: "bg-zinc-50 text-purple-500 border-purple-100"
+      },
+      stats: {
+        card: "border-purple-100/50",
+        number: "text-purple-900",
+        label: "text-purple-400"
+      }
     },
     quote: {
       container: "mt-10 p-6 sm:p-8 rounded-[2rem] bg-white/70 border-2 border-purple-100 flex flex-col items-center text-center gap-2 shadow-sm max-w-lg mx-auto relative group backdrop-blur-sm",

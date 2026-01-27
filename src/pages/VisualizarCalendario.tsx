@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette } from "lucide-react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
 import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { BASE_THEMES, getThemeDefinition } from "@/lib/offline/themes";
 import { getThemeConfig } from "@/lib/themes/registry";
+import { BrandWatermark } from "@/components/calendar/BrandWatermark";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { Tables } from "@/lib/supabase/types";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { format, addDays, isAfter, startOfDay, parseISO } from "date-fns";
@@ -73,6 +75,54 @@ const VisualizarCalendario = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   const isOwner = calendar?.owner_id === user?.id;
+  const [searchParams] = useSearchParams();
+  // Template Preview ONLY when coming from Explore page (via ?template=true) AND not the owner
+  const isFromExplore = searchParams.get('template') === 'true';
+  const isTemplatePreview = isFromExplore && !isOwner;
+
+  const { isPremium } = useSubscription();
+
+  // Check if the CALENDAR OWNER is premium (data comes from getPublic)
+  const ownerSubscriptions = (calendar as any)?.profiles?.subscriptions || [];
+  const isOwnerPremium = ownerSubscriptions.some(
+    (s: any) => s.status === 'active' || s.status === 'trialing'
+  );
+
+  const getRedactedContent = (day: CalendarDay) => {
+    if (!calendar) return { type: 'text', message: "", title: "" };
+
+    // SECURITY: Only the owner sees real content. ALL visitors get redacted content.
+    if (isOwner) {
+      const url = day.url || "";
+      const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
+      const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
+
+      return {
+        type,
+        title: day.label || `Porta ${day.day}`,
+        message: day.message || "",
+        mediaUrl: day.url || undefined,
+      };
+    }
+
+    // Visitor/Template Mode - Generic content, NO personal messages
+    return {
+      type: 'text',
+      title: `Porta ${day.day}`,
+      message: "", // SECURITY: No personal content for visitors
+      mediaUrl: undefined,
+    };
+  };
+
+  const handleCloneTheme = () => {
+    if (!calendar) return;
+    const params = new URLSearchParams({
+      theme: calendar.theme_id,
+      title: `Copiado de ${calendar.title}`,
+      from_template: calendar.id
+    });
+    navigate(`/criar?${params.toString()}`);
+  };
 
   const handleLike = () => {
     const newLiked = !liked;
@@ -314,7 +364,7 @@ const VisualizarCalendario = () => {
         const result = await CalendarsRepository.getPublic(id);
 
         if (!result) {
-          setError("Este calendário não existe ou é privado.");
+          setError("Este calendário não foi encontrado ou não está disponível.");
           setLoading(false);
           return;
         }
@@ -561,6 +611,8 @@ const VisualizarCalendario = () => {
   // --- RENDERIZADORES ESPECIALIZADOS ---
 
 
+  // --- RENDERIZADORES ESPECIALIZADOS ---
+
   const renderWeddingView = () => (
     <>
       <WeddingBackground />
@@ -569,7 +621,13 @@ const VisualizarCalendario = () => {
       <div className="relative z-10">
         <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (window.history.state && window.history.state.idx > 0) {
+                navigate(-1);
+              } else {
+                navigate(isOwner ? '/dashboard' : '/explorar');
+              }
+            }}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -579,7 +637,12 @@ const VisualizarCalendario = () => {
             <Share2 className="w-5 h-5" />
           </button>
         </div>
-        <WeddingHeader title={calendar.title} subtitle="A contagem regressiva para o altar" isEditor={false} />
+        <WeddingHeader
+          title={calendar.title}
+          subtitle="A contagem regressiva para o altar"
+          isEditor={false}
+          showWatermark={!isOwnerPremium}
+        />
         <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
       </div>
 
@@ -595,7 +658,6 @@ const VisualizarCalendario = () => {
             const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
             const doorDate = startOfDay(addDays(baseDate, d.day - 1));
             const isLocked = isAfter(doorDate, startOfDay(new Date()));
-
             const isOpened = openedDays.includes(d.day) || (d.opened_count || 0) > 0;
 
             return (
@@ -626,17 +688,33 @@ const VisualizarCalendario = () => {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="flex items-center justify-between mb-4">
-          {calendar.theme_id === 'saojoao' && (
-            <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
-              Vila de São João
-            </span>
-          )}
-          {calendar.theme_id === 'casamento' && (
-            <span className="px-3 py-1 bg-[#C5A059] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
-              Rumo ao Altar
-            </span>
-          )}
-          <div className="flex-1" /> {/* Spacer */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1);
+                } else {
+                  navigate(isOwner ? '/dashboard' : '/explorar');
+                }
+              }}
+              className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 hover:scale-105 transition-transform"
+            >
+              <ArrowLeft className="w-5 h-5 text-foreground" />
+            </button>
+            {calendar.theme_id === 'saojoao' && (
+              <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                Vila de São João
+              </span>
+            )}
+            {calendar.theme_id === 'casamento' && (
+              <span className="px-3 py-1 bg-[#C5A059] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                Rumo ao Altar
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1" />
+
           <div className="flex items-center gap-2">
             <motion.button
               onClick={() => setLiked(!liked)}
@@ -647,9 +725,7 @@ const VisualizarCalendario = () => {
               whileTap={{ scale: 0.9 }}
               style={liked && calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
             >
-              <Heart
-                className={cn("w-5 h-5", liked && "fill-current")}
-              />
+              <Heart className={cn("w-5 h-5", liked && "fill-current")} />
             </motion.button>
             <motion.button
               onClick={handleShare}
@@ -661,78 +737,87 @@ const VisualizarCalendario = () => {
           </div>
         </div>
 
-        <div>
+        <div className="flex items-center justify-center gap-4 w-full mb-1">
+          {!isOwnerPremium && <BrandWatermark variant="compact" className="hidden sm:flex" />}
           <h1
             className={cn(
-              "text-3xl font-black mb-1 leading-tight",
+              "text-3xl font-black leading-tight text-center",
               calendar.theme_id === 'saojoao' ? "text-[#5D2E0B]" : "text-foreground"
             )}
             style={calendar.primary_color ? { color: calendar.primary_color } : undefined}
           >
             {calendar.title}
           </h1>
-          <p className={cn(
-            "text-sm font-medium",
-            calendar.theme_id === 'saojoao' ? "text-[#8B4513]/70" : "text-muted-foreground"
-          )}>
-            {themeData?.emoji} {themeData?.name}
-          </p>
+          {!isOwnerPremium && <BrandWatermark variant="compact" className="hidden sm:flex" />}
         </div>
 
-        {/* Romantic Progress Bar - Inspired by user reference */}
-        {(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
-          <motion.div
-            className="mt-6 p-6 bg-card/60 backdrop-blur-md rounded-3xl border border-primary/20 shadow-sm"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
-                Amor: {Math.round((openedDays.length / (days.length || 1)) * 100)}% completo
-              </span>
-              <span className="text-xs font-bold text-foreground">
-                Faltam {days.length - openedDays.length} surpresas! ❤️
-              </span>
-            </div>
-            <div className="h-3 rounded-full bg-secondary/50 shadow-inner overflow-hidden">
-              <motion.div
-                className="h-full bg-primary"
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.round((openedDays.length / (days.length || 1)) * 100)}%` }}
-                transition={{ duration: 1, delay: 0.5 }}
-                style={calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
-              />
-            </div>
-          </motion.div>
+        {/* Mobile Watermarks */}
+        {!isOwnerPremium && (
+          <div className="flex sm:hidden items-center justify-center gap-2 mb-4">
+            <BrandWatermark variant="compact" />
+            <BrandWatermark variant="compact" />
+          </div>
         )}
-
-        {/* Future Calendar Banner */}
-        {isFutureCalendar && (
-          <motion.div
-            className="mt-6 p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-3xl border border-orange-200/50 shadow-sm"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
-                <Clock className="w-6 h-6 animate-pulse-soft" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-orange-900 dark:text-orange-200 leading-tight">
-                  Estreia em {daysUntilStart} {daysUntilStart === 1 ? 'dia' : 'dias'}
-                </h3>
-                <p className="text-sm text-orange-800/60 dark:text-orange-200/50 font-medium">
-                  Este calendário começa oficialmente em {format(parseISO(calendar.start_date!), "d 'de' MMMM", { locale: ptBR })}.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        <p className={cn(
+          "text-sm font-medium",
+          calendar.theme_id === 'saojoao' ? "text-[#8B4513]/70" : "text-muted-foreground"
+        )}>
+          {themeData?.emoji} {themeData?.name}
+        </p>
       </motion.header>
 
-      {/* Calendar Grid */}
-      < main className="relative z-10 px-4 pb-24" >
+      {/* Romantic Progress Bar */}
+      {(themeData?.id === "namoro" || themeData?.id === "casamento" || themeData?.id === "noivado" || themeData?.id === "bodas") && (
+        <motion.div
+          className="mt-6 p-6 bg-card/60 backdrop-blur-md rounded-3xl border border-primary/20 shadow-sm"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
+              Amor: {Math.round((openedDays.length / (days.length || 1)) * 100)}% completo
+            </span>
+            <span className="text-xs font-bold text-foreground">
+              Faltam {days.length - openedDays.length} surpresas! ❤️
+            </span>
+          </div>
+          <div className="h-3 rounded-full bg-secondary/50 shadow-inner overflow-hidden">
+            <motion.div
+              className="h-full bg-primary"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.round((openedDays.length / (days.length || 1)) * 100)}%` }}
+              transition={{ duration: 1, delay: 0.5 }}
+              style={calendar.primary_color ? { backgroundColor: calendar.primary_color } : undefined}
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Future Calendar Banner */}
+      {isFutureCalendar && (
+        <motion.div
+          className="mt-6 p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-orange-950/20 dark:to-amber-950/20 rounded-3xl border border-orange-200/50 shadow-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
+              <Clock className="w-6 h-6 animate-pulse-soft" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-orange-900 dark:text-orange-200 leading-tight">
+                Estreia em {daysUntilStart} {daysUntilStart === 1 ? 'dia' : 'dias'}
+              </h3>
+              <p className="text-sm text-orange-800/60 dark:text-orange-200/50 font-medium">
+                Este calendário começa oficialmente em {format(parseISO(calendar.start_date!), "d 'de' MMMM", { locale: ptBR })}.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      <main className="relative z-10 px-4 pb-24">
         <CalendarGrid
           title={calendar.title}
           month={(() => {
@@ -753,17 +838,16 @@ const VisualizarCalendario = () => {
           onDayClick={handleDayClick}
           theme={(themeData?.id || "natal") as any}
         />
-      </main >
+      </main>
 
       {/* Time Capsule - User Reference */}
-      < motion.section
+      <motion.section
         className="relative z-10 px-4 mt-8 mb-24 max-w-lg mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
       >
         <div className="bg-card/40 backdrop-blur-xl border border-white/20 rounded-[2.5rem] p-8 relative overflow-hidden group shadow-elevated">
-          {/* Decorative icons in bg */}
           <div className="absolute top-4 right-4 text-primary/10 -rotate-12 transition-transform group-hover:rotate-0">
             {["namoro", "casamento", "noivado", "bodas"].includes(calendar.theme_id) ? <Heart className="w-16 h-16 fill-current" /> : <Sparkles className="w-16 h-16" />}
           </div>
@@ -778,63 +862,55 @@ const VisualizarCalendario = () => {
 
             {(() => {
               const capsuleContent: Record<string, { title: string, message: string }> = {
-                saojoao: {
-                  title: "MEMÓRIAS DO ARRAIÁ",
-                  message: "Que a alegria dessa festa aqueça seu coração o ano todo! Guarde cada momento. 🔥🌽"
-                },
-                carnaval: {
-                  title: "FOLIA ETERNA",
-                  message: "A vida é um carnaval! Celebre cada dia com a mesma energia dessa festa. 🎉🎭"
-                },
-                natal: {
-                  title: "ESPÍRITO NATALINO",
-                  message: "O melhor presente é estar presente. Que estas memórias iluminem seu caminho. 🎄✨"
-                },
-                namoro: {
-                  title: "NOSSA CÁPSULA",
-                  message: "\"O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção.\""
-                },
-                casamento: {
-                  title: "NOSSA JORNADA",
-                  message: "Cada dia ao seu lado é um presente que quero abrir para sempre. 💍💖"
-                },
-                bodas: {
-                  title: "CELEBRAÇÃO DO AMOR",
-                  message: "Uma história construída dia após dia, com muito amor e cumplicidade."
-                },
-                default: {
-                  title: "CÁPSULA DO TEMPO",
-                  message: "Colecione momentos, não coisas. Este calendário é um pedacinho da sua história."
-                }
+                saojoao: { title: "MEMÓRIAS DO ARRAIÁ", message: "Que a alegria dessa festa aqueça seu coração o ano todo! Guarde cada momento. 🔥🌽" },
+                carnaval: { title: "FOLIA ETERNA", message: "A vida é um carnaval! Celebre cada dia com a mesma energia dessa festa. 🎉🎭" },
+                natal: { title: "ESPÍRITO NATALINO", message: "O melhor presente é estar presente. Que estas memórias iluminem seu caminho. 🎄✨" },
+                namoro: { title: "NOSSA CÁPSULA", message: "\"O amor não consiste em olhar um para o outro, mas sim em olhar juntos na mesma direção.\"" },
+                casamento: { title: "NOSSA JORNADA", message: "Cada dia ao seu lado é um presente que quero abrir para sempre. 💍💖" },
+                bodas: { title: "CELEBRAÇÃO DO AMOR", message: "Uma história construída dia após dia, com muito amor e cumplicidade." },
+                default: { title: "CÁPSULA DO TEMPO", message: "Colecione momentos, não coisas. Este calendário é um pedacinho da sua história." }
               };
-
               const content = capsuleContent[calendar.theme_id] || capsuleContent['default'];
-
               return (
                 <>
                   <h3 className="text-2xl font-black text-foreground mb-2 uppercase">{content.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed italic">
-                    "{content.message}"
-                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed italic">"{content.message}"</p>
                 </>
               );
             })()}
-
           </div>
         </div>
-      </motion.section >
+      </motion.section>
 
       {/* Bottom CTA - Only for visitors */}
       {!isOwner && (
-        <div className="relative w-full px-4 py-24 flex items-center justify-center mt-12">
+        <div className="relative w-full px-4 py-24 flex flex-col items-center justify-center mt-12 gap-4">
+          {isTemplatePreview && (
+            <motion.button
+              className="w-full max-w-lg mx-auto bg-solidroad-accent text-solidroad-text font-black py-5 rounded-2xl shadow-glow overflow-hidden relative group"
+              onClick={handleCloneTheme}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                <Sparkles className="w-6 h-6" />
+                USAR ESTE TEMA AGORA
+              </span>
+            </motion.button>
+          )}
+
           <motion.button
-            className="w-full max-w-lg mx-auto btn-festive flex items-center justify-center gap-2 px-8"
+            className={cn(
+              "w-full max-w-lg mx-auto flex items-center justify-center gap-2 px-8 py-5 rounded-2xl font-bold transition-all",
+              isTemplatePreview ? "bg-white/10 border border-border/10 text-foreground" : "btn-festive"
+            )}
             onClick={handleShare}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <Share2 className="w-5 h-5" />
-            Compartilhar
+            {isTemplatePreview ? "Compartilhar este Modelo" : "Compartilhar"}
           </motion.button>
         </div>
       )}
@@ -843,7 +919,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -853,7 +929,13 @@ const VisualizarCalendario = () => {
           openedDays={openedDays}
           isEditor={false}
           isEditorContext={isOwner}
-          onNavigateBack={() => navigate('/')}
+          onNavigateBack={() => {
+            if (window.history.state && window.history.state.idx > 0) {
+              navigate(-1);
+            } else {
+              navigate(isOwner ? '/dashboard' : '/explorar');
+            }
+          }}
           onShare={handleShare}
           onLike={() => setLiked(!liked)}
           liked={liked}
@@ -865,31 +947,37 @@ const VisualizarCalendario = () => {
             try {
               const updated = await CalendarsRepository.update(calendar.id, data);
               setCalendar(updated);
+              toast({ title: "Salvo com sucesso! ✨", description: "As alterações já estão ao vivo." });
             } catch (err) {
               toast({ variant: "destructive", title: "Erro ao salvar", description: "Tente novamente." });
               throw err;
             }
           }}
+          onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
+          showWatermark={!isOwnerPremium}
         />
 
-        {/* Surprise Modals (Shared for Universal themes) */}
-        <LoveLetterModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          config={premiumConfig}
-          content={selectedDayData ? (() => {
-            const url = selectedDayData.url || "";
-            const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-            const type = isVideo ? 'video' : (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text';
+        {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao) */}
+        {!['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+          <LoveLetterModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            config={premiumConfig}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "", title: `Porta ${selectedDay}` }}
+          />
+        )}
 
-            return {
-              type,
-              title: selectedDayData.label || `Porta ${selectedDay}`,
-              message: selectedDayData?.message || "",
-              mediaUrl: selectedDayData?.url || undefined,
-            };
-          })() : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
-        />
+        {/* Festive Modals for Carnaval/SaoJoao */}
+        {['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+          <DaySurpriseModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            day={selectedDay || 1}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+            theme={calendar.theme_id}
+            isTemplate={isTemplatePreview}
+          />
+        )}
 
         <LoveLockedModal
           isOpen={!!lockedModalData?.isOpen}
@@ -899,6 +987,39 @@ const VisualizarCalendario = () => {
           onNotify={handleNotifyMe}
           theme={calendar.theme_id}
         />
+
+        {!isOwnerPremium && (
+          <div className="py-12 flex justify-center relative z-10">
+            <BrandWatermark />
+          </div>
+        )}
+
+        {/* Template Preview Banner */}
+        {isTemplatePreview && (
+          <motion.div
+            className="fixed top-0 left-0 right-0 z-50 p-4"
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+          >
+            <div className="max-w-xl mx-auto bg-card/80 backdrop-blur-xl border border-solidroad-accent/20 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-solidroad-accent/10 flex items-center justify-center">
+                  <Palette className="w-5 h-5 text-solidroad-accent" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-foreground uppercase tracking-wider leading-none">Modo Visualização</p>
+                  <p className="text-[10px] text-muted-foreground font-medium mt-1">Dados pessoais protegidos. Use este modelo para você!</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloneTheme}
+                className="px-4 py-2 bg-solidroad-accent text-solidroad-text rounded-xl font-bold text-[10px] hover:scale-105 transition-all shadow-sm whitespace-nowrap"
+              >
+                USAR MODELO
+              </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     );
   }
@@ -911,57 +1032,31 @@ const VisualizarCalendario = () => {
         backgroundPosition: 'center'
       } : undefined}
     >
-      {calendar.theme_id === 'casamento' ? renderWeddingView() :
-        renderDefaultView()
-      }
+      {calendar.theme_id === 'casamento' ? renderWeddingView() : renderDefaultView()}
 
-      {/* Love Letter Modal (Universal for romantic themes) */}
-      {(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && (
-        <LoveLetterModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          content={selectedDayData ? (() => {
-            const url = selectedDayData.url || "";
-            const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-            const type = isVideo ? 'video' : (selectedDayData.content_type === 'photo' || selectedDayData.content_type === 'gif') ? 'image' : 'text';
+      {/* Love Letter Modal (Romantic - Not Carnaval/SaoJoao) */}
+      {['namoro', 'casamento', 'noivado', 'bodas'].includes(calendar.theme_id) &&
+        !['carnaval', 'saojoao'].includes(calendar.theme_id) &&
+        !isTemplatePreview && (
+          <LoveLetterModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          />
+        )}
 
-            return {
-              type,
-              title: selectedDayData.label || `Porta ${selectedDay}`,
-              message: selectedDayData?.message || "",
-              mediaUrl: selectedDayData?.url || undefined,
-            };
-          })() : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
-        />
-      )}
-
-      {/* Surprise Modal (Global fallback for non-romantic themes) */}
-      {!(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && (
+      {/* Surprise Modal (Global fallback) */}
+      {(isTemplatePreview || !(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) && (
         <DaySurpriseModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}
           day={selectedDay || 1}
-          content={selectedDayData?.content_type === "text" ? {
-            type: "text",
-            message: selectedDayData?.message || "Surpresa! 🎉",
-          } : selectedDayData?.content_type === "photo" || selectedDayData?.content_type === "gif" ? {
-            type: selectedDayData.content_type,
-            url: selectedDayData?.url || "",
-            message: selectedDayData?.message || "",
-          } : selectedDayData?.content_type === "link" ? {
-            type: "link",
-            url: selectedDayData?.url || "",
-            label: selectedDayData?.label || "Clique aqui",
-            message: selectedDayData?.message || "",
-          } : {
-            type: "text",
-            message: "Esta porta ainda está vazia... 📭",
-          }}
+          content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
           theme={calendar.theme_id}
+          isTemplate={isTemplatePreview}
         />
       )}
 
-      {/* Love Locked Modal (Global - Fixed Interaction) */}
       <LoveLockedModal
         isOpen={!!lockedModalData?.isOpen}
         onClose={() => setLockedModalData(null)}
@@ -970,6 +1065,12 @@ const VisualizarCalendario = () => {
         onNotify={handleNotifyMe}
         theme={calendar.theme_id}
       />
+
+      {!isOwnerPremium && (
+        <div className="py-12 flex justify-center relative z-10">
+          <BrandWatermark />
+        </div>
+      )}
     </div>
   );
 };

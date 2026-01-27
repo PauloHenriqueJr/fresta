@@ -2,7 +2,7 @@ import { UniversalHeader, UniversalProgress, UniversalQuote, UniversalFooter, Un
 import { parseISO, startOfDay, isAfter, addDays } from "date-fns";
 import type { Tables } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Eye, Settings, Clock, Save, X, Check, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Eye, Settings, Clock, Save, X, Check, Heart, Share2, BarChart3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import type { PremiumThemeConfig } from "@/lib/themes/registry";
@@ -26,6 +26,8 @@ interface UniversalTemplateProps {
     onTogglePreview?: () => void;
     previewMode?: boolean;
     onUpdateCalendar?: (data: Partial<Tables<"calendars">>) => Promise<void>;
+    onStats?: () => void;
+    showWatermark?: boolean;
 }
 
 export const UniversalTemplate = ({
@@ -43,7 +45,9 @@ export const UniversalTemplate = ({
     onSettings,
     onTogglePreview,
     previewMode = false,
-    onUpdateCalendar
+    onUpdateCalendar,
+    onStats,
+    showWatermark = false
 }: UniversalTemplateProps) => {
     const ui = config.ui!;
     const FloatingComponent = config.FloatingComponent;
@@ -58,15 +62,17 @@ export const UniversalTemplate = ({
     });
     const [isSaving, setIsSaving] = useState(false);
 
-    // Update temp values ONLY when calendar switching or initial load
+    // Sync local state when prop changes (while not actively editing)
     useEffect(() => {
-        setTempValues({
-            title: calendar.title || config.content.capsule.title || "Cápsula do Tempo",
-            header_message: calendar.header_message || config.content.subtitle || "",
-            footer_message: calendar.footer_message || calendar.message || config.content.footerMessage || "",
-            capsule_title: calendar.capsule_title || ui.progress.labelText || ""
-        });
-    }, [calendar.id]); // Removed other dependencies to prevent reset during typing
+        if (!editingField) {
+            setTempValues({
+                title: calendar.title || config.content.capsule.title || "Cápsula do Tempo",
+                header_message: calendar.header_message || config.content.subtitle || "",
+                footer_message: calendar.footer_message || calendar.message || config.content.footerMessage || "",
+                capsule_title: calendar.capsule_title || ui.progress.labelText || ""
+            });
+        }
+    }, [calendar.title, calendar.header_message, calendar.footer_message, calendar.capsule_title, calendar.id, editingField]);
 
     const bgStyle = {
         ...config.styles.background,
@@ -81,26 +87,40 @@ export const UniversalTemplate = ({
     const showEditingControls = isEditorContext && !previewMode;
 
     const handleSave = async (field: keyof typeof tempValues) => {
-        if (!onUpdateCalendar) return;
+        console.log(`[UniversalTemplate] handleSave triggered for field: ${field}`, tempValues[field]);
+        if (!onUpdateCalendar) {
+            console.error("[UniversalTemplate] onUpdateCalendar prop is missing!");
+            return;
+        }
         setIsSaving(true);
         try {
             await onUpdateCalendar({ [field]: tempValues[field] });
+            console.log(`[UniversalTemplate] Save successful for: ${field}`);
             setEditingField(null);
         } catch (error) {
-            console.error("Failed to update calendar:", error);
+            console.error("[UniversalTemplate] Failed to update calendar:", error);
         } finally {
             setIsSaving(false);
         }
     };
 
     const renderEditableText = (field: keyof typeof tempValues, originalText: string | React.ReactNode, className: string, placeholder: string, type: 'input' | 'textarea' = 'input') => {
+        // FILTER: Remove classes that make the input text/cursor invisible
+        const filteredClassName = className
+            .replace(/text-transparent/g, '')
+            .replace(/bg-clip-text/g, '')
+            .replace(/bg-gradient-to-[^ ]+/g, '')
+            .replace(/from-[^ ]+/g, '')  // Extra precaution: remove gradient stops
+            .replace(/to-[^ ]+/g, '')
+            .replace(/via-[^ ]+/g, '');
+
         if (editingField === field) {
             return (
                 <div
-                    className="relative w-full group/input min-w-[300px] my-4 mx-auto max-w-lg animate-in fade-in zoom-in duration-200 pointer-events-auto"
+                    className="relative w-full group/input min-w-[300px] my-4 mx-auto max-w-lg animate-in fade-in zoom-in duration-200 pointer-events-auto z-[80]"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="absolute inset-0 bg-primary/5 -m-4 rounded-[2rem] blur-xl opacity-50"></div>
+                    <div className="absolute inset-0 bg-primary/5 -m-4 rounded-[2rem] blur-xl opacity-50 pointer-events-none"></div>
                     {type === 'input' ? (
                         <input
                             autoFocus
@@ -108,8 +128,8 @@ export const UniversalTemplate = ({
                             onChange={(e) => setTempValues({ ...tempValues, [field]: e.target.value })}
                             onKeyDown={(e) => e.key === 'Enter' && handleSave(field)}
                             className={cn(
-                                "w-full bg-white dark:bg-zinc-900 border-2 border-primary/40 rounded-2xl px-6 py-4 text-center focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all outline-none shadow-xl font-bold text-lg relative z-10",
-                                className
+                                "w-full bg-white dark:bg-zinc-900 border-2 border-primary/40 rounded-2xl px-6 py-4 text-center focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all outline-none shadow-xl font-bold text-lg relative z-10 text-foreground caret-primary",
+                                filteredClassName
                             )}
                             placeholder={placeholder}
                         />
@@ -119,30 +139,40 @@ export const UniversalTemplate = ({
                             value={tempValues[field]}
                             onChange={(e) => setTempValues({ ...tempValues, [field]: e.target.value })}
                             className={cn(
-                                "w-full bg-white dark:bg-zinc-900 border-2 border-primary/40 rounded-2xl px-6 py-4 text-center focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all outline-none min-h-[140px] text-base leading-relaxed shadow-xl relative z-10",
-                                className
+                                "w-full bg-white dark:bg-zinc-900 border-2 border-primary/40 rounded-2xl px-6 py-4 text-center focus:border-primary focus:ring-8 focus:ring-primary/10 transition-all outline-none min-h-[140px] text-base leading-relaxed shadow-xl relative z-10 text-foreground caret-primary",
+                                filteredClassName
                             )}
                             placeholder={placeholder}
                         />
                     )}
 
                     {/* Floating Controls Overlay */}
-                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-[70] animate-in slide-in-from-top-2">
+                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-[90] animate-in slide-in-from-top-2 pointer-events-auto">
                         <button
-                            onClick={(e) => { e.stopPropagation(); handleSave(field); }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleSave(field);
+                            }}
                             disabled={isSaving}
-                            className="bg-green-600 text-white px-5 py-2.5 rounded-full shadow-[0_8px_20px_rgba(22,163,74,0.4)] hover:bg-green-700 active:scale-95 transition-all text-xs font-black flex items-center gap-2 ring-2 ring-white"
+                            type="button"
+                            className={cn(
+                                "text-white px-5 py-2.5 rounded-full shadow-lg hover:brightness-110 active:scale-95 transition-all text-xs font-black flex items-center gap-2 ring-2 ring-white relative z-[100]",
+                                ui.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary"
+                            )}
                         >
                             {isSaving ? <Check className="w-4 h-4 animate-pulse" /> : <Save className="w-4 h-4" />}
                             SALVAR
                         </button>
                         <button
                             onClick={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
                                 setEditingField(null);
                                 setTempValues({ ...tempValues, [field]: typeof originalText === 'string' ? originalText : "" });
                             }}
-                            className="bg-white text-zinc-500 p-2.5 rounded-full shadow-lg hover:text-rose-500 active:scale-95 transition-all ring-2 ring-white border border-zinc-100"
+                            type="button"
+                            className="bg-white text-zinc-500 p-2.5 rounded-full shadow-lg hover:text-rose-500 active:scale-95 transition-all ring-2 ring-white border border-zinc-100 relative z-[100]"
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -159,24 +189,24 @@ export const UniversalTemplate = ({
 
             {/* Editor Top Bar */}
             {isEditorContext && (
-                <div className={cn("relative z-50 bg-white/95 backdrop-blur-md px-6 py-2 flex items-center justify-between border-b", ui.cards.envelope.borderClass || "border-rose-100 shadow-sm")}>
+                <div className={cn("relative z-50 bg-white/95 backdrop-blur-md px-6 py-2 flex items-center justify-between border-b", ui.editor?.topBar.container || ui.cards.envelope.borderClass || "border-rose-100 shadow-sm")}>
                     <div className="flex items-center gap-3">
-                        <button onClick={onNavigateBack} className="opacity-40 hover:opacity-100 transition-opacity p-1">
-                            <ArrowLeft className="w-5 h-5 text-rose-500" />
+                        <button onClick={onNavigateBack} className={cn("opacity-40 hover:opacity-100 transition-opacity p-1", ui.editor?.topBar.backButton || "text-rose-500")}>
+                            <ArrowLeft className="w-5 h-5" />
                         </button>
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-black tracking-widest text-rose-500 uppercase">Modo {previewMode ? "Visualização" : "Edição"}</span>
-                            <span className="text-[10px] font-bold text-rose-900 leading-none mt-0.5">{ui.header.badgeText}</span>
+                            <span className={cn("text-[10px] font-black tracking-widest uppercase", ui.editor?.topBar.modeText || "text-rose-500")}>Modo {previewMode ? "Visualização" : "Edição"}</span>
+                            <span className={cn("text-[10px] font-bold leading-none mt-0.5", ui.editor?.topBar.badgeText || "text-rose-900")}>{ui.header.badgeText}</span>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={onTogglePreview}
-                            className={cn("p-2 rounded-lg transition-all", previewMode ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-zinc-50 text-rose-500 border border-rose-100")}
+                            className={cn("p-2 rounded-lg transition-all", previewMode ? (ui.editor?.topBar.previewButtonActive || "bg-rose-500 text-white shadow-lg shadow-rose-500/20") : (ui.editor?.topBar.previewButtonInactive || "bg-zinc-50 text-rose-500 border border-rose-100"))}
                         >
                             <Eye className="w-4 h-4" />
                         </button>
-                        <button onClick={onSettings} className="p-2 rounded-lg bg-zinc-50 text-rose-500 border border-rose-100 hover:bg-white transition-colors">
+                        <button onClick={onSettings} className={cn("p-2 rounded-lg transition-colors hover:bg-white", ui.editor?.topBar.settingsButton || "bg-zinc-50 text-rose-500 border border-rose-100")}>
                             <Settings className="w-4 h-4" />
                         </button>
                     </div>
@@ -231,6 +261,7 @@ export const UniversalTemplate = ({
                     onLike={onLike}
                     liked={liked}
                     headerBgSvg={ui.layout.bgSvg}
+                    showWatermark={showWatermark}
                 />
 
                 <UniversalProgress
@@ -276,13 +307,13 @@ export const UniversalTemplate = ({
             <main className={ui.layout.mainClass}>
                 {isEditorContext && !previewMode && (
                     <div className="grid grid-cols-2 gap-4 mb-8 px-2 max-w-lg mx-auto">
-                        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-rose-100/50 flex flex-col items-center text-center">
-                            <span className="text-xl font-black text-rose-900">{calendar.views || 0}</span>
-                            <span className="text-[8px] font-bold text-rose-400 tracking-widest text-center">Visualizações</span>
+                        <div className={cn("bg-white/40 backdrop-blur-sm rounded-2xl p-4 border flex flex-col items-center text-center", ui.editor?.stats.card || "border-rose-100/50")}>
+                            <span className={cn("text-xl font-black", ui.editor?.stats.number || "text-rose-900")}>{calendar.views || 0}</span>
+                            <span className={cn("text-[8px] font-bold tracking-widest text-center", ui.editor?.stats.label || "text-rose-400")}>Visualizações</span>
                         </div>
-                        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-rose-100/50 flex flex-col items-center text-center">
-                            <span className="text-xl font-black text-rose-900">{completionPercentage}%</span>
-                            <span className="text-[8px] font-bold text-rose-400 tracking-widest">Concluído</span>
+                        <div className={cn("bg-white/40 backdrop-blur-sm rounded-2xl p-4 border flex flex-col items-center text-center", ui.editor?.stats.card || "border-rose-100/50")}>
+                            <span className={cn("text-xl font-black", ui.editor?.stats.number || "text-rose-900")}>{completionPercentage}%</span>
+                            <span className={cn("text-[8px] font-bold tracking-widest", ui.editor?.stats.label || "text-rose-400")}>Concluído</span>
                         </div>
                     </div>
                 )}
@@ -367,11 +398,40 @@ export const UniversalTemplate = ({
                 />
             </main>
 
-            <UniversalFooter
-                config={ui}
-                isEditor={isEditorContext && !previewMode}
-                onNavigate={isEditorContext ? onSettings : () => window.open('/', '_blank')}
-            />
+            {showEditingControls ? null : (
+                <UniversalFooter
+                    config={ui}
+                    isEditor={false}
+                    onNavigate={() => window.open('/', '_blank')}
+                />
+            )}
+
+            {/* Floating Editor Action Bar (Owners Only) */}
+            {showEditingControls && (
+                <div className="fixed bottom-24 right-6 lg:bottom-8 lg:right-8 w-auto p-2.5 bg-white/95 backdrop-blur-xl border border-primary/10 z-[70] flex items-center gap-2 rounded-full shadow-2xl animate-in slide-in-from-bottom-8 duration-500 ring-1 ring-black/5">
+                    <button
+                        onClick={onShare}
+                        className={cn(
+                            "flex items-center justify-center gap-2 h-11 px-4 lg:px-6 rounded-full font-black text-[10px] uppercase tracking-widest text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap",
+                            ui.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary"
+                        )}
+                    >
+                        <Share2 className="w-4 h-4" />
+                        <span className="hidden lg:inline">Compartilhar</span>
+                    </button>
+                    <button
+                        onClick={onStats}
+                        className={cn(
+                            "w-11 h-11 rounded-full bg-zinc-50 flex items-center justify-center border transition-all active:scale-90 hover:bg-zinc-100",
+                            ui.footer.secondaryButton.split(' ').find(c => c.startsWith('text-')) || "text-primary",
+                            "border-current/10"
+                        )}
+                        title="Ver Estatísticas"
+                    >
+                        <BarChart3 className="w-5 h-5 text-current" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

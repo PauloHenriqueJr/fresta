@@ -1,8 +1,6 @@
 name: 🚀 Deploy Fresta (Docker & Traefik)
 
 on:
-  push:
-    branches: [ main, dev ]
   workflow_dispatch:
     inputs:
       version:

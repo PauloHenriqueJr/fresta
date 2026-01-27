@@ -186,10 +186,10 @@ const CalendarioDetalhe = () => {
 
   // --- RENDERIZADORES ESPECIALIZADOS ---
 
-  // --- UNIVERSAL RENDERER (Namoro, Carnaval, etc) ---
+  // 1. Renderizador UNIVERSAL (Namoro, Carnaval, Casamento, etc)
   const premiumTheme = getThemeConfig(calendar.theme_id);
 
-  if (premiumTheme.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval')) {
+  if (premiumTheme.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) {
     const ui = premiumTheme.ui;
     return (
       <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500 font-display", premiumTheme.ui.layout.bgClass)}>
@@ -220,6 +220,21 @@ const CalendarioDetalhe = () => {
           onLockedClick={() => { }}
           onSettings={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
           onTogglePreview={() => setPreviewMode(!previewMode)}
+          onUpdateCalendar={async (data) => {
+            if (!calendar?.id) return;
+            try {
+              const updated = await CalendarsRepository.update(calendar.id, data);
+              setCalendar(updated as any);
+              toast({
+                title: "Salvo com sucesso! ✨",
+                description: "As alterações do tema foram aplicadas.",
+              });
+            } catch (err) {
+              toast({ variant: "destructive", title: "Erro ao salvar", description: "Tente novamente." });
+              throw err;
+            }
+          }}
+          onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
         />
 
         {/* Modals */}

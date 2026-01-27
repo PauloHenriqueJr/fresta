@@ -13,6 +13,8 @@ import {
   ArrowRight,
   Lock,
   DoorOpen,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -99,6 +101,24 @@ const LandingPage = () => {
   // Theme state
   const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.carnaval);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isDark, setIsDark] = useState(() => {
+    return document.documentElement.classList.contains('dark');
+  });
+
+  const toggleTheme = () => {
+    const newDark = !isDark;
+    setIsDark(newDark);
+    if (newDark) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.backgroundColor = '#0E220E';
+      localStorage.setItem('fresta_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.backgroundColor = '#F8F9F5';
+      localStorage.setItem('fresta_theme', 'light');
+    }
+  };
+
   const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
 
   // Role-based redirect for logged-in users
@@ -298,6 +318,13 @@ const LandingPage = () => {
                     </button>
                   ))}
                 </nav>
+                <button
+                  onClick={toggleTheme}
+                  className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors mr-2"
+                  title={isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+                >
+                  {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-700" />}
+                </button>
                 <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>Criar calendário</button>
               </div>
             </div>
@@ -313,12 +340,20 @@ const LandingPage = () => {
               </div>
               <span className="font-black text-lg tracking-tight text-foreground">Fresta</span>
             </div>
-            <button
-              onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold text-white uppercase tracking-widest shadow-md active:scale-95 transition-transform ${currentTheme.primaryGradient}`}
-            >
-              Entrar
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center mr-1"
+              >
+                {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-slate-700" />}
+              </button>
+              <button
+                onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar")}
+                className={`px-4 py-2 rounded-xl text-xs font-bold text-white uppercase tracking-widest shadow-md active:scale-95 transition-transform ${currentTheme.primaryGradient}`}
+              >
+                Entrar
+              </button>
+            </div>
           </div>
         </div>
 
