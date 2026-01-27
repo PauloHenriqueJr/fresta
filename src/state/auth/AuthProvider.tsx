@@ -114,8 +114,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Release loading state broadly on key events BEFORE blocking calls
         if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          console.log("AuthProvider: Releasing loading state via event", event);
-          setIsLoading(false);
+          // If we have an auth fragment, don't release loading on INITIAL_SESSION if it's null
+          // Supabase will emit SIGNED_IN shortly after processing the hash
+          if (event === 'INITIAL_SESSION' && !newSession && hasAuthFragment) {
+            console.log("AuthProvider: INITIAL_SESSION null but fragment detected, holding loading state...");
+          } else {
+            console.log("AuthProvider: Releasing loading state via event", event);
+            setIsLoading(false);
+          }
         }
 
         // Fetch profile and role if user is logged in

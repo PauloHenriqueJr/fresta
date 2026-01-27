@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
+import { DoorOpen } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import LandingPage from "./pages/LandingPage";
 import LandingPageBrand from "./pages/LandingPageBrand";
 import Contato from "./pages/Contato";
@@ -75,19 +77,7 @@ import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-const Loader = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-    <div className="w-16 h-16 rounded-2xl bg-gradient-festive animate-pulse flex items-center justify-center mb-4">
-      <span className="text-2xl">🚪</span>
-    </div>
-    <div className="h-1 w-32 bg-muted rounded-full overflow-hidden">
-      <div className="h-full bg-primary animate-pulse" />
-    </div>
-    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 animate-pulse">
-      Fresta está vindo...
-    </p>
-  </div>
-);
+// O componente Loader agora é importado de @/components/common/Loader
 
 // Corrigir o problema de tokens do Supabase no HashRouter
 const AuthHandler = () => {
@@ -141,8 +131,8 @@ const AppContent = () => {
 
   // Se estiver carregando auth inicial OU se tivermos um fragmento de token mas o Supabase ainda não emitiu a sessão,
   // mostramos o Loader para evitar que o HashRouter interprete o token como uma rota inexistente (404).
-  if (isLoading || (isAuthenticating && !session)) {
-    return <Loader />;
+  if (isLoading) {
+    return <Loader text="Sua porta está abrindo..." />;
   }
 
   return (

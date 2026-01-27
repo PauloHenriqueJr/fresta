@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Search, Filter, Heart, Eye, TrendingUp, Loader2, Sparkles, ArrowRight, Globe } from "lucide-react";
+import Loader from "@/components/common/Loader";
+import { Search, Filter, Heart, Eye, TrendingUp, Loader2, Sparkles, ArrowRight, Globe, DoorOpen } from "lucide-react";
 import { PremiumIcon } from "@/components/PremiumIcon";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
@@ -78,11 +79,7 @@ const Explorar = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <Loader text="Explorando frestas..." />;
   }
 
   return (

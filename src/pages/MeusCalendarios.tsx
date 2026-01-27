@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Loader from "@/components/common/Loader";
 import {
   Plus,
   Search,
@@ -14,7 +15,8 @@ import {
   Sparkles,
   Gift,
   PartyPopper,
-  ChevronRight
+  ChevronRight,
+  DoorOpen
 } from "lucide-react";
 import { PremiumIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
@@ -154,16 +156,7 @@ const MeusCalendarios = () => {
   };
 
   if (loading || authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-solidroad-accent/20 flex items-center justify-center animate-pulse">
-            <Calendar className="w-8 h-8 text-solidroad-accent" />
-          </div>
-          <p className="font-bold text-muted-foreground animate-pulse">Carregando...</p>
-        </div>
-      </div>
-    );
+    return <Loader text="Abrindo suas portas..." />;
   }
 
   return (

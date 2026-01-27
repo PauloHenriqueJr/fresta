@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette } from "lucide-react";
+import Loader from "@/components/common/Loader";
+import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette, DoorOpen } from "lucide-react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
@@ -501,14 +502,7 @@ const VisualizarCalendario = () => {
   });
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Carregando calendário...</p>
-        </div>
-      </div>
-    );
+    return <Loader text="Abrindo seu calendário..." />;
   }
 
   if (error || !calendar) {

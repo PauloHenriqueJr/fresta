@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Loader from "@/components/common/Loader";
 import {
   Crown,
   Settings,
@@ -10,6 +11,7 @@ import {
   Loader2,
   ArrowRight,
   ChevronRight,
+  DoorOpen
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -71,11 +73,7 @@ export default function Perfil() {
   ];
 
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="animate-spin text-primary" />
-      </div>
-    );
+    return <Loader text="Abrindo seu perfil..." />;
   }
 
   return (
