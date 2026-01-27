@@ -148,7 +148,9 @@ const LandingPageBrand = () => {
     const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.fresta);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [isDark, setIsDark] = useState(() => {
-        return document.documentElement.classList.contains('dark');
+        const saved = localStorage.getItem('fresta_theme');
+        if (saved) return saved === 'dark';
+        return false; // Default to light mode
     });
 
     const toggleTheme = () => {
@@ -284,12 +286,12 @@ const LandingPageBrand = () => {
             {/* SOLIDROAD STYLE HEADER - Exact Replica Notch */}
             <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
                 {/* Desktop Notch - Wider and Cleaner */}
-                <div className="hidden lg:flex pointer-events-auto bg-white px-12 py-5 rounded-b-[2rem] shadow-sm border-x border-b border-black/[0.03] items-center justify-between gap-16 min-w-[600px] relative">
+                <div className="hidden lg:flex pointer-events-auto bg-white dark:bg-zinc-900 px-12 py-5 rounded-b-[2rem] shadow-sm border-x border-b border-black/[0.03] dark:border-white/5 items-center justify-between gap-16 min-w-[600px] relative">
                     <button onClick={() => navigate("/")} className="flex items-center gap-3 group">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-300" style={{ backgroundColor: currentTheme.colors.primary }}>
                             <DoorOpen className="w-5 h-5 text-white" strokeWidth={2.5} />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tight transition-colors duration-300" style={{ color: currentTheme.colors.primary }}>Fresta Folia</span>
+                        <span className="font-extrabold text-2xl tracking-tight transition-colors duration-300 dark:text-white" style={{ color: isDark ? 'white' : currentTheme.colors.primary }}>Fresta Folia</span>
                     </button>
 
                     <nav className="flex items-center gap-8">
@@ -329,7 +331,7 @@ const LandingPageBrand = () => {
 
                 {/* Header Mobile - Floating Capsule Style (Solidroad Reference) */}
                 <div className="lg:hidden fixed top-0 inset-x-0 z-50 p-2 pointer-events-none">
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 px-5 py-3 flex justify-between items-center pointer-events-auto">
+                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-gray-100 dark:border-white/5 px-5 py-3 flex justify-between items-center pointer-events-auto">
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={toggleTheme}
@@ -338,8 +340,8 @@ const LandingPageBrand = () => {
                                 {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-slate-700" />}
                             </button>
                             <div className="flex items-center gap-2">
-                                <DoorOpen className="w-6 h-6" style={{ color: currentTheme.colors.primary }} strokeWidth={2.5} />
-                                <span className="font-extrabold text-lg" style={{ color: currentTheme.colors.primary }}>Fresta Folia</span>
+                                <DoorOpen className="w-6 h-6" style={{ color: isDark ? 'white' : currentTheme.colors.primary }} strokeWidth={2.5} />
+                                <span className="font-extrabold text-lg" style={{ color: isDark ? 'white' : currentTheme.colors.primary }}>Fresta Folia</span>
                             </div>
                         </div>
                         <button className="p-2 -mr-2 text-gray-600 hover:text-gray-900">

@@ -16,6 +16,7 @@ import { useAuth } from "@/state/auth/AuthProvider";
 import { useEffect, useState } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import AvatarPicker from "@/components/AvatarPicker";
+import UserAvatar from "@/components/UserAvatar";
 
 // Solidroad-style pastel colors
 const STAT_COLORS = [
@@ -106,17 +107,9 @@ export default function Perfil() {
             {/* Avatar */}
             <button
               onClick={() => setShowAvatarPicker(true)}
-              className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-3xl bg-white/10 backdrop-blur-sm overflow-hidden border-4 border-white/20 shadow-2xl hover:border-white/40 transition-all group"
+              className="relative rounded-3xl bg-white/10 backdrop-blur-sm overflow-hidden border-4 border-white/20 shadow-2xl hover:border-white/40 transition-all group"
             >
-              {profile?.avatar ? (
-                <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <img
-                  src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${user?.email || 'default'}&backgroundColor=b6e3f4`}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              )}
+              <UserAvatar size="xl" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <span className="text-white text-sm font-bold">Alterar</span>
               </div>

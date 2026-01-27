@@ -27,6 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import UserAvatar from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
 
 const navigationGroups = [
@@ -176,14 +177,8 @@ export default function B2BSidebar() {
                 onClick={() => navigate("/b2b/perfil")}
                 className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 dark:bg-white/5 hover:bg-muted/50 transition-colors w-full text-left outline-none"
               >
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden bg-[#F6D045] shrink-0">
-                  {profile?.avatar ? (
-                    <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-sm font-bold text-[#0E220E]">
-                      {(profile?.display_name || user?.email || 'U')[0].toUpperCase()}
-                    </span>
-                  )}
+                <div className="shrink-0 flex items-center justify-center">
+                  <UserAvatar size="sm" className="rounded-lg h-9 w-9" />
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-sm font-semibold truncate text-[#0E220E] dark:text-white">
@@ -214,14 +209,8 @@ export default function B2BSidebar() {
                   onClick={() => navigate("/b2b/perfil")}
                   className="flex items-center justify-center w-full h-full"
                 >
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-[#F6D045] border border-border/10 shrink-0">
-                    {profile?.avatar ? (
-                      <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-sm font-bold text-[#0E220E]">
-                        {(profile?.display_name || user?.email || 'U')[0].toUpperCase()}
-                      </span>
-                    )}
+                  <div className="flex items-center justify-center w-full h-full">
+                    <UserAvatar size="lg" className="h-12 w-12 rounded-full" />
                   </div>
                 </button>
               </SidebarMenuButton>

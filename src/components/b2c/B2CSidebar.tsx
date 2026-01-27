@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import UserAvatar from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -142,14 +143,7 @@ export default function B2CSidebar() {
         {/* User Footer */}
         <div className={cn("mt-auto p-4 border-t border-border/10", collapsed ? "flex justify-center" : "")}>
           <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "")}>
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground border border-border/10 overflow-hidden shrink-0">
-              {/* Explicitly fallback to Initials if no avatar, never use mascot here */}
-              {profile?.avatar ? (
-                <img src={profile.avatar} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-xs">{(profile?.display_name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
-              )}
-            </div>
+            <UserAvatar size="md" />
             {!collapsed && (
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-bold text-foreground truncate">{profile?.display_name || "Usuário"}</span>

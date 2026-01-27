@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
-  const [themePreference, setThemePreference] = useState<ThemePreference>('system');
+  const [themePreference, setThemePreference] = useState<ThemePreference>('light');
   const [isLoading, setIsLoading] = useState(true);
 
   // Apply theme to document
@@ -172,6 +172,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Auto-sync Google Avatar
+  useEffect(() => {
+    if (user && profile && !profile.avatar) {
+      const googleAvatar = user.user_metadata?.avatar_url;
+      if (googleAvatar) {
+        console.log("AuthProvider: Sincronizando avatar do Google...");
+        updateProfile({ avatar: googleAvatar });
+      }
+    }
+  }, [user, profile]);
 
   // Sign in with magic link
   const signInWithEmail = async (email: string) => {

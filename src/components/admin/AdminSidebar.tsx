@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Palette, CreditCard, Users2, Shield, LogOut, Briefcase, MessageSquare, TicketPercent, Globe, Activity, Database, Mail } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/state/auth/AuthProvider";
+import UserAvatar from "@/components/UserAvatar";
 import {
   Sidebar,
   SidebarHeader,
@@ -30,6 +31,7 @@ const navigationGroups = [
     items: [
       { title: "Usuários B2C", url: "/admin/usuarios", icon: Users2 },
       { title: "Clientes B2B", url: "/admin/b2b-clientes", icon: Briefcase },
+      { title: "Solicitações", url: "/admin/contatos", icon: MessageSquare },
       { title: "Feedbacks", url: "/admin/feedbacks", icon: MessageSquare },
     ]
   },
@@ -133,9 +135,7 @@ export default function AdminSidebar() {
           {!collapsed ? (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3 px-2">
-                <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center shadow-lg">
-                  <span className="text-xl">{profile?.avatar ?? "🔐"}</span>
-                </div>
+                <UserAvatar size="md" className="rounded-xl h-10 w-10 border-white/20" />
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-black text-foreground truncate">
                     {profile?.display_name || user?.email?.split('@')[0] || "Administrador"}
@@ -158,8 +158,8 @@ export default function AdminSidebar() {
             </div>
           ) : (
             <div className="flex flex-col items-center gap-6">
-              <div className="w-8 h-8 rounded-xl bg-amber-600 flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform duration-300" onClick={() => navigate("/admin")}>
-                <span className="text-sm">{profile?.avatar ?? "🔐"}</span>
+              <div className="cursor-pointer hover:scale-110 transition-transform duration-300" onClick={() => navigate("/admin")}>
+                <UserAvatar size="sm" className="h-8 w-8 rounded-xl border-white/20" />
               </div>
               <button
                 onClick={async () => {

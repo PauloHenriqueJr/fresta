@@ -2,8 +2,10 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import B2CSidebar from "@/components/b2c/B2CSidebar";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { Plus, Search, Calendar, CircleUser, Home, Moon, Sun, Sparkles } from "lucide-react";
+import { Plus, Search, Calendar, Home, Moon, Sun, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import UserAvatar from "@/components/UserAvatar";
+import { cn } from "@/lib/utils";
 
 export default function B2CLayout() {
   const { user, profile, logout, themePreference, updateThemePreference } = useAuth();
@@ -136,24 +138,8 @@ export default function B2CLayout() {
                   className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all ${isTabActive("/perfil") ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
                     }`}
                 >
-                  <div className={`relative w-8 h-8 flex items-center justify-center rounded-xl p-0.5 transition-colors ${isTabActive("/perfil") ? "bg-primary/10" : ""}`}>
-                    {profile && profile.avatar ? (
-                      <div className={`w-full h-full rounded-full overflow-hidden border transition-colors ${isTabActive("/perfil") ? "border-primary" : "border-border/50"
-                        }`}>
-                        <img
-                          src={profile.avatar}
-                          alt="Perfil"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                          }}
-                        />
-                        <CircleUser className="w-full h-full text-muted-foreground hidden" />
-                      </div>
-                    ) : (
-                      <CircleUser className={`w-6 h-6 ${isTabActive("/perfil") ? "text-primary" : "text-muted-foreground"}`} />
-                    )}
+                  <div className={`relative flex items-center justify-center rounded-xl p-0.5 transition-colors ${isTabActive("/perfil") ? "bg-primary/10" : ""}`}>
+                    <UserAvatar size="sm" className={cn(isTabActive("/perfil") ? "border-primary" : "border-border/50")} />
                   </div>
                   <span className="text-[9px] font-black uppercase tracking-widest">Perfil</span>
                 </button>
