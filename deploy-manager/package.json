@@ -8,6 +8,30 @@
     "build": "tsc && vite build && electron-builder",
     "preview": "vite preview"
   },
+  "build": {
+    "appId": "com.fresta.deploymanager",
+    "productName": "Fresta Deploy Manager",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "dist-electron/main.js"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true
+    },
+    "win": {
+      "target": "nsis"
+    }
+  },
   "dependencies": {
     "clsx": "^2.1.0",
     "electron-store": "^8.1.0",

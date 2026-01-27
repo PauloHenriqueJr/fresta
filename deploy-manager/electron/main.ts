@@ -1,39 +1,23 @@
 import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
-import path, { join } from 'node:path'
+import path from 'node:path'
 import os from 'node:os'
 import * as fs from 'node:fs'
 
-const require = createRequire(import.meta.url)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.js    > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
-process.env.APP_ROOT = path.join(__dirname, '..')
-
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
-export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
-export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
-export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
-
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
+// Correct path resolution for packaged app
+// In packaged app: app.getAppPath() returns the root of the asar (where dist/ and dist-electron/ live)
+// In dev: __dirname is dist-electron, so we go up one level
+const APP_ROOT = app.isPackaged ? app.getAppPath() : path.join(__dirname, '..')
+const DIST = path.join(APP_ROOT, 'dist')
+const DIST_ELECTRON = path.join(APP_ROOT, 'dist-electron')
 
 let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC || '', 'electron-vite.svg'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(DIST_ELECTRON, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
     },
     titleBarStyle: 'hidden',
     titleBarOverlay: {
@@ -43,206 +27,130 @@ function createWindow() {
     },
     width: 1200,
     height: 800,
-    backgroundColor: '#09090b', // dark background
+    backgroundColor: '#09090b',
   })
 
-  // Test active push message to Renderer-process.
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', (new Date).toLocaleString())
-  })
-
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL)
-  } else {
-    // win.loadFile('dist/index.html')
-    win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+  // Open DevTools only in development
+  if (!app.isPackaged && process.env.VITE_DEV_SERVER_URL) {
+    win.webContents.openDevTools()
   }
+
+  // Load the app
+  if (!app.isPackaged && process.env.VITE_DEV_SERVER_URL) {
+    win.loadURL(process.env.VITE_DEV_SERVER_URL)
+  } else {
+    win.loadFile(path.join(DIST, 'index.html'))
+  }
+
+  win.webContents.on('did-fail-load', (_, errorCode, errorDescription, validatedURL) => {
+    console.error(`Failed to load: ${validatedURL}`, errorDescription, errorCode)
+  })
 }
 
 // IPC Handlers
 import { ConfigStore } from './services/store'
 import { sshService } from './services/ssh'
 import { deployOrchestrator } from './services/orchestrator'
-
 import { EnvDetector } from './services/env-detector'
 import { statusService } from './services/status-service'
 
-ipcMain.handle('config:get', (_event: any, key: string) => ConfigStore.get(key as any))
-ipcMain.handle('config:set', (_event: any, key: string, value: any) => ConfigStore.set(key as any, value))
-ipcMain.handle('ssh:connect', async (_event: any, config: any) => sshService.connect(config))
-ipcMain.handle('ssh:exec', async (event: any, cmd: string) => {
-  return sshService.exec(cmd, (data: string) => {
-    event.sender.send('terminal:data', data)
+function registerIpcHandlers() {
+  ipcMain.handle('config:get', (_, key: string) => ConfigStore.get(key as any))
+  ipcMain.handle('config:set', (_, key: string, value: any) => ConfigStore.set(key as any, value))
+  ipcMain.handle('ssh:connect', async (_, config: any) => sshService.connect(config))
+  ipcMain.handle('ssh:exec', async (event, cmd: string) => {
+    return sshService.exec(cmd, (data: string) => event.sender.send('terminal:data', data))
   })
-})
-ipcMain.handle('deploy:start', async (event: any, appId: string, env: 'production' | 'staging') => {
-  return deployOrchestrator.deploy(appId, env, (data: string) => {
-    event.sender.send('terminal:data', data)
+  ipcMain.handle('deploy:start', async (event, appId: string, env: 'production' | 'staging') => {
+    return deployOrchestrator.deploy(appId, env, (data: string) => event.sender.send('terminal:data', data))
   })
-})
-ipcMain.handle('deploy:get-status', async () => {
-  return statusService.getVPSContainers()
-})
+  ipcMain.handle('deploy:get-status', async () => statusService.getVPSContainers())
+  ipcMain.handle('deploy:stop-container', async (_, id: string) => statusService.stopContainer(id))
+  ipcMain.handle('deploy:start-container', async (_, id: string) => statusService.startContainer(id))
+  ipcMain.handle('deploy:restart-container', async (_, id: string) => statusService.restartContainer(id))
+  ipcMain.handle('deploy:remove-container', async (_, id: string) => statusService.removeContainer(id))
+  ipcMain.handle('deploy:detect-traefik', async () => statusService.detectTraefik())
+  ipcMain.handle('deploy:get-images', async () => statusService.getImages())
+  ipcMain.handle('deploy:remove-image', async (_, id: string) => statusService.removeImage(id))
+  ipcMain.handle('deploy:list-files', async (_, pathArg: string) => statusService.listFiles(pathArg))
+  ipcMain.handle('deploy:delete-file', async (_, pathArg: string) => statusService.deleteFile(pathArg))
+  ipcMain.handle('deploy:upload-file', async (_, localPath: string, remotePath: string) => statusService.uploadFile(localPath, remotePath))
 
-ipcMain.handle('deploy:stop-container', async (_, id: string) => {
-  return statusService.stopContainer(id)
-})
-
-ipcMain.handle('deploy:start-container', async (_, id: string) => {
-  return statusService.startContainer(id)
-})
-
-ipcMain.handle('deploy:restart-container', async (_, id: string) => {
-  return statusService.restartContainer(id)
-})
-
-ipcMain.handle('deploy:remove-container', async (_, id: string) => {
-  return statusService.removeContainer(id)
-})
-
-ipcMain.handle('deploy:detect-traefik', async () => {
-  return statusService.detectTraefik()
-})
-
-ipcMain.handle('deploy:get-images', async () => {
-  return statusService.getImages()
-})
-
-ipcMain.handle('deploy:remove-image', async (_, id: string) => {
-  return statusService.removeImage(id)
-})
-
-ipcMain.handle('deploy:list-files', async (_, path: string) => {
-  return statusService.listFiles(path)
-})
-
-ipcMain.handle('deploy:delete-file', async (_, path: string) => {
-  return statusService.deleteFile(path)
-})
-
-ipcMain.handle('deploy:upload-file', async (_, localPath: string, remotePath: string) => {
-  return statusService.uploadFile(localPath, remotePath)
-})
-
-ipcMain.handle('deploy:open-remote-file', async (_, remotePath: string) => {
-  const tempDir = join(app.getPath('temp'), 'fresta-remote-files')
-  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true })
-  
-  const fileName = remotePath.split('/').pop() || 'file'
-  const localTempPath = join(tempDir, `${Date.now()}-${fileName}`)
-  
-  await statusService.downloadFile(remotePath, localTempPath)
-  await shell.openPath(localTempPath)
-  return { success: true, localPath: localTempPath }
-})
-
-ipcMain.handle('deploy:download-file-save-as', async (_, remotePath: string) => {
-  const fileName = remotePath.split('/').pop() || 'file'
-  const { canceled, filePath } = await dialog.showSaveDialog({
-    defaultPath: fileName,
-    title: 'Salvar Arquivo Remoto'
+  ipcMain.handle('deploy:open-remote-file', async (_, remotePath: string) => {
+    const tempDir = path.join(app.getPath('temp'), 'fresta-remote-files')
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true })
+    const fileName = remotePath.split('/').pop() || 'file'
+    const localTempPath = path.join(tempDir, `${Date.now()}-${fileName}`)
+    await statusService.downloadFile(remotePath, localTempPath)
+    await shell.openPath(localTempPath)
+    return { success: true, localPath: localTempPath }
   })
 
-  if (canceled || !filePath) return { success: false, canceled: true }
-
-  await statusService.downloadFile(remotePath, filePath)
-  return { success: true, filePath }
-})
-
-ipcMain.handle('dialog:selectFile', async () => {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
-    properties: ['openFile'],
-  })
-  if (canceled) return null
-  return filePaths[0]
-})
-
-ipcMain.handle('dialog:openDirectory', async () => {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
-    properties: ['openDirectory', 'createDirectory'],
-  })
-  if (canceled) return null
-  return filePaths[0]
-})
-
-ipcMain.handle('dialog:openFile', async (_event, options) => {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
-    properties: ['openFile'],
-    ...options
-  })
-  if (canceled) return null
-  return filePaths[0]
-})
-
-ipcMain.handle('ssh:detectLocalKeys', async () => {
-  const sshDir = path.join(os.homedir(), '.ssh')
-  if (!fs.existsSync(sshDir)) return []
-  
-  const files = fs.readdirSync(sshDir)
-  const privateKeys = files.filter((file: string) => {
-    const isPublic = file.endsWith('.pub') || file.endsWith('.pub.ppk')
-    const hasKnownName = file.startsWith('id_') || file.endsWith('.pem') || file.endsWith('.ppk')
-    return hasKnownName && !isPublic
+  ipcMain.handle('deploy:download-file-save-as', async (_, remotePath: string) => {
+    const fileName = remotePath.split('/').pop() || 'file'
+    const { canceled, filePath } = await dialog.showSaveDialog({ defaultPath: fileName, title: 'Salvar Arquivo' })
+    if (canceled || !filePath) return { success: false, canceled: true }
+    await statusService.downloadFile(remotePath, filePath)
+    return { success: true, filePath }
   })
 
-  return privateKeys.map((name: string) => ({
-    name,
-    path: path.join(sshDir, name)
-  }))
-})
+  ipcMain.handle('dialog:selectFile', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ['openFile'] })
+    return canceled ? null : filePaths[0]
+  })
 
-import { exec } from 'node:child_process'
-import { promisify } from 'node:util'
-const execAsync = promisify(exec)
+  ipcMain.handle('dialog:openDirectory', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })
+    return canceled ? null : filePaths[0]
+  })
 
-ipcMain.handle('ssh:generateKey', async (_event, { email }: { email?: string }) => {
-  const keyPath = path.join(os.homedir(), '.ssh', 'id_fresta_ed25519')
-  const comment = email || 'fresta-deploy'
-  
-  try {
-    if (fs.existsSync(keyPath)) {
-      throw new Error('Uma chave "id_fresta_ed25519" já existe em ~/.ssh/. Por favor, use a existente ou renomeie-a.')
-    }
-
+  ipcMain.handle('ssh:detectLocalKeys', async () => {
     const sshDir = path.join(os.homedir(), '.ssh')
-    if (!fs.existsSync(sshDir)) fs.mkdirSync(sshDir, { recursive: true })
+    if (!fs.existsSync(sshDir)) return []
+    const files = fs.readdirSync(sshDir)
+    const privateKeys = files.filter(f => !f.endsWith('.pub') && (f.startsWith('id_') || f.endsWith('.pem') || f.endsWith('.ppk')))
+    return privateKeys.map(name => ({ name, path: path.join(sshDir, name) }))
+  })
 
-    await execAsync(`ssh-keygen -t ed25519 -C "${comment}" -f "${keyPath}" -N ""`)
-    
-    return {
-      success: true,
-      path: keyPath,
-      publicKey: fs.readFileSync(`${keyPath}.pub`, 'utf-8')
+  ipcMain.handle('ssh:generateKey', async (_event, { email }: { email?: string }) => {
+    const keyPath = path.join(os.homedir(), '.ssh', 'id_fresta_ed25519')
+    const comment = email || 'fresta-deploy'
+    try {
+      if (fs.existsSync(keyPath)) throw new Error('Chave já existe.')
+      const sshDir = path.join(os.homedir(), '.ssh')
+      if (!fs.existsSync(sshDir)) fs.mkdirSync(sshDir, { recursive: true })
+      const { exec: cpExec } = require('node:child_process')
+      const { promisify: cpPromisify } = require('node:util')
+      const execAsync = cpPromisify(cpExec)
+      await execAsync(`ssh-keygen -t ed25519 -C "${comment}" -f "${keyPath}" -N ""`)
+      return { success: true, path: keyPath, publicKey: fs.readFileSync(`${keyPath}.pub`, 'utf-8') }
+    } catch (err: any) {
+      return { success: false, error: err.message }
     }
-  } catch (err: any) {
-    console.error(err)
-    return { success: false, error: err.message }
-  }
-})
+  })
 
-ipcMain.handle('env:detect', async (_event: any, projectPath: string) => {
-  const targetPath = projectPath || path.join(process.env.APP_ROOT || '', '..')
-  return EnvDetector.detect(targetPath)
-})
+  ipcMain.handle('env:detect', async (_, projectPath: string) => {
+    const targetPath = projectPath || path.join(APP_ROOT, '..', '..')
+    return EnvDetector.detect(targetPath)
+  })
 
-ipcMain.handle('project:detect', async (_event: any, projectPath: string) => {
-  const targetPath = projectPath || path.join(process.env.APP_ROOT || '', '..')
-  const info = await EnvDetector.getProjectInfo(targetPath)
-  const envVars = await EnvDetector.detect(targetPath)
-  return { ...info, envVars, path: targetPath }
+  ipcMain.handle('project:detect', async (_, projectPath: string) => {
+    const targetPath = projectPath || path.join(APP_ROOT, '..', '..')
+    const info = await EnvDetector.getProjectInfo(targetPath)
+    const envVars = await EnvDetector.detect(targetPath)
+    return { ...info, envVars, path: targetPath }
+  })
+}
+
+app.whenReady().then(() => {
+  registerIpcHandlers()
+  createWindow()
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-    win = null
-  }
+  if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
-
-app.whenReady().then(createWindow)
