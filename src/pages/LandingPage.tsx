@@ -102,7 +102,9 @@ const LandingPage = () => {
   const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.carnaval);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isDark, setIsDark] = useState(() => {
-    return document.documentElement.classList.contains('dark');
+    const saved = localStorage.getItem('fresta_theme');
+    if (saved) return saved === 'dark';
+    return false; // Default to light mode
   });
 
   const toggleTheme = () => {
@@ -301,7 +303,7 @@ const LandingPage = () => {
                   <div className={`w-10 h-10 rounded-xl ${currentTheme.primaryGradient} flex items-center justify-center`}>
                     <DoorOpen className="w-6 h-6 text-white" strokeWidth={2.5} />
                   </div>
-                  <span className="font-extrabold text-xl">Fresta</span>
+                  <span className="font-extrabold text-xl text-slate-900">Fresta</span>
                 </button>
                 <nav className="flex items-center gap-1">
                   {['Explorar', 'Premium', isAuthenticated ? 'Meus Calendários' : 'Entrar'].map(item => (
@@ -338,7 +340,7 @@ const LandingPage = () => {
               <div className={`w-8 h-8 rounded-lg ${currentTheme.primaryGradient} flex items-center justify-center`}>
                 <DoorOpen className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>
-              <span className="font-black text-lg tracking-tight text-foreground">Fresta</span>
+              <span className="font-black text-lg tracking-tight text-slate-900">Fresta</span>
             </div>
             <div className="flex items-center gap-2">
               <button
