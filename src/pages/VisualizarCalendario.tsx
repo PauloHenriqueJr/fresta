@@ -526,10 +526,10 @@ const VisualizarCalendario = () => {
             Este calendário pode ser privado ou não existir mais.
           </p>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(user ? "/meus-calendarios" : "/explorar")}
             className="btn-festive"
           >
-            Voltar ao início
+            Voltar ao Início
           </button>
         </motion.div>
       </div>
@@ -625,7 +625,7 @@ const VisualizarCalendario = () => {
               if (window.history.state && window.history.state.idx > 0) {
                 navigate(-1);
               } else {
-                navigate(isOwner ? '/dashboard' : '/explorar');
+                navigate(isOwner ? '/meus-calendarios' : '/explorar');
               }
             }}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
@@ -694,7 +694,7 @@ const VisualizarCalendario = () => {
                 if (window.history.state && window.history.state.idx > 0) {
                   navigate(-1);
                 } else {
-                  navigate(isOwner ? '/dashboard' : '/explorar');
+                  navigate(isOwner ? '/meus-calendarios' : '/explorar');
                 }
               }}
               className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 hover:scale-105 transition-transform"
@@ -933,7 +933,7 @@ const VisualizarCalendario = () => {
             if (window.history.state && window.history.state.idx > 0) {
               navigate(-1);
             } else {
-              navigate(isOwner ? '/dashboard' : '/explorar');
+              navigate(isOwner ? '/meus-calendarios' : '/explorar');
             }
           }}
           onShare={handleShare}

@@ -30,9 +30,22 @@ fi
 
 # --- 4. BUILD DA IMAGEM ---
 echo "🏗️ Construindo imagem Docker localmente..."
-docker build -t $IMAGE_NAME:$TAG \
-  --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
-  --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY .
+
+BUILD_ARGS="--build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY"
+
+# Verificar se foi solicitado build sem cache
+if [[ "$*" == *"--no-cache"* ]]; then
+    echo "🧹 Build sem cache solicitado..."
+    docker build --no-cache -t $IMAGE_NAME:$TAG $BUILD_ARGS .
+else
+    # Se falhar, sugere limpar o cache
+    if ! docker build -t $IMAGE_NAME:$TAG $BUILD_ARGS .; then
+        echo "❌ Erro no build detectado."
+        echo "💡 DICA: Se for erro de 'snapshot not found', tente: docker builder prune -f"
+        echo "💡 Ou execute: ./deploy.sh --no-cache"
+        exit 1
+    fi
+fi
 
 # --- 5. COMPRESSÃO E ENVIO ---
 echo "📦 Comprimindo imagem..."

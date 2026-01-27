@@ -1,5 +1,5 @@
 # Estágio de Build
-FROM node:20-alpine as build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
@@ -12,7 +12,8 @@ RUN npm ci
 # Copiar todo o código fonte
 COPY . .
 
-# Argumentos de build (recebidos do Github Actions)
+# Argumentos de build (recebidos do Github Actions ou script de deploy local)
+# Nota: No Vite, variáveis prefixadas com VITE_ são incorporadas ao bundle final e são públicas.
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 
