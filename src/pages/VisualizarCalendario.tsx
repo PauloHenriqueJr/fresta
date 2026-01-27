@@ -608,7 +608,13 @@ const VisualizarCalendario = () => {
       <div className="relative z-10">
         <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (window.history.state && window.history.state.idx > 0) {
+                navigate(-1);
+              } else {
+                navigate(isOwner ? '/dashboard' : '/explorar');
+              }
+            }}
             className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -665,17 +671,35 @@ const VisualizarCalendario = () => {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="flex items-center justify-between mb-4">
-          {calendar.theme_id === 'saojoao' && (
-            <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
-              Vila de São João
-            </span>
-          )}
-          {calendar.theme_id === 'casamento' && (
-            <span className="px-3 py-1 bg-[#C5A059] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
-              Rumo ao Altar
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1);
+                } else {
+                  navigate(isOwner ? '/dashboard' : '/explorar');
+                }
+              }}
+              className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 hover:scale-105 transition-transform"
+            >
+              <ArrowLeft className="w-5 h-5 text-foreground" />
+            </button>
+            {calendar.theme_id === 'saojoao' && (
+              <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                Vila de São João
+              </span>
+            )}
+            {calendar.theme_id === 'casamento' && (
+              <span className="px-3 py-1 bg-[#C5A059] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                Rumo ao Altar
+              </span>
+            )}
+          </div>
+
+
+
           <div className="flex-1" /> {/* Spacer */}
+
           <div className="flex items-center gap-2">
             <motion.button
               onClick={() => setLiked(!liked)}
@@ -864,43 +888,45 @@ const VisualizarCalendario = () => {
       </motion.section >
 
       {/* Bottom CTA - Only for visitors */}
-      {!isOwner && (
-        <div className="relative w-full px-4 py-24 flex flex-col items-center justify-center mt-12 gap-4">
-          {isTemplatePreview && (
+      {
+        !isOwner && (
+          <div className="relative w-full px-4 py-24 flex flex-col items-center justify-center mt-12 gap-4">
+            {isTemplatePreview && (
+              <motion.button
+                className="w-full max-w-lg mx-auto bg-solidroad-accent text-solidroad-text font-black py-5 rounded-2xl shadow-glow overflow-hidden relative group"
+                onClick={handleCloneTheme}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <Sparkles className="w-6 h-6" />
+                  USAR ESTE TEMA AGORA
+                </span>
+              </motion.button>
+            )}
+
             <motion.button
-              className="w-full max-w-lg mx-auto bg-solidroad-accent text-solidroad-text font-black py-5 rounded-2xl shadow-glow overflow-hidden relative group"
-              onClick={handleCloneTheme}
+              className={cn(
+                "w-full max-w-lg mx-auto flex items-center justify-center gap-2 px-8 py-5 rounded-2xl font-bold transition-all",
+                isTemplatePreview ? "bg-white/10 border border-border/10 text-foreground" : "btn-festive"
+              )}
+              onClick={handleShare}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                <Sparkles className="w-6 h-6" />
-                USAR ESTE TEMA AGORA
-              </span>
+              <Share2 className="w-5 h-5" />
+              {isTemplatePreview ? "Compartilhar este Modelo" : "Compartilhar"}
             </motion.button>
-          )}
-
-          <motion.button
-            className={cn(
-              "w-full max-w-lg mx-auto flex items-center justify-center gap-2 px-8 py-5 rounded-2xl font-bold transition-all",
-              isTemplatePreview ? "bg-white/10 border border-border/10 text-foreground" : "btn-festive"
-            )}
-            onClick={handleShare}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Share2 className="w-5 h-5" />
-            {isTemplatePreview ? "Compartilhar este Modelo" : "Compartilhar"}
-          </motion.button>
-        </div>
-      )}
+          </div>
+        )
+      }
     </>
   );
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -995,14 +1021,16 @@ const VisualizarCalendario = () => {
         renderDefaultView()
       }
 
-      {/* Love Letter Modal (Universal for romantic themes) */}
-      {(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas') && !isTemplatePreview && (
-        <LoveLetterModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
-        />
-      )}
+      {/* Love Letter Modal (Strictly for romantic themes - Explicit Exclusion) */}
+      {['namoro', 'casamento', 'noivado', 'bodas'].includes(calendar.theme_id) &&
+        !['carnaval', 'saojoao'].includes(calendar.theme_id) &&
+        !isTemplatePreview && (
+          <LoveLetterModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          />
+        )}
 
       {/* Surprise Modal (Global fallback for non-romantic themes or Template Mode) */}
       {(isTemplatePreview || !(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) && (

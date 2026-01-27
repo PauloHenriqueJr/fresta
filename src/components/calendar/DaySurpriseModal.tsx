@@ -49,12 +49,23 @@ const DaySurpriseModal = ({
               exit={{ opacity: 0, scale: 0.9, y: "-40%" }}
             >
               <div className="bg-card rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
-                <div className="bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] p-8 text-center relative">
+                {/* Dynamic Gradient Header */}
+                <div className={`p-8 text-center relative ${theme === 'carnaval' ? 'bg-gradient-to-br from-[#6A0DAD] via-[#FF007F] to-[#FFD700]' :
+                  theme === 'saojoao' ? 'bg-gradient-to-br from-[#FF4500] to-[#FFD700]' :
+                    (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? 'bg-gradient-to-br from-[#E11D48] to-[#FF6B6B]' :
+                      'bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F]'
+                  }`}>
                   <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto mb-4 border border-white/20">
-                    <Sparkles className="w-8 h-8 text-[#FFD166]" />
+                    {theme === 'carnaval' || theme === 'saojoao' ? (
+                      <Ticket className="w-8 h-8 text-white drop-shadow-md" />
+                    ) : (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? (
+                      <Heart className="w-8 h-8 text-white drop-shadow-md" />
+                    ) : (
+                      <Sparkles className="w-8 h-8 text-[#FFD166]" />
+                    )}
                   </div>
-                  <h2 className="text-2xl font-black text-white">Visualização</h2>
-                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-1">Modelo de Exemplo</p>
+                  <h2 className="text-2xl font-black text-white drop-shadow-sm">Visualização</h2>
+                  <p className="text-white/80 text-xs font-bold uppercase tracking-widest mt-1">Modelo de Exemplo</p>
 
                   <button
                     onClick={onClose}
@@ -70,14 +81,20 @@ const DaySurpriseModal = ({
                   </p>
                   <div className="bg-muted/50 rounded-2xl p-4 border border-border/5">
                     <p className="text-xs text-muted-foreground italic">
-                      "No seu calendário, você poderá colocar mensagens carinhosas, fotos ou vídeos especiais aqui! ❤️"
+                      {theme === 'carnaval' ? '"Prepare-se para a folia! Aqui você pode adicionar fotos da galera, vídeos do bloquinho e mensagens divertidas! 🎉🎭"' :
+                        theme === 'saojoao' ? '"Olha a cobra! É mentira! 🐍 Aqui vai ter foto de quadrilha, correio elegante e muita canjica virtual! 🌽🔥"' :
+                          (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? '"No seu calendário, você poderá colocar mensagens carinhosas, fotos ou vídeos especiais aqui! ❤️"' :
+                            '"No seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ✨"'}
                     </p>
                   </div>
 
                   <div className="pt-2">
                     <button
                       onClick={() => window.location.href = '#/criar'}
-                      className="w-full bg-[#F9A03F] text-white font-black py-4 rounded-2xl shadow-glow hover:scale-[1.02] transition-all"
+                      className={`w-full text-white font-black py-4 rounded-2xl shadow-glow hover:scale-[1.02] transition-all ${theme === 'carnaval' ? 'bg-[#6A0DAD]' :
+                        theme === 'saojoao' ? 'bg-[#FF4500]' :
+                          'bg-[#F9A03F]'
+                        }`}
                     >
                       CRIAR MEU CALENDÁRIO
                     </button>
@@ -115,9 +132,9 @@ const DaySurpriseModal = ({
   const getGradientClass = () => {
     switch (theme) {
       case "carnaval":
-        return "bg-gradient-carnaval";
+        return "bg-gradient-to-br from-[#6A0DAD] via-[#FF007F] to-[#FFD700]"; // Vibrant Purple/Pink/Gold
       case "saojoao":
-        return "bg-gradient-saojoao";
+        return "bg-gradient-to-br from-[#FF4500] to-[#FFD700]"; // Festive Orange/Gold
       case "namoro":
       case "noivado":
       case "bodas":
@@ -131,6 +148,9 @@ const DaySurpriseModal = ({
 
   const getIcon = () => {
     switch (theme) {
+      case "carnaval":
+      case "saojoao":
+        return <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}><Ticket className="w-12 h-12 text-white/90 mx-auto mb-3 drop-shadow-md" /></motion.div>;
       case "namoro":
       case "noivado":
       case "bodas":
