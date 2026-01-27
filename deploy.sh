@@ -1,4 +1,5 @@
-# --- 1. DETECÇÃO DE BRANCH ---
+#!/bin/bash
+set -e
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 echo "🌿 Branch detectada: $CURRENT_BRANCH"
 
