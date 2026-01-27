@@ -27,6 +27,7 @@ interface UniversalTemplateProps {
     previewMode?: boolean;
     onUpdateCalendar?: (data: Partial<Tables<"calendars">>) => Promise<void>;
     onStats?: () => void;
+    showWatermark?: boolean;
 }
 
 export const UniversalTemplate = ({
@@ -45,7 +46,8 @@ export const UniversalTemplate = ({
     onTogglePreview,
     previewMode = false,
     onUpdateCalendar,
-    onStats
+    onStats,
+    showWatermark = false
 }: UniversalTemplateProps) => {
     const ui = config.ui!;
     const FloatingComponent = config.FloatingComponent;
@@ -259,6 +261,7 @@ export const UniversalTemplate = ({
                     onLike={onLike}
                     liked={liked}
                     headerBgSvg={ui.layout.bgSvg}
+                    showWatermark={showWatermark}
                 />
 
                 <UniversalProgress

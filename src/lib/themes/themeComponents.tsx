@@ -1,4 +1,5 @@
 import { useState, useMemo, ReactNode, forwardRef } from "react";
+import { BrandWatermark } from "@/components/calendar/BrandWatermark";
 import { motion } from "framer-motion";
 import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -111,28 +112,41 @@ export const HangingHearts = () => {
 };
 
 // --- Header ---
-export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onEditSubtitle, onShare, onLike, liked, headerBgSvg }: { title?: React.ReactNode, subtitle?: React.ReactNode, config: PremiumThemeConfig, isEditor?: boolean, onEdit?: (e: React.MouseEvent) => void, onEditSubtitle?: (e: React.MouseEvent) => void, onShare?: () => void, onLike?: () => void, liked?: boolean, headerBgSvg?: string }) => {
+
+export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onEditSubtitle, onShare, onLike, liked, headerBgSvg, showWatermark }: { title?: React.ReactNode, subtitle?: React.ReactNode, config: PremiumThemeConfig, isEditor?: boolean, onEdit?: (e: React.MouseEvent) => void, onEditSubtitle?: (e: React.MouseEvent) => void, onShare?: () => void, onLike?: () => void, liked?: boolean, headerBgSvg?: string, showWatermark?: boolean }) => {
   const titleFont = config.ui?.layout.titleFont || "";
   const subtitleFont = config.ui?.layout.secondaryFont || "";
   return (
     <div className={cn(config.ui?.header.container, "group pointer-events-auto")}>
-      <h1
-        className={cn(config.ui?.header.title, titleFont, "relative cursor-pointer transition-all active:scale-[0.99]")}
-        onClick={isEditor ? (e) => onEdit?.(e) : undefined}
-      >
-        {title}
-        {isEditor && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.(e);
-            }}
-            className="absolute -top-2 -right-10 bg-white/90 shadow-lg p-2 rounded-full text-rose-500 hover:text-rose-600 transition-all hover:scale-110 active:scale-95 border border-rose-100 z-50 disabled:opacity-50"
-          >
-            <Pencil className="w-3 h-3" />
-          </button>
-        )}
-      </h1>
+      <div className="flex items-center justify-center gap-4 w-full mb-2">
+        {showWatermark && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+        <h1
+          className={cn(config.ui?.header.title, titleFont, "relative cursor-pointer transition-all active:scale-[0.99] text-center")}
+          onClick={isEditor ? (e) => onEdit?.(e) : undefined}
+        >
+          {title}
+          {isEditor && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(e);
+              }}
+              className="absolute -top-2 -right-10 bg-white/90 shadow-lg p-2 rounded-full text-rose-500 hover:text-rose-600 transition-all hover:scale-110 active:scale-95 border border-rose-100 z-50 disabled:opacity-50"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
+        </h1>
+        {showWatermark && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+      </div>
+
+      {/* Mobile Watermarks (stacked above title if needed or different layout) */}
+      {showWatermark && (
+        <div className="flex sm:hidden items-center justify-center gap-2 mb-4">
+          <BrandWatermark variant="compact" />
+          <BrandWatermark variant="compact" />
+        </div>
+      )}
       <div
         className="relative cursor-pointer transition-all active:scale-[0.99]"
         onClick={isEditor ? (e) => onEditSubtitle?.(e) : undefined}
@@ -517,7 +531,7 @@ export const WeddingTopDecorations = () => {
 }
 
 // Wedding Header
-export const WeddingHeader = ({ title = "O Grande Sim!", subtitle = "A contagem regressiva para o altar", isEditor = false }: { title?: string, subtitle?: string, isEditor?: boolean }) => {
+export const WeddingHeader = ({ title = "O Grande Sim!", subtitle = "A contagem regressiva para o altar", isEditor = false, showWatermark = false }: { title?: string, subtitle?: string, isEditor?: boolean, showWatermark?: boolean }) => {
   return (
     <div className="pt-4 pb-2 text-center relative z-10 font-display group px-4">
       {isEditor && (
@@ -528,14 +542,18 @@ export const WeddingHeader = ({ title = "O Grande Sim!", subtitle = "A contagem 
         </div>
       )}
 
-      <h1 className="text-4xl font-display italic text-wedding-gold-dark drop-shadow-sm relative inline-block mb-1 font-medium">
-        {title}
-        {isEditor && (
-          <button className="absolute -top-1 -right-8 bg-[#FDFBF7] shadow-sm p-1.5 rounded-full text-wedding-gold hover:text-wedding-gold-dark transition-colors border border-wedding-gold/20">
-            <Pencil className="w-3 h-3" />
-          </button>
-        )}
-      </h1>
+      <div className="flex items-center justify-center gap-4 mb-2">
+        {showWatermark && <BrandWatermark variant="compact" className="scale-75 origin-right" />}
+        <h1 className="text-4xl font-display italic text-wedding-gold-dark drop-shadow-sm relative inline-block mb-1 font-medium">
+          {title}
+          {isEditor && (
+            <button className="absolute -top-1 -right-8 bg-[#FDFBF7] shadow-sm p-1.5 rounded-full text-wedding-gold hover:text-wedding-gold-dark transition-colors border border-wedding-gold/20">
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
+        </h1>
+        {showWatermark && <BrandWatermark variant="compact" className="scale-75 origin-left" />}
+      </div>
 
       <div className="relative inline-block w-full max-w-xs mx-auto">
         <p className="text-slate-500 text-xs mt-1 font-medium tracking-wide uppercase">
