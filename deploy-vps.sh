@@ -34,7 +34,8 @@ echo "� Compactando código fonte..."
 ARCHIVE_NAME="source_code.tar.gz"
 
 # Criar o arquivo ignorando pastas pesadas
-tar --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='*.tar.gz' -czf $ARCHIVE_NAME .
+# O '|| [[ $? -eq 1 ]]' serve para não falhar se um arquivo mudar durante a leitura (comum no Windows)
+tar --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='*.tar.gz' -czf $ARCHIVE_NAME . || [[ $? -eq 1 ]]
 
 echo "📤 Enviando código para a VPS..."
 ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_PATH"
