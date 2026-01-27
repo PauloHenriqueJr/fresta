@@ -173,6 +173,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Auto-sync Google Avatar
+  useEffect(() => {
+    if (user && profile && !profile.avatar) {
+      const googleAvatar = user.user_metadata?.avatar_url;
+      if (googleAvatar) {
+        console.log("AuthProvider: Sincronizando avatar do Google...");
+        updateProfile({ avatar: googleAvatar });
+      }
+    }
+  }, [user, profile]);
+
   // Sign in with magic link
   const signInWithEmail = async (email: string) => {
     setIsLoading(true);
