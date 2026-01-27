@@ -91,8 +91,11 @@ const VisualizarCalendario = () => {
   const getRedactedContent = (day: CalendarDay) => {
     if (!calendar) return { type: 'text', message: "", title: "" };
 
-    // SECURITY: Only the owner sees real content. ALL visitors get redacted content.
-    if (isOwner) {
+    // SECURITY: Show real content if user is the Owner OR if they are authorized and NOT in template preview mode.
+    // This ensures intended recipients (like partners) see the messages while strangers in Explore mode see generic data.
+    const shouldShowRealContent = isOwner || (isAuthorized && !isTemplatePreview);
+
+    if (shouldShowRealContent) {
       const url = day.url || "";
       const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
       const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
@@ -105,11 +108,11 @@ const VisualizarCalendario = () => {
       };
     }
 
-    // Visitor/Template Mode - Generic content, NO personal messages
+    // Template Mode (Explore page visitors) - Generic content, NO personal messages
     return {
       type: 'text',
       title: `Porta ${day.day}`,
-      message: "", // SECURITY: No personal content for visitors
+      message: "", // SECURITY: No personal content for strangers browsing templates
       mediaUrl: undefined,
     };
   };
