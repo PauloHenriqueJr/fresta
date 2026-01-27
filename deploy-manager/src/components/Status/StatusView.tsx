@@ -3,7 +3,7 @@ import {
     RefreshCcw, Clock, Box, Play, StopCircle,
     RotateCw, Trash2, Server, ExternalLink,
     HardDrive, FileCode, Folder, Upload, ChevronLeft,
-    Image as ImageIcon, Database
+    Image as ImageIcon, Database, Download
 } from 'lucide-react'
 import { useToast } from '../Shared/Toast'
 
@@ -52,16 +52,24 @@ export function StatusView() {
         if (!silent) setLoading(true)
         try {
             if (activeTab === 'containers') {
-                const data = await (window as any).ipcRenderer.invoke('deploy:get-status')
-                setContainers(data)
-                const discoveryData = await (window as any).ipcRenderer.invoke('deploy:detect-traefik')
+                const [containersData, discoveryData] = await Promise.all([
+                    (window as any).ipcRenderer.invoke('deploy:get-status'),
+                    (window as any).ipcRenderer.invoke('deploy:detect-traefik')
+                ])
+                setContainers(containersData)
                 setDiscovery(discoveryData)
             } else if (activeTab === 'images') {
                 const data = await (window as any).ipcRenderer.invoke('deploy:get-images')
                 setImages(data)
             } else if (activeTab === 'files') {
-                const data = await (window as any).ipcRenderer.invoke('deploy:list-files', currentPath)
-                setFiles(data)
+                try {
+                    const data = await (window as any).ipcRenderer.invoke('deploy:list-files', currentPath)
+                    setFiles(data)
+                } catch (fileErr: any) {
+                    console.warn('Failed to list files:', fileErr)
+                    showToast('error', 'Erro ao Listar Arquivos', 'Não foi possível ler este diretório ou permissão negada.')
+                    if (currentPath !== '.') setCurrentPath('.')
+                }
             }
 
             setLastUpdate(new Date())
@@ -387,7 +395,22 @@ export function StatusView() {
                             {files.length > 0 ? (
                                 files.map((file) => (
                                     <div key={file.name} className="group flex items-center justify-between p-4 border-b border-white/5 last:border-0 hover:bg-zinc-800/50 transition-all cursor-pointer"
-                                        onClick={() => file.isDir && navigateTo(file.name)}>
+                                        onClick={async () => {
+                                            if (file.isDir) {
+                                                navigateTo(file.name)
+                                            } else {
+                                                try {
+                                                    const remotePath = currentPath === '.' ? file.name : `${currentPath}/${file.name}`
+                                                    showToast('info', 'Abrindo Arquivo', 'O arquivo está sendo baixado e será aberto em breve.')
+                                                    const result = await (window as any).ipcRenderer.invoke('deploy:open-remote-file', remotePath)
+                                                    if (result.success) {
+                                                        showToast('success', 'Arquivo Aberto', `Visualizando arquivo temporário em: ${result.localPath}`)
+                                                    }
+                                                } catch (err: any) {
+                                                    showToast('error', 'Falha ao Abrir', err.message || 'Erro ao abrir arquivo remoto.')
+                                                }
+                                            }
+                                        }}>
                                         <div className="flex items-center gap-4">
                                             <div className={`p-2 rounded-lg ${file.isDir ? 'bg-amber-500/10 text-amber-500' : 'bg-blue-500/10 text-blue-400'}`}>
                                                 {file.isDir ? <Folder className="w-5 h-5" /> : <FileCode className="w-5 h-5" />}
@@ -397,14 +420,37 @@ export function StatusView() {
                                                 <p className="text-[10px] text-zinc-500 font-mono italic">{file.size} • {file.modified}</p>
                                             </div>
                                         </div>
-                                        {!file.isDir && (
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); handleDeleteFile(file.name); }}
-                                                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-all"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        )}
+                                        <div className="flex items-center gap-1">
+                                            {!file.isDir && (
+                                                <button
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        try {
+                                                            const remotePath = currentPath === '.' ? file.name : `${currentPath}/${file.name}`
+                                                            const result = await (window as any).ipcRenderer.invoke('deploy:download-file-save-as', remotePath)
+                                                            if (result.success) {
+                                                                showToast('success', 'Download Concluído', `Arquivo salvo em: ${result.filePath}`)
+                                                            }
+                                                        } catch (err: any) {
+                                                            showToast('error', 'Falha no Download', err.message || 'Erro ao salvar arquivo.')
+                                                        }
+                                                    }}
+                                                    className="opacity-0 group-hover:opacity-100 p-2 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-all"
+                                                    title="Salvar Como..."
+                                                >
+                                                    <Download className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                            {!file.isDir && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteFile(file.name); }}
+                                                    className="opacity-0 group-hover:opacity-100 p-2 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-all"
+                                                    title="Excluir"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 ))
                             ) : (

@@ -1,9 +1,9 @@
-import { app, BrowserWindow, ipcMain, shell, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import path from 'node:path'
+import path, { join } from 'node:path'
 import os from 'node:os'
-import fs from 'node:fs'
+import * as fs from 'node:fs'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -65,7 +65,7 @@ import { sshService } from './services/ssh'
 import { deployOrchestrator } from './services/orchestrator'
 
 import { EnvDetector } from './services/env-detector'
-import { statusService } from './services/status-service' // Added import
+import { statusService } from './services/status-service'
 
 ipcMain.handle('config:get', (_event: any, key: string) => ConfigStore.get(key as any))
 ipcMain.handle('config:set', (_event: any, key: string, value: any) => ConfigStore.set(key as any, value))
@@ -80,7 +80,7 @@ ipcMain.handle('deploy:start', async (event: any, appId: string, env: 'productio
     event.sender.send('terminal:data', data)
   })
 })
-ipcMain.handle('deploy:get-status', async () => { // Added handler
+ipcMain.handle('deploy:get-status', async () => {
   return statusService.getVPSContainers()
 })
 
@@ -133,7 +133,20 @@ ipcMain.handle('deploy:open-remote-file', async (_, remotePath: string) => {
   
   await statusService.downloadFile(remotePath, localTempPath)
   await shell.openPath(localTempPath)
-  return { success: true }
+  return { success: true, localPath: localTempPath }
+})
+
+ipcMain.handle('deploy:download-file-save-as', async (_, remotePath: string) => {
+  const fileName = remotePath.split('/').pop() || 'file'
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    defaultPath: fileName,
+    title: 'Salvar Arquivo Remoto'
+  })
+
+  if (canceled || !filePath) return { success: false, canceled: true }
+
+  await statusService.downloadFile(remotePath, filePath)
+  return { success: true, filePath }
 })
 
 ipcMain.handle('dialog:selectFile', async () => {
@@ -143,6 +156,7 @@ ipcMain.handle('dialog:selectFile', async () => {
   if (canceled) return null
   return filePaths[0]
 })
+
 ipcMain.handle('dialog:openDirectory', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory'],
@@ -166,7 +180,6 @@ ipcMain.handle('ssh:detectLocalKeys', async () => {
   
   const files = fs.readdirSync(sshDir)
   const privateKeys = files.filter((file: string) => {
-    // Basic filter for potential private keys (no extension or .pem/.ppk, and not .pub)
     const isPublic = file.endsWith('.pub') || file.endsWith('.pub.ppk')
     const hasKnownName = file.startsWith('id_') || file.endsWith('.pem') || file.endsWith('.ppk')
     return hasKnownName && !isPublic
@@ -187,12 +200,10 @@ ipcMain.handle('ssh:generateKey', async (_event, { email }: { email?: string }) 
   const comment = email || 'fresta-deploy'
   
   try {
-    // Check if key already exists
     if (fs.existsSync(keyPath)) {
       throw new Error('Uma chave "id_fresta_ed25519" já existe em ~/.ssh/. Por favor, use a existente ou renomeie-a.')
     }
 
-    // Ensure .ssh exists
     const sshDir = path.join(os.homedir(), '.ssh')
     if (!fs.existsSync(sshDir)) fs.mkdirSync(sshDir, { recursive: true })
 
@@ -210,7 +221,6 @@ ipcMain.handle('ssh:generateKey', async (_event, { email }: { email?: string }) 
 })
 
 ipcMain.handle('env:detect', async (_event: any, projectPath: string) => {
-  // If no path provided, try the parent directory (root of fresta)
   const targetPath = projectPath || path.join(process.env.APP_ROOT || '', '..')
   return EnvDetector.detect(targetPath)
 })
@@ -222,9 +232,6 @@ ipcMain.handle('project:detect', async (_event: any, projectPath: string) => {
   return { ...info, envVars, path: targetPath }
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -233,8 +240,6 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }

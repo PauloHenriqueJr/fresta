@@ -47,6 +47,23 @@ const require$$1$4 = require("zlib");
 const node_child_process = require("node:child_process");
 const node_util = require("node:util");
 var _documentCurrentScript = typeof document !== "undefined" ? document.currentScript : null;
+function _interopNamespaceDefault(e) {
+  const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+  if (e) {
+    for (const k in e) {
+      if (k !== "default") {
+        const d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: () => e[k]
+        });
+      }
+    }
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
+const fs__namespace = /* @__PURE__ */ _interopNamespaceDefault(fs$4);
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -3181,9 +3198,9 @@ function commentKeyword$1({ gen, schemaEnv, schema, errSchemaPath, opts }) {
   }
 }
 function returnResults$1(it) {
-  const { gen, schemaEnv, validateName, ValidationError: ValidationError2, opts } = it;
+  const { gen, schemaEnv, validateName, ValidationError: ValidationError3, opts } = it;
   if (schemaEnv.$async) {
-    gen.if((0, codegen_1$T._)`${names_1$a.default.errors} === 0`, () => gen.return(names_1$a.default.data), () => gen.throw((0, codegen_1$T._)`new ${ValidationError2}(${names_1$a.default.vErrors})`));
+    gen.if((0, codegen_1$T._)`${names_1$a.default.errors} === 0`, () => gen.return(names_1$a.default.data), () => gen.throw((0, codegen_1$T._)`new ${ValidationError3}(${names_1$a.default.vErrors})`));
   } else {
     gen.assign((0, codegen_1$T._)`${validateName}.errors`, names_1$a.default.vErrors);
     if (opts.unevaluated)
@@ -9457,9 +9474,9 @@ function commentKeyword({ gen, schemaEnv, schema, errSchemaPath, opts }) {
   }
 }
 function returnResults(it) {
-  const { gen, schemaEnv, validateName, ValidationError: ValidationError2, opts } = it;
+  const { gen, schemaEnv, validateName, ValidationError: ValidationError3, opts } = it;
   if (schemaEnv.$async) {
-    gen.if((0, codegen_1$n._)`${names_1$3.default.errors} === 0`, () => gen.return(names_1$3.default.data), () => gen.throw((0, codegen_1$n._)`new ${ValidationError2}(${names_1$3.default.vErrors})`));
+    gen.if((0, codegen_1$n._)`${names_1$3.default.errors} === 0`, () => gen.return(names_1$3.default.data), () => gen.throw((0, codegen_1$n._)`new ${ValidationError3}(${names_1$3.default.vErrors})`));
   } else {
     gen.assign((0, codegen_1$n._)`${validateName}.errors`, names_1$3.default.vErrors);
     if (opts.unevaluated)
@@ -9803,21 +9820,15 @@ function getData($data, { dataLevel, dataNames, dataPathArr }) {
 }
 validate.getData = getData;
 var validation_error = {};
-var hasRequiredValidation_error;
-function requireValidation_error() {
-  if (hasRequiredValidation_error) return validation_error;
-  hasRequiredValidation_error = 1;
-  Object.defineProperty(validation_error, "__esModule", { value: true });
-  class ValidationError2 extends Error {
-    constructor(errors2) {
-      super("validation failed");
-      this.errors = errors2;
-      this.ajv = this.validation = true;
-    }
+Object.defineProperty(validation_error, "__esModule", { value: true });
+class ValidationError2 extends Error {
+  constructor(errors2) {
+    super("validation failed");
+    this.errors = errors2;
+    this.ajv = this.validation = true;
   }
-  validation_error.default = ValidationError2;
-  return validation_error;
 }
+validation_error.default = ValidationError2;
 var ref_error = {};
 Object.defineProperty(ref_error, "__esModule", { value: true });
 const resolve_1$1 = resolve$2;
@@ -9833,7 +9844,7 @@ var compile = {};
 Object.defineProperty(compile, "__esModule", { value: true });
 compile.resolveSchema = compile.getCompilingSchema = compile.resolveRef = compile.compileSchema = compile.SchemaEnv = void 0;
 const codegen_1$m = codegen;
-const validation_error_1 = requireValidation_error();
+const validation_error_1 = validation_error;
 const names_1$2 = names$1;
 const resolve_1 = resolve$2;
 const util_1$k = util;
@@ -10106,7 +10117,7 @@ uri$1.default = uri;
   Object.defineProperty(exports$1, "CodeGen", { enumerable: true, get: function() {
     return codegen_12.CodeGen;
   } });
-  const validation_error_12 = requireValidation_error();
+  const validation_error_12 = validation_error;
   const ref_error_12 = ref_error;
   const rules_12 = rules;
   const compile_12 = compile;
@@ -12559,7 +12570,7 @@ const require$$3 = {
   Object.defineProperty(exports$1, "CodeGen", { enumerable: true, get: function() {
     return codegen_12.CodeGen;
   } });
-  var validation_error_12 = requireValidation_error();
+  var validation_error_12 = validation_error;
   Object.defineProperty(exports$1, "ValidationError", { enumerable: true, get: function() {
     return validation_error_12.default;
   } });
@@ -35437,13 +35448,23 @@ require$$1$2.ipcMain.handle("deploy:upload-file", async (_, localPath, remotePat
   return statusService.uploadFile(localPath, remotePath);
 });
 require$$1$2.ipcMain.handle("deploy:open-remote-file", async (_, remotePath) => {
-  const tempDir = join(require$$1$2.app.getPath("temp"), "fresta-remote-files");
-  if (!fs$4.existsSync(tempDir)) fs$4.mkdirSync(tempDir, { recursive: true });
+  const tempDir = path$6.join(require$$1$2.app.getPath("temp"), "fresta-remote-files");
+  if (!fs__namespace.existsSync(tempDir)) fs__namespace.mkdirSync(tempDir, { recursive: true });
   const fileName = remotePath.split("/").pop() || "file";
-  const localTempPath = join(tempDir, `${Date.now()}-${fileName}`);
+  const localTempPath = path$6.join(tempDir, `${Date.now()}-${fileName}`);
   await statusService.downloadFile(remotePath, localTempPath);
   await require$$1$2.shell.openPath(localTempPath);
-  return { success: true };
+  return { success: true, localPath: localTempPath };
+});
+require$$1$2.ipcMain.handle("deploy:download-file-save-as", async (_, remotePath) => {
+  const fileName = remotePath.split("/").pop() || "file";
+  const { canceled, filePath } = await require$$1$2.dialog.showSaveDialog({
+    defaultPath: fileName,
+    title: "Salvar Arquivo Remoto"
+  });
+  if (canceled || !filePath) return { success: false, canceled: true };
+  await statusService.downloadFile(remotePath, filePath);
+  return { success: true, filePath };
 });
 require$$1$2.ipcMain.handle("dialog:selectFile", async () => {
   const { canceled, filePaths } = await require$$1$2.dialog.showOpenDialog({
@@ -35469,8 +35490,8 @@ require$$1$2.ipcMain.handle("dialog:openFile", async (_event, options) => {
 });
 require$$1$2.ipcMain.handle("ssh:detectLocalKeys", async () => {
   const sshDir = path$6.join(os$1.homedir(), ".ssh");
-  if (!fs$4.existsSync(sshDir)) return [];
-  const files = fs$4.readdirSync(sshDir);
+  if (!fs__namespace.existsSync(sshDir)) return [];
+  const files = fs__namespace.readdirSync(sshDir);
   const privateKeys = files.filter((file) => {
     const isPublic = file.endsWith(".pub") || file.endsWith(".pub.ppk");
     const hasKnownName = file.startsWith("id_") || file.endsWith(".pem") || file.endsWith(".ppk");
@@ -35486,16 +35507,16 @@ require$$1$2.ipcMain.handle("ssh:generateKey", async (_event, { email }) => {
   const keyPath = path$6.join(os$1.homedir(), ".ssh", "id_fresta_ed25519");
   const comment = email || "fresta-deploy";
   try {
-    if (fs$4.existsSync(keyPath)) {
+    if (fs__namespace.existsSync(keyPath)) {
       throw new Error('Uma chave "id_fresta_ed25519" já existe em ~/.ssh/. Por favor, use a existente ou renomeie-a.');
     }
     const sshDir = path$6.join(os$1.homedir(), ".ssh");
-    if (!fs$4.existsSync(sshDir)) fs$4.mkdirSync(sshDir, { recursive: true });
+    if (!fs__namespace.existsSync(sshDir)) fs__namespace.mkdirSync(sshDir, { recursive: true });
     await execAsync(`ssh-keygen -t ed25519 -C "${comment}" -f "${keyPath}" -N ""`);
     return {
       success: true,
       path: keyPath,
-      publicKey: fs$4.readFileSync(`${keyPath}.pub`, "utf-8")
+      publicKey: fs__namespace.readFileSync(`${keyPath}.pub`, "utf-8")
     };
   } catch (err) {
     console.error(err);
