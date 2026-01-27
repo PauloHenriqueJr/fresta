@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
 import DaySurpriseModal from "@/components/calendar/DaySurpriseModal";
@@ -74,7 +74,10 @@ const VisualizarCalendario = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   const isOwner = calendar?.owner_id === user?.id;
-  const isTemplatePreview = calendar?.privacy === 'public' && !isOwner;
+  const [searchParams] = useSearchParams();
+  // Template Preview ONLY when coming from Explore page (via ?template=true) AND not the owner
+  const isFromExplore = searchParams.get('template') === 'true';
+  const isTemplatePreview = isFromExplore && !isOwner;
 
   const getRedactedContent = (day: CalendarDay) => {
     if (!calendar) return { type: 'text', message: "", title: "" };

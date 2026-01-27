@@ -169,7 +169,7 @@ const Explorar = () => {
               <motion.div
                 key={template.id}
                 whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.25)" }}
-                onClick={() => navigate(demoById[template.id] || `/criar?theme=${template.id}`)}
+                onClick={() => navigate(demoById[template.id] ? `${demoById[template.id]}?template=true` : `/criar?theme=${template.id}`)}
                 className="group relative h-48 bg-card rounded-[2.5rem] border border-border/10 cursor-pointer overflow-hidden transition-all duration-500"
               >
                 {/* Decorative Background Mascot - Floating and Cutout style */}
@@ -245,7 +245,7 @@ const Explorar = () => {
                     CARD_COLORS[index % CARD_COLORS.length],
                     "dark:!bg-card dark:hover:border-solidroad-accent/20"
                   )}
-                  onClick={() => navigate(`/c/${calendar.id}`)}
+                  onClick={() => navigate(`/c/${calendar.id}?template=true`)}
                   variants={{
                     hidden: { opacity: 0, y: 20 },
                     show: { opacity: 1, y: 0 }
