@@ -18,19 +18,20 @@ services:
       - "${PORT_MAP:-8080}:80"
     networks:
       - fresta-network
-      - ${TRAEFIK_NETWORK:-traefik-public}
+      - ${TRAEFIK_NETWORK:-traefik}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.fresta-${IMAGE_TAG}.rule=Host(`${DOMAIN_NAME:-localhost}`)"
       - "traefik.http.routers.fresta-${IMAGE_TAG}.entrypoints=web,websecure"
       - "traefik.http.routers.fresta-${IMAGE_TAG}.tls=true"
-      - "traefik.http.routers.fresta-${IMAGE_TAG}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.fresta-${IMAGE_TAG}.tls.certresolver=mytlschallenge"
+      - "traefik.docker.network=traefik"
       - "traefik.http.services.fresta-${IMAGE_TAG}.loadbalancer.server.port=80"
 
 networks:
   fresta-network:
     driver: bridge
-  traefik-public:
+  traefik:
     external: true
   proxy:
     external: true
