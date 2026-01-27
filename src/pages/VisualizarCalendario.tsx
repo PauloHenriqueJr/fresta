@@ -77,9 +77,10 @@ const VisualizarCalendario = () => {
   const isTemplatePreview = calendar?.privacy === 'public' && !isOwner;
 
   const getRedactedContent = (day: CalendarDay) => {
-    if (!calendar) return { type: 'text', message: "Carregando...", title: "" };
+    if (!calendar) return { type: 'text', message: "", title: "" };
 
-    if (isOwner || calendar?.privacy === 'private') {
+    // SECURITY: Only the owner sees real content. ALL visitors get redacted content.
+    if (isOwner) {
       const url = day.url || "";
       const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
       const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
@@ -92,11 +93,11 @@ const VisualizarCalendario = () => {
       };
     }
 
-    // Template Mode Redaction - Strangers browsing public calendars see this
+    // Visitor/Template Mode - Generic content, NO personal messages
     return {
       type: 'text',
-      title: `Exemplo da Porta ${day.day}`,
-      message: `Este é um modelo do tema "${themeData?.name}". \n\nNo seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ❤️`,
+      title: `Porta ${day.day}`,
+      message: "", // SECURITY: No personal content for visitors
       mediaUrl: undefined,
     };
   };
@@ -926,7 +927,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -936,7 +937,13 @@ const VisualizarCalendario = () => {
           openedDays={openedDays}
           isEditor={false}
           isEditorContext={isOwner}
-          onNavigateBack={() => navigate('/')}
+          onNavigateBack={() => {
+            if (window.history.state && window.history.state.idx > 0) {
+              navigate(-1);
+            } else {
+              navigate(isOwner ? '/dashboard' : '/explorar');
+            }
+          }}
           onShare={handleShare}
           onLike={() => setLiked(!liked)}
           liked={liked}
@@ -960,13 +967,27 @@ const VisualizarCalendario = () => {
           onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
         />
 
-        {/* Surprise Modals (Shared for Universal themes) */}
-        <LoveLetterModal
-          isOpen={selectedDay !== null}
-          onClose={() => setSelectedDay(null)}
-          config={premiumConfig}
-          content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
-        />
+        {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao) */}
+        {!['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+          <LoveLetterModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            config={premiumConfig}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "", title: `Porta ${selectedDay}` }}
+          />
+        )}
+
+        {/* Festive Modals for Carnaval/SaoJoao in Universal Template */}
+        {['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+          <DaySurpriseModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            day={selectedDay || 1}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+            theme={calendar.theme_id}
+            isTemplate={isTemplatePreview}
+          />
+        )}
 
         <LoveLockedModal
           isOpen={!!lockedModalData?.isOpen}
