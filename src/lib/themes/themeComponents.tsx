@@ -1,6 +1,6 @@
 import { useState, useMemo, ReactNode, forwardRef } from "react";
 import { motion } from "framer-motion";
-import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle } from "lucide-react";
+import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 import { useToast } from "@/hooks/use-toast";
@@ -888,6 +888,172 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
             className={cn("text-[10px] font-black uppercase tracking-widest py-2 opacity-60 hover:opacity-100", config.textColor)}
           >
             Vou esperar ansiosamente
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Carnaval Ticket Modal (Premium Festive) ---
+interface CarnavalTicketModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  theme?: string;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const CarnavalTicketModal = ({ isOpen, onClose, content, config, theme = 'carnaval' }: CarnavalTicketModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  const isSaoJoao = theme === 'saojoao';
+  const gradientClass = isSaoJoao
+    ? 'bg-gradient-to-br from-[#FF4500] via-[#FF8C00] to-[#FFD700]'
+    : 'bg-gradient-to-br from-[#6A0DAD] via-[#FF007F] to-[#FFD700]';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      {/* Floating Confetti Decorations */}
+      <div className="absolute top-8 left-8 text-4xl animate-bounce" style={{ animationDelay: '0s' }}>🎭</div>
+      <div className="absolute top-12 right-12 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>🎊</div>
+      <div className="absolute bottom-20 left-10 text-2xl animate-pulse">✨</div>
+      <div className="absolute bottom-16 right-8 text-3xl animate-bounce" style={{ animationDelay: '1s' }}>🎉</div>
+      <div className="absolute top-1/3 left-6 text-2xl animate-pulse" style={{ animationDelay: '0.3s' }}>{isSaoJoao ? '🌽' : '🎭'}</div>
+      <div className="absolute top-1/4 right-6 text-xl animate-bounce" style={{ animationDelay: '0.8s' }}>{isSaoJoao ? '🔥' : '💃'}</div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, rotate: -3 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+      >
+        {/* Ticket Perforated Edge (Top) */}
+        <div className="absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pointer-events-none z-20">
+          {Array.from({ length: 16 }).map((_, i) => (
+            <div key={i} className="w-3 h-3 rounded-full bg-black/60 -mt-1.5" />
+          ))}
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-4 z-30 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+        >
+          <span className="text-lg font-bold">✕</span>
+        </button>
+
+        {/* Header with Gradient */}
+        <div className={`${gradientClass} pt-8 pb-6 px-6 text-center relative overflow-hidden`}>
+          {/* Sparkle effects */}
+          <Sparkles className="absolute top-4 left-6 w-5 h-5 text-white/40 animate-pulse" />
+          <Sparkles className="absolute top-8 right-8 w-4 h-4 text-white/50 animate-pulse" style={{ animationDelay: '0.5s' }} />
+          <Sparkles className="absolute bottom-4 left-12 w-3 h-3 text-white/30 animate-pulse" style={{ animationDelay: '1s' }} />
+
+          {/* Icon */}
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-3 border border-white/30 shadow-lg"
+          >
+            <Ticket className="w-8 h-8 text-white drop-shadow-md" />
+          </motion.div>
+
+          <h2 className="text-3xl font-black text-white drop-shadow-lg tracking-tight">
+            {content.title || `Surpresa!`}
+          </h2>
+          <p className="text-white/80 text-sm font-bold mt-1 uppercase tracking-widest">
+            {isSaoJoao ? 'Arraiá do Fresta 🌽' : 'Carnaval do Fresta 🎭'}
+          </p>
+        </div>
+
+        {/* Content Body */}
+        <div className="flex-1 p-6 bg-gradient-to-b from-white to-gray-50 min-h-[200px]">
+          {/* Media (Polaroid style) */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-video rounded-2xl overflow-hidden border-4 border-white shadow-xl -rotate-1 mb-6 relative">
+              {content.type === 'video' ? (
+                <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
+                  {content.mediaUrl.includes('youtube.com') || content.mediaUrl.includes('youtu.be') ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${content.mediaUrl.includes('youtu.be') ? content.mediaUrl.split('/').pop() : new URLSearchParams(new URL(content.mediaUrl).search).get('v')}`}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <a href={content.mediaUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-3 text-white">
+                      <Play className="w-12 h-12" />
+                      <span className="text-xs font-bold uppercase tracking-widest">Abrir Vídeo ↗</span>
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  alt="Surpresa"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Text Content */}
+          <div className="text-center space-y-4">
+            {content.message && (
+              <p className="text-lg text-gray-800 font-medium leading-relaxed">
+                {content.message}
+              </p>
+            )}
+
+            {!content.message && !content.mediaUrl && (
+              <div className="py-8 text-center">
+                <div className="text-5xl mb-4">{isSaoJoao ? '🌽🔥🎶' : '🎭🎉💃'}</div>
+                <p className="text-gray-500 italic">Uma surpresa especial te espera!</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Ticket Perforated Edge (Bottom) */}
+        <div className="absolute bottom-[72px] left-0 right-0 h-4 flex justify-between px-2 pointer-events-none z-20">
+          {Array.from({ length: 16 }).map((_, i) => (
+            <div key={i} className="w-3 h-3 rounded-full bg-gray-100 mt-0.5" />
+          ))}
+        </div>
+
+        {/* Footer with Actions */}
+        <div className={`p-4 ${gradientClass} flex items-center`}>
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || (isSaoJoao ? "Arraiá surpresa! 🌽" : "Surpresa de Carnaval! 🎭"),
+                text: content.message || "Veja o que preparei para você no Fresta!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl || undefined
+              });
+
+              if (result === "copied") {
+                toast({
+                  title: "Link copiado! ✨",
+                  description: "O link já está na sua área de transferência.",
+                });
+              }
+            }}
+            className="flex-1 h-12 rounded-2xl bg-white text-gray-900 font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            <Share2 className="w-4 h-4" />
+            {isSaoJoao ? 'Compartilhar Forró!' : 'Compartilhar Folia!'}
           </button>
         </div>
       </motion.div>

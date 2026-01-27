@@ -17,7 +17,7 @@ interface DaySurpriseModalProps {
   isTemplate?: boolean;
 }
 
-import { LoveLetterModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal, CarnavalTicketModal } from "@/lib/themes/themeComponents";
 
 const DaySurpriseModal = ({
   isOpen,
@@ -111,6 +111,22 @@ const DaySurpriseModal = ({
           </>
         )}
       </AnimatePresence>
+    );
+  }
+
+  if (theme === "carnaval" || theme === "saojoao") {
+    return (
+      <CarnavalTicketModal
+        isOpen={isOpen}
+        onClose={onClose}
+        theme={theme}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Porta ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
     );
   }
 
