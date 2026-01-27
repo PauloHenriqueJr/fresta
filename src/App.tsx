@@ -62,6 +62,7 @@ import CouponManager from "@/pages/admin/settings/CouponManager";
 import SystemHealth from "@/pages/admin/technical/SystemHealth";
 import BackupManager from "@/pages/admin/technical/BackupManager";
 import TransactionalEmails from "@/pages/admin/technical/TransactionalEmails";
+import AdminContacts from "@/pages/admin/customers/AdminContacts";
 import ExecutiveReport from "@/pages/b2b/ExecutiveReport";
 import CorporateEditor from "@/pages/b2b/CorporateEditor";
 import PrivacySettings from "@/pages/b2b/PrivacySettings";
@@ -196,6 +197,7 @@ const AppContent = () => {
           <Route path="usuarios" element={<B2CCustomers />} />
           <Route path="b2b-clientes" element={<B2BClients />} />
           <Route path="feedbacks" element={<Feedbacks />} />
+          <Route path="contatos" element={<AdminContacts />} />
           <Route path="cupons" element={<CouponManager />} />
           <Route path="logs" element={<AuditLogs />} />
           <Route path="seo" element={<SEOMetadata />} />

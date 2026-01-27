@@ -33,6 +33,32 @@ export const AdminRepository = {
     }
   },
 
+  async getContactRequests() {
+    const { data, error } = await supabase
+      .from('contact_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateContactStatus(id: string, status: string) {
+    const { error } = await (supabase
+      .from('contact_requests') as any)
+      .update({ status })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async deleteContactRequest(id: string) {
+    const { error } = await supabase
+      .from('contact_requests')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
   // Coupons
   async getCoupons() {
     const { data, error } = await supabase

@@ -31,6 +31,7 @@ const navigationGroups = [
     items: [
       { title: "Usuários B2C", url: "/admin/usuarios", icon: Users2 },
       { title: "Clientes B2B", url: "/admin/b2b-clientes", icon: Briefcase },
+      { title: "Solicitações", url: "/admin/contatos", icon: MessageSquare },
       { title: "Feedbacks", url: "/admin/feedbacks", icon: MessageSquare },
     ]
   },
