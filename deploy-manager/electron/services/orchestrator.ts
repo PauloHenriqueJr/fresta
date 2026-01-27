@@ -172,30 +172,54 @@ export class DeployOrchestrator {
         const { unlink } = await import('node:fs/promises')
         await unlink(localImagePath).catch(() => {})
 
+        const envTag = targetEnv === 'production' ? 'app' : 'dev'
+        
         // Run on VPS
-        onStatus('🚀 Subindo containers na VPS...')
+        onStatus(`🚀 Subindo containers na VPS (${targetEnv} -> ${envTag})...`)
         const deployCmd = `
           cd ${repoDir}
-          export IMAGE_TAG=${targetEnv}
+          export IMAGE_TAG=${envTag}
+          export APP_ENV=${envTag}
+          export NODE_ENV=${targetEnv === 'production' ? 'production' : 'development'}
+          
+          echo "🐳 Validando docker-compose.yml..."
+          docker compose config > /dev/null || (echo "❌ Erro: docker-compose.yml inválido no VPS" && exit 1)
+          
           docker compose up -d --force-recreate
         `
         await sshService.exec(deployCmd, onStatus)
 
       } else {
         // 4. Remote Docker Build & Up
-        onStatus(`🏗️ Estratégia de Build: REMOTA (VPS) selecionada (${targetEnv.toUpperCase()}).\r\n`)
-        onStatus('🔨 Iniciando build Docker diretamente no servidor...\r\n')
+        const envTag = targetEnv === 'production' ? 'app' : 'dev'
+        onStatus(`🏗️ Estratégia de Build: REMOTA (VPS) selecionada (${targetEnv.toUpperCase()} -> ${envTag}).`)
+        onStatus(`🔹 Variáveis de Ambiente: APP_ENV=${envTag}, NODE_ENV=${targetEnv === 'production' ? 'production' : 'development'}`)
         
         const buildArgs = [
           ...Object.entries(envConfig.envVars || {}),
-          ['APP_ENV', targetEnv],
-          ['NODE_ENV', targetEnv === 'production' ? 'production' : 'development']
+          ['APP_ENV', envTag],
         ].map(([k, v]) => `--build-arg ${k}="${v}"`).join(' ')
+
+        const envExport = Object.entries(envConfig.envVars || {})
+          .map(([k, v]) => `export ${k}="${v}"`)
+          .join('\n          ')
+
+        onStatus(`🔨 Iniciando build Docker no servidor...`)
 
         const deployCmd = `
           cd ${repoDir}
-          export IMAGE_TAG=${targetEnv}
+          export IMAGE_TAG=${envTag}
+          export APP_ENV=${envTag}
+          export NODE_ENV=${targetEnv === 'production' ? 'production' : 'development'}
+          ${envExport}
+          
+          echo "🐳 Validando docker-compose.yml..."
+          docker compose config > /dev/null || (echo "❌ Erro: docker-compose.yml inválido ou ausente no VPS" && exit 1)
+          
+          echo "🔨 Construindo imagem (${envTag})..."
           docker compose build ${buildArgs}
+          
+          echo "🚀 Subindo containers..."
           docker compose up -d --force-recreate
         `
         await sshService.exec(deployCmd, onStatus)

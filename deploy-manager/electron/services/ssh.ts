@@ -12,35 +12,77 @@ interface SSHConfig {
 export class SSHService {
   public client: Client
   private connected: boolean = false
+  private connecting: Promise<void> | null = null
 
   constructor() {
     this.client = new Client()
+    // Global error handler to prevent "Uncaught Exception" crashes
+    this.client.on('error', (err) => {
+      console.error('SSH Client Global Error:', err)
+      this.connected = false
+      this.connecting = null
+    })
   }
 
   async connect(config: SSHConfig): Promise<void> {
-    return new Promise((resolve, reject) => {
+    if (this.connected) return
+    if (this.connecting) return this.connecting
+
+    this.connecting = new Promise((resolve, reject) => {
       const connConfig: any = {
         host: config.host,
         port: config.port,
         username: config.username,
+        readyTimeout: 10000, // 10s timeout for handshake
       }
 
       if (config.privateKeyPath) {
-        connConfig.privateKey = fs.readFileSync(config.privateKeyPath)
+        try {
+          connConfig.privateKey = fs.readFileSync(config.privateKeyPath)
+        } catch (e: any) {
+          this.connecting = null
+          return reject(new Error(`Falha ao ler chave privada: ${e.message}`))
+        }
       } else if (config.password) {
         connConfig.password = config.password
-      } else {
-         // Agent or other auth?
       }
 
-      this.client.on('ready', () => {
+      // Cleanup previous task-specific listeners
+      this.client.removeAllListeners('ready')
+      this.client.removeAllListeners('close')
+      this.client.removeAllListeners('end')
+
+      const onReady = () => {
         this.connected = true
+        this.connecting = null
+        this.client.removeListener('error', onError)
         resolve()
-      }).on('error', (err) => {
+      }
+
+      const onError = (err: Error) => {
         this.connected = false
+        this.connecting = null
+        this.client.removeListener('ready', onReady)
         reject(err)
-      }).connect(connConfig)
+      }
+
+      this.client.once('ready', onReady)
+      this.client.once('error', onError)
+      
+      this.client.once('close', () => {
+        this.connected = false
+        this.connecting = null
+      })
+
+      try {
+        this.client.connect(connConfig)
+      } catch (e: any) {
+        this.connecting = null
+        reject(e)
+      }
     })
+
+    return this.connecting
   }
 
   async exec(command: string, onData?: (data: string) => void): Promise<void> {

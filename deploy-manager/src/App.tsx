@@ -3,6 +3,7 @@ import { Layout } from './components/Layout/Layout'
 import { VPSForm } from './components/VPS/VPSForm'
 import { TerminalView } from './components/Terminal/TerminalView'
 import { AppList } from './components/Apps/AppList'
+import { StatusView } from './components/Status/StatusView'
 import { ViewHeader } from './components/Shared/ViewHeader'
 import { QuickGuide } from './components/VPS/QuickGuide'
 import { ToastProvider } from './components/Shared/Toast'
@@ -81,20 +82,14 @@ function AppContent() {
                     </div>
                 </div>
 
-                {/* Logs View */}
-                {currentView === 'logs' && (
+                {/* Status View */}
+                {currentView === 'status' && (
                     <div className="space-y-6">
                         <ViewHeader
-                            title="Histórico de Logs"
-                            description="Acompanhe eventos de implantação e atividades do sistema"
+                            title="Status em Tempo Real"
+                            description="Verifique a saúde dos containers implantados na sua VPS"
                         />
-                        <div className="bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl font-mono text-sm">
-                            <div className="space-y-3 text-zinc-500">
-                                <p className="flex gap-4"><span className="text-emerald-500/50">[2027-01-27 13:40]</span> Painel iniciado com sucesso.</p>
-                                <p className="flex gap-4"><span className="text-emerald-500/50">[2027-01-27 13:41]</span> Verificação de conexão VPS pendente.</p>
-                                <p className="flex gap-4"><span className="text-emerald-500/50">[2027-01-27 14:00]</span> Conexão SSH estabelecida com sucesso.</p>
-                            </div>
-                        </div>
+                        <StatusView />
                     </div>
                 )}
                 {currentView === 'settings' && (

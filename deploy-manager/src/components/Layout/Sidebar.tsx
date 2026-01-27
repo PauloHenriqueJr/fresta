@@ -1,4 +1,4 @@
-import { Server, CircuitBoard, Terminal, FileText, Settings } from 'lucide-react'
+import { Server, CircuitBoard, Terminal, Activity, Settings } from 'lucide-react'
 
 interface SidebarProps {
     currentView: string
@@ -10,7 +10,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         { icon: Server, label: 'Gerenciador VPS', id: 'vps' },
         { icon: CircuitBoard, label: 'Aplicações', id: 'apps' },
         { icon: Terminal, label: 'Terminal', id: 'terminal' },
-        { icon: FileText, label: 'Logs', id: 'logs' },
+        { icon: Activity, label: 'Status Real', id: 'status' },
     ]
 
     return (

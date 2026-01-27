@@ -65,6 +65,7 @@ import { sshService } from './services/ssh'
 import { deployOrchestrator } from './services/orchestrator'
 
 import { EnvDetector } from './services/env-detector'
+import { statusService } from './services/status-service' // Added import
 
 ipcMain.handle('config:get', (_event: any, key: string) => ConfigStore.get(key as any))
 ipcMain.handle('config:set', (_event: any, key: string, value: any) => ConfigStore.set(key as any, value))
@@ -78,6 +79,69 @@ ipcMain.handle('deploy:start', async (event: any, appId: string, env: 'productio
   return deployOrchestrator.deploy(appId, env, (data: string) => {
     event.sender.send('terminal:data', data)
   })
+})
+ipcMain.handle('deploy:get-status', async () => { // Added handler
+  return statusService.getVPSContainers()
+})
+
+ipcMain.handle('deploy:stop-container', async (_, id: string) => {
+  return statusService.stopContainer(id)
+})
+
+ipcMain.handle('deploy:start-container', async (_, id: string) => {
+  return statusService.startContainer(id)
+})
+
+ipcMain.handle('deploy:restart-container', async (_, id: string) => {
+  return statusService.restartContainer(id)
+})
+
+ipcMain.handle('deploy:remove-container', async (_, id: string) => {
+  return statusService.removeContainer(id)
+})
+
+ipcMain.handle('deploy:detect-traefik', async () => {
+  return statusService.detectTraefik()
+})
+
+ipcMain.handle('deploy:get-images', async () => {
+  return statusService.getImages()
+})
+
+ipcMain.handle('deploy:remove-image', async (_, id: string) => {
+  return statusService.removeImage(id)
+})
+
+ipcMain.handle('deploy:list-files', async (_, path: string) => {
+  return statusService.listFiles(path)
+})
+
+ipcMain.handle('deploy:delete-file', async (_, path: string) => {
+  return statusService.deleteFile(path)
+})
+
+ipcMain.handle('deploy:upload-file', async (_, localPath: string, remotePath: string) => {
+  return statusService.uploadFile(localPath, remotePath)
+})
+
+ipcMain.handle('deploy:open-remote-file', async (_, remotePath: string) => {
+  const tempDir = join(app.getPath('temp'), 'fresta-remote-files')
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true })
+  
+  const fileName = remotePath.split('/').pop() || 'file'
+  const localTempPath = join(tempDir, `${Date.now()}-${fileName}`)
+  
+  await statusService.downloadFile(remotePath, localTempPath)
+  await shell.openPath(localTempPath)
+  return { success: true }
+})
+
+ipcMain.handle('dialog:selectFile', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile'],
+  })
+  if (canceled) return null
+  return filePaths[0]
 })
 ipcMain.handle('dialog:openDirectory', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({

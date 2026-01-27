@@ -20,10 +20,12 @@ export function TerminalView() {
                 selectionBackground: 'rgba(16, 185, 129, 0.3)',
             },
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-            fontSize: 12, // Slightly smaller to fit more logs
+            fontSize: 12,
             lineHeight: 1.5,
             cursorBlink: true,
             convertEol: true,
+            rows: 20, // Initial height
+            scrollback: 5000,
         })
         termInstance.current = term
 
@@ -31,13 +33,19 @@ export function TerminalView() {
         term.loadAddon(fitAddon)
 
         term.open(terminalRef.current)
-        fitAddon.fit()
+
+        // Timeout to ensure DOM is ready for fit
+        setTimeout(() => {
+            fitAddon.fit()
+        }, 100)
 
         // Listen for data from main process
+        const dataHandler = (_event: any, data: string) => {
+            term.write(data)
+        }
+
         try {
-            ; (window as any).ipcRenderer.on('terminal:data', (_event: any, data: string) => {
-                term.write(data)
-            })
+            (window as any).ipcRenderer.on('terminal:data', dataHandler)
         } catch (e) {
             console.error("IPC not available", e)
             term.write('IPC connection not available.\r\n')
@@ -45,13 +53,21 @@ export function TerminalView() {
 
         term.write('\x1b[32m$ \x1b[0mIniciando monitoramento de logs...\r\n')
 
-        const handleResize = () => fitAddon.fit()
+        const handleResize = () => {
+            try {
+                fitAddon.fit()
+            } catch (e) {
+                // Ignore fit errors on minimized/hidden window
+            }
+        }
         window.addEventListener('resize', handleResize)
 
         return () => {
             window.removeEventListener('resize', handleResize)
             term.dispose()
-                ; (window as any).ipcRenderer.off('terminal:data', () => { })
+            try {
+                (window as any).ipcRenderer.off('terminal:data', dataHandler)
+            } catch (e) { }
         }
     }, [])
 
@@ -86,8 +102,8 @@ export function TerminalView() {
                     {copied ? 'Copiado' : 'Copiar'}
                 </button>
             </div>
-            <div className="flex-1 p-4 overflow-hidden">
-                <div ref={terminalRef} className="w-full h-full" />
+            <div className="flex-1 bg-zinc-950 overflow-hidden relative">
+                <div ref={terminalRef} className="absolute inset-4 overflow-hidden" />
             </div>
         </div>
     )

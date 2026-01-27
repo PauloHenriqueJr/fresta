@@ -27,7 +27,7 @@ const node_module = require("node:module");
 const node_url = require("node:url");
 const path$6 = require("node:path");
 const os$1 = require("node:os");
-const fs = require("node:fs");
+const fs$4 = require("node:fs");
 const require$$0 = require("path");
 const require$$0$1 = require("util");
 const require$$1 = require("fs");
@@ -159,15 +159,15 @@ var pkgUp = { exports: {} };
 var findUp$1 = { exports: {} };
 var locatePath$1 = { exports: {} };
 var pathExists$1 = { exports: {} };
-const fs$4 = require$$1;
+const fs$3 = require$$1;
 pathExists$1.exports = (fp) => new Promise((resolve2) => {
-  fs$4.access(fp, (err) => {
+  fs$3.access(fp, (err) => {
     resolve2(!err);
   });
 });
 pathExists$1.exports.sync = (fp) => {
   try {
-    fs$4.accessSync(fp);
+    fs$3.accessSync(fp);
     return true;
   } catch (err) {
     return false;
@@ -394,7 +394,7 @@ consts.LIMIT_FILES_DESCRIPTORS = LIMIT_FILES_DESCRIPTORS;
 const NOOP = () => {
 };
 consts.NOOP = NOOP;
-var fs$3 = {};
+var fs$2 = {};
 var attemptify = {};
 Object.defineProperty(attemptify, "__esModule", { value: true });
 attemptify.attemptifySync = attemptify.attemptifyAsync = void 0;
@@ -536,44 +536,44 @@ const retryifySync = (fn, isRetriableError) => {
   };
 };
 retryify.retryifySync = retryifySync;
-Object.defineProperty(fs$3, "__esModule", { value: true });
-const fs$2 = require$$1;
+Object.defineProperty(fs$2, "__esModule", { value: true });
+const fs$1 = require$$1;
 const util_1$S = require$$0$1;
 const attemptify_1 = attemptify;
 const fs_handlers_1 = fs_handlers;
 const retryify_1 = retryify;
 const FS = {
-  chmodAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.chmod), fs_handlers_1.default.onChangeError),
-  chownAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.chown), fs_handlers_1.default.onChangeError),
-  closeAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.close)),
-  fsyncAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.fsync)),
-  mkdirAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.mkdir)),
-  realpathAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.realpath)),
-  statAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.stat)),
-  unlinkAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$2.unlink)),
-  closeRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.close), fs_handlers_1.default.isRetriableError),
-  fsyncRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.fsync), fs_handlers_1.default.isRetriableError),
-  openRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.open), fs_handlers_1.default.isRetriableError),
-  readFileRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.readFile), fs_handlers_1.default.isRetriableError),
-  renameRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.rename), fs_handlers_1.default.isRetriableError),
-  statRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.stat), fs_handlers_1.default.isRetriableError),
-  writeRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$2.write), fs_handlers_1.default.isRetriableError),
-  chmodSyncAttempt: attemptify_1.attemptifySync(fs$2.chmodSync, fs_handlers_1.default.onChangeError),
-  chownSyncAttempt: attemptify_1.attemptifySync(fs$2.chownSync, fs_handlers_1.default.onChangeError),
-  closeSyncAttempt: attemptify_1.attemptifySync(fs$2.closeSync),
-  mkdirSyncAttempt: attemptify_1.attemptifySync(fs$2.mkdirSync),
-  realpathSyncAttempt: attemptify_1.attemptifySync(fs$2.realpathSync),
-  statSyncAttempt: attemptify_1.attemptifySync(fs$2.statSync),
-  unlinkSyncAttempt: attemptify_1.attemptifySync(fs$2.unlinkSync),
-  closeSyncRetry: retryify_1.retryifySync(fs$2.closeSync, fs_handlers_1.default.isRetriableError),
-  fsyncSyncRetry: retryify_1.retryifySync(fs$2.fsyncSync, fs_handlers_1.default.isRetriableError),
-  openSyncRetry: retryify_1.retryifySync(fs$2.openSync, fs_handlers_1.default.isRetriableError),
-  readFileSyncRetry: retryify_1.retryifySync(fs$2.readFileSync, fs_handlers_1.default.isRetriableError),
-  renameSyncRetry: retryify_1.retryifySync(fs$2.renameSync, fs_handlers_1.default.isRetriableError),
-  statSyncRetry: retryify_1.retryifySync(fs$2.statSync, fs_handlers_1.default.isRetriableError),
-  writeSyncRetry: retryify_1.retryifySync(fs$2.writeSync, fs_handlers_1.default.isRetriableError)
+  chmodAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.chmod), fs_handlers_1.default.onChangeError),
+  chownAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.chown), fs_handlers_1.default.onChangeError),
+  closeAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.close)),
+  fsyncAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.fsync)),
+  mkdirAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.mkdir)),
+  realpathAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.realpath)),
+  statAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.stat)),
+  unlinkAttempt: attemptify_1.attemptifyAsync(util_1$S.promisify(fs$1.unlink)),
+  closeRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.close), fs_handlers_1.default.isRetriableError),
+  fsyncRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.fsync), fs_handlers_1.default.isRetriableError),
+  openRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.open), fs_handlers_1.default.isRetriableError),
+  readFileRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.readFile), fs_handlers_1.default.isRetriableError),
+  renameRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.rename), fs_handlers_1.default.isRetriableError),
+  statRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.stat), fs_handlers_1.default.isRetriableError),
+  writeRetry: retryify_1.retryifyAsync(util_1$S.promisify(fs$1.write), fs_handlers_1.default.isRetriableError),
+  chmodSyncAttempt: attemptify_1.attemptifySync(fs$1.chmodSync, fs_handlers_1.default.onChangeError),
+  chownSyncAttempt: attemptify_1.attemptifySync(fs$1.chownSync, fs_handlers_1.default.onChangeError),
+  closeSyncAttempt: attemptify_1.attemptifySync(fs$1.closeSync),
+  mkdirSyncAttempt: attemptify_1.attemptifySync(fs$1.mkdirSync),
+  realpathSyncAttempt: attemptify_1.attemptifySync(fs$1.realpathSync),
+  statSyncAttempt: attemptify_1.attemptifySync(fs$1.statSync),
+  unlinkSyncAttempt: attemptify_1.attemptifySync(fs$1.unlinkSync),
+  closeSyncRetry: retryify_1.retryifySync(fs$1.closeSync, fs_handlers_1.default.isRetriableError),
+  fsyncSyncRetry: retryify_1.retryifySync(fs$1.fsyncSync, fs_handlers_1.default.isRetriableError),
+  openSyncRetry: retryify_1.retryifySync(fs$1.openSync, fs_handlers_1.default.isRetriableError),
+  readFileSyncRetry: retryify_1.retryifySync(fs$1.readFileSync, fs_handlers_1.default.isRetriableError),
+  renameSyncRetry: retryify_1.retryifySync(fs$1.renameSync, fs_handlers_1.default.isRetriableError),
+  statSyncRetry: retryify_1.retryifySync(fs$1.statSync, fs_handlers_1.default.isRetriableError),
+  writeSyncRetry: retryify_1.retryifySync(fs$1.writeSync, fs_handlers_1.default.isRetriableError)
 };
-fs$3.default = FS;
+fs$2.default = FS;
 var lang = {};
 Object.defineProperty(lang, "__esModule", { value: true });
 const Lang = {
@@ -621,7 +621,7 @@ var temp = {};
 Object.defineProperty(temp, "__esModule", { value: true });
 const path$2 = require$$0;
 const consts_1$1 = consts;
-const fs_1$1 = fs$3;
+const fs_1$1 = fs$2;
 const Temp = {
   store: {},
   create: (filePath) => {
@@ -670,7 +670,7 @@ Object.defineProperty(dist$1, "__esModule", { value: true });
 dist$1.writeFileSync = dist$1.writeFile = dist$1.readFileSync = dist$1.readFile = void 0;
 const path$1 = require$$0;
 const consts_1 = consts;
-const fs_1 = fs$3;
+const fs_1 = fs$2;
 const lang_1 = lang;
 const scheduler_1 = scheduler;
 const temp_1 = temp;
@@ -3181,9 +3181,9 @@ function commentKeyword$1({ gen, schemaEnv, schema, errSchemaPath, opts }) {
   }
 }
 function returnResults$1(it) {
-  const { gen, schemaEnv, validateName, ValidationError: ValidationError3, opts } = it;
+  const { gen, schemaEnv, validateName, ValidationError: ValidationError2, opts } = it;
   if (schemaEnv.$async) {
-    gen.if((0, codegen_1$T._)`${names_1$a.default.errors} === 0`, () => gen.return(names_1$a.default.data), () => gen.throw((0, codegen_1$T._)`new ${ValidationError3}(${names_1$a.default.vErrors})`));
+    gen.if((0, codegen_1$T._)`${names_1$a.default.errors} === 0`, () => gen.return(names_1$a.default.data), () => gen.throw((0, codegen_1$T._)`new ${ValidationError2}(${names_1$a.default.vErrors})`));
   } else {
     gen.assign((0, codegen_1$T._)`${validateName}.errors`, names_1$a.default.vErrors);
     if (opts.unevaluated)
@@ -9457,9 +9457,9 @@ function commentKeyword({ gen, schemaEnv, schema, errSchemaPath, opts }) {
   }
 }
 function returnResults(it) {
-  const { gen, schemaEnv, validateName, ValidationError: ValidationError3, opts } = it;
+  const { gen, schemaEnv, validateName, ValidationError: ValidationError2, opts } = it;
   if (schemaEnv.$async) {
-    gen.if((0, codegen_1$n._)`${names_1$3.default.errors} === 0`, () => gen.return(names_1$3.default.data), () => gen.throw((0, codegen_1$n._)`new ${ValidationError3}(${names_1$3.default.vErrors})`));
+    gen.if((0, codegen_1$n._)`${names_1$3.default.errors} === 0`, () => gen.return(names_1$3.default.data), () => gen.throw((0, codegen_1$n._)`new ${ValidationError2}(${names_1$3.default.vErrors})`));
   } else {
     gen.assign((0, codegen_1$n._)`${validateName}.errors`, names_1$3.default.vErrors);
     if (opts.unevaluated)
@@ -9803,15 +9803,21 @@ function getData($data, { dataLevel, dataNames, dataPathArr }) {
 }
 validate.getData = getData;
 var validation_error = {};
-Object.defineProperty(validation_error, "__esModule", { value: true });
-class ValidationError2 extends Error {
-  constructor(errors2) {
-    super("validation failed");
-    this.errors = errors2;
-    this.ajv = this.validation = true;
+var hasRequiredValidation_error;
+function requireValidation_error() {
+  if (hasRequiredValidation_error) return validation_error;
+  hasRequiredValidation_error = 1;
+  Object.defineProperty(validation_error, "__esModule", { value: true });
+  class ValidationError2 extends Error {
+    constructor(errors2) {
+      super("validation failed");
+      this.errors = errors2;
+      this.ajv = this.validation = true;
+    }
   }
+  validation_error.default = ValidationError2;
+  return validation_error;
 }
-validation_error.default = ValidationError2;
 var ref_error = {};
 Object.defineProperty(ref_error, "__esModule", { value: true });
 const resolve_1$1 = resolve$2;
@@ -9827,7 +9833,7 @@ var compile = {};
 Object.defineProperty(compile, "__esModule", { value: true });
 compile.resolveSchema = compile.getCompilingSchema = compile.resolveRef = compile.compileSchema = compile.SchemaEnv = void 0;
 const codegen_1$m = codegen;
-const validation_error_1 = validation_error;
+const validation_error_1 = requireValidation_error();
 const names_1$2 = names$1;
 const resolve_1 = resolve$2;
 const util_1$k = util;
@@ -10100,7 +10106,7 @@ uri$1.default = uri;
   Object.defineProperty(exports$1, "CodeGen", { enumerable: true, get: function() {
     return codegen_12.CodeGen;
   } });
-  const validation_error_12 = validation_error;
+  const validation_error_12 = requireValidation_error();
   const ref_error_12 = ref_error;
   const rules_12 = rules;
   const compile_12 = compile;
@@ -12553,7 +12559,7 @@ const require$$3 = {
   Object.defineProperty(exports$1, "CodeGen", { enumerable: true, get: function() {
     return codegen_12.CodeGen;
   } });
-  var validation_error_12 = validation_error;
+  var validation_error_12 = requireValidation_error();
   Object.defineProperty(exports$1, "ValidationError", { enumerable: true, get: function() {
     return validation_error_12.default;
   } });
@@ -27825,8 +27831,8 @@ nodeFsCompat.validateNumber = function validateNumber(value, name) {
     throw new ERR_INVALID_ARG_TYPE$1(name, "number", value);
 };
 const EventEmitter$2 = require$$5;
-const fs$1 = require$$1;
-const { constants } = fs$1;
+const fs = require$$1;
+const { constants } = fs;
 const {
   Readable: ReadableStream$1,
   Writable: WritableStream$1
@@ -28255,12 +28261,12 @@ let SFTP$3 = class SFTP extends EventEmitter$2 {
   fastGet(remotePath, localPath, opts, cb) {
     if (this.server)
       throw new Error("Client-only method called in server mode");
-    fastXfer(this, fs$1, remotePath, localPath, opts, cb);
+    fastXfer(this, fs, remotePath, localPath, opts, cb);
   }
   fastPut(localPath, remotePath, opts, cb) {
     if (this.server)
       throw new Error("Client-only method called in server mode");
-    fastXfer(fs$1, this, localPath, remotePath, opts, cb);
+    fastXfer(fs, this, localPath, remotePath, opts, cb);
   }
   readFile(path2, options, callback_) {
     if (this.server)
@@ -29521,13 +29527,13 @@ function fastXfer(src, dst, srcPath, dstPath, opts, cb) {
         if (--left === 0)
           cb(err);
       };
-      if (srcHandle && (src === fs$1 || src.outgoing.state === "open"))
+      if (srcHandle && (src === fs || src.outgoing.state === "open"))
         ++left;
-      if (dstHandle && (dst === fs$1 || dst.outgoing.state === "open"))
+      if (dstHandle && (dst === fs || dst.outgoing.state === "open"))
         ++left;
-      if (srcHandle && (src === fs$1 || src.outgoing.state === "open"))
+      if (srcHandle && (src === fs || src.outgoing.state === "open"))
         src.close(srcHandle, cbfinal);
-      if (dstHandle && (dst === fs$1 || dst.outgoing.state === "open"))
+      if (dstHandle && (dst === fs || dst.outgoing.state === "open"))
         dst.close(dstHandle, cbfinal);
     } else {
       cb(err);
@@ -29543,7 +29549,7 @@ function fastXfer(src, dst, srcPath, dstPath, opts, cb) {
       tryStat(null, { size: fileSize });
     function tryStat(err2, attrs) {
       if (err2) {
-        if (src !== fs$1) {
+        if (src !== fs) {
           src.stat(srcPath, (err_, attrs_) => {
             if (err_)
               return onerror(err2);
@@ -34849,28 +34855,64 @@ var lib = {
 class SSHService {
   constructor() {
     this.connected = false;
+    this.connecting = null;
     this.client = new lib.Client();
+    this.client.on("error", (err) => {
+      console.error("SSH Client Global Error:", err);
+      this.connected = false;
+      this.connecting = null;
+    });
   }
   async connect(config) {
-    return new Promise((resolve2, reject) => {
+    if (this.connected) return;
+    if (this.connecting) return this.connecting;
+    this.connecting = new Promise((resolve2, reject) => {
       const connConfig = {
         host: config.host,
         port: config.port,
-        username: config.username
+        username: config.username,
+        readyTimeout: 1e4
+        // 10s timeout for handshake
       };
       if (config.privateKeyPath) {
-        connConfig.privateKey = fs.readFileSync(config.privateKeyPath);
+        try {
+          connConfig.privateKey = fs$4.readFileSync(config.privateKeyPath);
+        } catch (e) {
+          this.connecting = null;
+          return reject(new Error(`Falha ao ler chave privada: ${e.message}`));
+        }
       } else if (config.password) {
         connConfig.password = config.password;
-      } else ;
-      this.client.on("ready", () => {
+      }
+      this.client.removeAllListeners("ready");
+      this.client.removeAllListeners("close");
+      this.client.removeAllListeners("end");
+      const onReady = () => {
         this.connected = true;
+        this.connecting = null;
+        this.client.removeListener("error", onError);
         resolve2();
-      }).on("error", (err) => {
+      };
+      const onError = (err) => {
         this.connected = false;
+        this.connecting = null;
+        this.client.removeListener("ready", onReady);
         reject(err);
-      }).connect(connConfig);
+      };
+      this.client.once("ready", onReady);
+      this.client.once("error", onError);
+      this.client.once("close", () => {
+        this.connected = false;
+        this.connecting = null;
+      });
+      try {
+        this.client.connect(connConfig);
+      } catch (e) {
+        this.connecting = null;
+        reject(e);
+      }
     });
+    return this.connecting;
   }
   async exec(command, onData) {
     if (!this.connected) throw new Error("Not connected");
@@ -35036,26 +35078,44 @@ class DeployOrchestrator {
         const { unlink: unlink2 } = await import("node:fs/promises");
         await unlink2(localImagePath).catch(() => {
         });
-        onStatus("🚀 Subindo containers na VPS...");
+        const envTag = targetEnv === "production" ? "app" : "dev";
+        onStatus(`🚀 Subindo containers na VPS (${targetEnv} -> ${envTag})...`);
         const deployCmd = `
           cd ${repoDir}
-          export IMAGE_TAG=${targetEnv}
+          export IMAGE_TAG=${envTag}
+          export APP_ENV=${envTag}
+          export NODE_ENV=${targetEnv === "production" ? "production" : "development"}
+          
+          echo "🐳 Validando docker-compose.yml..."
+          docker compose config > /dev/null || (echo "❌ Erro: docker-compose.yml inválido no VPS" && exit 1)
+          
           docker compose up -d --force-recreate
         `;
         await sshService.exec(deployCmd, onStatus);
       } else {
-        onStatus(`🏗️ Estratégia de Build: REMOTA (VPS) selecionada (${targetEnv.toUpperCase()}).\r
-`);
-        onStatus("🔨 Iniciando build Docker diretamente no servidor...\r\n");
+        const envTag = targetEnv === "production" ? "app" : "dev";
+        onStatus(`🏗️ Estratégia de Build: REMOTA (VPS) selecionada (${targetEnv.toUpperCase()} -> ${envTag}).`);
+        onStatus(`🔹 Variáveis de Ambiente: APP_ENV=${envTag}, NODE_ENV=${targetEnv === "production" ? "production" : "development"}`);
         const buildArgs = [
           ...Object.entries(envConfig.envVars || {}),
-          ["APP_ENV", targetEnv],
-          ["NODE_ENV", targetEnv === "production" ? "production" : "development"]
+          ["APP_ENV", envTag]
         ].map(([k, v]) => `--build-arg ${k}="${v}"`).join(" ");
+        const envExport = Object.entries(envConfig.envVars || {}).map(([k, v]) => `export ${k}="${v}"`).join("\n          ");
+        onStatus(`🔨 Iniciando build Docker no servidor...`);
         const deployCmd = `
           cd ${repoDir}
-          export IMAGE_TAG=${targetEnv}
+          export IMAGE_TAG=${envTag}
+          export APP_ENV=${envTag}
+          export NODE_ENV=${targetEnv === "production" ? "production" : "development"}
+          ${envExport}
+          
+          echo "🐳 Validando docker-compose.yml..."
+          docker compose config > /dev/null || (echo "❌ Erro: docker-compose.yml inválido ou ausente no VPS" && exit 1)
+          
+          echo "🔨 Construindo imagem (${envTag})..."
           docker compose build ${buildArgs}
+          
+          echo "🚀 Subindo containers..."
           docker compose up -d --force-recreate
         `;
         await sshService.exec(deployCmd, onStatus);
@@ -35088,10 +35148,10 @@ class EnvDetector {
     const envPath = path$6.join(projectPath, ".env");
     const examplePath = path$6.join(projectPath, ".env.example");
     let content = "";
-    if (fs.existsSync(envPath)) {
-      content = fs.readFileSync(envPath, "utf8");
-    } else if (fs.existsSync(examplePath)) {
-      content = fs.readFileSync(examplePath, "utf8");
+    if (fs$4.existsSync(envPath)) {
+      content = fs$4.readFileSync(envPath, "utf8");
+    } else if (fs$4.existsSync(examplePath)) {
+      content = fs$4.readFileSync(examplePath, "utf8");
     } else {
       return {};
     }
@@ -35114,9 +35174,9 @@ class EnvDetector {
       return s.split(/[_-]/).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
     };
     let name = formatName(path$6.basename(projectPath));
-    if (fs.existsSync(pkgPath)) {
+    if (fs$4.existsSync(pkgPath)) {
       try {
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+        const pkg = JSON.parse(fs$4.readFileSync(pkgPath, "utf8"));
         const folderName = path$6.basename(projectPath).toLowerCase();
         if (pkg.name && (folderName === "src" || folderName === "app" || folderName === "project")) {
           name = formatName(pkg.name);
@@ -35125,8 +35185,8 @@ class EnvDetector {
       }
     }
     let repoUrl = "";
-    if (fs.existsSync(gitConfigPath)) {
-      const gitConfig = fs.readFileSync(gitConfigPath, "utf8");
+    if (fs$4.existsSync(gitConfigPath)) {
+      const gitConfig = fs$4.readFileSync(gitConfigPath, "utf8");
       const match = gitConfig.match(/\[remote "origin"\][\s\S]*?url = (.*)/);
       if (match) {
         repoUrl = match[1].trim();
@@ -35135,6 +35195,167 @@ class EnvDetector {
     return { name, repoUrl };
   }
 }
+class StatusService {
+  constructor() {
+    this.queue = Promise.resolve();
+  }
+  async runSSHCommand(action) {
+    const result = this.queue.then(async () => {
+      const vpsConfig = ConfigStore.get("vps");
+      if (!vpsConfig || !vpsConfig.host) {
+        throw new Error("VPS não configurada");
+      }
+      try {
+        await sshService.connect({
+          host: vpsConfig.host,
+          port: Number(vpsConfig.port) || 22,
+          username: vpsConfig.username,
+          password: vpsConfig.password,
+          privateKeyPath: vpsConfig.privateKeyPath
+        });
+        return await action(sshService);
+      } finally {
+        sshService.disconnect();
+      }
+    });
+    this.queue = result.catch(() => {
+    });
+    return result;
+  }
+  async getVPSContainers() {
+    return this.runSSHCommand(async (ssh) => {
+      let output = "";
+      const cmd = `docker ps -a --format '{"ID":"{{.ID}}", "Names":"{{.Names}}", "Image":"{{.Image}}", "Status":"{{.Status}}", "CreatedAt":"{{.CreatedAt}}", "Ports":"{{.Ports}}"}'`;
+      await ssh.exec(cmd, (data) => {
+        output += data;
+      });
+      return output.trim().split("\n").filter((line) => line.trim()).map((line) => {
+        try {
+          const raw = JSON.parse(line);
+          return {
+            id: raw.ID,
+            names: raw.Names,
+            image: raw.Image,
+            status: raw.Status,
+            createdAt: raw.CreatedAt,
+            ports: raw.Ports
+          };
+        } catch (e) {
+          return null;
+        }
+      }).filter((c) => c !== null);
+    });
+  }
+  async stopContainer(id2) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.exec(`docker stop ${id2}`);
+    });
+  }
+  async startContainer(id2) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.exec(`docker start ${id2}`);
+    });
+  }
+  async restartContainer(id2) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.exec(`docker restart ${id2}`);
+    });
+  }
+  async removeContainer(id2) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.exec(`docker rm -f ${id2}`);
+    });
+  }
+  async detectTraefik() {
+    return this.runSSHCommand(async (ssh) => {
+      let psOutput = "";
+      let netOutput = "";
+      await ssh.exec('docker ps --filter "name=traefik" --format "{{.Names}}"', (data) => {
+        psOutput += data;
+      });
+      await ssh.exec('docker network ls --format "{{.Name}}"', (data) => {
+        netOutput += data;
+      });
+      const networks = netOutput.trim().split("\n").filter(
+        (n) => n.includes("traefik") || n === "proxy" || n === "gateway" || n === "web"
+      );
+      return {
+        found: psOutput.trim().length > 0,
+        containerName: psOutput.trim().split("\n")[0],
+        networks
+      };
+    });
+  }
+  async getImages() {
+    return this.runSSHCommand(async (ssh) => {
+      let output = "";
+      const cmd = `docker images --format '{"ID":"{{.ID}}", "Repo":"{{.Repository}}", "Tag":"{{.Tag}}", "Size":"{{.Size}}", "CreatedAt":"{{.CreatedAt}}"}'`;
+      await ssh.exec(cmd, (data) => output += data);
+      return output.trim().split("\n").filter((l) => l.trim()).map((line) => {
+        try {
+          const raw = JSON.parse(line);
+          return {
+            id: raw.ID,
+            repo: raw.Repo,
+            tag: raw.Tag,
+            size: raw.Size,
+            createdAt: raw.CreatedAt
+          };
+        } catch (e) {
+          return null;
+        }
+      }).filter((i) => i !== null);
+    });
+  }
+  async removeImage(id2) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.exec(`docker rmi -f ${id2}`);
+    });
+  }
+  async listFiles(path2 = ".") {
+    return this.runSSHCommand(async (ssh) => {
+      let output = "";
+      const cmd = `ls -alhp --group-directories-first "${path2}"`;
+      await ssh.exec(cmd, (data) => output += data);
+      return output.trim().split("\n").slice(1).map((line) => {
+        const parts = line.split(/\s+/);
+        if (parts.length < 9) return null;
+        const name = parts.slice(8).join(" ");
+        if (name === "./" || name === "../") return null;
+        return {
+          name,
+          size: parts[4],
+          isDir: name.endsWith("/"),
+          modified: `${parts[5]} ${parts[6]} ${parts[7]}`
+        };
+      }).filter((f) => f !== null);
+    });
+  }
+  async deleteFile(filePath) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.exec(`rm -rf "${filePath}"`);
+    });
+  }
+  async uploadFile(localPath, remotePath) {
+    return this.runSSHCommand(async (ssh) => {
+      await ssh.uploadFile(localPath, remotePath);
+    });
+  }
+  async downloadFile(remotePath, localPath) {
+    return this.runSSHCommand(async (ssh) => {
+      return new Promise((resolve2, reject) => {
+        ssh.client.sftp((err, sftp) => {
+          if (err) return reject(err);
+          sftp.fastGet(remotePath, localPath, (err2) => {
+            if (err2) reject(err2);
+            else resolve2();
+          });
+        });
+      });
+    });
+  }
+}
+const statusService = new StatusService();
 node_module.createRequire(typeof document === "undefined" ? require("url").pathToFileURL(__filename).href : _documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === "SCRIPT" && _documentCurrentScript.src || new URL("main.js", document.baseURI).href);
 const __dirname$1 = path$6.dirname(node_url.fileURLToPath(typeof document === "undefined" ? require("url").pathToFileURL(__filename).href : _documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === "SCRIPT" && _documentCurrentScript.src || new URL("main.js", document.baseURI).href));
 process.env.APP_ROOT = path$6.join(__dirname$1, "..");
@@ -35182,6 +35403,55 @@ require$$1$2.ipcMain.handle("deploy:start", async (event, appId, env2) => {
     event.sender.send("terminal:data", data);
   });
 });
+require$$1$2.ipcMain.handle("deploy:get-status", async () => {
+  return statusService.getVPSContainers();
+});
+require$$1$2.ipcMain.handle("deploy:stop-container", async (_, id2) => {
+  return statusService.stopContainer(id2);
+});
+require$$1$2.ipcMain.handle("deploy:start-container", async (_, id2) => {
+  return statusService.startContainer(id2);
+});
+require$$1$2.ipcMain.handle("deploy:restart-container", async (_, id2) => {
+  return statusService.restartContainer(id2);
+});
+require$$1$2.ipcMain.handle("deploy:remove-container", async (_, id2) => {
+  return statusService.removeContainer(id2);
+});
+require$$1$2.ipcMain.handle("deploy:detect-traefik", async () => {
+  return statusService.detectTraefik();
+});
+require$$1$2.ipcMain.handle("deploy:get-images", async () => {
+  return statusService.getImages();
+});
+require$$1$2.ipcMain.handle("deploy:remove-image", async (_, id2) => {
+  return statusService.removeImage(id2);
+});
+require$$1$2.ipcMain.handle("deploy:list-files", async (_, path2) => {
+  return statusService.listFiles(path2);
+});
+require$$1$2.ipcMain.handle("deploy:delete-file", async (_, path2) => {
+  return statusService.deleteFile(path2);
+});
+require$$1$2.ipcMain.handle("deploy:upload-file", async (_, localPath, remotePath) => {
+  return statusService.uploadFile(localPath, remotePath);
+});
+require$$1$2.ipcMain.handle("deploy:open-remote-file", async (_, remotePath) => {
+  const tempDir = join(require$$1$2.app.getPath("temp"), "fresta-remote-files");
+  if (!fs$4.existsSync(tempDir)) fs$4.mkdirSync(tempDir, { recursive: true });
+  const fileName = remotePath.split("/").pop() || "file";
+  const localTempPath = join(tempDir, `${Date.now()}-${fileName}`);
+  await statusService.downloadFile(remotePath, localTempPath);
+  await require$$1$2.shell.openPath(localTempPath);
+  return { success: true };
+});
+require$$1$2.ipcMain.handle("dialog:selectFile", async () => {
+  const { canceled, filePaths } = await require$$1$2.dialog.showOpenDialog({
+    properties: ["openFile"]
+  });
+  if (canceled) return null;
+  return filePaths[0];
+});
 require$$1$2.ipcMain.handle("dialog:openDirectory", async () => {
   const { canceled, filePaths } = await require$$1$2.dialog.showOpenDialog({
     properties: ["openDirectory", "createDirectory"]
@@ -35199,8 +35469,8 @@ require$$1$2.ipcMain.handle("dialog:openFile", async (_event, options) => {
 });
 require$$1$2.ipcMain.handle("ssh:detectLocalKeys", async () => {
   const sshDir = path$6.join(os$1.homedir(), ".ssh");
-  if (!fs.existsSync(sshDir)) return [];
-  const files = fs.readdirSync(sshDir);
+  if (!fs$4.existsSync(sshDir)) return [];
+  const files = fs$4.readdirSync(sshDir);
   const privateKeys = files.filter((file) => {
     const isPublic = file.endsWith(".pub") || file.endsWith(".pub.ppk");
     const hasKnownName = file.startsWith("id_") || file.endsWith(".pem") || file.endsWith(".ppk");
@@ -35216,16 +35486,16 @@ require$$1$2.ipcMain.handle("ssh:generateKey", async (_event, { email }) => {
   const keyPath = path$6.join(os$1.homedir(), ".ssh", "id_fresta_ed25519");
   const comment = email || "fresta-deploy";
   try {
-    if (fs.existsSync(keyPath)) {
+    if (fs$4.existsSync(keyPath)) {
       throw new Error('Uma chave "id_fresta_ed25519" já existe em ~/.ssh/. Por favor, use a existente ou renomeie-a.');
     }
     const sshDir = path$6.join(os$1.homedir(), ".ssh");
-    if (!fs.existsSync(sshDir)) fs.mkdirSync(sshDir, { recursive: true });
+    if (!fs$4.existsSync(sshDir)) fs$4.mkdirSync(sshDir, { recursive: true });
     await execAsync(`ssh-keygen -t ed25519 -C "${comment}" -f "${keyPath}" -N ""`);
     return {
       success: true,
       path: keyPath,
-      publicKey: fs.readFileSync(`${keyPath}.pub`, "utf-8")
+      publicKey: fs$4.readFileSync(`${keyPath}.pub`, "utf-8")
     };
   } catch (err) {
     console.error(err);
