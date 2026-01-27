@@ -22,7 +22,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.fresta-${IMAGE_TAG}.rule=Host(`${DOMAIN_NAME:-localhost}`)"
-      - "traefik.http.routers.fresta-${IMAGE_TAG}.entrypoints=web"
+      - "traefik.http.routers.fresta-${IMAGE_TAG}.entrypoints=web,websecure"
+      - "traefik.http.routers.fresta-${IMAGE_TAG}.tls=true"
+      - "traefik.http.routers.fresta-${IMAGE_TAG}.tls.certresolver=letsencrypt"
       - "traefik.http.services.fresta-${IMAGE_TAG}.loadbalancer.server.port=80"
 
 networks:
