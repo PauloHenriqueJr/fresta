@@ -61,6 +61,11 @@ ssh $REMOTE_USER@$REMOTE_HOST << EOF
         --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
         --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
         
+    # Garantir que não existam containers órfãos ou conflitos de nome
+    echo "🛑 Parando e removendo container antigo para evitar conflitos..."
+    docker stop fresta-$IMAGE_TAG 2>/dev/null || true
+    docker rm -f fresta-$IMAGE_TAG 2>/dev/null || true
+
     DOMAIN_NAME=$DOMAIN_NAME \
     IMAGE_TAG=$IMAGE_TAG \
     PORT_MAP=$PORT_MAP \
