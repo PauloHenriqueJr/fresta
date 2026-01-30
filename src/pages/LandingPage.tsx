@@ -565,7 +565,7 @@ const LandingPage = () => {
               <span className="px-4 py-2 bg-white/20 rounded-full">✓ Temas exclusivos</span>
               <span className="px-4 py-2 bg-white/20 rounded-full">✓ Vitalício</span>
             </div>
-            <button onClick={() => navigate("/premium")} className="py-6 px-12 rounded-[2rem] font-black text-2xl text-primary bg-white hover:bg-yellow-50 transition-all hover:shadow-2xl hover:scale-105 active:scale-95 relative z-10">Quero ser Plus</button>
+            <button onClick={() => navigate("/plus")} className="py-6 px-12 rounded-[2rem] font-black text-2xl text-primary bg-white hover:bg-yellow-50 transition-all hover:shadow-2xl hover:scale-105 active:scale-95 relative z-10">Quero ser Plus</button>
           </div>
         </div>
       </section>

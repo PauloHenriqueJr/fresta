@@ -57,6 +57,28 @@ const Checkout = () => {
         return `R$ ${(cents / 100).toFixed(2).replace(".", ",")}`;
     };
 
+    // Customer data
+    const [customerInfo, setCustomerInfo] = useState({
+        cellphone: "",
+        taxId: "",
+    });
+    const [fieldErrors, setFieldErrors] = useState<{ taxId?: string; cellphone?: string }>({});
+
+    // Simple CPF Validator
+    const isValidCPF = (cpf: string) => {
+        if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
+        const base = cpf.substring(0, 9).split('').map(Number);
+        const calc = (limit: number) => {
+            const sum = base.reduce((acc, curr, i) => acc + (curr * (limit - i)), 0);
+            const rest = sum % 11;
+            return rest < 2 ? 0 : 11 - rest;
+        };
+        const d1 = calc(10);
+        base.push(d1);
+        const d2 = calc(11);
+        return d1 === Number(cpf[9]) && d2 === Number(cpf[10]);
+    };
+
     const toggleAddon = (addonId: string) => {
         setSelectedAddons(prev =>
             prev.includes(addonId)
@@ -76,6 +98,27 @@ const Checkout = () => {
             return;
         }
 
+        const newErrors: { taxId?: string; cellphone?: string } = {};
+
+        if (!customerInfo.taxId) {
+            newErrors.taxId = "O CPF é obrigatório.";
+        } else if (!isValidCPF(customerInfo.taxId)) {
+            newErrors.taxId = "Por favor, informe um CPF válido.";
+        }
+
+        if (!customerInfo.cellphone) {
+            newErrors.cellphone = "O WhatsApp é obrigatório.";
+        } else if (customerInfo.cellphone.length < 10) {
+            newErrors.cellphone = "Informe um número válido com DDD.";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setFieldErrors(newErrors);
+            setError("Por favor, preencha os dados obrigatórios corretamente.");
+            return;
+        }
+
+        setFieldErrors({});
         setIsProcessing(true);
         setError(null);
 
@@ -96,6 +139,10 @@ const Checkout = () => {
                 userId: user.id,
                 calendarId,
                 items,
+                customer: {
+                    cellphone: customerInfo.cellphone,
+                    taxId: customerInfo.taxId,
+                }
             });
 
             if (result.success && result.data) {
@@ -109,7 +156,6 @@ const Checkout = () => {
                 setError(result.error || "Erro ao criar pagamento. Tente novamente.");
             }
         } catch (err) {
-            console.error("Payment creation error:", err);
             setError("Erro inesperado. Tente novamente.");
         } finally {
             setIsProcessing(false);
@@ -277,6 +323,80 @@ const Checkout = () => {
                                         </button>
                                     </div>
 
+                                    {/* Customer Mandatory Info */}
+                                    <div className="space-y-4 p-6 bg-muted/30 rounded-2xl border border-border/50">
+                                        <div>
+                                            <h3 className="text-sm font-black uppercase tracking-wider text-foreground/60 mb-4">
+                                                Dados Obrigatórios para PIX
+                                            </h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                                <label className={cn(
+                                                    "text-xs font-bold ml-1 transition-colors",
+                                                    fieldErrors.taxId ? "text-red-500" : "text-muted-foreground"
+                                                )}>
+                                                    CPF (obrigatório)
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="000.000.000-00"
+                                                    value={customerInfo.taxId}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').substring(0, 11);
+                                                        setCustomerInfo(prev => ({ ...prev, taxId: val }));
+                                                        if (fieldErrors.taxId) setFieldErrors(prev => ({ ...prev, taxId: undefined }));
+                                                    }}
+                                                    className={cn(
+                                                        "w-full bg-card border rounded-xl px-4 py-3 text-sm focus:outline-none transition-all font-mono",
+                                                        fieldErrors.taxId
+                                                            ? "border-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.1)]"
+                                                            : "border-border/50 focus:border-[#F9A03F]"
+                                                    )}
+                                                />
+                                                {fieldErrors.taxId && (
+                                                    <p className="text-[10px] text-red-500 font-bold ml-1 animate-in fade-in slide-in-from-top-1">
+                                                        {fieldErrors.taxId}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className={cn(
+                                                    "text-xs font-bold ml-1 transition-colors",
+                                                    fieldErrors.cellphone ? "text-red-500" : "text-muted-foreground"
+                                                )}>
+                                                    WhatsApp / Celular
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="(11) 99999-9999"
+                                                    value={customerInfo.cellphone}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').substring(0, 11);
+                                                        setCustomerInfo(prev => ({ ...prev, cellphone: val }));
+                                                        if (fieldErrors.cellphone) setFieldErrors(prev => ({ ...prev, cellphone: undefined }));
+                                                    }}
+                                                    className={cn(
+                                                        "w-full bg-card border rounded-xl px-4 py-3 text-sm focus:outline-none transition-all font-mono",
+                                                        fieldErrors.cellphone
+                                                            ? "border-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.1)]"
+                                                            : "border-border/50 focus:border-[#F9A03F]"
+                                                    )}
+                                                />
+                                                {fieldErrors.cellphone && (
+                                                    <p className="text-[10px] text-red-500 font-bold ml-1 animate-in fade-in slide-in-from-top-1">
+                                                        {fieldErrors.cellphone}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <p className="text-[10px] text-muted-foreground italic">
+                                                * O AbacatePay valida o CPF. Use um CPF válido.
+                                            </p>
+                                        </div>
+                                    </div>
+
                                     {error && (
                                         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-600 text-sm">
                                             {error}
@@ -307,23 +427,32 @@ const Checkout = () => {
                             ) : (
                                 // Show PIX payment info
                                 <div className="flex flex-col items-center text-center gap-8">
-                                    <div className="p-6 bg-muted/50 rounded-[3rem] border-2 border-dashed border-[#F9A03F]/30">
+                                    <div className="p-6 bg-muted/50 rounded-[3rem] border-2 border-dashed border-[#F9A03F]/30 relative overflow-hidden">
                                         <div className="w-48 h-48 bg-card rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
                                             {paymentData.qrCodeUrl ? (
                                                 <img src={paymentData.qrCodeUrl} alt="QR Code PIX" className="w-full h-full object-contain" />
+                                            ) : isProcessing ? (
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <Loader2 className="w-8 h-8 animate-spin text-[#F9A03F]" />
+                                                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Gerando...</span>
+                                                </div>
                                             ) : (
-                                                <QrCode className="w-32 h-32 text-[#F9A03F]/20" />
+                                                <div className="flex flex-col items-center gap-2 opacity-40">
+                                                    <QrCode className="w-20 h-20 text-[#F9A03F]" />
+                                                    <span className="text-[10px] font-bold uppercase">QR Code indisponível</span>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
 
                                     <div className="space-y-4 max-w-sm">
                                         <h3 className="text-2xl font-black text-foreground tracking-tight">
-                                            Escaneie o QR Code
+                                            {paymentData.qrCodeUrl ? "Escaneie o QR Code" : "Use o Pix Copia e Cola"}
                                         </h3>
                                         <p className="text-muted-foreground">
-                                            Abra o app do seu banco, escolha Pix e aponte a câmera.
-                                            Seu calendário será ativado instantaneamente.
+                                            {paymentData.qrCodeUrl
+                                                ? "Abra o app do seu banco, escolha Pix e aponte a câmera. Seu calendário será ativado instantaneamente."
+                                                : "O QR Code não pôde ser gerado, mas você ainda pode pagar usando o código abaixo. Copie e cole no app do seu banco."}
                                         </p>
                                     </div>
 
@@ -349,13 +478,15 @@ const Checkout = () => {
                                         </div>
                                     )}
 
-                                    <button
-                                        onClick={handleOpenCheckout}
-                                        className="flex items-center gap-2 text-[#F9A03F] font-bold hover:underline"
-                                    >
-                                        <ExternalLink className="w-4 h-4" />
-                                        Abrir página de pagamento
-                                    </button>
+                                    {paymentData.checkoutUrl && (
+                                        <button
+                                            onClick={handleOpenCheckout}
+                                            className="flex items-center gap-2 text-[#F9A03F] font-bold hover:underline"
+                                        >
+                                            <ExternalLink className="w-4 h-4" />
+                                            Abrir página de pagamento
+                                        </button>
+                                    )}
                                 </div>
                             )}
 

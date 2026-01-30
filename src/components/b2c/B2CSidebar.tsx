@@ -26,7 +26,7 @@ const items = [
 const accountItems = [
   { title: "Perfil", url: "/perfil", icon: User },
   { title: "Configurações", url: "/conta/configuracoes", icon: Settings },
-  { title: "Fazer Upgrade", url: "/premium", icon: Crown },
+  { title: "Fazer Upgrade", url: "/plus", icon: Crown },
   { title: "Ajuda", url: "/ajuda", icon: HelpCircle },
 ];
 

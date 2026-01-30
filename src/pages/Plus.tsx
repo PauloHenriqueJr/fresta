@@ -4,7 +4,8 @@
  * Brand Identity: Verde Floresta + Dourado
  */
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,20 +15,26 @@ import {
   Video,
   Palette,
   Lock,
-  Infinity,
+  Infinity as InfinityIcon,
   Gift,
   Zap,
   CheckCircle2,
+  Calendar as CalendarIcon,
+  ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { PRICING } from "@/lib/services/payment";
 import { useAuth } from "@/state/auth/AuthProvider";
+import { supabase } from "@/lib/supabase/client";
+import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
+import type { Calendar } from "@/lib/data/CalendarsRepository";
 
 // Plus features list
 const PREMIUM_FEATURES = [
   {
-    icon: Infinity,
+    icon: InfinityIcon,
     title: "Até 365 dias",
     description: "Contagens longas para eventos especiais",
   },
@@ -76,20 +83,55 @@ const ADDONS = [
   },
 ];
 
-const Premium = () => {
+const Plus = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [searchParams] = useSearchParams();
-  const calendarId = searchParams.get("calendar");
+  const calendarIdFromUrl = searchParams.get("calendar");
+
+  const [userCalendars, setUserCalendars] = useState<Calendar[]>([]);
+  const [loadingCalendars, setLoadingCalendars] = useState(false);
+  const [selectedCalendarId, setSelectedCalendarId] = useState<string | null>(calendarIdFromUrl);
+
+  useEffect(() => {
+    if (isAuthenticated && !calendarIdFromUrl) {
+      loadUserCalendars();
+    }
+  }, [isAuthenticated, calendarIdFromUrl]);
+
+  const loadUserCalendars = async () => {
+    if (!user?.id) return;
+    setLoadingCalendars(true);
+    try {
+      const { data, error } = await supabase
+        .from("calendars")
+        .select("*")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      const calendarsData = (data as any[]) || [];
+      setUserCalendars(calendarsData as Calendar[]);
+
+      // Auto-select first free calendar if available
+      const freeCalendar = calendarsData.find(c => !c.is_premium);
+      if (freeCalendar) {
+        setSelectedCalendarId(freeCalendar.id);
+      } else if (calendarsData.length > 0) {
+        setSelectedCalendarId(calendarsData[0].id);
+      }
+    } catch (err) {
+      console.error("Error loading calendars:", err);
+    } finally {
+      setLoadingCalendars(false);
+    }
+  };
 
   const handleCheckout = () => {
-    if (calendarId) {
-      // Already has a calendar, go to checkout
-      navigate(`/checkout/${calendarId}`);
+    if (selectedCalendarId) {
+      navigate(`/checkout/${selectedCalendarId}`);
     } else {
-      // No calendar yet, go to create flow
-      // After creating, user will be prompted to upgrade
-      const url = isAuthenticated ? "/criar" : "/entrar?redirect=/criar";
+      const url = isAuthenticated ? "/criar" : "/entrar?redirect=/plus";
       navigate(url);
     }
   };
@@ -185,8 +227,82 @@ const Premium = () => {
         </div>
       </div>
 
+      {/* Selection / Journey Section */}
+      {!calendarIdFromUrl && (
+        <div className="container mx-auto px-6 max-w-4xl pt-32 pb-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight">
+              Sua jornada <span className="text-solidroad-accent">Plus</span> começa aqui
+            </h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Escolha como você quer começar sua experiência premium.
+              {isAuthenticated ? " Crie algo novo ou turbine um de seus projetos." : " Entre para começar."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card: Create New */}
+            <motion.button
+              whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(249, 160, 63, 0.2)" }}
+              onClick={() => navigate("/explorar")}
+              className="group relative overflow-hidden rounded-[2.5rem] bg-card border border-border/10 p-8 text-left transition-all h-full flex flex-col justify-between min-h-[280px]"
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sparkles className="w-24 h-24 text-solidroad-accent" />
+              </div>
+
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-solidroad-accent/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Palette className="w-7 h-7 text-solidroad-accent" />
+                </div>
+                <h3 className="text-2xl font-black text-foreground mb-2 group-hover:text-solidroad-accent transition-colors tracking-tight">
+                  Explorar Temas Premium
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Comece um novo calendário com temas exclusivos, layouts diferenciados e recursos Plus ilimitados.
+                </p>
+              </div>
+
+              <div className="mt-8 flex items-center gap-2 text-solidroad-accent font-black text-sm uppercase tracking-widest">
+                Começar agora <ArrowRight className="w-4 h-4" />
+              </div>
+            </motion.button>
+
+            {/* Card: Upgrade Existing */}
+            <motion.button
+              whileHover={{ y: -8, boxShadow: "0 25px 50px -12px rgba(45, 122, 95, 0.2)" }}
+              onClick={() => navigate("/meus-calendarios")}
+              className="group relative overflow-hidden rounded-[2.5rem] bg-card border border-border/10 p-8 text-left transition-all h-full flex flex-col justify-between min-h-[280px]"
+            >
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity text-solidroad-green">
+                <CalendarIcon className="w-24 h-24" />
+              </div>
+
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-solidroad-green/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Zap className="w-7 h-7 text-solidroad-green" />
+                </div>
+                <h3 className="text-2xl font-black text-foreground mb-2 group-hover:text-solidroad-green transition-colors tracking-tight">
+                  Turbinar um Existente
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Selecione um calendário que você já criou para destravar o tempo vitalício e fotos ilimitadas.
+                </p>
+              </div>
+
+              <div className="mt-8 flex items-center gap-2 text-solidroad-green font-black text-sm uppercase tracking-widest">
+                Ver meus projetos <ArrowRight className="w-4 h-4" />
+              </div>
+            </motion.button>
+          </div>
+        </div>
+      )}
+
       {/* Features Section */}
-      <div className="container mx-auto px-6 max-w-5xl pt-32 pb-16">
+      <div className={cn(
+        "container mx-auto px-6 max-w-5xl pb-16",
+        (!calendarIdFromUrl && isAuthenticated) ? "pt-12" : "pt-32"
+      )}>
         <h2 className="text-2xl font-black text-foreground mb-2 text-center">
           Tudo que você desbloqueia
         </h2>
@@ -310,7 +426,7 @@ const Premium = () => {
           )}
         >
           <Sparkles className="w-6 h-6" />
-          {calendarId ? "Desbloquear Este Calendário" : "Criar Calendário Plus"}
+          {selectedCalendarId ? "Desbloquear Este Calendário" : "Criar Calendário Plus"}
           <ArrowRight className="w-6 h-6" />
         </motion.button>
 
@@ -326,13 +442,13 @@ const Premium = () => {
           </div>
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6 text-foreground">
           Pagamento processado via AbacatePay. Taxa fixa de R$ 0,80 por transação.
         </p>
       </div>
 
       {/* Footer */}
-      <div className="container mx-auto px-6 max-w-5xl pb-8 text-center">
+      <div className="container mx-auto px-6 max-w-5xl pb-8 text-center text-foreground">
         <div className="flex items-center justify-center gap-4 text-xs font-bold text-muted-foreground/60">
           <button onClick={() => navigate("/termos")} className="hover:text-foreground underline underline-offset-4">
             Termos de Uso
@@ -347,4 +463,4 @@ const Premium = () => {
   );
 };
 
-export default Premium;
+export default Plus;

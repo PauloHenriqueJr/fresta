@@ -380,7 +380,7 @@ const EditarDia = () => {
                           <Lock className="w-8 h-8 text-muted-foreground mb-2" />
                           <p className="text-xs font-bold text-foreground">Upload disponível apenas no Plano Plus</p>
                           <button
-                            onClick={() => navigate('/premium')}
+                            onClick={() => navigate('/plus')}
                             className="mt-2 text-[10px] font-black uppercase text-primary hover:underline"
                           >
                             Seja Plus para subir fotos

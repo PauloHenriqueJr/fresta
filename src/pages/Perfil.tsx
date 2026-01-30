@@ -71,7 +71,7 @@ export default function Perfil() {
 
   const menuItems = [
     // Only show Plus option for free users
-    ...(!isAdminOrPlus ? [{ icon: Crown, label: "Seja Plus", description: "Desbloqueie recursos exclusivos", route: "/premium", highlight: true }] : []),
+    ...(!isAdminOrPlus ? [{ icon: Crown, label: "Seja Plus", description: "Desbloqueie recursos exclusivos", route: "/plus", highlight: true }] : []),
     { icon: Settings, label: "Configurações", description: "Edite perfil e preferências", route: "/conta/configuracoes" },
     { icon: HelpCircle, label: "Ajuda", description: "Dúvidas e suporte", route: "/ajuda" },
   ];
