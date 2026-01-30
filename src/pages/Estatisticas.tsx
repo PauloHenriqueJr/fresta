@@ -262,7 +262,7 @@ export default function Estatisticas() {
           <div className="flex-1 text-center md:text-left">
             <h3 className="text-2xl font-black text-foreground tracking-tight mb-3 flex items-center justify-center md:justify-start gap-3">
               Fresta Insights
-              <div className="px-2 py-0.5 rounded-full bg-solidroad-accent text-white text-[8px] font-black uppercase tracking-widest">Premium</div>
+              <div className="px-2 py-0.5 rounded-full bg-solidroad-accent text-white text-[8px] font-black uppercase tracking-widest">Plus</div>
             </h3>
             <p className="text-secondary-foreground font-medium text-lg leading-relaxed max-w-3xl">
               Nossa análise sugere que a **Porta {topDoors[0]?.day || 7}** é seu ponto alto de engajamento. Considere colocar seu conteúdo mais importante ou um presente especial nesse dia para maximizar o impacto emocional! 🎁✨

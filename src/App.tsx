@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
+import { DoorOpen } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import LandingPage from "./pages/LandingPage";
 import LandingPageBrand from "./pages/LandingPageBrand";
 import Contato from "./pages/Contato";
@@ -35,6 +37,7 @@ import NotFound from "./pages/NotFound";
 import Entrar from "./pages/Entrar";
 import CalendarioDetalhe from "./pages/CalendarioDetalhe";
 import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -75,24 +78,12 @@ import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-const Loader = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-    <div className="w-16 h-16 rounded-2xl bg-gradient-festive animate-pulse flex items-center justify-center mb-4">
-      <span className="text-2xl">🚪</span>
-    </div>
-    <div className="h-1 w-32 bg-muted rounded-full overflow-hidden">
-      <div className="h-full bg-primary animate-pulse" />
-    </div>
-    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 animate-pulse">
-      Fresta está vindo...
-    </p>
-  </div>
-);
+// O componente Loader agora é importado de @/components/common/Loader
 
 // Corrigir o problema de tokens do Supabase no HashRouter
 const AuthHandler = () => {
   const navigate = useNavigate();
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, profile } = useAuth();
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -112,9 +103,11 @@ const AuthHandler = () => {
         // Ignorar se for link público
         if (hash.includes("#/c/") || window.location.pathname.startsWith('/c/')) return;
 
-        // Limpar o fragmento de autenticação agora que temos a sessão
-        // Isso evita loops de normalização
-        const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+        // Aguardar o carregamento do perfil para decidir o redirecionamento
+        if (!profile) return;
+
+        // Decidir para onde ir baseado no onboarding
+        const hasSeenOnboarding = profile.onboarding_completed || localStorage.getItem("hasSeenOnboarding") === "true";
 
         if (!hasSeenOnboarding) {
           console.log("App: Novo usuário detectado, indo para onboarding");
@@ -125,11 +118,10 @@ const AuthHandler = () => {
         }
       } else if (!hash.startsWith("#/")) {
         // Normalização preventiva para o HashRouter se ainda não tivermos sessão
-        // Mas o AppContent deve estar mostrando o Loader agora
         console.log("App: Fragmento de auth detectado, aguardando sessão...");
       }
     }
-  }, [session, isLoading, navigate]);
+  }, [session, isLoading, profile, navigate]);
 
   return null;
 };
@@ -141,8 +133,8 @@ const AppContent = () => {
 
   // Se estiver carregando auth inicial OU se tivermos um fragmento de token mas o Supabase ainda não emitiu a sessão,
   // mostramos o Loader para evitar que o HashRouter interprete o token como uma rota inexistente (404).
-  if (isLoading || (isAuthenticating && !session)) {
-    return <Loader />;
+  if (isLoading) {
+    return <Loader text="Sua porta está abrindo..." />;
   }
 
   return (
@@ -228,7 +220,8 @@ const AppContent = () => {
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
           <Route path="/premium" element={<Premium />} />
-          <Route path="/checkout/:planId" element={<Checkout />} />
+          <Route path="/checkout/:calendarId" element={<Checkout />} />
+          <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />
           <Route path="/explorar" element={<Explorar />} />
         </Route>

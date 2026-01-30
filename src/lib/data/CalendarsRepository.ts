@@ -171,6 +171,8 @@ export const CalendarsRepository = {
     primary_color?: string;
     secondary_color?: string;
     background_url?: string;
+    status?: 'ativo' | 'aguardando_pagamento' | 'cancelado';
+    isPremium?: boolean;
   }): Promise<Calendar> {
     console.log('CalendarsRepository.create: Fetching theme defaults for', input.themeId);
     
@@ -195,7 +197,7 @@ export const CalendarsRepository = {
         privacy: input.privacy,
         password: input.password,
         start_date: input.startDate,
-        status: 'ativo',
+        status: input.status || 'ativo',
         primary_color: input.primary_color,
         secondary_color: input.secondary_color,
         background_url: input.background_url,
@@ -205,6 +207,7 @@ export const CalendarsRepository = {
         capsule_message: themeDefaults?.default_capsule_message,
         locked_title: themeDefaults?.default_locked_title,
         locked_message: themeDefaults?.default_locked_message,
+        is_premium: input.isPremium || false,
       })
       .select()
       .single();
@@ -273,16 +276,33 @@ export const CalendarsRepository = {
 
   // Update day content
   async updateDay(calendarId: string, day: number, content: {
-    contentType?: 'text' | 'photo' | 'gif' | 'link' | null;
+    contentType?: 'text' | 'photo' | 'gif' | 'link' | 'music' | null;
     message?: string | null;
     url?: string | null;
     label?: string | null;
   }): Promise<CalendarDay> {
     console.log('CalendarsRepository.updateDay:', calendarId, 'day', day, content);
+    const { url } = content;
+    let contentTypeToSave = content.contentType;
+
+    if (url) {
+      const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
+      const isMusic = url.includes('spotify.com');
+
+      if (isVideo) {
+        contentTypeToSave = 'video';
+      } else if (isMusic || content.contentType === 'music') {
+        // Use 'link' for database to avoid enum errors, UI will still detect spotify
+        contentTypeToSave = 'link';
+      }
+    } else if (content.contentType === 'music') {
+      contentTypeToSave = 'text';
+    }
+
     const { data, error } = await supabase
       .from('calendar_days')
       .update({
-        content_type: content.contentType,
+        content_type: contentTypeToSave as any,
         message: content.message,
         url: content.url,
         label: content.label,

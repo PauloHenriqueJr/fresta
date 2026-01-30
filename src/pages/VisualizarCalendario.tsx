@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette } from "lucide-react";
+import Loader from "@/components/common/Loader";
+import { Share2, Heart, Eye, Loader2, AlertCircle, Sparkles, Lock, Unlock, ArrowRight, Clock, ArrowLeft, Palette, DoorOpen } from "lucide-react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FloatingDecorations from "@/components/calendar/FloatingDecorations";
@@ -84,7 +85,7 @@ const VisualizarCalendario = () => {
 
   // Check if the CALENDAR OWNER is premium (data comes from getPublic)
   const ownerSubscriptions = (calendar as any)?.profiles?.subscriptions || [];
-  const isOwnerPremium = ownerSubscriptions.some(
+  const isOwnerPlus = calendar?.is_premium || ownerSubscriptions.some(
     (s: any) => s.status === 'active' || s.status === 'trialing'
   );
 
@@ -98,12 +99,19 @@ const VisualizarCalendario = () => {
     if (shouldShowRealContent) {
       const url = day.url || "";
       const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-      const type = isVideo ? 'video' : (day.content_type === 'photo' || day.content_type === 'gif') ? 'image' : 'text';
+      const isMusic = url.includes('spotify.com') || (day.content_type as string) === 'music';
+
+      let type: "text" | "photo" | "gif" | "link" | "image" | "video" | "music" = 'text';
+      if (isMusic) type = 'music';
+      else if (isVideo) type = 'video';
+      else if (day.content_type === 'photo' || day.content_type === 'gif') type = 'image';
+      else if (day.content_type === 'link') type = 'link';
 
       return {
         type,
         title: day.label || `Porta ${day.day}`,
         message: day.message || "",
+        url: day.url || undefined,
         mediaUrl: day.url || undefined,
       };
     }
@@ -501,14 +509,7 @@ const VisualizarCalendario = () => {
   });
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Carregando calendário...</p>
-        </div>
-      </div>
-    );
+    return <Loader text="Abrindo seu calendário..." />;
   }
 
   if (error || !calendar) {
@@ -644,7 +645,7 @@ const VisualizarCalendario = () => {
           title={calendar.title}
           subtitle="A contagem regressiva para o altar"
           isEditor={false}
-          showWatermark={!isOwnerPremium}
+          showWatermark={!isOwnerPlus}
         />
         <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
       </div>
@@ -741,7 +742,7 @@ const VisualizarCalendario = () => {
         </div>
 
         <div className="flex items-center justify-center gap-4 w-full mb-1">
-          {!isOwnerPremium && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+          {!isOwnerPlus && <BrandWatermark variant="compact" className="hidden sm:flex" />}
           <h1
             className={cn(
               "text-3xl font-black leading-tight text-center",
@@ -751,11 +752,11 @@ const VisualizarCalendario = () => {
           >
             {calendar.title}
           </h1>
-          {!isOwnerPremium && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+          {!isOwnerPlus && <BrandWatermark variant="compact" className="hidden sm:flex" />}
         </div>
 
         {/* Mobile Watermarks */}
-        {!isOwnerPremium && (
+        {!isOwnerPlus && (
           <div className="flex sm:hidden items-center justify-center gap-2 mb-4">
             <BrandWatermark variant="compact" />
             <BrandWatermark variant="compact" />
@@ -957,7 +958,7 @@ const VisualizarCalendario = () => {
             }
           }}
           onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
-          showWatermark={!isOwnerPremium}
+          showWatermark={!isOwnerPlus}
         />
 
         {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao) */}
@@ -991,7 +992,7 @@ const VisualizarCalendario = () => {
           theme={calendar.theme_id}
         />
 
-        {!isOwnerPremium && (
+        {!isOwnerPlus && (
           <div className="py-12 flex justify-center relative z-10">
             <BrandWatermark />
           </div>
@@ -1069,7 +1070,7 @@ const VisualizarCalendario = () => {
         theme={calendar.theme_id}
       />
 
-      {!isOwnerPremium && (
+      {!isOwnerPlus && (
         <div className="py-12 flex justify-center relative z-10">
           <BrandWatermark />
         </div>

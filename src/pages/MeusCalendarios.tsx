@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Loader from "@/components/common/Loader";
 import {
   Plus,
   Search,
@@ -14,9 +15,11 @@ import {
   Sparkles,
   Gift,
   PartyPopper,
-  ChevronRight
+  ChevronRight,
+  DoorOpen,
+  Lock
 } from "lucide-react";
-import { PremiumIcon } from "@/components/PremiumIcon";
+import { PlusIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -76,7 +79,7 @@ import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 type CalendarType = Tables<'calendars'>;
 
-// Premium Bento Stats for B2C
+// Plus Bento Stats for B2C
 const STATS = [
   { label: "Calendários Ativos", key: "active", icon: Calendar, bg: "bg-solidroad-beige dark:bg-solidroad-beige-dark", iconColor: "text-[#F9A03F]" },
   { label: "Total de Visualizações", key: "views", icon: Eye, bg: "bg-solidroad-turquoise dark:bg-solidroad-turquoise-dark", iconColor: "text-[#4ECDC4]" },
@@ -154,21 +157,12 @@ const MeusCalendarios = () => {
   };
 
   if (loading || authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-solidroad-accent/20 flex items-center justify-center animate-pulse">
-            <Calendar className="w-8 h-8 text-solidroad-accent" />
-          </div>
-          <p className="font-bold text-muted-foreground animate-pulse">Carregando...</p>
-        </div>
-      </div>
-    );
+    return <Loader text="Abrindo suas portas..." />;
   }
 
   return (
     <div className="min-h-screen bg-background pb-24 transition-colors duration-300">
-      {/* Premium Hero Section */}
+      {/* Plus Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-20 pt-10">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -306,93 +300,123 @@ const MeusCalendarios = () => {
                   <motion.div
                     key={calendar.id}
                     variants={item}
-                    className={cn(
-                      "group relative rounded-[2rem] p-6 bg-card border border-border/10 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden cursor-pointer",
-                      // Allow theme colors only in light mode? Or just use semantic card bg
-                      "dark:!bg-card"
-                    )}
-                    onClick={() => navigate(`/calendario/${calendar.id}`)}
+                    whileHover={{ y: -8 }}
+                    className="group relative"
                   >
-                    {/* Hover status background color change or pattern? */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-solidroad-accent to-solidroad-green opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div
+                      className="bg-card rounded-[2.5rem] border border-border/10 shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer relative overflow-hidden"
+                      onClick={() => {
+                        if (calendar.status === 'aguardando_pagamento') {
+                          navigate(`/checkout/${calendar.id}`);
+                        } else {
+                          navigate(`/calendario/${calendar.id}`);
+                        }
+                      }}
+                    >
+                      {/* Decorative Gradient Bar */}
+                      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-solidroad-accent via-solidroad-green to-solidroad-turquoise opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="w-16 h-16 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 overflow-hidden relative">
-                        {def?.id && themeImages[def.id] ? (
-                          <img
-                            src={themeImages[def.id]}
-                            alt={calendar.title}
-                            className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
-                          />
-                        ) : (
-                          <PremiumIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-solidroad-accent" />
-                        )}
-                        {/* Overlay with icon on hover */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                      </div>
+                      <div className="flex items-start justify-between mb-8">
+                        <div className="w-16 h-16 rounded-2xl bg-white/60 dark:bg-white/10 backdrop-blur-sm flex items-center justify-center shadow-sm border border-black/5 dark:border-white/5 overflow-hidden relative">
+                          {def?.id && themeImages[def.id] ? (
+                            <img
+                              src={themeImages[def.id]}
+                              alt={calendar.title}
+                              className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
+                            />
+                          ) : (
+                            <PlusIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-solidroad-accent" />
+                          )}
+                          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
 
-                      <div className="flex flex-col items-end gap-1.5">
-                        {calendar.status === 'ativo' ? (
-                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#2D7A5F]/10 text-[#2D7A5F] border border-[#2D7A5F]/10 animate-pulse-soft">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#2D7A5F]"></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Ativo</span>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex items-center gap-2">
+                            {calendar.status === 'ativo' ? (
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2D7A5F]/10 text-[#2D7A5F] border border-[#2D7A5F]/20 animate-pulse-soft">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#2D7A5F]"></span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#2D7A5F]">Ativo</span>
+                              </div>
+                            ) : (calendar.status as string) === 'aguardando_pagamento' ? (
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F9A03F]/10 text-[#F9A03F] border border-[#F9A03F]/20">
+                                <Lock className="w-3 h-3 text-[#F9A03F]" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#F9A03F]">Pendente</span>
+                              </div>
+                            ) : (
+                              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest">Inativo</span>
+                            )}
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="w-8 h-8 rounded-full hover:bg-muted dark:hover:bg-white/10 transition-colors flex items-center justify-center text-muted-foreground/60 hover:text-foreground"
+                                >
+                                  <MoreVertical className="w-5 h-5" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-card/95 backdrop-blur-xl shadow-2xl border border-border/10 z-[100]">
+                                <DropdownMenuItem
+                                  onClick={(e) => { e.stopPropagation(); navigate(`/calendario/${calendar.id}`); }}
+                                  className="rounded-xl px-4 py-3 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
+                                >
+                                  <Eye className="w-4 h-4 mr-3" /> Visualizar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (calendar.status === 'aguardando_pagamento') {
+                                      navigate(`/checkout/${calendar.id}`);
+                                    } else {
+                                      navigate(`/editar-dia/${calendar.id}/1`);
+                                    }
+                                  }}
+                                  className="rounded-xl px-4 py-3 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
+                                >
+                                  <Edit2 className="w-4 h-4 mr-3" /> {calendar.status === 'aguardando_pagamento' ? "Pagar para Editar" : "Editar Conteúdo"}
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator className="bg-border/10 my-1" />
+
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCalendarToDelete({ id: calendar.id, title: calendar.title || '' });
+                                  }}
+                                  className="rounded-xl px-4 py-3 font-bold text-sm cursor-pointer text-red-500 hover:bg-red-500/10 transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-3" /> Excluir Calendário
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                        ) : (
-                          <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Inativo</span>
-                        )}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-1 mb-8">
-                      <h3 className="text-xl font-black text-foreground line-clamp-1 group-hover:text-solidroad-accent transition-colors tracking-tight">
-                        {calendar.title}
-                      </h3>
-                      <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {calendar.duration} dias</span>
-                        <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {calendar.views || 0}</span>
+                      <div className="mb-8">
+                        <h3 className="text-2xl font-black text-foreground line-clamp-1 mb-2 tracking-tight group-hover:text-solidroad-accent transition-colors">
+                          {calendar.title}
+                        </h3>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1.5 py-1 px-3 rounded-xl bg-solidroad-beige dark:bg-white/5 border border-border/5">
+                            <Calendar className="w-3.5 h-3.5 text-[#F9A03F]" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#F9A03F]">{calendar.duration} dias</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 py-1 px-3 rounded-xl bg-solidroad-turquoise/10 border border-[#4ECDC4]/10">
+                            <Eye className="w-3.5 h-3.5 text-[#4ECDC4]" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#4ECDC4]">{calendar.views || 0}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="pt-5 border-t border-black/5 flex items-center justify-between">
-                      <span className="text-[10px] font-black text-solidroad-accent uppercase tracking-[0.2em] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
-                        Gerenciar <ChevronRight className="w-3 h-3" />
-                      </span>
+                      <div className="pt-6 border-t border-border/5 flex items-center justify-between">
+                        <span className="text-[10px] font-black text-solidroad-accent uppercase tracking-[0.2em] flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+                          Gerenciar Momentos <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
 
-                      <div className="flex items-center gap-1">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              onClick={(e) => e.stopPropagation()}
-                              className="w-9 h-9 rounded-xl hover:bg-muted transition-colors flex items-center justify-center text-muted-foreground/60"
-                            >
-                              <MoreVertical className="w-5 h-5" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-card shadow-2xl border border-border/10">
-                            <DropdownMenuItem
-                              onClick={(e) => { e.stopPropagation(); navigate(`/calendario/${calendar.id}`); }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
-                            >
-                              <Eye className="w-4 h-4 mr-2" /> Visualizar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => { e.stopPropagation(); navigate(`/editar-dia/${calendar.id}/1`); }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4 mr-2" /> Editar Conteúdo
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator className="border-border/10" />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCalendarToDelete({ id: calendar.id, title: calendar.title || '' });
-                              }}
-                              className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-red-500/10 text-red-500 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" /> Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="w-8 h-8 rounded-full bg-solidroad-accent/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ChevronRight className="w-4 h-4 text-solidroad-accent" />
+                        </div>
                       </div>
                     </div>
                   </motion.div>

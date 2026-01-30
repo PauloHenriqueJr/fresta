@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Sparkles, X, ChevronRight, Flame, PartyPopper, Gift, Music } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/state/auth/AuthProvider";
 import heroMascot from "@/assets/hero-mascot.png";
 import mascotNatal from "@/assets/mascot-natal.jpg";
 import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
@@ -103,18 +104,19 @@ const slides = [
 export default function Onboarding() {
   const [current, setCurrent] = useState(0);
   const navigate = useNavigate();
+  const { completeOnboarding } = useAuth();
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (current === slides.length - 1) {
-      localStorage.setItem("hasSeenOnboarding", "true");
+      await completeOnboarding();
       navigate("/meus-calendarios");
     } else {
       setCurrent((prev) => prev + 1);
     }
   };
 
-  const handleSkip = () => {
-    localStorage.setItem("hasSeenOnboarding", "true");
+  const handleSkip = async () => {
+    await completeOnboarding();
     navigate("/meus-calendarios");
   };
 

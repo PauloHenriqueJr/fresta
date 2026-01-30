@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play, Check } from "lucide-react";
+import { ArrowLeft, MessageSquare, Camera, Link as LinkIcon, Loader2, X, Play, Check, Music, Lock, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -8,10 +8,11 @@ import type { Tables } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import { getThemeConfig } from "@/lib/themes/registry";
 import DayCard from "@/components/calendar/DayCard";
+import { useAuth } from "@/state/auth/AuthProvider";
 
 type Calendar = Tables<'calendars'>;
 type CalendarDay = Tables<'calendar_days'>;
-type ContentType = "text" | "photo" | "gif" | "link";
+type ContentType = "text" | "photo" | "gif" | "link" | "music";
 
 interface ContentOption {
   type: ContentType;
@@ -24,6 +25,7 @@ const contentOptions: ContentOption[] = [
   { type: "photo", icon: <Camera className="w-6 h-6" />, label: "Foto ou Vídeo" },
   { type: "gif", icon: <span className="text-lg font-bold">GIF</span>, label: "GIF Animado" },
   { type: "link", icon: <LinkIcon className="w-6 h-6" />, label: "Cupom/Link" },
+  { type: "music", icon: <Music className="w-6 h-6" />, label: "Música (Spotify)" },
 ];
 
 const EditarDia = () => {
@@ -92,7 +94,7 @@ const EditarDia = () => {
         await CalendarsRepository.updateDay(calendarId, dayNumber, {
           contentType: selectedType,
           message: message.trim() || null,
-          url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
+          url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link" || selectedType === "music") ? url : null,
           label: selectedType === "link" ? label : null,
         });
         setLastSaved(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
@@ -116,7 +118,7 @@ const EditarDia = () => {
       await CalendarsRepository.updateDay(calendarId, dayNumber, {
         contentType: selectedType,
         message: message.trim() || null,
-        url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
+        url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link" || selectedType === "music") ? url : null,
         label: selectedType === "link" ? label : null,
       });
 
@@ -188,7 +190,7 @@ const EditarDia = () => {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
-            <h1 className={cn("text-2xl font-black tracking-tight font-display", accentTextClass)}>O que tem na Porta {dayNumber}?</h1>
+            <h1 className={cn("text-2xl font-black tracking-tight font-display dark:text-foreground", accentTextClass)}>O que tem na Porta {dayNumber}?</h1>
             <p className="text-sm font-medium text-muted-foreground/80">{calendar ? calendar.title : "Personalize sua surpresa"}</p>
           </div>
         </div>
@@ -252,7 +254,7 @@ const EditarDia = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+              <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display dark:text-foreground", accentTextClass)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-current" />
                 Tipo de conteúdo
               </h3>
@@ -264,8 +266,8 @@ const EditarDia = () => {
                     className={cn(
                       "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
                       selectedType === option.type
-                        ? cn("bg-white text-foreground border-transparent shadow-lg ring-2", accentTextClass.replace('text-', 'ring-'))
-                        : "border-border/30 bg-white/40 backdrop-blur-sm hover:border-primary/50 text-muted-foreground"
+                        ? cn("bg-card dark:bg-card text-foreground border-transparent shadow-lg ring-2", accentTextClass.replace('text-', 'ring-'))
+                        : "border-border/30 bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:border-primary/50 text-muted-foreground"
                     )}
                   >
                     <span
@@ -292,7 +294,7 @@ const EditarDia = () => {
                 transition={{ delay: 0.3 }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className={cn("font-bold flex items-center gap-2 font-display", accentTextClass)}>
+                  <h3 className={cn("font-bold flex items-center gap-2 font-display dark:text-foreground", accentTextClass)}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current" />
                     Sua Mensagem
                   </h3>
@@ -303,7 +305,7 @@ const EditarDia = () => {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Escreva sua mensagem festiva aqui..."
                   className={cn(
-                    "w-full h-48 lg:h-64 p-6 bg-white/80 backdrop-blur-sm border-2 border-border rounded-3xl text-foreground placeholder:text-muted-foreground resize-none focus:outline-none transition-all shadow-sm",
+                    "w-full h-48 lg:h-64 p-6 bg-card dark:bg-card/80 backdrop-blur-sm border-2 border-border rounded-3xl text-foreground placeholder:text-muted-foreground resize-none focus:outline-none transition-all shadow-sm",
                     accentTextClass.replace('text-', 'focus:border-')
                   )}
                 />
@@ -317,7 +319,7 @@ const EditarDia = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display", accentTextClass)}>
+                <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display dark:text-foreground", accentTextClass)}>
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   Mídia da Surpresa
                 </h3>
@@ -331,6 +333,15 @@ const EditarDia = () => {
                       onChange={async (e) => {
                         const originalFile = e.target.files?.[0];
                         if (!originalFile || !calendarId) return;
+
+                        if (!calendar?.is_premium) {
+                          toast({
+                            title: "Upload Bloqueado",
+                            description: "O upload de fotos está disponível apenas no Plano Plus.",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
 
                         setSaving(true);
                         try {
@@ -361,10 +372,22 @@ const EditarDia = () => {
                       disabled={saving}
                     />
                     <div className={cn(
-                      "p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 transition-all",
-                      url ? "border-primary/40 bg-white/40" : "border-border/50 bg-white/20 backdrop-blur-sm group-hover:border-primary/50"
+                      "p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 transition-all relative overflow-hidden",
+                      url ? "border-primary/40 bg-card/40" : "border-border/50 bg-card/20 backdrop-blur-sm group-hover:border-primary/50"
                     )}>
-                      <div className={cn("w-12 h-12 rounded-full flex items-center justify-center bg-white shadow-sm")}>
+                      {!calendar?.is_premium && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center p-4 text-center">
+                          <Lock className="w-8 h-8 text-muted-foreground mb-2" />
+                          <p className="text-xs font-bold text-foreground">Upload disponível apenas no Plano Plus</p>
+                          <button
+                            onClick={() => navigate('/premium')}
+                            className="mt-2 text-[10px] font-black uppercase text-primary hover:underline"
+                          >
+                            Seja Plus para subir fotos
+                          </button>
+                        </div>
+                      )}
+                      <div className={cn("w-12 h-12 rounded-full flex items-center justify-center bg-background shadow-sm")}>
                         <Camera className={cn("w-6 h-6", accentTextClass)} />
                       </div>
                       <div className="text-center">
@@ -378,49 +401,73 @@ const EditarDia = () => {
 
                   {url && (
                     <div className="relative rounded-2xl overflow-hidden shadow-md aspect-video bg-muted border border-border group">
-                      {url.includes('youtube.com') || url.includes('youtu.be') ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${url.includes('youtu.be') ? url.split('/').pop() : new URLSearchParams(new URL(url).search).get('v')}`}
-                          className="w-full h-full"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      ) : url.includes('tiktok.com') ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[#010101] text-white">
-                          <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
-                          <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
-                        </div>
-                      ) : (url.includes('instagram.com/reels') || url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) ? (
-                        <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
-                          <iframe
-                            src={`${url.split('?')[0]}${url.endsWith('/') ? '' : '/'}embed/`}
-                            className="w-full h-full bg-white opacity-0 transition-opacity duration-700"
-                            onLoad={(e) => (e.target as any).classList.remove('opacity-0')}
-                            frameBorder="0"
-                            scrolling="no"
-                            allowTransparency
-                          />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white pointer-events-none group-hover:pointer-events-auto">
-                            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 border border-white/30 shadow-xl group-hover:scale-105 transition-transform">
-                              <Play className="w-7 h-7 text-white fill-current" />
+                      {(() => {
+                        // YouTube Robust Parsing
+                        const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+                        const ytId = ytMatch ? ytMatch[1] : null;
+
+                        if (ytId) {
+                          return (
+                            <iframe
+                              src={`https://www.youtube.com/embed/${ytId}`}
+                              className="w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          );
+                        }
+
+                        // TikTok
+                        if (url.includes('tiktok.com')) {
+                          return (
+                            <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[#010101] text-white">
+                              <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
+                              <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
                             </div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-center px-4 mb-4 drop-shadow-md">Se for um perfil privado, o preview não aparecerá</p>
-                            <a
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-5 py-2.5 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg active:scale-95 pointer-events-auto"
-                            >
-                              Abrir no Instagram ↗
-                            </a>
-                          </div>
-                        </div>
-                      ) : (
-                        <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
-                          (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
-                        }} />
-                      )}
+                          );
+                        }
+
+                        // Instagram
+                        if (url.includes('instagram.com/reels') || url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) {
+                          const igUrl = url.split('?')[0];
+                          const embedUrl = `${igUrl}${igUrl.endsWith('/') ? '' : '/'}embed/`;
+
+                          return (
+                            <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045] overflow-hidden">
+                              <iframe
+                                src={embedUrl}
+                                className="w-full h-full bg-white opacity-0 transition-opacity duration-700"
+                                onLoad={(e) => (e.target as any).classList.remove('opacity-0')}
+                                frameBorder="0"
+                                scrolling="no"
+                                allowTransparency
+                              />
+                              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white pointer-events-none group-hover:pointer-events-auto">
+                                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 border border-white/30 shadow-xl group-hover:scale-105 transition-transform">
+                                  <Play className="w-7 h-7 text-white fill-current" />
+                                </div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-center px-4 mb-4 drop-shadow-md">Se for um perfil privado, o preview não aparecerá</p>
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-5 py-2.5 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg active:scale-95 pointer-events-auto"
+                                >
+                                  Abrir no Instagram ↗
+                                </a>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Default Image Preview
+                        return (
+                          <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
+                            (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
+                          }} />
+                        );
+                      })()}
                       <button
                         onClick={() => setUrl('')}
                         className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm z-20"
@@ -542,6 +589,61 @@ const EditarDia = () => {
                 </div>
               </motion.section>
             )}
+
+            {/* Music/Spotify Input */}
+            {selectedType === "music" && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-6"
+              >
+                <div>
+                  <h3 className={cn("font-bold mb-4 flex items-center gap-2 font-display dark:text-foreground", accentTextClass)}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    Link do Spotify
+                  </h3>
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://open.spotify.com/track/..."
+                    className={cn(
+                      "w-full p-6 bg-card dark:bg-card/80 backdrop-blur-sm border-2 border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:outline-none transition-all shadow-sm",
+                      accentTextClass.replace('text-', 'focus:border-')
+                    )}
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Cole o link de uma música, álbum ou playlist do Spotify
+                  </p>
+                </div>
+
+                {url && (url.includes('spotify.com')) && (() => {
+                  const match = url.match(/open\.spotify\.com\/(?:[a-zA-Z-]+\/)?(track|playlist|album)\/([a-zA-Z0-9]+)/);
+                  if (match) {
+                    return (
+                      <div className="rounded-2xl overflow-hidden shadow-md border border-border bg-black/90">
+                        <iframe
+                          src={`https://open.spotify.com/embed/${match[1]}/${match[2]}?theme=0`}
+                          width="100%"
+                          height="152"
+                          frameBorder="0"
+                          allow="encrypted-media"
+                          className="w-full"
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                <div className="tip-card">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    🎵 <strong>Dica:</strong> No Spotify, clique em "Compartilhar" → "Copiar link" para obter o link da música
+                  </p>
+                </div>
+              </motion.section>
+            )}
           </div>
         </div>
       </div>
@@ -574,7 +676,7 @@ const EditarDia = () => {
           )}
         </motion.button>
       </div>
-    </div>
+    </div >
   );
 };
 

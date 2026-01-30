@@ -1,13 +1,13 @@
 import * as Icons from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface PremiumIconProps {
+interface PlusIconProps {
     name: string;
     className?: string;
     strokeWidth?: number;
 }
 
-export function PremiumIcon({ name, className, strokeWidth = 2 }: PremiumIconProps) {
+export function PlusIcon({ name, className, strokeWidth = 2 }: PlusIconProps) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const IconComponent = (Icons as any)[name];
 

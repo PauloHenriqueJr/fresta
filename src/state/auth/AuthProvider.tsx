@@ -19,8 +19,10 @@ type AuthContextValue = {
   signInWithEmail: (email: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar">>) => Promise<void>;
+  updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar" | "onboarding_completed">>) => Promise<void>;
   updateThemePreference: (theme: ThemePreference) => Promise<void>;
+  completeOnboarding: () => Promise<void>;
+  signUp: (email: string, password?: string, displayName?: string) => Promise<{ error: Error | null }>;
   // Legacy compatibility
   loginWithEmail: (email: string) => void;
   loginWithGoogle: () => void;
@@ -114,8 +116,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Release loading state broadly on key events BEFORE blocking calls
         if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          console.log("AuthProvider: Releasing loading state via event", event);
-          setIsLoading(false);
+          // If we have an auth fragment, don't release loading on INITIAL_SESSION if it's null
+          // Supabase will emit SIGNED_IN shortly after processing the hash
+          if (event === 'INITIAL_SESSION' && !newSession && hasAuthFragment) {
+            console.log("AuthProvider: INITIAL_SESSION null but fragment detected, holding loading state...");
+          } else {
+            console.log("AuthProvider: Releasing loading state via event", event);
+            setIsLoading(false);
+          }
         }
 
         // Fetch profile and role if user is logged in
@@ -262,7 +270,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Update profile
-  const updateProfile = async (patch: Partial<Pick<Profile, "display_name" | "avatar">>) => {
+  const updateProfile = async (patch: Partial<Pick<Profile, "display_name" | "avatar" | "onboarding_completed">>) => {
     if (!user) return;
 
     const { error } = await (supabase
@@ -278,6 +286,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Refetch profile
     const { profile: updated } = await fetchProfileAndRole(user.id);
     setProfile(updated);
+  };
+
+  // Complete onboarding
+  const completeOnboarding = async () => {
+    await updateProfile({ onboarding_completed: true });
+    localStorage.setItem("hasSeenOnboarding", "true");
+  };
+
+  // Sign up
+  const signUp = async (email: string, password?: string, displayName?: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: password || 'tempPassword123!',
+        options: {
+          data: {
+            display_name: displayName,
+          },
+          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+        },
+      });
+
+      if (error) throw error;
+
+      // Handle profile creation if needed (Supabase trigger usually handles this, but we can be explicit if needed)
+      // However, our trigger usually creates the profile. We might want to update it if it just got created.
+
+      return { error: null };
+    } catch (err: any) {
+      console.error("AuthProvider: signUp exception:", err);
+      return { error: err as Error };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Update theme preference
@@ -325,6 +368,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signOut,
       updateProfile,
       updateThemePreference,
+      completeOnboarding,
+      signUp,
       // Legacy
       loginWithEmail,
       loginWithGoogle,

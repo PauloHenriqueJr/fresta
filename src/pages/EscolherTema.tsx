@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import { PremiumIcon } from "@/components/PremiumIcon";
+import { PlusIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
 import mascotNoivado from "@/assets/mascot-noivado.jpg";
 import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
@@ -138,14 +138,14 @@ const EscolherTema = () => {
                           {/* Desktop Overlay Highlight */}
                           <div className="absolute inset-0 bg-black/0 lg:group-hover:bg-black/10 transition-colors duration-300" />
                           <div className="absolute bottom-3 right-3 hidden lg:block drop-shadow-md transform transition-transform group-hover:scale-110 duration-300">
-                            <PremiumIcon name={theme.iconName} className="w-10 h-10 text-white" />
+                            <PlusIcon name={theme.iconName} className="w-10 h-10 text-white" />
                           </div>
                         </div>
 
                         <div className="flex-1 text-left lg:w-full lg:flex lg:flex-col lg:justify-between">
                           <div className="lg:mb-auto">
                             <div className="flex items-center gap-2 mb-1 lg:hidden">
-                              <PremiumIcon name={theme.iconName} className="w-6 h-6 text-primary" />
+                              <PlusIcon name={theme.iconName} className="w-6 h-6 text-primary" />
                               <h4 className="text-xl font-bold text-foreground">{theme.name}</h4>
                             </div>
                             <h4 className="text-xl font-bold text-foreground hidden lg:block mb-2">{theme.name}</h4>
