@@ -5,7 +5,7 @@ import { db } from "@/lib/offline/db";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Palette, Sparkles, Save, Building2, PartyPopper, Flame, TreePine, Star, Gift, Rocket } from "lucide-react";
-import { PremiumIcon } from "@/components/PremiumIcon";
+import { PlusIcon } from "@/components/PremiumIcon";
 
 const logoOptions = ["Building2", "PartyPopper", "Music", "Flame", "TreePine", "Star", "Gift", "Rocket"];
 
@@ -73,7 +73,7 @@ export default function B2BBranding() {
                     : "border-border/5 dark:border-white/5 bg-[#F9F9F9] dark:bg-black/20 hover:border-solidroad-accent/30"
                 )}
               >
-                <PremiumIcon name={iconName} className={cn("w-8 h-8", logoIconName === iconName ? "text-solidroad-accent" : "text-muted-foreground/60")} />
+                <PlusIcon name={iconName} className={cn("w-8 h-8", logoIconName === iconName ? "text-solidroad-accent" : "text-muted-foreground/60")} />
               </button>
             ))}
           </div>

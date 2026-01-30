@@ -63,7 +63,7 @@ export default function B2CLayout() {
                   className="px-6 py-2.5 rounded-xl bg-solidroad-accent text-solidroad-text text-sm font-black shadow-glow-accent hover:scale-105 transition-all flex items-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Seja Premium
+                  Fazer Upgrade
                 </button>
               </div>
             </header>

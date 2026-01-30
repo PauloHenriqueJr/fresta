@@ -239,6 +239,66 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string | null
+          calendar_id: string | null
+          amount_cents: number
+          currency: string | null
+          status: string | null
+          gateway: string | null
+          gateway_payment_id: string | null
+          gateway_checkout_url: string | null
+          items: Json
+          metadata: Json | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          calendar_id?: string | null
+          amount_cents: number
+          currency?: string | null
+          status?: string | null
+          gateway?: string | null
+          gateway_payment_id?: string | null
+          gateway_checkout_url?: string | null
+          items: Json
+          metadata?: Json | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          calendar_id?: string | null
+          amount_cents?: number
+          currency?: string | null
+          status?: string | null
+          gateway?: string | null
+          gateway_payment_id?: string | null
+          gateway_checkout_url?: string | null
+          items?: Json
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           id: string
@@ -380,6 +440,9 @@ export type Database = {
           capsule_message: string | null
           locked_title: string | null
           locked_message: string | null
+          is_premium: boolean | null
+          addons: Json | null
+          expires_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -402,6 +465,9 @@ export type Database = {
           capsule_message?: string | null
           locked_title?: string | null
           locked_message?: string | null
+          is_premium?: boolean | null
+          addons?: Json | null
+          expires_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -424,6 +490,9 @@ export type Database = {
           capsule_message?: string | null
           locked_title?: string | null
           locked_message?: string | null
+          is_premium?: boolean | null
+          addons?: Json | null
+          expires_at?: string | null
         }
         Relationships: []
       }
@@ -645,7 +714,7 @@ export type Database = {
       b2b_member_status: "active" | "invited"
       b2b_role: "owner" | "admin" | "editor" | "analyst"
       calendar_privacy: "public" | "private"
-      calendar_status: "ativo" | "rascunho" | "finalizado"
+      calendar_status: "ativo" | "rascunho" | "finalizado" | "aguardando_pagamento"
       day_content_type: "text" | "photo" | "gif" | "link"
       plan_interval: "month" | "year"
       plan_status: "active" | "archived"

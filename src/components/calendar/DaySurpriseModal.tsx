@@ -7,7 +7,7 @@ interface DaySurpriseModalProps {
   onClose: () => void;
   day: number;
   content?: {
-    type: "text" | "photo" | "gif" | "link" | "image" | "video";
+    type: "text" | "photo" | "gif" | "link" | "image" | "video" | "music";
     message?: string;
     url?: string;
     label?: string;
@@ -387,6 +387,46 @@ const DaySurpriseModal = ({
                         {content.label || "Abrir Link"}
                       </a>
                     )}
+                  </div>
+                )}
+
+                {content?.type === "music" && (
+                  <div className="space-y-4 text-center">
+                    {content.message && (
+                      <p className="text-foreground font-medium mb-4">
+                        {content.message}
+                      </p>
+                    )}
+
+                    {content.url && (content.url.includes('spotify.com')) && (() => {
+                      const match = content.url.match(/open\.spotify\.com\/(?:[a-zA-Z-]+\/)?(track|playlist|album)\/([a-zA-Z0-9]+)/);
+                      if (match) {
+                        return (
+                          <div className="rounded-2xl overflow-hidden shadow-md border border-border bg-black/90">
+                            <iframe
+                              src={`https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0`}
+                              width="100%"
+                              height="152"
+                              frameBorder="0"
+                              allow="encrypted-media"
+                              className="w-full"
+                            />
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="p-4 bg-muted/50 rounded-2xl flex items-center justify-center gap-2">
+                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                          <a href={content.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-primary hover:underline">
+                            Abrir no Spotify
+                          </a>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="flex items-center justify-center mt-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Música via Spotify</p>
+                    </div>
                   </div>
                 )}
 

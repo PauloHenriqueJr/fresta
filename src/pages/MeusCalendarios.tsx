@@ -16,9 +16,10 @@ import {
   Gift,
   PartyPopper,
   ChevronRight,
-  DoorOpen
+  DoorOpen,
+  Lock
 } from "lucide-react";
-import { PremiumIcon } from "@/components/PremiumIcon";
+import { PlusIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -78,7 +79,7 @@ import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
 
 type CalendarType = Tables<'calendars'>;
 
-// Premium Bento Stats for B2C
+// Plus Bento Stats for B2C
 const STATS = [
   { label: "Calendários Ativos", key: "active", icon: Calendar, bg: "bg-solidroad-beige dark:bg-solidroad-beige-dark", iconColor: "text-[#F9A03F]" },
   { label: "Total de Visualizações", key: "views", icon: Eye, bg: "bg-solidroad-turquoise dark:bg-solidroad-turquoise-dark", iconColor: "text-[#4ECDC4]" },
@@ -161,7 +162,7 @@ const MeusCalendarios = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 transition-colors duration-300">
-      {/* Premium Hero Section */}
+      {/* Plus Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F] pb-20 pt-10">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -299,12 +300,13 @@ const MeusCalendarios = () => {
                   <motion.div
                     key={calendar.id}
                     variants={item}
-                    className={cn(
-                      "group relative rounded-[2rem] p-6 bg-card border border-border/10 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden cursor-pointer",
-                      // Allow theme colors only in light mode? Or just use semantic card bg
-                      "dark:!bg-card"
-                    )}
-                    onClick={() => navigate(`/calendario/${calendar.id}`)}
+                    onClick={() => {
+                      if (calendar.status === 'aguardando_pagamento') {
+                        navigate(`/checkout/${calendar.id}`);
+                      } else {
+                        navigate(`/calendario/${calendar.id}`);
+                      }
+                    }}
                   >
                     {/* Hover status background color change or pattern? */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-solidroad-accent to-solidroad-green opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -318,7 +320,7 @@ const MeusCalendarios = () => {
                             className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
                           />
                         ) : (
-                          <PremiumIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-solidroad-accent" />
+                          <PlusIcon name={def?.iconName || "Sparkles"} className="w-8 h-8 text-solidroad-accent" />
                         )}
                         {/* Overlay with icon on hover */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
@@ -329,6 +331,11 @@ const MeusCalendarios = () => {
                           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#2D7A5F]/10 text-[#2D7A5F] border border-[#2D7A5F]/10 animate-pulse-soft">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#2D7A5F]"></div>
                             <span className="text-[10px] font-black uppercase tracking-widest">Ativo</span>
+                          </div>
+                        ) : (calendar.status as string) === 'aguardando_pagamento' ? (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#F9A03F]/10 text-[#F9A03F] border border-[#F9A03F]/10">
+                            <Lock className="w-3 h-3" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Pendente</span>
                           </div>
                         ) : (
                           <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-widest">Inativo</span>
@@ -369,10 +376,17 @@ const MeusCalendarios = () => {
                               <Eye className="w-4 h-4 mr-2" /> Visualizar
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={(e) => { e.stopPropagation(); navigate(`/editar-dia/${calendar.id}/1`); }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (calendar.status === 'aguardando_pagamento') {
+                                  navigate(`/checkout/${calendar.id}`);
+                                } else {
+                                  navigate(`/editar-dia/${calendar.id}/1`);
+                                }
+                              }}
                               className="rounded-xl px-3 py-2.5 font-bold text-sm cursor-pointer hover:bg-solidroad-accent/10 hover:text-solidroad-accent transition-colors"
                             >
-                              <Edit2 className="w-4 h-4 mr-2" /> Editar Conteúdo
+                              <Edit2 className="w-4 h-4 mr-2" /> {calendar.status === 'aguardando_pagamento' ? "Pagar para Editar" : "Editar Conteúdo"}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="border-border/10" />
                             <DropdownMenuItem

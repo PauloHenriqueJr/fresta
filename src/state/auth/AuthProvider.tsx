@@ -22,6 +22,7 @@ type AuthContextValue = {
   updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar" | "onboarding_completed">>) => Promise<void>;
   updateThemePreference: (theme: ThemePreference) => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  signUp: (email: string, password?: string, displayName?: string) => Promise<{ error: Error | null }>;
   // Legacy compatibility
   loginWithEmail: (email: string) => void;
   loginWithGoogle: () => void;
@@ -293,6 +294,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("hasSeenOnboarding", "true");
   };
 
+  // Sign up
+  const signUp = async (email: string, password?: string, displayName?: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password: password || 'tempPassword123!',
+        options: {
+          data: {
+            display_name: displayName,
+          },
+          emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+        },
+      });
+
+      if (error) throw error;
+
+      // Handle profile creation if needed (Supabase trigger usually handles this, but we can be explicit if needed)
+      // However, our trigger usually creates the profile. We might want to update it if it just got created.
+
+      return { error: null };
+    } catch (err: any) {
+      console.error("AuthProvider: signUp exception:", err);
+      return { error: err as Error };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Update theme preference
   const updateThemePreference = async (theme: ThemePreference) => {
     setThemePreference(theme);
@@ -338,6 +368,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signOut,
       updateProfile,
       updateThemePreference,
+      completeOnboarding,
+      signUp,
       // Legacy
       loginWithEmail,
       loginWithGoogle,

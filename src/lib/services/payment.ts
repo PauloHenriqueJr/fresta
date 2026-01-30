@@ -1,0 +1,347 @@
+/**
+ * AbacatePay Payment Service
+ * Gateway de pagamento com taxa fixa de R$ 0,80 por PIX
+ * Docs: https://abacatepay.com/docs
+ */
+
+import { supabase } from "@/lib/supabase/client";
+
+// =====================
+// TYPES
+// =====================
+
+export type OrderItemType = "premium" | "addon_password" | "addon_ai" | "pdf_kit";
+
+export type OrderItem = {
+  type: OrderItemType;
+  name: string;
+  price_cents: number;
+};
+
+export type PaymentItem = {
+  type: OrderItemType;
+  quantity: number;
+};
+
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+
+export interface Order {
+  id: string;
+  created_at: string;
+  user_id: string;
+  calendar_id: string;
+  amount_cents: number;
+  currency: string;
+  status: PaymentStatus;
+  gateway: string;
+  gateway_payment_id: string | null;
+  gateway_checkout_url: string | null;
+  items: OrderItem[];
+  metadata: Record<string, unknown>;
+}
+
+export interface CreatePaymentParams {
+  userId: string;
+  calendarId: string;
+  items: PaymentItem[];
+}
+
+export interface CreatePaymentResult {
+  success: boolean;
+  data?: {
+    orderId: string;
+    checkoutUrl: string;
+    pixCode?: string;
+    qrCodeUrl?: string;
+  };
+  error?: string;
+}
+
+export interface PaymentPreference {
+  orderId: string;
+  checkoutUrl: string;
+  pixQrCode?: string;
+  pixCopyPaste?: string;
+}
+
+// =====================
+// PRICING CONFIG
+// =====================
+
+export const PRICING = {
+  PREMIUM: {
+    type: "premium" as const,
+    name: "Calendário Premium",
+    price_cents: 1490, // R$ 14,90
+  },
+  ADDON_PASSWORD: {
+    type: "addon_password" as const,
+    name: "Proteção por Senha",
+    price_cents: 290, // R$ 2,90
+  },
+  ADDON_AI: {
+    type: "addon_ai" as const,
+    name: "Gerador de Textos com IA",
+    price_cents: 290, // R$ 2,90
+  },
+  PDF_KIT: {
+    type: "pdf_kit" as const,
+    name: "Kit Memória Física (PDF)",
+    price_cents: 990, // R$ 9,90
+  },
+} as const;
+
+// =====================
+// PAYMENT SERVICE
+// =====================
+
+/**
+ * Helper to convert PaymentItem to OrderItem
+ */
+function paymentItemToOrderItem(item: PaymentItem): OrderItem {
+  const priceMap: Record<OrderItemType, { name: string; price_cents: number }> = {
+    premium: PRICING.PREMIUM,
+    addon_password: PRICING.ADDON_PASSWORD,
+    addon_ai: PRICING.ADDON_AI,
+    pdf_kit: PRICING.PDF_KIT,
+  };
+
+  const info = priceMap[item.type];
+  return {
+    type: item.type,
+    name: info.name,
+    price_cents: info.price_cents * item.quantity,
+  };
+}
+
+/**
+ * Create a payment preference for AbacatePay
+ * This creates an order in our DB and returns a checkout URL
+ */
+export async function createPaymentPreference(
+  params: CreatePaymentParams
+): Promise<CreatePaymentResult> {
+  const { userId, calendarId, items } = params;
+
+  try {
+    // Convert PaymentItems to OrderItems
+    const orderItems = items.map(paymentItemToOrderItem);
+
+    // Calculate total
+    const totalCents = orderItems.reduce((sum, item) => sum + item.price_cents, 0);
+
+    // Get current user email
+    const { data: { user } } = await supabase.auth.getUser();
+    const customerEmail = user?.email || "cliente@fresta.com";
+
+    // Create order in database
+    // Note: Type assertion needed until migration runs and types are regenerated
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: order, error: orderError } = await (supabase as any)
+      .from("orders")
+      .insert({
+        user_id: userId,
+        calendar_id: calendarId,
+        amount_cents: totalCents,
+        currency: "BRL",
+        status: "pending",
+        gateway: "abacatepay",
+        items: orderItems,
+        metadata: {
+          customer_email: customerEmail,
+        },
+      })
+      .select()
+      .single();
+
+    if (orderError || !order) {
+      console.error("Error creating order:", orderError);
+      return { success: false, error: "Erro ao criar pedido" };
+    }
+
+    // Create AbacatePay checkout
+    const checkoutData = await createAbacatePayCheckout({
+      orderId: order.id,
+      amount: totalCents,
+      description: `Fresta Premium - Calendário`,
+      customerEmail,
+      items: orderItems,
+    });
+
+    // Update order with checkout URL
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any)
+      .from("orders")
+      .update({
+        gateway_checkout_url: checkoutData.url,
+      })
+      .eq("id", order.id);
+
+    return {
+      success: true,
+      data: {
+        orderId: order.id,
+        checkoutUrl: checkoutData.url,
+        pixCode: checkoutData.pixCode,
+        qrCodeUrl: checkoutData.qrCodeUrl,
+      },
+    };
+  } catch (error) {
+    console.error("Payment creation error:", error);
+    return { success: false, error: "Erro ao processar pagamento" };
+  }
+}
+
+/**
+ * Create AbacatePay checkout
+ * Returns checkout URL and PIX data
+ */
+interface AbacatePayCheckoutResult {
+  url: string;
+  pixCode?: string;
+  qrCodeUrl?: string;
+}
+
+async function createAbacatePayCheckout(params: {
+  orderId: string;
+  amount: number;
+  description: string;
+  customerEmail: string;
+  items: OrderItem[];
+}): Promise<AbacatePayCheckoutResult> {
+  // AbacatePay API integration
+  // Docs: https://docs.abacatepay.com
+  
+  const ABACATEPAY_API_KEY = import.meta.env.VITE_ABACATEPAY_API_KEY;
+  
+  if (!ABACATEPAY_API_KEY) {
+    console.warn("AbacatePay API key not configured, using mock checkout");
+    // Return mock checkout data for development
+    return {
+      url: `${window.location.origin}/pagamento/sucesso?order=${params.orderId}&mock=true`,
+      pixCode: "00020126330014BR.GOV.BCB.PIX0111mock_pix_code520400005303986540510.005802BR5925FRESTA",
+      qrCodeUrl: undefined,
+    };
+  }
+
+  try {
+    const response = await fetch("https://api.abacatepay.com/v1/billing", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${ABACATEPAY_API_KEY}`,
+      },
+      body: JSON.stringify({
+        frequency: "ONE_TIME",
+        methods: ["PIX"],
+        products: params.items.map(item => ({
+          externalId: item.type,
+          name: item.name,
+          quantity: 1,
+          price: item.price_cents, // AbacatePay uses cents
+        })),
+        returnUrl: `${window.location.origin}/pagamento/sucesso?order=${params.orderId}`,
+        completionUrl: `${window.location.origin}/pagamento/sucesso?order=${params.orderId}`,
+        customer: {
+          email: params.customerEmail,
+        },
+        metadata: {
+          orderId: params.orderId,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("AbacatePay error:", error);
+      throw new Error("Erro ao criar pagamento");
+    }
+
+    const data = await response.json();
+    return {
+      url: data.url,
+      pixCode: data.pixCopyPaste,
+      qrCodeUrl: data.pixQrCode,
+    };
+  } catch (error) {
+    console.error("AbacatePay API error:", error);
+    throw new Error("Erro ao processar pagamento");
+  }
+}
+
+/**
+ * Verify payment status by order ID
+ * Called after redirecting back from AbacatePay
+ */
+export async function verifyPaymentStatus(orderId: string): Promise<Order | null> {
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .single();
+
+  if (error || !order) {
+    console.error("Error fetching order:", error);
+    return null;
+  }
+
+  return order as Order;
+}
+
+/**
+ * Mark calendar as premium after successful payment
+ * Should be called by webhook handler
+ */
+export async function activatePremiumCalendar(
+  calendarId: string,
+  addons: string[] = []
+): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any).rpc("mark_calendar_premium", {
+    _calendar_id: calendarId,
+    _addons: addons,
+  });
+
+  if (error) {
+    console.error("Error activating premium:", error);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Get user's orders
+ */
+export async function getUserOrders(): Promise<Order[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: orders, error } = await (supabase as any)
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching orders:", error);
+    return [];
+  }
+
+  return orders as Order[];
+}
+
+/**
+ * Check if calendar is premium
+ */
+export async function isCalendarPremium(calendarId: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("calendars")
+    .select("is_premium")
+    .eq("id", calendarId)
+    .single();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return data.is_premium === true;
+}

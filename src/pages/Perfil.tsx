@@ -36,7 +36,7 @@ const MENU_COLORS = [
 
 export default function Perfil() {
   const navigate = useNavigate();
-  const { user, profile, logout, isLoading: authLoading } = useAuth();
+  const { user, profile, logout, isLoading: authLoading, role } = useAuth();
   const [stats, setStats] = useState({ totalCalendars: 0, activeCalendars: 0, views: 0, likes: 0 });
   const [loading, setLoading] = useState(true);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
@@ -66,8 +66,12 @@ export default function Perfil() {
     { label: "Visualizações", value: stats.views.toLocaleString(), icon: Eye },
   ];
 
+  // Hide "Seja Plus" for admins and plus users
+  const isAdminOrPlus = role === 'admin' || role === 'premium';
+
   const menuItems = [
-    { icon: Crown, label: "Seja Premium", description: "Desbloqueie recursos exclusivos", route: "/premium", highlight: true },
+    // Only show Plus option for free users
+    ...(!isAdminOrPlus ? [{ icon: Crown, label: "Seja Plus", description: "Desbloqueie recursos exclusivos", route: "/premium", highlight: true }] : []),
     { icon: Settings, label: "Configurações", description: "Edite perfil e preferências", route: "/conta/configuracoes" },
     { icon: HelpCircle, label: "Ajuda", description: "Dúvidas e suporte", route: "/ajuda" },
   ];
@@ -119,8 +123,13 @@ export default function Perfil() {
                 <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-semibold">
                   Membro desde 2024
                 </span>
-                <span className="px-3 py-1 rounded-full bg-[#F9A03F] text-white text-xs font-bold">
-                  Free
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${role === 'admin'
+                  ? 'bg-[#FFD166] text-[#1A3E3A]'
+                  : role === 'premium'
+                    ? 'bg-[#2D7A5F] text-white'
+                    : 'bg-[#F9A03F] text-white'
+                  }`}>
+                  {role === 'admin' ? '👑 Admin' : role === 'premium' ? '⭐ Plus' : 'Free'}
                 </span>
               </div>
               <h1 className="text-3xl lg:text-4xl font-extrabold text-white mb-2 tracking-tight">

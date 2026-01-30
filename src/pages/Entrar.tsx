@@ -176,50 +176,9 @@ const Entrar = () => {
                 <span>Entrar com Google</span>
               </button>
 
-              <div className="relative flex items-center py-2">
-                <div className="flex-grow border-t border-gray-100"></div>
-                <span className="flex-shrink-0 mx-4 text-gray-300 text-xs font-bold uppercase tracking-widest">Ou email</span>
-                <div className="flex-grow border-t border-gray-100"></div>
-              </div>
-
-              {/* Email Form */}
-              <div className="space-y-4">
-                <div className="group">
-                  <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 ml-1 group-focus-within:text-solidroad-accent transition-colors">Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/60 group-focus-within:text-solidroad-accent transition-colors" />
-                    <input
-                      id="login-email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      type="email"
-                      placeholder="seu@email.com"
-                      disabled={submitting}
-                      onKeyDown={(e) => e.key === 'Enter' && handleEmail()}
-                      className="w-full pl-14 pr-6 py-5 bg-background dark:bg-black/20 border-2 border-transparent rounded-[1.25rem] text-foreground font-bold text-lg placeholder:text-muted-foreground/30 focus:outline-none focus:bg-card focus:border-solidroad-accent/20 focus:shadow-xl focus:shadow-solidroad-accent/5 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  id="login-submit"
-                  onClick={handleEmail}
-                  disabled={submitting || !email.trim()}
-                  className="w-full bg-solidroad-accent text-solidroad-text font-black py-5 rounded-[1.25rem] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 shadow-xl shadow-solidroad-accent/20 flex items-center justify-center gap-3 shadow-glow"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-5 h-5" />
-                      ENVIAR LINK MÁGICO
-                    </>
-                  )}
-                </button>
-              </div>
+              <p className="text-center text-xs text-muted-foreground">
+                Use sua conta Google para entrar de forma rápida e segura
+              </p>
             </div>
 
             <div className="mt-10 pt-6 border-t border-gray-100">

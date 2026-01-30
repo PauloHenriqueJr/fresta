@@ -220,7 +220,7 @@ const AppContent = () => {
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
           <Route path="/premium" element={<Premium />} />
-          <Route path="/checkout/:planId" element={<Checkout />} />
+          <Route path="/checkout/:calendarId" element={<Checkout />} />
           <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />
           <Route path="/explorar" element={<Explorar />} />

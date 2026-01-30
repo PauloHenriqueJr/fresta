@@ -306,7 +306,7 @@ const LandingPage = () => {
                   <span className="font-extrabold text-xl text-slate-900">Fresta</span>
                 </button>
                 <nav className="flex items-center gap-1">
-                  {['Explorar', 'Premium', isAuthenticated ? 'Meus Calendários' : 'Entrar'].map(item => (
+                  {['Explorar', 'Plus', isAuthenticated ? 'Meus Calendários' : 'Entrar'].map(item => (
                     <button
                       key={item}
                       onClick={() => {
@@ -499,15 +499,15 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Themes Display */}
+      {/* Themes Gallery */}
       <section className="py-24 px-4 bg-muted/20">
         <div className="max-w-[1500px] mx-auto lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-6 px-4">
             <div className="max-w-2xl">
-              <h2 className="text-4xl lg:text-7xl font-black tracking-tighter mb-4 leading-none">Temas para todas as <br /> <span className="text-gradient-carnaval">festas</span></h2>
-              <p className="text-muted-foreground text-xl font-medium mt-6">Do Carnaval ao Natal, temos o visual perfeito para o seu momento mágico.</p>
+              <h2 className="text-4xl lg:text-7xl font-black tracking-tighter mb-4 leading-none">Escolha seu <br /> <span className="text-gradient-carnaval">tema favorito</span></h2>
+              <p className="text-muted-foreground text-xl font-medium mt-6">Temas exclusivos para cada ocasião especial. Comece grátis e faça upgrade quando quiser.</p>
             </div>
-            <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs bg-muted text-foreground hover:bg-muted/80 transition-colors shadow-sm">Ver todos os temas</button>
+            <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs bg-muted text-foreground hover:bg-muted/80 transition-colors shadow-sm">Criar meu calendário</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
             {themeDisplay.map((item, index) => (
@@ -516,9 +516,9 @@ const LandingPage = () => {
                   <div>
                     <span className="text-4xl mb-4 block">{item.emoji}</span>
                     <h3 className="text-3xl font-black mb-2 tracking-tight">{item.name}</h3>
-                    <p className="text-primary-foreground/90 font-bold leading-snug">Crie agora seu calendário de {item.name}</p>
+                    <p className="text-primary-foreground/90 font-bold leading-snug">Perfeito para {item.name.toLowerCase()}</p>
                   </div>
-                  <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[10px] bg-white/20 w-fit px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">Começar agora <ArrowRight className="w-3 h-3" /></div>
+                  <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[10px] bg-white/20 w-fit px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">Começar grátis <ArrowRight className="w-3 h-3" /></div>
                 </div>
                 <img src={item.mascot} alt={item.name} className="absolute -right-4 -bottom-4 w-44 h-44 object-contain opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700" />
               </motion.div>
@@ -557,9 +557,15 @@ const LandingPage = () => {
           <div className={`${currentTheme.primaryGradient} rounded-[4rem] p-12 lg:p-24 text-white text-center shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden group`}>
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] group-hover:scale-125 transition-transform duration-1000" />
             <Zap className="w-16 h-16 mx-auto mb-8 text-yellow-300 relative z-10" />
-            <h2 className="text-5xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] relative z-10 px-4">Libere a <br /> <span className="text-white/80">Magia Premium</span></h2>
-            <p className="text-xl lg:text-3xl font-medium mb-12 max-w-2xl mx-auto opacity-90 relative z-10 px-4">Calendários ilimitados, mais tipos de surpresa e nenhuma marca d'água.</p>
-            <button onClick={() => navigate("/premium")} className="py-6 px-12 rounded-[2rem] font-black text-2xl text-primary bg-white hover:bg-yellow-50 transition-all hover:shadow-2xl hover:scale-105 active:scale-95 relative z-10">Conhecer Planos</button>
+            <h2 className="text-5xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] relative z-10 px-4">Apenas<br /> <span className="text-white/80">R$ 14,90</span></h2>
+            <p className="text-xl lg:text-3xl font-medium mb-6 max-w-2xl mx-auto opacity-90 relative z-10 px-4">Pagamento único por calendário. Sem mensalidade, sem surpresas.</p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm font-bold mb-12 relative z-10">
+              <span className="px-4 py-2 bg-white/20 rounded-full">✓ Até 365 dias</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full">✓ Fotos e vídeos</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full">✓ Temas exclusivos</span>
+              <span className="px-4 py-2 bg-white/20 rounded-full">✓ Vitalício</span>
+            </div>
+            <button onClick={() => navigate("/premium")} className="py-6 px-12 rounded-[2rem] font-black text-2xl text-primary bg-white hover:bg-yellow-50 transition-all hover:shadow-2xl hover:scale-105 active:scale-95 relative z-10">Quero ser Plus</button>
           </div>
         </div>
       </section>

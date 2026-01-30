@@ -40,7 +40,7 @@ export default function PaymentSuccess() {
                 </h1>
 
                 <p className="text-muted-foreground font-medium mb-10 leading-relaxed">
-                    Parabéns! Agora você é um membro **Premium**. Solte sua criatividade e comece a criar calendários mágicos agora mesmo.
+                    Parabéns! Agora você é um membro **Plus**. Solte sua criatividade e comece a criar calendários mágicos agora mesmo.
                 </p>
 
                 <div className="space-y-4">
@@ -63,7 +63,7 @@ export default function PaymentSuccess() {
 
                 <div className="mt-10 pt-8 border-t border-border/10">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                        Fresta © 2026 • Premium Member
+                        Fresta © 2026 • Plus Member
                     </p>
                 </div>
             </motion.div>
