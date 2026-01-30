@@ -378,49 +378,73 @@ const EditarDia = () => {
 
                   {url && (
                     <div className="relative rounded-2xl overflow-hidden shadow-md aspect-video bg-muted border border-border group">
-                      {url.includes('youtube.com') || url.includes('youtu.be') ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${url.includes('youtu.be') ? url.split('/').pop() : new URLSearchParams(new URL(url).search).get('v')}`}
-                          className="w-full h-full"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      ) : url.includes('tiktok.com') ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[#010101] text-white">
-                          <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
-                          <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
-                        </div>
-                      ) : (url.includes('instagram.com/reels') || url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) ? (
-                        <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
-                          <iframe
-                            src={`${url.split('?')[0]}${url.endsWith('/') ? '' : '/'}embed/`}
-                            className="w-full h-full bg-white opacity-0 transition-opacity duration-700"
-                            onLoad={(e) => (e.target as any).classList.remove('opacity-0')}
-                            frameBorder="0"
-                            scrolling="no"
-                            allowTransparency
-                          />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white pointer-events-none group-hover:pointer-events-auto">
-                            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 border border-white/30 shadow-xl group-hover:scale-105 transition-transform">
-                              <Play className="w-7 h-7 text-white fill-current" />
+                      {(() => {
+                        // YouTube Robust Parsing
+                        const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+                        const ytId = ytMatch ? ytMatch[1] : null;
+
+                        if (ytId) {
+                          return (
+                            <iframe
+                              src={`https://www.youtube.com/embed/${ytId}`}
+                              className="w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          );
+                        }
+
+                        // TikTok
+                        if (url.includes('tiktok.com')) {
+                          return (
+                            <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[#010101] text-white">
+                              <Play className="w-12 h-12 mb-3 text-white fill-current opacity-80" />
+                              <p className="text-[10px] font-black uppercase tracking-widest text-center px-4">Preview: Vídeo do TikTok selecionado</p>
                             </div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-center px-4 mb-4 drop-shadow-md">Se for um perfil privado, o preview não aparecerá</p>
-                            <a
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-5 py-2.5 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg active:scale-95 pointer-events-auto"
-                            >
-                              Abrir no Instagram ↗
-                            </a>
-                          </div>
-                        </div>
-                      ) : (
-                        <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
-                          (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
-                        }} />
-                      )}
+                          );
+                        }
+
+                        // Instagram
+                        if (url.includes('instagram.com/reels') || url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) {
+                          const igUrl = url.split('?')[0];
+                          const embedUrl = `${igUrl}${igUrl.endsWith('/') ? '' : '/'}embed/`;
+
+                          return (
+                            <div className="w-full h-full relative bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]">
+                              <iframe
+                                src={embedUrl}
+                                className="w-full h-full bg-white opacity-0 transition-opacity duration-700"
+                                onLoad={(e) => (e.target as any).classList.remove('opacity-0')}
+                                frameBorder="0"
+                                scrolling="no"
+                                allowTransparency
+                              />
+                              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white pointer-events-none group-hover:pointer-events-auto">
+                                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 border border-white/30 shadow-xl group-hover:scale-105 transition-transform">
+                                  <Play className="w-7 h-7 text-white fill-current" />
+                                </div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-center px-4 mb-4 drop-shadow-md">Se for um perfil privado, o preview não aparecerá</p>
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-5 py-2.5 bg-white text-black rounded-full text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-lg active:scale-95 pointer-events-auto"
+                                >
+                                  Abrir no Instagram ↗
+                                </a>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Default Image Preview
+                        return (
+                          <img src={url} alt="Preview" className="w-full h-full object-cover" onError={(e) => {
+                            (e.target as any).src = 'https://placehold.co/600x400?text=Link+de+Mídia+Inválido';
+                          }} />
+                        );
+                      })()}
                       <button
                         onClick={() => setUrl('')}
                         className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm z-20"

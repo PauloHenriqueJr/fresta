@@ -37,6 +37,7 @@ import NotFound from "./pages/NotFound";
 import Entrar from "./pages/Entrar";
 import CalendarioDetalhe from "./pages/CalendarioDetalhe";
 import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -82,7 +83,7 @@ const queryClient = new QueryClient();
 // Corrigir o problema de tokens do Supabase no HashRouter
 const AuthHandler = () => {
   const navigate = useNavigate();
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, profile } = useAuth();
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -102,9 +103,11 @@ const AuthHandler = () => {
         // Ignorar se for link público
         if (hash.includes("#/c/") || window.location.pathname.startsWith('/c/')) return;
 
-        // Limpar o fragmento de autenticação agora que temos a sessão
-        // Isso evita loops de normalização
-        const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
+        // Aguardar o carregamento do perfil para decidir o redirecionamento
+        if (!profile) return;
+
+        // Decidir para onde ir baseado no onboarding
+        const hasSeenOnboarding = profile.onboarding_completed || localStorage.getItem("hasSeenOnboarding") === "true";
 
         if (!hasSeenOnboarding) {
           console.log("App: Novo usuário detectado, indo para onboarding");
@@ -115,11 +118,10 @@ const AuthHandler = () => {
         }
       } else if (!hash.startsWith("#/")) {
         // Normalização preventiva para o HashRouter se ainda não tivermos sessão
-        // Mas o AppContent deve estar mostrando o Loader agora
         console.log("App: Fragmento de auth detectado, aguardando sessão...");
       }
     }
-  }, [session, isLoading, navigate]);
+  }, [session, isLoading, profile, navigate]);
 
   return null;
 };
@@ -219,6 +221,7 @@ const AppContent = () => {
           <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/checkout/:planId" element={<Checkout />} />
+          <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />
           <Route path="/explorar" element={<Explorar />} />
         </Route>

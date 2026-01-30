@@ -468,6 +468,8 @@ export type Database = {
           email: string | null
           id: string
           updated_at: string | null
+          onboarding_completed: boolean | null
+          theme_preference: string | null
         }
         Insert: {
           avatar?: string | null
@@ -476,6 +478,8 @@ export type Database = {
           email?: string | null
           id: string
           updated_at?: string | null
+          onboarding_completed?: boolean | null
+          theme_preference?: string | null
         }
         Update: {
           avatar?: string | null
@@ -484,6 +488,8 @@ export type Database = {
           email?: string | null
           id?: string
           updated_at?: string | null
+          onboarding_completed?: boolean | null
+          theme_preference?: string | null
         }
         Relationships: []
       }

@@ -19,8 +19,9 @@ type AuthContextValue = {
   signInWithEmail: (email: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar">>) => Promise<void>;
+  updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar" | "onboarding_completed">>) => Promise<void>;
   updateThemePreference: (theme: ThemePreference) => Promise<void>;
+  completeOnboarding: () => Promise<void>;
   // Legacy compatibility
   loginWithEmail: (email: string) => void;
   loginWithGoogle: () => void;
@@ -268,7 +269,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Update profile
-  const updateProfile = async (patch: Partial<Pick<Profile, "display_name" | "avatar">>) => {
+  const updateProfile = async (patch: Partial<Pick<Profile, "display_name" | "avatar" | "onboarding_completed">>) => {
     if (!user) return;
 
     const { error } = await (supabase
@@ -284,6 +285,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Refetch profile
     const { profile: updated } = await fetchProfileAndRole(user.id);
     setProfile(updated);
+  };
+
+  // Complete onboarding
+  const completeOnboarding = async () => {
+    await updateProfile({ onboarding_completed: true });
+    localStorage.setItem("hasSeenOnboarding", "true");
   };
 
   // Update theme preference
