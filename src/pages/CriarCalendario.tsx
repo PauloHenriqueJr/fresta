@@ -91,7 +91,8 @@ const CriarCalendario = () => {
   const [selectedTheme, setSelectedTheme] = useState<ThemeId | "">(initialTheme);
   const [calendarName, setCalendarName] = useState(initialTitle);
   const [duration, setDuration] = useState(7);
-  const [startDate, setStartDate] = useState("");
+  // Auto-fill with today's date for better UX
+  const [startDate, setStartDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
   const [privacy, setPrivacy] = useState<"public" | "private">("private");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

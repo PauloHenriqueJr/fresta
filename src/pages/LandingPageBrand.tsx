@@ -405,18 +405,27 @@ const LandingPageBrand = () => {
                         {/* Hero Copy - DARK TEXT ON LIGHT BG */}
                         <div className="lg:col-span-6 lg:order-1 py-8">
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="relative">
-                                <h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.1] mb-8 lg:text-7xl xl:text-8xl xl:leading-[1.0] tracking-tight py-2 text-slate-900">
-                                    O Abre-Alas da <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500 inline-block relative py-1">
-                                        sua Alegria!
+                                {/* Launch Badge */}
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-bold mb-6 border border-amber-200">
+                                    <Zap className="w-4 h-4" />
+                                    Oferta de Lançamento · 50% OFF
+                                </div>
+                                <h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.1] mb-6 lg:text-7xl xl:text-8xl xl:leading-[1.0] tracking-tight py-2 text-slate-900">
+                                    O presente mais <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500 inline-block relative py-1">
+                                        emocionante
                                         <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#F59E0B]" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" /></svg>
                                     </span>
                                 </h1>
-                                <p className="text-slate-600 text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed mb-10 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
-                                    Crie seu bloco de surpresas diárias. Desafios, fotos e momentos mágicos para animar sua folia.
+                                <p className="text-slate-600 text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed mb-4 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
+                                    Surpreenda quem você ama com uma porta por dia.
+                                    Fotos, mensagens e momentos mágicos.
+                                </p>
+                                <p className="text-slate-500 text-base lg:text-lg font-medium mb-8 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
+                                    🎁 Crie grátis em 2 minutos · 💳 Plus por apenas <span className="text-violet-600 font-bold">R$ 14,90</span>
                                 </p>
                                 <div className="flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
                                     <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl shadow-violet-200 transition-all hover:scale-105 active:scale-95 bg-gradient-to-r from-violet-600 to-fuchsia-600">
-                                        <Sparkles className="w-6 h-6" /> Criar meu Bloco
+                                        <Sparkles className="w-6 h-6" /> Criar meu Calendário
                                     </button>
                                     <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
                                         {currentTheme.id === 'love' ? <Heart className="w-5 h-5" /> : <Star className="w-5 h-5" />} Ver exemplos

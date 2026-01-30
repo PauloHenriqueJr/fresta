@@ -23,6 +23,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 import { createPaymentPreference, PRICING, type PaymentItem } from "@/lib/services/payment";
+// Exit Intent disabled - can be re-enabled later
+// import { ExitIntentModal, useExitIntent } from "@/components/common/ExitIntentModal";
 
 const Checkout = () => {
     const { calendarId } = useParams();
@@ -44,11 +46,15 @@ const Checkout = () => {
     // Selected addons
     const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
+    // Exit Intent disabled - can be re-enabled later
+    // const { showExitIntent, closeExitIntent } = useExitIntent({ delay: 500, once: true });
+
     // Calculate total
     const basePrice = PRICING.PREMIUM.price_cents;
     const addonTotal = selectedAddons.reduce((sum, id) => {
         if (id === "addon_ai") return sum + PRICING.ADDON_AI.price_cents;
         if (id === "pdf_kit") return sum + PRICING.PDF_KIT.price_cents;
+        if (id === "addon_password") return sum + PRICING.ADDON_PASSWORD.price_cents;
         return sum;
     }, 0);
     const totalPrice = basePrice + addonTotal;
@@ -133,6 +139,9 @@ const Checkout = () => {
             }
             if (selectedAddons.includes("pdf_kit")) {
                 items.push({ type: "pdf_kit", quantity: 1 });
+            }
+            if (selectedAddons.includes("addon_password")) {
+                items.push({ type: "addon_password", quantity: 1 });
             }
 
             const result = await createPaymentPreference({
@@ -403,6 +412,56 @@ const Checkout = () => {
                                         </div>
                                     )}
 
+                                    {/* ORDER BUMP - Special Offer */}
+                                    <div
+                                        onClick={() => toggleAddon("addon_password")}
+                                        className={cn(
+                                            "relative p-5 rounded-2xl border-2 cursor-pointer transition-all",
+                                            "bg-gradient-to-r from-amber-500/5 to-orange-500/5",
+                                            selectedAddons.includes("addon_password")
+                                                ? "border-amber-500 shadow-lg shadow-amber-500/10"
+                                                : "border-amber-500/30 hover:border-amber-500/60"
+                                        )}
+                                    >
+                                        {/* Special offer badge */}
+                                        <div className="absolute -top-2.5 left-4 px-3 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
+                                            <span className="text-[10px] font-black text-white uppercase tracking-wider">
+                                                ⚡ Oferta Especial
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-4 mt-2">
+                                            {/* Checkbox */}
+                                            <div className={cn(
+                                                "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all",
+                                                selectedAddons.includes("addon_password")
+                                                    ? "bg-amber-500 border-amber-500"
+                                                    : "border-amber-500/50 bg-transparent"
+                                            )}>
+                                                {selectedAddons.includes("addon_password") && (
+                                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                                )}
+                                            </div>
+
+                                            {/* Icon */}
+                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
+                                                <Lock className="w-6 h-6 text-white" />
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="flex-1">
+                                                <p className="font-black text-foreground">Adicionar Proteção por Senha</p>
+                                                <p className="text-sm text-muted-foreground">Só quem souber a senha pode ver o calendário</p>
+                                            </div>
+
+                                            {/* Price */}
+                                            <div className="text-right">
+                                                <p className="font-black text-lg text-amber-600">+R$ 2,90</p>
+                                                <p className="text-[10px] text-muted-foreground">único</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Generate Payment Button */}
                                     <motion.button
                                         onClick={handleCreatePayment}
@@ -571,6 +630,19 @@ const Checkout = () => {
                     </div>
                 </div>
             </main>
+            {/* Exit Intent Modal - Disabled for now
+            <ExitIntentModal
+                isOpen={showExitIntent && !paymentData}
+                onClose={closeExitIntent}
+                onAccept={() => {
+                    closeExitIntent();
+                    setSelectedAddons([]);
+                    handleCreatePayment();
+                }}
+                originalPrice={PRICING.PREMIUM.price_cents}
+                discountedPrice={990}
+            />
+            */}
         </div>
     );
 };

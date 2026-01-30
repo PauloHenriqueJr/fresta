@@ -228,7 +228,16 @@ async function createAbacatePayCheckout(params: {
   customerTaxId: string;
   items: OrderItem[];
 }): Promise<AbacatePayCheckoutResult> {
-  const ABACATEPAY_API_KEY = import.meta.env.VITE_ABACATEPAY_API_KEY;
+  // Environment-based key selection
+  const ENV = import.meta.env.VITE_ABACATEPAY_ENV || 'dev';
+  const DEV_KEY = import.meta.env.VITE_ABACATEPAY_DEV_KEY;
+  const PROD_KEY = import.meta.env.VITE_ABACATEPAY_PROD_KEY;
+  
+  // Use prod key if ENV is "prod", otherwise use dev key
+  // Falls back to old VITE_ABACATEPAY_API_KEY for backwards compatibility
+  const ABACATEPAY_API_KEY = ENV === 'prod' 
+    ? (PROD_KEY || import.meta.env.VITE_ABACATEPAY_API_KEY)
+    : (DEV_KEY || import.meta.env.VITE_ABACATEPAY_API_KEY);
   
   if (!ABACATEPAY_API_KEY || ABACATEPAY_API_KEY.startsWith('abc_dev_mock')) {
     console.warn("AbacatePay API key not configured or mock, using test mode");
