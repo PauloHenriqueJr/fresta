@@ -86,9 +86,15 @@ const ThemeParticles = ({ theme }: { theme: string }) => {
                     </div>
                 );
             case 'flag':
+                // Festa Junina Bandeirinha shape
                 return (
-                    <div key={p.id} className="absolute opacity-70" style={{ ...baseStyle, transform: `rotate(${p.rotation}deg)` }}>
-                        <div style={{ width: 0, height: 0, borderLeft: `${p.size / 2}px solid transparent`, borderRight: `${p.size / 2}px solid transparent`, borderBottom: `${p.size}px solid ${p.color}` }} />
+                    <div key={p.id} className="absolute opacity-80" style={{ ...baseStyle, transform: `rotate(${p.rotation}deg)` }}>
+                        <div style={{
+                            width: `${p.size}px`,
+                            height: `${p.size * 1.4}px`,
+                            backgroundColor: p.color,
+                            clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 50% 80%, 0% 100%)'
+                        }} />
                     </div>
                 );
             default:
@@ -234,8 +240,12 @@ const LandingPageBrand = () => {
     const { isAuthenticated, isLoading } = useAuth();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Theme state - default to carnaval
-    const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.carnaval);
+    // Theme state - default to carnaval or cached theme
+    const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(() => {
+        const cached = localStorage.getItem('fresta_active_theme');
+        if (cached && THEMES[cached]) return THEMES[cached];
+        return THEMES.carnaval;
+    });
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [isDark, setIsDark] = useState(() => {
         const saved = localStorage.getItem('fresta_theme');
@@ -259,7 +269,16 @@ const LandingPageBrand = () => {
 
     const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
 
+    // Prevent rendering content with wrong theme on initial load if no cache exists
+    const [isStyleReady, setIsStyleReady] = useState(!!localStorage.getItem('fresta_active_theme'));
+
     const { role: authRole } = useAuth();
+
+    useEffect(() => {
+        if (!isSettingsLoading) {
+            setIsStyleReady(true);
+        }
+    }, [isSettingsLoading]);
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
@@ -279,16 +298,18 @@ const LandingPageBrand = () => {
             // Support legacy 'love' mapping to 'namoro'
             const themeKey = active === 'love' ? 'namoro' : active;
             const theme = THEMES[themeKey];
-            if (theme) {
+            if (theme && theme.id !== currentTheme.id) {
                 setCurrentTheme(theme);
-                console.log('[Theme] Active theme from DB:', active, '-> Using:', themeKey);
-            } else {
+                localStorage.setItem('fresta_active_theme', themeKey);
+                console.log('[Theme] Theme synchronized with DB:', active, '-> Using:', themeKey);
+            } else if (!theme) {
                 // Fallback to carnaval if theme not found
                 setCurrentTheme(THEMES.carnaval);
+                localStorage.setItem('fresta_active_theme', 'carnaval');
                 console.warn('[Theme] Unknown theme:', active, '-> Fallback to carnaval');
             }
         }
-    }, [isSettingsLoading, settings.activeTheme]);
+    }, [isSettingsLoading, settings.activeTheme, currentTheme.id]);
 
     useEffect(() => {
         const handleMouse = (e: MouseEvent) => {
@@ -300,6 +321,10 @@ const LandingPageBrand = () => {
         window.addEventListener("mousemove", handleMouse);
         return () => window.removeEventListener("mousemove", handleMouse);
     }, []);
+
+    if (!isStyleReady) {
+        return <div className="fixed inset-0 bg-white dark:bg-zinc-950 z-[9999]" />;
+    }
 
     const { scrollYProgress } = useScroll();
     const mascotOpacity = useTransform(scrollYProgress, [0, 0.1, 0.2], [0.4, 0.8, 1]); // Kept but unused ref
@@ -397,10 +422,10 @@ const LandingPageBrand = () => {
                             <button
                                 key={item}
                                 onClick={() => navigate(`/${item.toLowerCase().replace(' ', '-')}`)}
-                                className="text-base font-semibold text-[#5A7470] hover:text-[#1B4D3E] transition-colors flex items-center gap-1"
+                                className="text-base font-semibold transition-colors flex items-center gap-1 opacity-70 hover:opacity-100"
+                                style={{ color: isDark ? 'white' : currentTheme.colors.primary }}
                             >
                                 {item}
-                                {/* Example chevron if needed: <ChevronDown className="w-4 h-4" /> */}
                             </button>
                         ))}
                     </nav>
@@ -427,8 +452,8 @@ const LandingPageBrand = () => {
                 </div>
 
                 {/* Header Mobile - Premium Floating Pill Style */}
-                <div className="lg:hidden fixed top-0 inset-x-0 z-50 px-4 pt-3 pointer-events-none">
-                    <div className="pointer-events-auto backdrop-blur-xl rounded-2xl shadow-lg border px-3 py-2.5 flex justify-between items-center mx-auto" style={{ backgroundColor: isDark ? 'rgba(24, 24, 27, 0.95)' : 'rgba(255, 255, 255, 0.95)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : `${currentTheme.colors.primary}15` }}>
+                <div className="lg:hidden fixed top-0 inset-x-0 z-50 pointer-events-none flex justify-center pt-4 px-4">
+                    <div className="w-full max-w-[500px] pointer-events-auto backdrop-blur-xl rounded-2xl shadow-lg border px-3.5 py-2.5 flex justify-between items-center" style={{ backgroundColor: isDark ? 'rgba(24, 24, 27, 0.92)' : 'rgba(255, 255, 255, 0.95)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : `${currentTheme.colors.primary}15` }}>
                         {/* Logo + Brand */}
                         <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${currentTheme.primaryGradient}`}>
@@ -595,6 +620,41 @@ const LandingPageBrand = () => {
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${currentTheme.primaryGradient}`}><Share2 className="w-5 h-5 text-white" /></div>
                                 <h4 className="font-bold text-lg" style={{ color: currentTheme.colors.primary }}>Compartilhe Amor</h4>
                                 <p className="text-sm text-slate-500 font-medium">Envie por WhatsApp, email ou link direto.</p>
+                            </motion.div>
+                        </div>
+
+                        {/* Additional Premium Cards */}
+                        <div className="absolute -left-20 bottom-10 hidden 2xl:block z-20">
+                            <motion.div
+                                className="bg-white/90 backdrop-blur-xl p-5 rounded-[2rem] border border-white shadow-lg flex items-center gap-4"
+                                initial={{ y: 20, opacity: 0 }}
+                                whileInView={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.9 }}
+                            >
+                                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center shadow-inner">
+                                    <Sparkles className="w-6 h-6 text-amber-500" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Efeito</p>
+                                    <p className="font-bold text-slate-700">Surpresa Real</p>
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        <div className="absolute -right-20 bottom-20 hidden 2xl:block z-20">
+                            <motion.div
+                                className="bg-white/90 backdrop-blur-xl p-5 rounded-[2rem] border border-white shadow-lg flex items-center gap-4"
+                                initial={{ y: 20, opacity: 0 }}
+                                whileInView={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 1.1 }}
+                            >
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-inner">
+                                    <Zap className="w-6 h-6 text-indigo-500" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</p>
+                                    <p className="font-bold text-slate-700">Notificação Ativa</p>
+                                </div>
                             </motion.div>
                         </div>
                     </motion.div>
