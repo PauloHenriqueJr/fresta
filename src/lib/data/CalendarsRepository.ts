@@ -291,15 +291,12 @@ export const CalendarsRepository = {
 
       if (isVideo) {
         contentTypeToSave = 'video';
-      } else if (isMusic) {
-        contentTypeToSave = 'music';
-      } else if (content.contentType === 'music') {
-        // If contentType is explicitly 'music' but URL is not spotify, treat as generic link
+      } else if (isMusic || content.contentType === 'music') {
+        // Use 'link' for database to avoid enum errors, UI will still detect spotify
         contentTypeToSave = 'link';
       }
     } else if (content.contentType === 'music') {
-      // If no URL but contentType is music, default to text or null
-      contentTypeToSave = 'text'; // Or null, depending on desired behavior
+      contentTypeToSave = 'text';
     }
 
     const { data, error } = await supabase

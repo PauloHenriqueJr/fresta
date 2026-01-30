@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink } from "lucide-react";
+import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink, Music } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DaySurpriseModalProps {
@@ -391,10 +391,14 @@ const DaySurpriseModal = ({
                 )}
 
                 {content?.type === "music" && (
-                  <div className="space-y-4 text-center">
+                  <div className="space-y-6 text-center pb-4">
+                    <div className="w-16 h-16 rounded-2xl bg-[#1DB954]/10 flex items-center justify-center mx-auto mb-2 border border-[#1DB954]/20">
+                      <Music className="w-8 h-8 text-[#1DB954]" />
+                    </div>
+
                     {content.message && (
-                      <p className="text-foreground font-medium mb-4">
-                        {content.message}
+                      <p className="text-foreground font-medium text-lg leading-relaxed px-2">
+                        "{content.message}"
                       </p>
                     )}
 
@@ -402,31 +406,36 @@ const DaySurpriseModal = ({
                       const match = content.url.match(/open\.spotify\.com\/(?:[a-zA-Z-]+\/)?(track|playlist|album)\/([a-zA-Z0-9]+)/);
                       if (match) {
                         return (
-                          <div className="rounded-2xl overflow-hidden shadow-md border border-border bg-black/90">
+                          <div className="rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-black animate-in fade-in zoom-in duration-500">
                             <iframe
                               src={`https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=generator&theme=0`}
                               width="100%"
                               height="152"
                               frameBorder="0"
-                              allow="encrypted-media"
+                              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                               className="w-full"
+                              loading="lazy"
                             />
                           </div>
                         );
                       }
                       return (
-                        <div className="p-4 bg-muted/50 rounded-2xl flex items-center justify-center gap-2">
+                        <a
+                          href={content.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-3 p-6 bg-muted/50 hover:bg-muted rounded-2xl transition-all"
+                        >
+                          <Music className="w-6 h-6 text-[#1DB954]" />
+                          <span className="font-bold text-foreground">Ouvir no Spotify</span>
                           <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                          <a href={content.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-primary hover:underline">
-                            Abrir no Spotify
-                          </a>
-                        </div>
+                        </a>
                       );
                     })()}
 
-                    <div className="flex items-center justify-center mt-2">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Música via Spotify</p>
-                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mt-4 opacity-70">
+                      Trilha Sonora Especial
+                    </p>
                   </div>
                 )}
 

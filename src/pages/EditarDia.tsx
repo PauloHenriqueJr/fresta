@@ -94,7 +94,7 @@ const EditarDia = () => {
         await CalendarsRepository.updateDay(calendarId, dayNumber, {
           contentType: selectedType,
           message: message.trim() || null,
-          url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
+          url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link" || selectedType === "music") ? url : null,
           label: selectedType === "link" ? label : null,
         });
         setLastSaved(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
@@ -118,7 +118,7 @@ const EditarDia = () => {
       await CalendarsRepository.updateDay(calendarId, dayNumber, {
         contentType: selectedType,
         message: message.trim() || null,
-        url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link") ? url : null,
+        url: (selectedType === "photo" || selectedType === "gif" || selectedType === "link" || selectedType === "music") ? url : null,
         label: selectedType === "link" ? label : null,
       });
 
@@ -333,6 +333,15 @@ const EditarDia = () => {
                       onChange={async (e) => {
                         const originalFile = e.target.files?.[0];
                         if (!originalFile || !calendarId) return;
+
+                        if (!calendar?.is_premium) {
+                          toast({
+                            title: "Upload Bloqueado",
+                            description: "O upload de fotos está disponível apenas no Plano Plus.",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
 
                         setSaving(true);
                         try {
