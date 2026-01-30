@@ -22,7 +22,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { cn } from "@/lib/utils";
-import { createPaymentPreference, PRICING, type PaymentItem } from "@/lib/services/payment";
+import { createPaymentPreference, verifyPaymentStatus, activatePaidCalendar, PRICING, type PaymentItem } from "@/lib/services/payment";
 // Exit Intent disabled - can be re-enabled later
 // import { ExitIntentModal, useExitIntent } from "@/components/common/ExitIntentModal";
 
@@ -45,6 +45,29 @@ const Checkout = () => {
 
     // Selected addons
     const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+
+    // Payment status polling
+    useEffect(() => {
+        if (!paymentData?.orderId || isSuccess) return;
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const order = await verifyPaymentStatus(paymentData.orderId);
+                if (order?.status === "paid") {
+                    // Payment confirmed - activate calendar
+                    const result = await activatePaidCalendar(paymentData.orderId);
+                    if (result.success) {
+                        setIsSuccess(true);
+                        clearInterval(pollInterval);
+                    }
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
+            }
+        }, 5000); // Poll every 5 seconds
+
+        return () => clearInterval(pollInterval);
+    }, [paymentData?.orderId, isSuccess]);
 
     // Exit Intent disabled - can be re-enabled later
     // const { showExitIntent, closeExitIntent } = useExitIntent({ delay: 500, once: true });

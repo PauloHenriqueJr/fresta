@@ -28,49 +28,96 @@ import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
 import mascotSaoJoao from "@/assets/mascot-saojoao.png";
 import mascotLove from "@/assets/mascot-love.png";
 import calendarMockup from "@/assets/calendar-mockup.png";
+import { DynamicCalendarMockup } from "@/components/landing/DynamicCalendarMockup";
 
-// Simple CSS Particles Component (No dependencies)
-// Simple CSS Particles Component (Multi-color Confetti)
-const SimpleParticles = () => {
-    const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
+// Dynamic Theme Particles Component
+const ThemeParticles = ({ theme }: { theme: string }) => {
+    // Theme-specific particle configurations
+    const themeConfigs: Record<string, { colors: string[]; shapes: ('circle' | 'square' | 'heart' | 'flag')[] }> = {
+        carnaval: {
+            colors: ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'],
+            shapes: ['circle', 'square']
+        },
+        saojoao: {
+            colors: ['#EA580C', '#F59E0B', '#DC2626', '#15803D'],
+            shapes: ['flag', 'circle']
+        },
+        namoro: {
+            colors: ['#E11D48', '#FB7185', '#EC4899', '#F472B6'],
+            shapes: ['heart']
+        },
+        casamento: {
+            colors: ['#D4AF37', '#B8860B', '#F5F0E6', '#FBBF24'],
+            shapes: ['circle']
+        }
+    };
+
+    const config = themeConfigs[theme] || themeConfigs.carnaval;
+
     const particles = useMemo(() => {
-        return Array.from({ length: 40 }).map((_, i) => ({
+        return Array.from({ length: 35 }).map((_, i) => ({
             id: i,
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            size: Math.random() * 8 + 4,
+            size: Math.random() * 10 + 5,
             duration: Math.random() * 15 + 8,
             delay: Math.random() * 5,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            rotation: Math.random() * 360
+            color: config.colors[Math.floor(Math.random() * config.colors.length)],
+            rotation: Math.random() * 360,
+            shape: config.shapes[Math.floor(Math.random() * config.shapes.length)]
         }));
-    }, []);
+    }, [config]);
+
+    const renderShape = (p: typeof particles[0]) => {
+        const baseStyle = {
+            left: p.left,
+            top: p.top,
+            animation: `float ${p.duration}s infinite linear`,
+            animationDelay: `-${p.delay}s`
+        };
+
+        switch (p.shape) {
+            case 'heart':
+                return (
+                    <div key={p.id} className="absolute opacity-60" style={baseStyle}>
+                        <svg width={p.size} height={p.size} viewBox="0 0 24 24" fill={p.color}>
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                    </div>
+                );
+            case 'flag':
+                return (
+                    <div key={p.id} className="absolute opacity-70" style={{ ...baseStyle, transform: `rotate(${p.rotation}deg)` }}>
+                        <div style={{ width: 0, height: 0, borderLeft: `${p.size / 2}px solid transparent`, borderRight: `${p.size / 2}px solid transparent`, borderBottom: `${p.size}px solid ${p.color}` }} />
+                    </div>
+                );
+            default:
+                return (
+                    <div
+                        key={p.id}
+                        className="absolute opacity-60"
+                        style={{
+                            ...baseStyle,
+                            width: `${p.size}px`,
+                            height: `${p.size}px`,
+                            backgroundColor: p.color,
+                            borderRadius: p.shape === 'circle' ? '50%' : '2px',
+                            transform: `rotate(${p.rotation}deg)`
+                        }}
+                    />
+                );
+        }
+    };
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {particles.map((p) => (
-                <div
-                    key={p.id}
-                    className="absolute opacity-60"
-                    style={{
-                        left: p.left,
-                        top: p.top,
-                        width: `${p.size}px`,
-                        height: `${p.size}px`,
-                        backgroundColor: p.color,
-                        borderRadius: Math.random() > 0.5 ? '50%' : '2px', // Circles and Squares
-                        transform: `rotate(${p.rotation}deg)`,
-                        animation: `float ${p.duration}s infinite linear`,
-                        animationDelay: `-${p.delay}s`
-                    }}
-                />
-            ))}
+            {particles.map(renderShape)}
             <style>{`
                 @keyframes float {
                     0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-                    20% { opacity: 0.8; }
-                    50% { transform: translateY(-100px) translateX(50px) rotate(180deg); opacity: 0.6; }
-                    80% { opacity: 0.8; }
+                    20% { opacity: 0.7; }
+                    50% { transform: translateY(-100px) translateX(50px) rotate(180deg); opacity: 0.5; }
+                    80% { opacity: 0.7; }
                     100% { transform: translateY(-200px) translateX(100px) rotate(360deg); opacity: 0; }
                 }
             `}</style>
@@ -79,11 +126,12 @@ const SimpleParticles = () => {
 };
 
 type ThemeConfig = {
-    id: 'carnaval' | 'love' | 'carnaval-unique';
+    id: string;
     name: string;
+    brandName: string; // Dynamic brand name for navbar
     primaryGradient: string;
     accentGradient: string;
-    floatingElement: 'confetti' | 'hearts';
+    floatingElement: 'confetti' | 'hearts' | 'flags' | 'flowers';
     mascot: any;
     emojis: {
         logo: string;
@@ -99,28 +147,30 @@ type ThemeConfig = {
 };
 
 const THEMES: Record<string, ThemeConfig> = {
-    fresta: {
-        id: 'carnaval-unique',
+    carnaval: {
+        id: 'carnaval',
         name: 'Carnaval Folia',
-        primaryGradient: 'bg-gradient-to-br from-[#8B5CF6] to-[#D946EF]', // Violet to Pink
-        accentGradient: 'bg-gradient-to-br from-[#F59E0B] to-[#F97316]', // Amber to Orange
+        brandName: 'Fresta Folia',
+        primaryGradient: 'bg-gradient-to-br from-[#8B5CF6] to-[#D946EF]',
+        accentGradient: 'bg-gradient-to-br from-[#F59E0B] to-[#F97316]',
         floatingElement: 'confetti',
-        mascot: mascotCarnaval, // CARNAVAL MASCOT
+        mascot: mascotCarnaval,
         emojis: {
             logo: '🎭',
             hero: '🎉',
             section: '🥁'
         },
         colors: {
-            primary: '#7C3AED', // Violet-600
-            accent: '#F59E0B',  // Amber-500
-            textGradient: 'text-[#4C1D95]', // Dark Violet for text
+            primary: '#7C3AED',
+            accent: '#F59E0B',
+            textGradient: 'text-[#4C1D95]',
             lightBloom: 'bg-purple-400/20'
         }
     },
-    love: {
-        id: 'love',
-        name: 'Namoro',
+    namoro: {
+        id: 'namoro',
+        name: 'Dia dos Namorados',
+        brandName: 'Fresta Love',
         primaryGradient: 'bg-gradient-to-br from-red-500 to-rose-600',
         accentGradient: 'bg-gradient-to-br from-pink-400 to-red-400',
         floatingElement: 'hearts',
@@ -131,10 +181,50 @@ const THEMES: Record<string, ThemeConfig> = {
             section: '👩‍❤️‍👨'
         },
         colors: {
-            primary: 'hsl(350, 80%, 60%)',
-            accent: 'hsl(340, 90%, 70%)',
+            primary: '#E11D48',
+            accent: '#FB7185',
             textGradient: 'bg-gradient-to-r from-red-600 to-rose-500 bg-clip-text text-transparent italic pb-2 pr-4',
             lightBloom: 'bg-red-400/10'
+        }
+    },
+    saojoao: {
+        id: 'saojoao',
+        name: 'Festa Junina',
+        brandName: 'Fresta Junina',
+        primaryGradient: 'bg-gradient-to-br from-orange-500 to-amber-600',
+        accentGradient: 'bg-gradient-to-br from-yellow-400 to-orange-400',
+        floatingElement: 'flags',
+        mascot: mascotSaoJoao,
+        emojis: {
+            logo: '🔥',
+            hero: '🌽',
+            section: '🎶'
+        },
+        colors: {
+            primary: '#EA580C',
+            accent: '#F59E0B',
+            textGradient: 'text-orange-800',
+            lightBloom: 'bg-orange-400/20'
+        }
+    },
+    casamento: {
+        id: 'casamento',
+        name: 'Casamento',
+        brandName: 'Fresta Celebra',
+        primaryGradient: 'bg-gradient-to-br from-[#D4AF37] to-[#B8860B]',
+        accentGradient: 'bg-gradient-to-br from-[#F5F0E6] to-[#D4AF37]',
+        floatingElement: 'flowers',
+        mascot: mascotLove, // Can create specific mascot later
+        emojis: {
+            logo: '💍',
+            hero: '💒',
+            section: '🥂'
+        },
+        colors: {
+            primary: '#D4AF37',
+            accent: '#B8860B',
+            textGradient: 'text-[#8B7355]',
+            lightBloom: 'bg-amber-300/20'
         }
     }
 };
@@ -144,8 +234,8 @@ const LandingPageBrand = () => {
     const { isAuthenticated, isLoading } = useAuth();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Theme state
-    const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.fresta);
+    // Theme state - default to carnaval
+    const [currentTheme, setCurrentTheme] = useState<ThemeConfig>(THEMES.carnaval);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [isDark, setIsDark] = useState(() => {
         const saved = localStorage.getItem('fresta_theme');
@@ -185,10 +275,17 @@ const LandingPageBrand = () => {
     useEffect(() => {
         if (!isSettingsLoading && settings.activeTheme) {
             const active = settings.activeTheme as string;
-            if (active === 'namoro' || active === 'love') {
-                setCurrentTheme(THEMES.love);
+            // Map database theme to THEMES object
+            // Support legacy 'love' mapping to 'namoro'
+            const themeKey = active === 'love' ? 'namoro' : active;
+            const theme = THEMES[themeKey];
+            if (theme) {
+                setCurrentTheme(theme);
+                console.log('[Theme] Active theme from DB:', active, '-> Using:', themeKey);
             } else {
-                setCurrentTheme(THEMES.fresta);
+                // Fallback to carnaval if theme not found
+                setCurrentTheme(THEMES.carnaval);
+                console.warn('[Theme] Unknown theme:', active, '-> Fallback to carnaval');
             }
         }
     }, [isSettingsLoading, settings.activeTheme]);
@@ -276,8 +373,8 @@ const LandingPageBrand = () => {
     ];
 
     // BRAND CONSTANTS
-    // BRAND CONSTANTS (Overrides for Carnaval)
-    const BRAND_BG_GRADIENT = "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-100 via-white to-white";
+    // BRAND CONSTANTS - Dynamic based on theme
+    const BRAND_BG_GRADIENT = `bg-gradient-to-b from-[${currentTheme.colors.primary}10] via-white to-white`;
 
     return (
         // FRAME LAYOUT: Thicker White Frame and Mobile Responsive
@@ -291,7 +388,7 @@ const LandingPageBrand = () => {
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-300" style={{ backgroundColor: currentTheme.colors.primary }}>
                             <DoorOpen className="w-5 h-5 text-white" strokeWidth={2.5} />
                         </div>
-                        <span className="font-extrabold text-2xl tracking-tight transition-colors duration-300 dark:text-white" style={{ color: isDark ? 'white' : currentTheme.colors.primary }}>Fresta Folia</span>
+                        <span className="font-extrabold text-2xl tracking-tight transition-colors duration-300 dark:text-white" style={{ color: isDark ? 'white' : currentTheme.colors.primary }}>{currentTheme.brandName}</span>
                     </button>
 
                     <nav className="flex items-center gap-8">
@@ -329,38 +426,48 @@ const LandingPageBrand = () => {
                     </div>
                 </div>
 
-                {/* Header Mobile - Floating Capsule Style (Solidroad Reference) */}
-                <div className="lg:hidden fixed top-0 inset-x-0 z-50 p-2 pointer-events-none">
-                    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-gray-100 dark:border-white/5 px-5 py-3 flex justify-between items-center pointer-events-auto">
+                {/* Header Mobile - Premium Floating Pill Style */}
+                <div className="lg:hidden fixed top-0 inset-x-0 z-50 px-4 pt-3 pointer-events-none">
+                    <div className="pointer-events-auto backdrop-blur-xl rounded-2xl shadow-lg border px-3 py-2.5 flex justify-between items-center mx-auto" style={{ backgroundColor: isDark ? 'rgba(24, 24, 27, 0.95)' : 'rgba(255, 255, 255, 0.95)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : `${currentTheme.colors.primary}15` }}>
+                        {/* Logo + Brand */}
+                        <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
+                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${currentTheme.primaryGradient}`}>
+                                <DoorOpen className="w-5 h-5 text-white" strokeWidth={2.5} />
+                            </div>
+                            <span className="font-bold text-lg" style={{ color: isDark ? 'white' : currentTheme.colors.primary }}>{currentTheme.brandName}</span>
+                        </button>
+
+                        {/* Actions - Premium CTAs instead of hamburger */}
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={toggleTheme}
-                                className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mr-1"
+                                className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+                                style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : `${currentTheme.colors.primary}10` }}
                             >
-                                {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-slate-700" />}
+                                {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" style={{ color: currentTheme.colors.primary }} />}
                             </button>
-                            <div className="flex items-center gap-2">
-                                <DoorOpen className="w-6 h-6" style={{ color: isDark ? 'white' : currentTheme.colors.primary }} strokeWidth={2.5} />
-                                <span className="font-extrabold text-lg" style={{ color: isDark ? 'white' : currentTheme.colors.primary }}>Fresta Folia</span>
-                            </div>
+                            <button
+                                onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")}
+                                className={`px-4 py-2.5 rounded-xl font-bold text-sm text-white ${currentTheme.primaryGradient} shadow-lg`}
+                                style={{ boxShadow: `0 4px 14px ${currentTheme.colors.primary}40` }}
+                            >
+                                Criar
+                            </button>
                         </div>
-                        <button className="p-2 -mr-2 text-gray-600 hover:text-gray-900">
-                            <Menu className="w-6 h-6" strokeWidth={2.5} />
-                        </button>
                     </div>
                 </div>
             </header>
 
-            {/* Background Particles - Confetes Coloridos */}
-            <SimpleParticles />
+            {/* Background Particles - Dynamic per theme */}
+            <ThemeParticles theme={currentTheme.id} />
 
             {/* Hero Section - Tema Light & Fun */}
             <section
                 className="relative min-h-[85vh] flex flex-col items-center justify-center px-4 pt-32 lg:pt-48 overflow-hidden z-10 rounded-[2rem] lg:rounded-[3rem] shadow-none w-full mt-2 lg:mt-0 transition-colors duration-500 bg-white"
             >
 
-                {/* Subtle Texture/Gradient */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-fuchsia-100/60 via-transparent to-transparent opacity-80" />
+                {/* Subtle Texture/Gradient - Uses theme colors */}
+                <div className="absolute inset-0 opacity-80" style={{ background: `radial-gradient(circle at top, ${currentTheme.colors.primary}15, transparent, transparent)` }} />
 
                 <div className="relative z-10 w-full max-w-lg mx-auto text-center lg:max-w-[1500px] lg:px-8 lg:text-left">
                     <div className="lg:grid lg:grid-cols-12 lg:items-center lg:gap-10">
@@ -411,9 +518,9 @@ const LandingPageBrand = () => {
                                     Oferta de Lançamento · 50% OFF
                                 </div>
                                 <h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.1] mb-6 lg:text-7xl xl:text-8xl xl:leading-[1.0] tracking-tight py-2 text-slate-900">
-                                    O presente mais <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500 inline-block relative py-1">
+                                    O presente mais <br /> <span className="text-transparent bg-clip-text inline-block relative py-1" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>
                                         emocionante
-                                        <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#F59E0B]" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" /></svg>
+                                        <svg className="absolute w-full h-3 -bottom-1 left-0" viewBox="0 0 100 10" preserveAspectRatio="none" style={{ color: currentTheme.colors.accent }}><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" /></svg>
                                     </span>
                                 </h1>
                                 <p className="text-slate-600 text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed mb-4 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
@@ -421,10 +528,10 @@ const LandingPageBrand = () => {
                                     Fotos, mensagens e momentos mágicos.
                                 </p>
                                 <p className="text-slate-500 text-base lg:text-lg font-medium mb-8 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
-                                    🎁 Crie grátis em 2 minutos · 💳 Plus por apenas <span className="text-violet-600 font-bold">R$ 14,90</span>
+                                    🎁 Crie grátis em 2 minutos · 💳 Plus por apenas <span className="font-bold" style={{ color: currentTheme.colors.primary }}>R$ 14,90</span>
                                 </p>
                                 <div className="flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
-                                    <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl shadow-violet-200 transition-all hover:scale-105 active:scale-95 bg-gradient-to-r from-violet-600 to-fuchsia-600">
+                                    <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
                                         <Sparkles className="w-6 h-6" /> Criar meu Calendário
                                     </button>
                                     <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
@@ -438,27 +545,56 @@ const LandingPageBrand = () => {
             </section>
 
             {/* Showcase Section */}
-            <section className="relative py-24 lg:py-48 px-4 bg-white border-t border-[#1B4D3E]/5">
+            <section className="relative py-24 lg:py-48 px-4 bg-white" style={{ borderTop: `1px solid ${currentTheme.colors.primary}10` }}>
                 <div className="max-w-[1500px] mx-auto relative z-10">
-                    <div className="text-center mb-24 px-4">
-                        <h2 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight text-[#1B4D3E]">A Magia <span className="text-[#2D7A5F]">por Trás da Porta</span></h2>
-                        <p className="text-[#5A7470] text-lg lg:text-2xl font-medium max-w-2xl mx-auto">Cada dia é um novo portal para um momento inesquecível. Veja como o Fresta transforma sua espera em celebração.</p>
+                    <div className="text-center mb-12 lg:mb-16 px-4">
+                        <h2 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight" style={{ color: currentTheme.colors.primary }}>A Magia <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>por Trás da Porta</span></h2>
+                        <p className="text-slate-500 text-lg lg:text-2xl font-medium max-w-2xl mx-auto mb-8">Cada dia é um novo portal para um momento inesquecível. Veja como o Fresta transforma sua espera em celebração.</p>
                     </div>
-                    <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative flex justify-center group px-4">
-                        <div className="absolute inset-0 blur-[150px] rounded-full opacity-20 scale-125 bg-[#5DBF94]" />
-                        <img src={calendarMockup} alt="Showcase" className="relative w-full max-w-5xl rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border-[12px] border-white z-10" />
 
-                        {/* Desktop floating cards - kept but styled with brand colors (white + green icons) */}
-                        <div className="absolute -left-10 top-1/4 hidden xl:block z-20">
+                    {/* Mockup Container - Properly positioned below text */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="relative flex justify-center items-center px-4"
+                    >
+                        {/* Background Glow - Uses theme color */}
+                        <div className="absolute inset-0 blur-[150px] rounded-full opacity-20 scale-125" style={{ backgroundColor: currentTheme.colors.primary }} />
+
+                        {/* Dynamic Mockup - Uses currentTheme.id from GlobalSettings */}
+                        <div className="relative z-10">
+                            <DynamicCalendarMockup
+                                theme={currentTheme.id}
+                                className="transform hover:scale-[1.02] transition-transform duration-500"
+                            />
+                        </div>
+
+                        {/* Desktop floating cards - positioned on sides */}
+                        <div className="absolute -left-10 top-1/3 hidden xl:block z-20">
                             <motion.div
                                 className="bg-white/90 backdrop-blur-xl p-6 rounded-3xl border border-white shadow-xl space-y-2 max-w-[240px]"
                                 initial={{ x: -20, opacity: 0 }}
                                 whileInView={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.5 }}
                             >
-                                <div className="w-10 h-10 rounded-xl bg-[#E8F5E0] flex items-center justify-center mb-3"><Gift className="w-5 h-5 text-[#2D7A5F]" /></div>
-                                <h4 className="font-bold text-lg text-[#1B4D3E]">Presentes Diários</h4>
-                                <p className="text-sm text-[#5A7470] font-medium">Fotos, mensagens e cupons escondidos em cada porta.</p>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${currentTheme.primaryGradient}`}><Gift className="w-5 h-5 text-white" /></div>
+                                <h4 className="font-bold text-lg" style={{ color: currentTheme.colors.primary }}>Presentes Diários</h4>
+                                <p className="text-sm text-slate-500 font-medium">Fotos, mensagens e cupons escondidos em cada porta.</p>
+                            </motion.div>
+                        </div>
+
+                        {/* Right floating card */}
+                        <div className="absolute -right-10 top-1/2 hidden xl:block z-20">
+                            <motion.div
+                                className="bg-white/90 backdrop-blur-xl p-6 rounded-3xl border border-white shadow-xl space-y-2 max-w-[240px]"
+                                initial={{ x: 20, opacity: 0 }}
+                                whileInView={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7 }}
+                            >
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${currentTheme.primaryGradient}`}><Share2 className="w-5 h-5 text-white" /></div>
+                                <h4 className="font-bold text-lg" style={{ color: currentTheme.colors.primary }}>Compartilhe Amor</h4>
+                                <p className="text-sm text-slate-500 font-medium">Envie por WhatsApp, email ou link direto.</p>
                             </motion.div>
                         </div>
                     </motion.div>
@@ -466,7 +602,7 @@ const LandingPageBrand = () => {
             </section>
 
             {/* Stats Section - SUTILE CURVES */}
-            <section className="py-24 bg-violet-900 text-white rounded-[2rem] relative z-20 w-full my-2 shadow-sm">
+            <section className="py-24 text-white rounded-[2rem] relative z-20 w-full my-2 shadow-sm" style={{ backgroundColor: currentTheme.colors.primary }}>
                 <div className="max-w-[1500px] mx-auto px-8">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
                         {[
@@ -480,7 +616,7 @@ const LandingPageBrand = () => {
                                 <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
                                     <div className="flex justify-center mb-4">
                                         <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
-                                            <Icon className="w-7 h-7 text-amber-400" />
+                                            <Icon className="w-7 h-7" style={{ color: currentTheme.colors.accent }} />
                                         </div>
                                     </div>
                                     <p className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-2">{stat.value}</p>
@@ -497,9 +633,9 @@ const LandingPageBrand = () => {
                 <div className="max-w-[1500px] mx-auto lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {features.map((feature, index) => (
-                            <motion.div key={feature.title} className="bg-[#F8F9F5] rounded-[2.5rem] p-10 hover:shadow-xl border border-transparent hover:border-[#2D7A5F]/20 transition-all duration-300" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg bg-violet-600"><feature.icon className="w-7 h-7" /></div>
-                                <h3 className="text-2xl font-bold mb-3 tracking-tight leading-none h-12 flex items-center text-violet-900">{feature.title}</h3>
+                            <motion.div key={feature.title} className="bg-slate-50 rounded-[2.5rem] p-10 hover:shadow-xl border border-transparent transition-all duration-300" style={{ ['--hover-border-color' as string]: `${currentTheme.colors.primary}30` }} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg ${currentTheme.primaryGradient}`}><feature.icon className="w-7 h-7" /></div>
+                                <h3 className="text-2xl font-bold mb-3 tracking-tight leading-none h-12 flex items-center" style={{ color: currentTheme.colors.primary }}>{feature.title}</h3>
                                 <p className="text-slate-600 font-medium leading-relaxed">{feature.description}</p>
                             </motion.div>
                         ))}
@@ -508,13 +644,13 @@ const LandingPageBrand = () => {
             </section>
 
             {/* Themes Display - Maintained Dynamic because content is dynamic */}
-            <section className="py-24 px-4 bg-[#E8F5E0]/30">
+            <section className="py-24 px-4" style={{ backgroundColor: `${currentTheme.colors.primary}08` }}>
                 <div className="max-w-[1500px] mx-auto lg:px-8">
                     <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-6 px-4">
                         <div className="max-w-2xl">
-                            <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-none text-violet-900">Temas para todas as <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">festas</span></h2>
+                            <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-none" style={{ color: currentTheme.colors.primary }}>Temas para todas as <br /> <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>festas</span></h2>
                         </div>
-                        <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs bg-white text-violet-900 hover:bg-violet-50 transition-colors shadow-sm border border-violet-100">Ver todos os temas</button>
+                        <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-xs bg-white hover:bg-gray-50 transition-colors shadow-sm border" style={{ color: currentTheme.colors.primary, borderColor: `${currentTheme.colors.primary}20` }}>Ver todos os temas</button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
                         {themeDisplay.map((item, index) => (
@@ -537,7 +673,7 @@ const LandingPageBrand = () => {
             {/* Section Removed - Merged into Footer */}
 
             {/* Footer - SUTILE CURVES */}
-            <footer className="pt-32 pb-12 px-4 bg-[#4C1D95] text-white overflow-hidden relative mt-2 rounded-t-[2rem] w-full mb-0">
+            <footer className="pt-32 pb-12 px-4 text-white overflow-hidden relative mt-2 rounded-t-[2rem] w-full mb-0" style={{ backgroundColor: currentTheme.colors.primary }}>
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
 
@@ -545,16 +681,16 @@ const LandingPageBrand = () => {
 
                     {/* CTA PART */}
                     <div className="text-center mb-32 max-w-4xl mx-auto">
-                        <div className="w-20 h-20 mx-auto mb-8 bg-amber-400 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
-                            <Sparkles className="w-10 h-10 text-violet-900" />
+                        <div className="w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center shadow-2xl animate-pulse" style={{ backgroundColor: currentTheme.colors.accent }}>
+                            <Sparkles className="w-10 h-10 text-white" />
                         </div>
                         <h2 className="text-5xl lg:text-8xl font-extrabold tracking-tighter mb-8 leading-[0.9]">
-                            Crie a sua <span className="text-amber-400">Magia</span>
+                            Crie a sua <span style={{ color: currentTheme.colors.accent }}>Magia</span>
                         </h2>
-                        <p className="text-xl lg:text-2xl text-[#A8E6CF] font-medium mb-12 max-w-2xl mx-auto">
+                        <p className="text-xl lg:text-2xl text-white/80 font-medium mb-12 max-w-2xl mx-auto">
                             Tudo pronto para surpreender? Comece agora e faça alguém sorrir todos os dias.
                         </p>
-                        <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="py-6 px-12 rounded-full font-bold text-2xl text-violet-900 bg-white hover:bg-gray-100 transition-all hover:shadow-2xl hover:scale-105 active:scale-95">
+                        <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="py-6 px-12 rounded-full font-bold text-2xl bg-white hover:bg-gray-100 transition-all hover:shadow-2xl hover:scale-105 active:scale-95" style={{ color: currentTheme.colors.primary }}>
                             Começar Gratuitamente
                         </button>
                     </div>

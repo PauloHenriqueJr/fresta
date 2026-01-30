@@ -320,25 +320,28 @@ export async function verifyPaymentStatus(orderId: string): Promise<Order | null
 }
 
 /**
- * Mark calendar as premium after successful payment
- * Should be called by webhook handler
+ * Activate calendar after confirming payment
+ * Uses secure RPC that validates order status before upgrading
  */
-export async function activatePremiumCalendar(
-  calendarId: string,
-  addons: string[] = []
-): Promise<boolean> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any).rpc("mark_calendar_premium", {
-    _calendar_id: calendarId,
-    _addons: addons,
-  });
+export async function activatePaidCalendar(
+  orderId: string
+): Promise<{ success: boolean; calendarId?: string; error?: string }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc("activate_paid_calendar", {
+      _order_id: orderId,
+    });
 
-  if (error) {
-    console.error("Error activating premium:", error);
-    return false;
+    if (error) {
+      console.error("Error activating calendar:", error);
+      return { success: false, error: error.message };
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Exception activating calendar:", error);
+    return { success: false, error: "Unexpected error" };
   }
-
-  return true;
 }
 
 /**
