@@ -2,8 +2,8 @@
 import { supabase } from "@/lib/supabase/client";
 import type { Tables, InsertTables, UpdateTables } from "@/lib/supabase/types";
 
-type Calendar = Tables<'calendars'>;
-type CalendarDay = Tables<'calendar_days'>;
+export type Calendar = Tables<'calendars'>;
+export type CalendarDay = Tables<'calendar_days'>;
 type InsertCalendar = InsertTables<'calendars'>;
 type UpdateCalendar = UpdateTables<'calendars'>;
 

@@ -15,7 +15,7 @@ import CalendarView from "./pages/CalendarView";
 import Onboarding from "./pages/Onboarding";
 import MeusCalendarios from "./pages/MeusCalendarios";
 import Configuracoes from "./pages/Configuracoes";
-import Premium from "./pages/Premium";
+import Plus from "./pages/Plus";
 import EditarDia from "./pages/EditarDia";
 import CalendarioSaoJoao from "./pages/CalendarioSaoJoao";
 import CalendarioCarnaval from "./pages/CalendarioCarnaval";
@@ -219,7 +219,7 @@ const AppContent = () => {
           <Route path="/editar-dia/:calendarId/:dia" element={<EditarDia />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
-          <Route path="/premium" element={<Premium />} />
+          <Route path="/plus" element={<Plus />} />
           <Route path="/checkout/:calendarId" element={<Checkout />} />
           <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />

@@ -44,6 +44,10 @@ export interface CreatePaymentParams {
   userId: string;
   calendarId: string;
   items: PaymentItem[];
+  customer?: {
+    cellphone?: string;
+    taxId?: string;
+  };
 }
 
 export interface CreatePaymentResult {
@@ -130,13 +134,23 @@ export async function createPaymentPreference(
     // Calculate total
     const totalCents = orderItems.reduce((sum, item) => sum + item.price_cents, 0);
 
-    // Get current user email
+    // Get current user email and profile name
     const { data: { user } } = await supabase.auth.getUser();
     const customerEmail = user?.email || "cliente@fresta.com";
+    
+    // Fetch profile for name
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle();
+    
+    const customerName = (profile as any)?.display_name || "Cliente Fresta";
+    const customerCellphone = params.customer?.cellphone || ""; 
+    const customerTaxId = params.customer?.taxId || ""; 
+
 
     // Create order in database
-    // Note: Type assertion needed until migration runs and types are regenerated
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: order, error: orderError } = await (supabase as any)
       .from("orders")
       .insert({
@@ -149,14 +163,14 @@ export async function createPaymentPreference(
         items: orderItems,
         metadata: {
           customer_email: customerEmail,
+          customer_name: customerName,
         },
       })
       .select()
       .single();
 
     if (orderError || !order) {
-      console.error("Error creating order:", orderError);
-      return { success: false, error: "Erro ao criar pedido" };
+      return { success: false, error: "Erro ao criar pedido no banco de dados" };
     }
 
     // Create AbacatePay checkout
@@ -165,6 +179,9 @@ export async function createPaymentPreference(
       amount: totalCents,
       description: `Fresta Premium - Calendário`,
       customerEmail,
+      customerName,
+      customerCellphone,
+      customerTaxId,
       items: orderItems,
     });
 
@@ -186,10 +203,9 @@ export async function createPaymentPreference(
         qrCodeUrl: checkoutData.qrCodeUrl,
       },
     };
-  } catch (error) {
-    console.error("Payment creation error:", error);
-    return { success: false, error: "Erro ao processar pagamento" };
-  }
+    } catch (error) {
+      return { success: false, error: `Erro no processamento` };
+    }
 }
 
 /**
@@ -207,65 +223,71 @@ async function createAbacatePayCheckout(params: {
   amount: number;
   description: string;
   customerEmail: string;
+  customerName: string;
+  customerCellphone: string;
+  customerTaxId: string;
   items: OrderItem[];
 }): Promise<AbacatePayCheckoutResult> {
-  // AbacatePay API integration
-  // Docs: https://docs.abacatepay.com
-  
   const ABACATEPAY_API_KEY = import.meta.env.VITE_ABACATEPAY_API_KEY;
   
-  if (!ABACATEPAY_API_KEY) {
-    console.warn("AbacatePay API key not configured, using mock checkout");
-    // Return mock checkout data for development
+  if (!ABACATEPAY_API_KEY || ABACATEPAY_API_KEY.startsWith('abc_dev_mock')) {
+    console.warn("AbacatePay API key not configured or mock, using test mode");
     return {
-      url: `${window.location.origin}/pagamento/sucesso?order=${params.orderId}&mock=true`,
+      url: `${window.location.origin}/#/pagamento/sucesso?order=${params.orderId}&mock=true`,
       pixCode: "00020126330014BR.GOV.BCB.PIX0111mock_pix_code520400005303986540510.005802BR5925FRESTA",
-      qrCodeUrl: undefined,
+      qrCodeUrl: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=mock_pix_code",
     };
   }
 
   try {
-    const response = await fetch("https://api.abacatepay.com/v1/billing", {
+    const payload = {
+      amount: params.amount,
+      description: params.description,
+      customer: {
+        name: params.customerName,
+        cellphone: params.customerCellphone,
+        email: params.customerEmail,
+        taxId: params.customerTaxId,
+      },
+      metadata: {
+        orderId: params.orderId,
+      },
+    };
+
+    const response = await fetch("https://api.abacatepay.com/v1/pixQrCode/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${ABACATEPAY_API_KEY}`,
       },
-      body: JSON.stringify({
-        frequency: "ONE_TIME",
-        methods: ["PIX"],
-        products: params.items.map(item => ({
-          externalId: item.type,
-          name: item.name,
-          quantity: 1,
-          price: item.price_cents, // AbacatePay uses cents
-        })),
-        returnUrl: `${window.location.origin}/pagamento/sucesso?order=${params.orderId}`,
-        completionUrl: `${window.location.origin}/pagamento/sucesso?order=${params.orderId}`,
-        customer: {
-          email: params.customerEmail,
-        },
-        metadata: {
-          orderId: params.orderId,
-        },
-      }),
+      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("AbacatePay error:", error);
-      throw new Error("Erro ao criar pagamento");
+    const resBody = await response.json();
+
+    if (!response.ok || resBody.success === false) {
+      console.error("AbacatePay API Error Status:", response.status);
+      console.error("AbacatePay API Error Body:", resBody);
+      
+      const errorDetail = resBody.error || resBody.message || JSON.stringify(resBody);
+      throw new Error(`AbacatePay Error (${response.status}): ${errorDetail}`);
     }
 
-    const data = await response.json();
+    const pixData = resBody.data;
+
+    if (!pixData || !pixData.brCodeBase64) {
+      console.error("AbacatePay API Invalid Response:", resBody);
+      throw new Error("AbacatePay retornou uma resposta sem dados do PIX.");
+    }
+
     return {
-      url: data.url,
-      pixCode: data.pixCopyPaste,
-      qrCodeUrl: data.pixQrCode,
+      url: "", // pixQrCode endpoint doesn't return a checkout URL, only direct PIX
+      pixCode: pixData.brCode,
+      qrCodeUrl: pixData.brCodeBase64,
     };
   } catch (error) {
-    console.error("AbacatePay API error:", error);
-    throw new Error("Erro ao processar pagamento");
+    console.error("AbacatePay Checkout Exception:", error);
+    throw error;
   }
 }
 
