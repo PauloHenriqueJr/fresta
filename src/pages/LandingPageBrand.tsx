@@ -223,6 +223,7 @@ const LandingPageBrand = () => {
     }
 
     const { scrollYProgress } = useScroll();
+    const mascotScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
     const mascotOpacity = useTransform(scrollYProgress, [0, 0.1, 0.2], [0.4, 0.8, 1]); // Kept but unused ref
     const lightIntensity = useTransform(scrollYProgress, [0, 0.2], [0.6, 1]);
 
@@ -399,13 +400,13 @@ const LandingPageBrand = () => {
                                 <div className="absolute inset-0 border-[12px] lg:border-[20px] border-[#2D7A5F]/20 rounded-t-[3rem] lg:rounded-t-[4rem] overflow-hidden shadow-2xl bg-amber-950">
                                     <div className="absolute inset-0 z-0">
                                         <motion.img
-                                            src={currentTheme.mascot}
+                                            src={currentTheme.doorMascot}
                                             alt="Interior"
                                             className="w-full h-full object-cover opacity-90 transition-transform duration-700"
                                             style={{
-                                                scale: useTransform(scrollYProgress, [0, 0.2], [1, 1.1]),
+                                                scale: mascotScale,
                                                 x: mousePos.x * 0.5,
-                                                y: mousePos.y * 0.5
+                                                y: mousePos.y * 0.5,
                                             }}
                                         />
                                         {/* Slightly greener bloom */}

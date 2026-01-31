@@ -1,6 +1,9 @@
 import mascotCarnaval from "@/assets/mascot-login-header.png";
+import mascotCarnavalDoor from "@/assets/mascot-carnaval.jpg";
 import mascotLove from "@/assets/mascot-love.png";
+import mascotLoveDoor from "@/assets/mascot-love.jpg";
 import mascotSaoJoao from "@/assets/saojoao.png";
+import mascotSaoJoaoDoor from "@/assets/mascot-saojoao.png";
 
 export interface ThemeConfig {
     id: string;
@@ -10,6 +13,7 @@ export interface ThemeConfig {
     accentGradient: string;
     floatingElement: 'confetti' | 'hearts' | 'flags' | 'flowers';
     mascot: string;
+    doorMascot: string;
     mascotStyle?: {
         scale?: number;
         bottomOffset?: number;
@@ -40,6 +44,7 @@ export const THEMES: Record<string, ThemeConfig> = {
         accentGradient: 'bg-gradient-to-br from-[#F59E0B] to-[#F97316]',
         floatingElement: 'confetti',
         mascot: mascotCarnaval,
+        doorMascot: mascotCarnavalDoor,
         mascotStyle: {
             scale: 1.3,
             bottomOffset: 75
@@ -68,6 +73,7 @@ export const THEMES: Record<string, ThemeConfig> = {
         accentGradient: 'bg-gradient-to-br from-pink-400 to-red-400',
         floatingElement: 'hearts',
         mascot: mascotLove,
+        doorMascot: mascotLoveDoor,
         mascotStyle: {
             scale: 1,
             bottomOffset: 0
@@ -96,6 +102,7 @@ export const THEMES: Record<string, ThemeConfig> = {
         accentGradient: 'bg-gradient-to-br from-yellow-400 to-orange-400',
         floatingElement: 'flags',
         mascot: mascotSaoJoao,
+        doorMascot: mascotSaoJoaoDoor,
         mascotStyle: {
             scale: 1.6,
             bottomOffset: 60
@@ -123,7 +130,8 @@ export const THEMES: Record<string, ThemeConfig> = {
         primaryGradient: 'bg-gradient-to-br from-[#D4AF37] to-[#B8860B]',
         accentGradient: 'bg-gradient-to-br from-[#F5F0E6] to-[#D4AF37]',
         floatingElement: 'flowers',
-        mascot: mascotLove, // Can create specific mascot later
+        mascot: mascotLove,
+        doorMascot: mascotLoveDoor, // Can create specific mascot later
         emojis: {
             logo: '💍',
             hero: '💒',
