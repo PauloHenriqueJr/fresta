@@ -228,7 +228,16 @@ async function createAbacatePayCheckout(params: {
   customerTaxId: string;
   items: OrderItem[];
 }): Promise<AbacatePayCheckoutResult> {
-  const ABACATEPAY_API_KEY = import.meta.env.VITE_ABACATEPAY_API_KEY;
+  // Environment-based key selection
+  const ENV = import.meta.env.VITE_ABACATEPAY_ENV || 'dev';
+  const DEV_KEY = import.meta.env.VITE_ABACATEPAY_DEV_KEY;
+  const PROD_KEY = import.meta.env.VITE_ABACATEPAY_PROD_KEY;
+  
+  // Use prod key if ENV is "prod", otherwise use dev key
+  // Falls back to old VITE_ABACATEPAY_API_KEY for backwards compatibility
+  const ABACATEPAY_API_KEY = ENV === 'prod' 
+    ? (PROD_KEY || import.meta.env.VITE_ABACATEPAY_API_KEY)
+    : (DEV_KEY || import.meta.env.VITE_ABACATEPAY_API_KEY);
   
   if (!ABACATEPAY_API_KEY || ABACATEPAY_API_KEY.startsWith('abc_dev_mock')) {
     console.warn("AbacatePay API key not configured or mock, using test mode");
@@ -311,25 +320,28 @@ export async function verifyPaymentStatus(orderId: string): Promise<Order | null
 }
 
 /**
- * Mark calendar as premium after successful payment
- * Should be called by webhook handler
+ * Activate calendar after confirming payment
+ * Uses secure RPC that validates order status before upgrading
  */
-export async function activatePremiumCalendar(
-  calendarId: string,
-  addons: string[] = []
-): Promise<boolean> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any).rpc("mark_calendar_premium", {
-    _calendar_id: calendarId,
-    _addons: addons,
-  });
+export async function activatePaidCalendar(
+  orderId: string
+): Promise<{ success: boolean; calendarId?: string; error?: string }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc("activate_paid_calendar", {
+      _order_id: orderId,
+    });
 
-  if (error) {
-    console.error("Error activating premium:", error);
-    return false;
+    if (error) {
+      console.error("Error activating calendar:", error);
+      return { success: false, error: error.message };
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Exception activating calendar:", error);
+    return { success: false, error: "Unexpected error" };
   }
-
-  return true;
 }
 
 /**

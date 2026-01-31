@@ -52,12 +52,22 @@ ssh $REMOTE_USER@$REMOTE_HOST << EOF
     docker network inspect traefik >/dev/null 2>&1 || docker network create traefik
 
     # Build com variáveis específicas
+    # Se branch main = prod, senão = dev
+    if [ "$CURRENT_BRANCH" == "main" ]; then
+        ABACATE_ENV="prod"
+    else
+        ABACATE_ENV="dev"
+    fi
+    
     DOMAIN_NAME=$DOMAIN_NAME \
     IMAGE_TAG=$IMAGE_TAG \
     PORT_MAP=$PORT_MAP \
     docker compose -p $SERVICE_NAME build \
         --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
-        --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+        --build-arg VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
+        --build-arg VITE_ABACATEPAY_ENV=$ABACATE_ENV \
+        --build-arg VITE_ABACATEPAY_DEV_KEY=$VITE_ABACATEPAY_DEV_KEY \
+        --build-arg VITE_ABACATEPAY_PROD_KEY=$VITE_ABACATEPAY_PROD_KEY
         
     # Parar e remover qualquer container antigo COM ESTE NOME para evitar conflitos de porta/nome
     echo "🛑 Garantindo limpeza de containers antigos..."

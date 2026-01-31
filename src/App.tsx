@@ -38,6 +38,7 @@ import Entrar from "./pages/Entrar";
 import CalendarioDetalhe from "./pages/CalendarioDetalhe";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Upsell from "./pages/Upsell";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -141,8 +142,8 @@ const AppContent = () => {
     <HashRouter>
       <AuthHandler />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/landing-brand" element={<LandingPageBrand />} />
+        <Route path="/" element={<LandingPageBrand />} />
+        <Route path="/landing-legacy" element={<LandingPage />} />
         <Route path="/portal" element={<Gateway />} />
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />
@@ -221,6 +222,7 @@ const AppContent = () => {
           <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
           <Route path="/plus" element={<Plus />} />
           <Route path="/checkout/:calendarId" element={<Checkout />} />
+          <Route path="/checkout/upsell" element={<Upsell />} />
           <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />
           <Route path="/explorar" element={<Explorar />} />
