@@ -825,6 +825,17 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
       descColor: "text-purple-600/80 dark:text-purple-300/80",
       icon: PartyPopper
     },
+    aniversario: {
+      title: "Nem vem! 🎂",
+      message: "Essa surpresa está guardada para o momento certo! Segura a ansiedade para a festa.",
+      buttonColor: "bg-sky-500 hover:bg-sky-600",
+      iconColor: "text-sky-500",
+      bgColor: "bg-[#F0F9FF] dark:bg-zinc-900",
+      borderColor: "border-sky-200 dark:border-sky-900",
+      textColor: "text-sky-900 dark:text-sky-100",
+      descColor: "text-sky-700/80 dark:text-sky-300/80",
+      icon: PartyPopper
+    },
     default: {
       title: "Calma, Coração!",
       message: "Essa surpresa ainda está sendo preparada. Segura a ansiedade!",
@@ -950,7 +961,7 @@ export const CarnavalTicketModal = ({ isOpen, onClose, content, config, theme = 
         initial={{ scale: 0.9, opacity: 0, rotate: -3 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative w-full max-w-[380px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Ticket Perforated Edge (Top) */}
         <div className="absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pointer-events-none z-20">
@@ -968,7 +979,7 @@ export const CarnavalTicketModal = ({ isOpen, onClose, content, config, theme = 
         </button>
 
         {/* Header with Gradient */}
-        <div className={`${gradientClass} pt-8 pb-6 px-6 text-center relative overflow-hidden`}>
+        <div className={`${gradientClass} pt-8 pb-6 px-6 text-center relative overflow-hidden shrink-0`}>
           {/* Sparkle effects */}
           <Sparkles className="absolute top-4 left-6 w-5 h-5 text-white/40 animate-pulse" />
           <Sparkles className="absolute top-8 right-8 w-4 h-4 text-white/50 animate-pulse" style={{ animationDelay: '0.5s' }} />
@@ -991,8 +1002,8 @@ export const CarnavalTicketModal = ({ isOpen, onClose, content, config, theme = 
           </p>
         </div>
 
-        {/* Content Body */}
-        <div className="flex-1 p-6 bg-gradient-to-b from-white to-gray-50 min-h-[200px]">
+        {/* Content Body - SCROLLABLE */}
+        <div className="flex-1 p-6 bg-gradient-to-b from-white to-gray-50 overflow-y-auto overscroll-contain">
           {/* Media (Polaroid style) */}
           {content.mediaUrl && (
             <div className="w-full aspect-video rounded-2xl overflow-hidden border-4 border-white shadow-xl -rotate-1 mb-6 relative">
@@ -1112,7 +1123,7 @@ export const LoveLetterModal = ({ isOpen, onClose, content, config }: LoveLetter
         initial={{ scale: 0.9, opacity: 0, rotate: -2 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="relative w-full max-w-[360px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col font-display"
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col font-display"
       >
         {/* Close Button */}
         <button
@@ -1138,15 +1149,16 @@ export const LoveLetterModal = ({ isOpen, onClose, content, config }: LoveLetter
           </div>
         </div>
 
-        {/* Paper Body */}
+        {/* Paper Body - SCROLLABLE */}
         <div
-          className="flex-1 px-6 pt-10 pb-6 flex flex-col items-center bg-[#fffafa] min-h-[300px]"
+          className="flex-1 px-6 pt-10 pb-6 flex flex-col items-center bg-[#fffafa] overflow-y-auto overscroll-contain"
           style={{
             backgroundImage: `
               linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
               linear-gradient(#eee 0.1em, transparent 0.1em)
             `,
-            backgroundSize: '100% 1.2em'
+            backgroundSize: '100% 1.2em',
+            backgroundAttachment: 'local' // Important for scroll
           }}
         >
           {/* Media (Polaroid style) */}
@@ -1263,4 +1275,121 @@ export const LoveLetterModal = ({ isOpen, onClose, content, config }: LoveLetter
       </motion.div>
     </div>
   );
+};
+
+// --- Birthday Card Modal (Premium) ---
+interface BirthdayCardModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const BirthdayCardModal = ({ isOpen, onClose, content, config }: BirthdayCardModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-sky-950/60 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Floating Elements (Decorations) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        <div className="absolute top-20 left-10 text-4xl animate-bounce" style={{ animationDelay: '0s' }}>🎈</div>
+        <div className="absolute bottom-40 right-10 text-3xl animate-pulse">✨</div>
+        <div className="absolute top-40 right-20 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>🎉</div>
+        <div className="absolute top-1/2 left-4 text-2xl animate-pulse" style={{ animationDelay: '1s' }}>🎂</div>
+        <div className="absolute bottom-10 left-20 text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎁</div>
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-[#F0F9FF] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-[6px] border-white"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 z-20 w-8 h-8 rounded-full bg-white/60 hover:bg-white flex items-center justify-center text-sky-900/60 transition-colors shadow-sm"
+        >
+          <span className="text-lg font-bold">✕</span>
+        </button>
+
+        {/* Header */}
+        <div className="pt-10 pb-4 text-center relative z-10 bg-gradient-to-b from-sky-100/50 to-transparent">
+          <div className="w-20 h-20 rounded-3xl bg-white shadow-lg flex items-center justify-center mx-auto mb-4 text-sky-500 rotate-3 border-4 border-sky-50">
+            <PartyPopper className="w-10 h-10 drop-shadow-sm" />
+          </div>
+          <h2 className="text-3xl font-black text-sky-900 tracking-tight uppercase drop-shadow-sm px-4">
+            {content.title || "Parabéns!"}
+          </h2>
+          <p className="text-sky-600/80 text-xs font-black uppercase tracking-widest mt-1">Sua surpresa chegou</p>
+        </div>
+
+        {/* Content Body - Scrollable */}
+        <div className="flex-1 px-6 pb-6 overflow-y-auto overscroll-contain text-center">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white bg-sky-100 mb-6 relative group rotate-1">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-black">
+                  {/* Simplified Video Placeholder/Embed Logic */}
+                  <a href={content.mediaUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-white group-hover:scale-105 transition-transform">
+                    <Play className="w-12 h-12 fill-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Abrir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=3870"}
+                />
+              )}
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-sky-100 relative group hover:scale-[1.02] transition-transform duration-300">
+              <Quote className="w-6 h-6 text-sky-200 absolute -top-3 -left-2 fill-current" />
+              <p className="text-sky-900 text-lg font-medium leading-relaxed font-festive">
+                "{content.message}"
+              </p>
+              <div className="flex justify-center gap-3 mt-4 text-2xl opacity-100 grayscale-[0.2] group-hover:grayscale-0 transition-all">
+                <span>🎂</span><span>🥳</span><span>🎁</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-sky-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Parabéns! 🎂",
+                text: content.message || "Veja essa surpresa de aniversário!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🎈", description: "Pronto para enviar." });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-sky-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar Surpresa
+          </button>
+          <button onClick={onClose} className="text-sky-400 text-[10px] font-black uppercase tracking-widest py-2 hover:text-sky-600 transition-colors">
+            Continuar vendo o calendário
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
 };

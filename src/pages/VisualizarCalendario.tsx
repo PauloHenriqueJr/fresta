@@ -52,7 +52,7 @@ const THEME_BG_COLORS: Record<string, string> = {
   pascoa: 'bg-[#D4F4F0]',
   independencia: 'bg-[#E8F5E0]',
   reveillon: 'bg-[#E8E4F5]',
-  aniversario: 'bg-[#FFF0E5]',
+  aniversario: 'bg-[#F0F9FF]',
 };
 
 const VisualizarCalendario = () => {
@@ -928,7 +928,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -967,7 +967,7 @@ const VisualizarCalendario = () => {
         />
 
         {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao) */}
-        {!['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+        {!['carnaval', 'saojoao', 'aniversario'].includes(calendar.theme_id) && (
           <LoveLetterModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -977,7 +977,7 @@ const VisualizarCalendario = () => {
         )}
 
         {/* Festive Modals for Carnaval/SaoJoao */}
-        {['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+        {['carnaval', 'saojoao', 'aniversario'].includes(calendar.theme_id) && (
           <DaySurpriseModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}

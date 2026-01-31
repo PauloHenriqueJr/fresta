@@ -93,7 +93,7 @@ const CriarCalendario = () => {
   const [duration, setDuration] = useState(7);
   // Auto-fill with today's date for better UX
   const [startDate, setStartDate] = useState(() => format(new Date(), "yyyy-MM-dd"));
-  const [privacy, setPrivacy] = useState<"public" | "private">("private");
+  // Privacy removed from UI, defaulting to private internally
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -148,7 +148,7 @@ const CriarCalendario = () => {
           title: calendarName.trim() || "Meu Calendário",
           themeId: selectedTheme as ThemeId,
           duration,
-          privacy,
+          privacy: 'private',
           password: password || undefined,
           startDate: startDate || undefined,
           status: (needsPlus && !planStatus.isAdmin) ? 'aguardando_pagamento' : 'ativo',
@@ -336,35 +336,7 @@ const CriarCalendario = () => {
                     />
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/50 ml-1">Visibilidade</label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setPrivacy('public')}
-                        className={cn("p-4 rounded-2xl border-2 text-left transition-all", privacy === 'public' ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-border/10 bg-white dark:bg-white/5 opacity-60 hover:opacity-100")}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === 'public' ? "opacity-100" : "opacity-0")} />
-                          <span className="text-sm font-bold text-solidroad-text dark:text-white">Público</span>
-                        </div>
-                        <span className="text-[10px] font-medium text-muted-foreground/60 leading-tight">Aparece no "Explorar"</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPrivacy('private')}
-                        className={cn("p-4 rounded-2xl border-2 text-left transition-all", privacy === 'private' ? "border-solidroad-accent bg-solidroad-accent/5 ring-4 ring-solidroad-accent/5" : "border-border/10 bg-white dark:bg-white/5 opacity-60 hover:opacity-100")}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <Check className={cn("w-3 h-3 text-solidroad-accent transition-opacity", privacy === 'private' ? "opacity-100" : "opacity-0")} />
-                          <span className="text-sm font-bold text-solidroad-text dark:text-white">Privado</span>
-                        </div>
-                        <span className="text-[10px] font-medium text-muted-foreground/60 leading-tight">Apenas com seu link</span>
-                      </button>
-                    </div>
-                  </div>
+
 
                   <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between ml-1">
