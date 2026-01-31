@@ -17,6 +17,7 @@ import {
     Sun,
     Moon,
 } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -218,14 +219,19 @@ const LandingPageBrand = () => {
         return () => window.removeEventListener("mousemove", handleMouse);
     }, []);
 
-    if (!isStyleReady) {
-        return <div className="fixed inset-0 bg-white dark:bg-zinc-950 z-[9999]" />;
-    }
-
     const { scrollYProgress } = useScroll();
     const mascotScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
     const mascotOpacity = useTransform(scrollYProgress, [0, 0.1, 0.2], [0.4, 0.8, 1]); // Kept but unused ref
     const lightIntensity = useTransform(scrollYProgress, [0, 0.2], [0.6, 1]);
+    // Door animation transforms - MUST be defined at top level, not inside .map()
+    const doorLeftX = useTransform(scrollYProgress, [0, 0.15], ["0%", "-100%"]);
+    const doorLeftRotateY = useTransform(scrollYProgress, [0, 0.15], [0, -45]);
+    const doorRightX = useTransform(scrollYProgress, [0, 0.15], ["0%", "100%"]);
+    const doorRightRotateY = useTransform(scrollYProgress, [0, 0.15], [0, 45]);
+
+    if (!isStyleReady) {
+        return <Loader text="Entrando no Fresta..." />;
+    }
 
     const features = [
         {
@@ -294,10 +300,6 @@ const LandingPageBrand = () => {
         }
     ];
 
-    // BRAND CONSTANTS
-    // BRAND CONSTANTS - Dynamic based on theme
-    const BRAND_BG_GRADIENT = `bg-gradient-to-b from-[${currentTheme.colors.primary}10] via-white to-white`;
-
     return (
         // FRAME LAYOUT: Thicker White Frame and Mobile Responsive
         <div ref={containerRef} className="min-h-screen bg-white relative font-sans p-2 lg:p-4 pb-0">
@@ -350,8 +352,8 @@ const LandingPageBrand = () => {
                 </div>
 
                 {/* Header Mobile - Premium Floating Pill Style */}
-                <div className="lg:hidden fixed top-0 inset-x-0 z-50 pointer-events-none flex justify-center pt-4 px-4">
-                    <div className="w-full max-w-[500px] pointer-events-auto backdrop-blur-xl rounded-2xl shadow-lg border px-3.5 py-2.5 flex justify-between items-center" style={{ backgroundColor: isDark ? 'rgba(24, 24, 27, 0.92)' : 'rgba(255, 255, 255, 0.95)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : `${currentTheme.colors.primary}15` }}>
+                <div className="lg:hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-32px)] max-w-[500px] pointer-events-none">
+                    <div className="w-full pointer-events-auto backdrop-blur-xl rounded-2xl shadow-lg border px-3.5 py-2.5 flex justify-between items-center" style={{ backgroundColor: isDark ? 'rgba(24, 24, 27, 0.92)' : 'rgba(255, 255, 255, 0.95)', borderColor: isDark ? 'rgba(255,255,255,0.1)' : `${currentTheme.colors.primary}15` }}>
                         {/* Logo + Brand */}
                         <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
                             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${currentTheme.primaryGradient}`}>
@@ -417,16 +419,23 @@ const LandingPageBrand = () => {
 
                                     {/* Doors - Using Wood/Amber tones still as it matches the "Door" concept, but maybe with Green trims? */}
                                     <div className="absolute inset-0 flex z-20">
-                                        {['left', 'right'].map(side => (
-                                            <motion.div
-                                                key={side}
-                                                className={`flex-1 h-full bg-gradient-to-b from-amber-800 to-amber-950 flex items-center ${side === 'left' ? 'border-r border-amber-700 justify-end' : 'border-l border-amber-700 justify-start relative'}`}
-                                                style={{ x: useTransform(scrollYProgress, [0, 0.15], ["0%", side === 'left' ? "-100%" : "100%"]), rotateY: useTransform(scrollYProgress, [0, 0.15], [0, side === 'left' ? -45 : 45]) }}
-                                            >
-                                                <div className={`w-1 h-[80%] bg-amber-700/30 rounded-full ${side === 'left' ? 'mr-2' : 'ml-2'}`} />
-                                                {side === 'right' && <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-12 lg:w-6 lg:h-20 bg-gradient-to-b from-[#F9A03F] to-[#d97706] rounded-full shadow-lg border border-[#F9A03F]/50" />}
-                                            </motion.div>
-                                        ))}
+                                        <motion.div
+                                            key="left"
+                                            className="flex-1 h-full bg-gradient-to-b from-amber-800 to-amber-950 flex items-center border-r border-amber-700 justify-end"
+                                            initial={{ x: "0%", rotateY: 0 }}
+                                            style={{ x: doorLeftX, rotateY: doorLeftRotateY }}
+                                        >
+                                            <div className="w-1 h-[80%] bg-amber-700/30 rounded-full mr-2" />
+                                        </motion.div>
+                                        <motion.div
+                                            key="right"
+                                            className="flex-1 h-full bg-gradient-to-b from-amber-800 to-amber-950 flex items-center border-l border-amber-700 justify-start relative"
+                                            initial={{ x: "0%", rotateY: 0 }}
+                                            style={{ x: doorRightX, rotateY: doorRightRotateY }}
+                                        >
+                                            <div className="w-1 h-[80%] bg-amber-700/30 rounded-full ml-2" />
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-12 lg:w-6 lg:h-20 bg-gradient-to-b from-[#F9A03F] to-[#d97706] rounded-full shadow-lg border border-[#F9A03F]/50" />
+                                        </motion.div>
                                     </div>
                                 </div>
                             </div>
