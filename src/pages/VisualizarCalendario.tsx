@@ -928,7 +928,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate

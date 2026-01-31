@@ -34,9 +34,19 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     return allowedRoles.includes(role);
   }, [isAuthenticated, allowedRoles, role]);
 
+  // NEW: Detecta se ainda estamos carregando o role
+  // Isso evita redirect prematuro quando usuário está autenticado mas role não carregou
+  const isRoleStillLoading = isAuthenticated && !role && allowedRoles && allowedRoles.length > 0;
+
   useEffect(() => {
     // Não fazer nada enquanto carrega
     if (isLoading) return;
+
+    // Aguardar o role ser carregado antes de decidir autorização
+    if (isRoleStillLoading) {
+      console.log('[ProtectedRoute] Aguardando role ser carregado...');
+      return;
+    }
 
     // Não autenticado -> Login
     if (!isAuthenticated) {
@@ -65,10 +75,10 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
       navigate("/portal", { replace: true });
     }
-  }, [isAuthenticated, isLoading, isAuthorized, role, allowedRoles, user, location.pathname, location.search, navigate]);
+  }, [isAuthenticated, isLoading, isAuthorized, isRoleStillLoading, role, allowedRoles, user, location.pathname, location.search, navigate]);
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (inclui aguardar role)
+  if (isLoading || isRoleStillLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
