@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { HangingHearts, WeddingShower } from "./themeComponents";
 import { CarnavalDecorations } from "./carnavalComponents";
+import { SaoJoaoDecorations } from "./saojoaoComponents";
 
 export interface PremiumThemeConfig {
   id: string;
@@ -121,6 +122,7 @@ export interface PremiumThemeConfig {
       editorContainer: string;
       button: string;
       secondaryButton: string;
+      message?: string;
     };
     editor?: {
       topBar: {
@@ -462,7 +464,8 @@ export const namoroTheme: PremiumThemeConfig = {
       title: "text-[36px] font-serif italic font-bold leading-tight text-rose-900 drop-shadow-sm relative",
       subtitle: "text-rose-500 font-festive text-2xl drop-shadow-sm",
       badgeText: "Amor e Romance",
-      badgeTextClass: "text-[10px] xs:text-xs font-bold text-rose-600 dark:text-rose-300 tracking-wide",
+      badgeTextClass: "text-[10px] xs:text-xs font-bold text-white tracking-wide",
+      badge: "bg-gradient-to-r from-rose-500 to-pink-500",
       backButton: "bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
     },
     progress: {
@@ -592,6 +595,7 @@ export const carnavalTheme: PremiumThemeConfig = {
       subtitle: "text-purple-400 font-bold tracking-wide text-lg",
       badgeText: `Carnaval ${new Date().getFullYear()}`,
       badgeTextClass: "text-[10px] xs:text-xs font-bold text-white tracking-wide",
+      badge: "bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-400",
       backButton: "bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
     },
     progress: {
@@ -687,24 +691,24 @@ export const saojoaoTheme: PremiumThemeConfig = {
   id: 'saojoao',
   content: {
     capsule: {
-      title: "Fogueira do Amor",
-      message: "Arraiá bom é assim: com você! Cada porta é uma quadrilha de surpresas. 🔥🌽",
+      title: "Arraiá do Calendário",
+      message: "Sua contagem para a fogueira! Cada janela é uma quadrilha de surpresas. 🔥🌽",
       icon: Flame
     },
     lockedModal: {
       title: "A fogueira ainda não acendeu! 🔥",
-      message: "Calma, cabra! Ainda não é hora de abrir essa porta. Prepara o chapéu de palha que o forró já vai começar!"
+      message: "Calma, cabra! Ainda não é hora de abrir essa janela. Prepara o chapéu de palha que o forró já vai começar!"
     },
     footerMessage: "O arraial acaba, mas o amor fica! 🌽🔥",
-    subtitle: "Cada porta é uma festa junina! 🎪",
-    editorSubtitle: "São João: Monte seu arraial de surpresas! 🔥"
+    subtitle: "Sua contagem para a fogueira",
+    editorSubtitle: "Monte seu arraial de surpresas! 🔥"
   },
   styles: {
     background: {
       backgroundColor: "#FFF8E8"
     }
   },
-  FloatingComponent: CarnavalDecorations, // TODO: Criar SaoJoaoDecorations
+  FloatingComponent: SaoJoaoDecorations,
   ui: {
     layout: {
       bgClass: "bg-[#FFF8E8]",
@@ -718,89 +722,91 @@ export const saojoaoTheme: PremiumThemeConfig = {
     },
     header: {
       container: "px-6 mt-4 text-center relative z-10 flex flex-col items-center gap-2",
-      title: "text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500 font-festive tracking-tight text-[36px] drop-shadow-sm relative",
-      subtitle: "text-amber-600 font-bold tracking-wide text-lg",
-      badgeText: `São João ${new Date().getFullYear()}`,
+      title: "text-[#5D4037] font-extrabold tracking-tight text-[28px] drop-shadow-sm relative flex items-center gap-2",
+      subtitle: "text-[#8D6E63] font-medium tracking-wide text-base",
+      badgeText: "VILA DE SÃO JOÃO",
       badgeTextClass: "text-[10px] xs:text-xs font-bold text-white tracking-wide",
-      backButton: "bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
+      badge: "bg-[#E65100] text-white",
+      backButton: "bg-white text-[#5D4037] hover:bg-amber-50 transition-colors shadow-md"
     },
     progress: {
-      container: "flex flex-col gap-3 px-8 mt-6 relative z-10",
-      label: "text-amber-700 text-xs font-bold tracking-wider",
-      labelText: " Ritmo do Forró",
-      barContainer: "h-3 w-full rounded-full bg-amber-100 overflow-hidden border border-amber-200 shadow-inner",
-      barFill: "h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 relative",
+      container: "flex flex-col gap-3 px-6 mt-6 relative z-10",
+      label: "text-[#E65100] text-xs font-bold tracking-wider uppercase",
+      labelText: "Janelas do São João",
+      barContainer: "h-3 w-full rounded-full bg-[#FFCC80] overflow-hidden border border-[#FFB74D] shadow-inner",
+      barFill: "h-full rounded-full bg-gradient-to-r from-[#E65100] to-[#FF8F00] relative",
       barShimmer: "absolute inset-0 bg-white/20 animate-pulse"
     },
     cards: {
       envelope: {
-        container: "aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-xl shadow-lg cursor-pointer transition-transform duration-300 border-2 border-amber-300 bg-white overflow-hidden group",
-        pattern: "absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(135deg,transparent_50%,#FEF3C7_50%),linear-gradient(225deg,transparent_50%,#FEF3C7_50%)] bg-[length:50%_100%] bg-no-repeat bg-[position:left_top,right_top] z-[1]",
-        seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 shadow-md z-[2] flex items-center justify-center",
-        button: "bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:from-amber-600 hover:to-orange-700 transition-colors tracking-widest",
-        buttonText: "Abrir a Barraca",
-        glowClass: "shadow-[0_0_20px_5px_rgba(217,119,6,0.3)]",
-        borderClass: "border-amber-300"
+        container: "aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-2xl shadow-lg cursor-pointer transition-transform duration-300 border-2 border-[#8D6E63] bg-[#5D4037] overflow-hidden group",
+        pattern: "absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(135deg,transparent_50%,rgba(255,255,255,0.1)_50%),linear-gradient(225deg,transparent_50%,rgba(255,255,255,0.1)_50%)] bg-[length:50%_100%] bg-no-repeat bg-[position:left_top,right_top] z-[1]",
+        seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-[#E65100] to-[#FF8F00] shadow-md z-[2] flex items-center justify-center",
+        button: "bg-white text-[#5D4037] text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:bg-amber-50 transition-colors tracking-widest",
+        buttonText: "ABRA A JANELA!",
+        glowClass: "shadow-[0_0_20px_5px_rgba(230,81,0,0.3)]",
+        borderClass: "border-[#8D6E63]"
       },
       locked: {
-        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl opacity-90 border border-amber-200/50 overflow-hidden group cursor-pointer",
-        style: { background: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), rgba(254,243,199,0.5)), repeating-linear-gradient(45deg, #FEF3C7 0, #FEF3C7 10px, #FDE68A 10px, #FDE68A 11px)` },
-        overlay: "absolute inset-0 bg-white/30 backdrop-blur-[1px]",
-        number: "text-amber-500 font-festive text-3xl mb-1 drop-shadow-sm",
-        iconWrapper: "flex flex-col items-center gap-1 bg-white/60 px-3 py-1 rounded-full border border-amber-200 shadow-sm backdrop-blur-sm",
-        iconClass: "w-3 h-3 text-amber-500",
-        text: "text-[8px] font-bold text-amber-600/80 tracking-wide",
-        badge: "bg-white/80 text-amber-500 text-[8px] font-bold px-2 py-0.5 rounded-full shadow-sm",
-        borderClass: "border-amber-200/50"
+        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-2xl opacity-90 border border-[#D7CCC8] overflow-hidden group cursor-pointer bg-[#EFEBE9]",
+        style: { backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(141,110,99,0.15) 8px, rgba(141,110,99,0.15) 10px)` },
+        overlay: "absolute inset-0 bg-white/10",
+        number: "text-[#5D4037] font-extrabold text-2xl mb-1",
+        iconWrapper: "flex flex-col items-center gap-1 bg-white/60 px-3 py-1 rounded-full border border-[#D7CCC8] shadow-sm backdrop-blur-sm",
+        iconClass: "w-3 h-3 text-[#8D6E63]",
+        text: "text-[8px] font-bold text-[#8D6E63] tracking-wide",
+        badge: "bg-white/80 text-[#5D4037] text-[8px] font-bold px-2 py-0.5 rounded-full shadow-sm",
+        borderClass: "border-[#D7CCC8]"
       },
       unlocked: {
-        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl bg-white border-2 border-amber-200 shadow-sm overflow-hidden group cursor-pointer",
+        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-2xl bg-[#FFF8E1] border-2 border-[#FFB74D] shadow-sm overflow-hidden group cursor-pointer",
         imageOverlay: "blur-[30px]",
         placeholderWrapper: "blur-[15px] opacity-70",
         placeholderPattern: {
-          backgroundImage: `linear-gradient(90deg, transparent 19px, #F59E0B 19px, #F59E0B 20px, transparent 20px), linear-gradient(#eee 0.1em, transparent 0.1em)`,
+          backgroundImage: `linear-gradient(90deg, transparent 19px, #FFB74D 19px, #FFB74D 20px, transparent 20px), linear-gradient(#eee 0.1em, transparent 0.1em)`,
           backgroundSize: '100% 0.8em'
         },
-        badge: "text-[10px] font-bold px-2 rounded-full mb-1 text-amber-700 bg-amber-50/80",
+        badge: "text-[10px] font-bold px-2 rounded-full mb-1 text-[#5D4037] bg-white/80",
         iconWrapper: "absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow-sm z-20",
-        borderClass: "border-amber-200",
-        bgClass: "bg-white"
+        borderClass: "border-[#FFB74D]",
+        bgClass: "bg-[#FFF8E1]"
       },
       empty: {
-        container: "aspect-[4/5] bg-amber-50/50 relative flex flex-col items-center justify-center p-2 rounded-xl border-2 border-amber-300 border-dashed cursor-pointer hover:bg-amber-100/50 transition-colors group",
-        number: "text-amber-400 font-festive text-2xl mb-2",
-        iconWrapper: "w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-md",
-        borderClass: "border-amber-300",
-        bgClass: "bg-amber-50/50"
+        container: "aspect-[4/5] bg-[#FFF8E1] relative flex flex-col items-center justify-center p-2 rounded-2xl border-2 border-[#FFB74D] border-dashed cursor-pointer hover:bg-[#FFECB3] transition-colors group",
+        number: "text-[#8D6E63] font-extrabold text-2xl mb-2",
+        iconWrapper: "w-8 h-8 rounded-full bg-[#E65100] text-white flex items-center justify-center shadow-md",
+        borderClass: "border-[#FFB74D]",
+        bgClass: "bg-[#FFF8E1]"
       }
     },
     footer: {
-      container: "relative w-full px-4 pt-12 pb-24 flex items-center justify-center transition-all",
-      editorContainer: "relative w-full px-4 pt-8 pb-16 flex items-center justify-center gap-4 transition-all",
-      button: "bg-amber-500 hover:bg-amber-600 text-white w-14 h-14 sm:w-auto sm:px-8 sm:h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30 transition-all active:scale-95 whitespace-nowrap",
-      secondaryButton: "h-14 w-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 transition-colors hover:bg-amber-100"
+      container: "relative w-full px-4 pt-12 pb-24 flex flex-col items-center justify-center gap-4 transition-all",
+      editorContainer: "relative w-full px-4 pt-8 pb-16 flex items-center justify-center gap-3 transition-all",
+      button: "bg-[#E65100] hover:bg-[#BF360C] text-white w-14 h-14 sm:w-auto sm:px-8 sm:h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-[#E65100]/30 transition-all active:scale-95 whitespace-nowrap",
+      secondaryButton: "h-14 w-14 rounded-full bg-white text-[#5D4037] flex items-center justify-center border border-[#D7CCC8] shadow-md transition-colors hover:bg-[#FFF8E1]",
+      message: "text-[#8D6E63] text-sm font-medium text-center mt-2"
     },
     editor: {
       topBar: {
-        container: "border-amber-200",
-        backButton: "text-amber-600",
-        modeText: "text-amber-600",
-        badgeText: "text-amber-900",
-        previewButtonActive: "bg-amber-500 text-white shadow-amber-500/20",
-        previewButtonInactive: "bg-zinc-50 text-amber-600 border-amber-200",
-        settingsButton: "bg-zinc-50 text-amber-600 border-amber-200"
+        container: "border-[#D7CCC8]",
+        backButton: "text-[#5D4037]",
+        modeText: "text-[#E65100]",
+        badgeText: "text-[#5D4037]",
+        previewButtonActive: "bg-[#E65100] text-white shadow-[#E65100]/20",
+        previewButtonInactive: "bg-white text-[#5D4037] border-[#D7CCC8]",
+        settingsButton: "bg-white text-[#5D4037] border-[#D7CCC8]"
       },
       stats: {
-        card: "border-amber-200/50",
-        number: "text-amber-900",
-        label: "text-amber-500"
+        card: "border-[#D7CCC8]/50",
+        number: "text-[#5D4037]",
+        label: "text-[#8D6E63]"
       }
     },
     quote: {
-      container: "mt-10 p-6 sm:p-8 rounded-[2rem] bg-white/70 border-2 border-amber-200 flex flex-col items-center text-center gap-2 shadow-sm max-w-lg mx-auto relative group backdrop-blur-sm",
-      icon: "text-amber-500 w-8 h-8 fill-current opacity-90",
-      title: "text-[10px] font-black uppercase tracking-[0.2em] text-amber-500 mb-1",
-      text: "text-2xl sm:text-3xl text-amber-600 font-romantic leading-relaxed"
+      container: "mt-6 mx-4 p-5 rounded-2xl bg-white border border-[#D7CCC8] flex flex-col items-center text-center gap-2 shadow-sm max-w-lg mx-auto relative",
+      icon: "text-[#E65100] w-6 h-6 fill-current",
+      title: "text-sm font-bold text-[#5D4037]",
+      text: "text-sm text-[#8D6E63] leading-relaxed"
     },
     icons: {
       main: Flame,

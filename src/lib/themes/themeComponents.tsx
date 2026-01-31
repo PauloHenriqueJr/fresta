@@ -836,6 +836,17 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
       descColor: "text-sky-700/80 dark:text-sky-300/80",
       icon: PartyPopper
     },
+    saojoao: {
+      title: "Eita, cabra apressado! 🔥",
+      message: "A fogueira ainda não acendeu! Calma que o forró já vai começar.",
+      buttonColor: "bg-[#E65100] hover:bg-[#BF360C]",
+      iconColor: "text-[#E65100]",
+      bgColor: "bg-[#FFF8E1] dark:bg-zinc-900",
+      borderColor: "border-[#FFB74D] dark:border-[#E65100]/50",
+      textColor: "text-[#5D4037] dark:text-[#FFB74D]",
+      descColor: "text-[#8D6E63] dark:text-[#D7CCC8]",
+      icon: Flame
+    },
     default: {
       title: "Calma, Coração!",
       message: "Essa surpresa ainda está sendo preparada. Segura a ansiedade!",
@@ -1387,6 +1398,135 @@ export const BirthdayCardModal = ({ isOpen, onClose, content, config }: Birthday
           </button>
           <button onClick={onClose} className="text-sky-400 text-[10px] font-black uppercase tracking-widest py-2 hover:text-sky-600 transition-colors">
             Continuar vendo o calendário
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+};
+
+// --- São João Barraca Modal (Premium - Festa Junina) ---
+interface SaoJoaoBarracaModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const SaoJoaoBarracaModal = ({ isOpen, onClose, content, config }: SaoJoaoBarracaModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#5D4037]/70 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Bandeirinhas e Decorações Juninas */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        <div className="absolute top-0 left-0 right-0 flex justify-center gap-0">
+          {['#E65100', '#FFEB3B', '#2196F3', '#E65100', '#FFEB3B', '#2196F3', '#E65100', '#FFEB3B'].map((color, i) => (
+            <div
+              key={i}
+              className="w-8 h-12"
+              style={{
+                clipPath: 'polygon(50% 100%, 0 0, 100% 0)',
+                backgroundColor: color,
+                transform: `translateY(-${Math.random() * 5}px)`
+              }}
+            />
+          ))}
+        </div>
+        <div className="absolute top-24 left-6 text-3xl animate-bounce" style={{ animationDelay: '0s' }}>🌽</div>
+        <div className="absolute bottom-32 right-8 text-4xl animate-pulse">🔥</div>
+        <div className="absolute top-36 right-12 text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🪗</div>
+        <div className="absolute top-1/2 left-4 text-3xl animate-pulse" style={{ animationDelay: '1s' }}>🎪</div>
+        <div className="absolute bottom-16 left-16 text-3xl animate-bounce" style={{ animationDelay: '0.2s' }}>🥜</div>
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-[#FFF8E1] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-[6px] border-[#FFB74D]"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-[#5D4037] transition-colors shadow-md"
+        >
+          <span className="text-lg font-bold">✕</span>
+        </button>
+
+        {/* Header */}
+        <div className="pt-10 pb-4 text-center relative z-10 bg-gradient-to-b from-[#FFE0B2]/50 to-transparent">
+          <div className="w-20 h-20 rounded-3xl bg-[#E65100] shadow-lg flex items-center justify-center mx-auto mb-4 text-white -rotate-3 border-4 border-[#FF8F00]">
+            <Flame className="w-10 h-10 drop-shadow-sm" />
+          </div>
+          <h2 className="text-2xl font-black text-[#5D4037] tracking-tight drop-shadow-sm px-4">
+            {content.title || "Arraiá! 🔥"}
+          </h2>
+          <p className="text-[#8D6E63] text-xs font-black uppercase tracking-widest mt-1">Surpresa da Fogueira</p>
+        </div>
+
+        {/* Content Body - Scrollable */}
+        <div className="flex-1 px-6 pb-6 overflow-y-auto overscroll-contain text-center">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-[#FFB74D] bg-[#FFECB3] mb-6 relative group -rotate-1">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-[#5D4037]">
+                  <a href={content.mediaUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-white group-hover:scale-105 transition-transform">
+                    <Play className="w-12 h-12 fill-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Abrir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1529686342540-1b43aec0df75?q=80&w=3870"}
+                />
+              )}
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-[#D7CCC8] relative group hover:scale-[1.02] transition-transform duration-300">
+              <Flame className="w-6 h-6 text-[#E65100]/30 absolute -top-3 -left-2" />
+              <p className="text-[#5D4037] text-lg font-medium leading-relaxed">
+                "{content.message}"
+              </p>
+              <div className="flex justify-center gap-3 mt-4 text-2xl opacity-100 grayscale-[0.2] group-hover:grayscale-0 transition-all">
+                <span>🌽</span><span>🔥</span><span>🪗</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-[#D7CCC8] flex flex-col gap-3 relative z-20">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Arraiá do Calendário! 🔥",
+                text: content.message || "Veja essa surpresa junina!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🌽", description: "Bora pro arraiá!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-[#E65100] hover:bg-[#BF360C] text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-[#E65100]/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Convidar pra Festa
+          </button>
+          <button onClick={onClose} className="text-[#8D6E63] text-[10px] font-black uppercase tracking-widest py-2 hover:text-[#5D4037] transition-colors">
+            Voltar pro Arraial
           </button>
         </div>
       </motion.div>

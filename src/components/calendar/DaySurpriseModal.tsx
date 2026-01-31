@@ -17,7 +17,7 @@ interface DaySurpriseModalProps {
   isTemplate?: boolean;
 }
 
-import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal } from "@/lib/themes/themeComponents";
 
 const DaySurpriseModal = ({
   isOpen,
@@ -37,6 +37,21 @@ const DaySurpriseModal = ({
         content={{
           type: content?.type === "text" ? "text" : "image",
           title: `Porta ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
+  if (theme === "saojoao") {
+    return (
+      <SaoJoaoBarracaModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Janela ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
         }}
