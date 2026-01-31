@@ -177,6 +177,11 @@ const LandingPageBrand = () => {
         }
     }, [isSettingsLoading]);
 
+    // Force scroll to top on mount to ensure doors start closed
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
             const userRole = authRole || localStorage.getItem('fresta_user_role') || 'user';
