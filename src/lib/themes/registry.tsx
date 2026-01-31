@@ -682,12 +682,143 @@ export const carnavalTheme: PremiumThemeConfig = {
   }
 };
 
+// === SÃO JOÃO THEME ===
+export const saojoaoTheme: PremiumThemeConfig = {
+  id: 'saojoao',
+  content: {
+    capsule: {
+      title: "Fogueira do Amor",
+      message: "Arraiá bom é assim: com você! Cada porta é uma quadrilha de surpresas. 🔥🌽",
+      icon: Flame
+    },
+    lockedModal: {
+      title: "A fogueira ainda não acendeu! 🔥",
+      message: "Calma, cabra! Ainda não é hora de abrir essa porta. Prepara o chapéu de palha que o forró já vai começar!"
+    },
+    footerMessage: "O arraial acaba, mas o amor fica! 🌽🔥",
+    subtitle: "Cada porta é uma festa junina! 🎪",
+    editorSubtitle: "São João: Monte seu arraial de surpresas! 🔥"
+  },
+  styles: {
+    background: {
+      backgroundColor: "#FFF8E8"
+    }
+  },
+  FloatingComponent: CarnavalDecorations, // TODO: Criar SaoJoaoDecorations
+  ui: {
+    layout: {
+      bgClass: "bg-[#FFF8E8]",
+      bgSvg: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 15c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zM45 40c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zM15 40c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z' fill='%23D97706' fill-opacity='0.08'/%3E%3C/svg%3E")`,
+      containerClass: "font-display",
+      headerWrapper: "relative w-full bg-white/80 pb-6 rounded-b-[2.5rem] shadow-sm z-10 pt-6 backdrop-blur-sm border-b border-amber-200",
+      mainClass: "flex-1 px-4 py-8 pb-12 relative z-0",
+      messageFont: "font-display",
+      titleFont: "font-festive",
+      secondaryFont: "font-sans"
+    },
+    header: {
+      container: "px-6 mt-4 text-center relative z-10 flex flex-col items-center gap-2",
+      title: "text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500 font-festive tracking-tight text-[36px] drop-shadow-sm relative",
+      subtitle: "text-amber-600 font-bold tracking-wide text-lg",
+      badgeText: `São João ${new Date().getFullYear()}`,
+      badgeTextClass: "text-[10px] xs:text-xs font-bold text-white tracking-wide",
+      backButton: "bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
+    },
+    progress: {
+      container: "flex flex-col gap-3 px-8 mt-6 relative z-10",
+      label: "text-amber-700 text-xs font-bold tracking-wider",
+      labelText: " Ritmo do Forró",
+      barContainer: "h-3 w-full rounded-full bg-amber-100 overflow-hidden border border-amber-200 shadow-inner",
+      barFill: "h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 relative",
+      barShimmer: "absolute inset-0 bg-white/20 animate-pulse"
+    },
+    cards: {
+      envelope: {
+        container: "aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-xl shadow-lg cursor-pointer transition-transform duration-300 border-2 border-amber-300 bg-white overflow-hidden group",
+        pattern: "absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(135deg,transparent_50%,#FEF3C7_50%),linear-gradient(225deg,transparent_50%,#FEF3C7_50%)] bg-[length:50%_100%] bg-no-repeat bg-[position:left_top,right_top] z-[1]",
+        seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 shadow-md z-[2] flex items-center justify-center",
+        button: "bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:from-amber-600 hover:to-orange-700 transition-colors tracking-widest",
+        buttonText: "Abrir a Barraca",
+        glowClass: "shadow-[0_0_20px_5px_rgba(217,119,6,0.3)]",
+        borderClass: "border-amber-300"
+      },
+      locked: {
+        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl opacity-90 border border-amber-200/50 overflow-hidden group cursor-pointer",
+        style: { background: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8), rgba(254,243,199,0.5)), repeating-linear-gradient(45deg, #FEF3C7 0, #FEF3C7 10px, #FDE68A 10px, #FDE68A 11px)` },
+        overlay: "absolute inset-0 bg-white/30 backdrop-blur-[1px]",
+        number: "text-amber-500 font-festive text-3xl mb-1 drop-shadow-sm",
+        iconWrapper: "flex flex-col items-center gap-1 bg-white/60 px-3 py-1 rounded-full border border-amber-200 shadow-sm backdrop-blur-sm",
+        iconClass: "w-3 h-3 text-amber-500",
+        text: "text-[8px] font-bold text-amber-600/80 tracking-wide",
+        badge: "bg-white/80 text-amber-500 text-[8px] font-bold px-2 py-0.5 rounded-full shadow-sm",
+        borderClass: "border-amber-200/50"
+      },
+      unlocked: {
+        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl bg-white border-2 border-amber-200 shadow-sm overflow-hidden group cursor-pointer",
+        imageOverlay: "blur-[30px]",
+        placeholderWrapper: "blur-[15px] opacity-70",
+        placeholderPattern: {
+          backgroundImage: `linear-gradient(90deg, transparent 19px, #F59E0B 19px, #F59E0B 20px, transparent 20px), linear-gradient(#eee 0.1em, transparent 0.1em)`,
+          backgroundSize: '100% 0.8em'
+        },
+        badge: "text-[10px] font-bold px-2 rounded-full mb-1 text-amber-700 bg-amber-50/80",
+        iconWrapper: "absolute top-1 right-1 bg-white/80 rounded-full p-1 shadow-sm z-20",
+        borderClass: "border-amber-200",
+        bgClass: "bg-white"
+      },
+      empty: {
+        container: "aspect-[4/5] bg-amber-50/50 relative flex flex-col items-center justify-center p-2 rounded-xl border-2 border-amber-300 border-dashed cursor-pointer hover:bg-amber-100/50 transition-colors group",
+        number: "text-amber-400 font-festive text-2xl mb-2",
+        iconWrapper: "w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-md",
+        borderClass: "border-amber-300",
+        bgClass: "bg-amber-50/50"
+      }
+    },
+    footer: {
+      container: "relative w-full px-4 pt-12 pb-24 flex items-center justify-center transition-all",
+      editorContainer: "relative w-full px-4 pt-8 pb-16 flex items-center justify-center gap-4 transition-all",
+      button: "bg-amber-500 hover:bg-amber-600 text-white w-14 h-14 sm:w-auto sm:px-8 sm:h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-amber-500/30 transition-all active:scale-95 whitespace-nowrap",
+      secondaryButton: "h-14 w-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 transition-colors hover:bg-amber-100"
+    },
+    editor: {
+      topBar: {
+        container: "border-amber-200",
+        backButton: "text-amber-600",
+        modeText: "text-amber-600",
+        badgeText: "text-amber-900",
+        previewButtonActive: "bg-amber-500 text-white shadow-amber-500/20",
+        previewButtonInactive: "bg-zinc-50 text-amber-600 border-amber-200",
+        settingsButton: "bg-zinc-50 text-amber-600 border-amber-200"
+      },
+      stats: {
+        card: "border-amber-200/50",
+        number: "text-amber-900",
+        label: "text-amber-500"
+      }
+    },
+    quote: {
+      container: "mt-10 p-6 sm:p-8 rounded-[2rem] bg-white/70 border-2 border-amber-200 flex flex-col items-center text-center gap-2 shadow-sm max-w-lg mx-auto relative group backdrop-blur-sm",
+      icon: "text-amber-500 w-8 h-8 fill-current opacity-90",
+      title: "text-[10px] font-black uppercase tracking-[0.2em] text-amber-500 mb-1",
+      text: "text-2xl sm:text-3xl text-amber-600 font-romantic leading-relaxed"
+    },
+    icons: {
+      main: Flame,
+      locked: Lock,
+      open: Sparkles,
+      quote: Music,
+      footer: Flame
+    }
+  }
+};
+
 export const getThemeConfig = (themeId: string): PremiumThemeConfig => {
   switch (themeId) {
     case 'natal': return natalTheme;
     case 'casamento': return weddingTheme;
     case 'namoro': return namoroTheme;
     case 'carnaval': return carnavalTheme;
+    case 'saojoao': return saojoaoTheme;
     default: return namoroTheme;
   }
 };
