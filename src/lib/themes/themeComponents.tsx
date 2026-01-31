@@ -1661,3 +1661,441 @@ export const PascoaEggModal = ({ isOpen, onClose, content, config }: PascoaEggMo
     </div>
   )
 };
+
+// --- Reveillon Decorations (Top) ---
+export const ReveillonDecorations = () => {
+  return (
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none select-none overflow-hidden" style={{ height: '80px' }}>
+      {/* String of lights */}
+      <svg className="absolute top-0 left-0 w-full h-full" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lightString" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1e3a8a" />
+            <stop offset="50%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1e3a8a" />
+          </linearGradient>
+        </defs>
+        {/* Curved string */}
+        <path
+          d="M -50 20 Q 25% 60, 50% 40 T 105% 20"
+          stroke="url(#lightString)"
+          strokeWidth="2"
+          fill="none"
+          className="drop-shadow-md"
+        />
+        <path
+          d="M -50 20 Q 25% 60, 50% 40 T 105% 20"
+          stroke="rgba(59, 130, 246, 0.3)"
+          strokeWidth="4"
+          fill="none"
+        />
+      </svg>
+
+      {/* Colorful light bulbs */}
+      {[
+        { x: '5%', color: '#EF4444', delay: 0 },
+        { x: '15%', color: '#3B82F6', delay: 0.2 },
+        { x: '25%', color: '#F59E0B', delay: 0.4 },
+        { x: '35%', color: '#10B981', delay: 0.6 },
+        { x: '45%', color: '#8B5CF6', delay: 0.8 },
+        { x: '55%', color: '#EC4899', delay: 1.0 },
+        { x: '65%', color: '#06B6D4', delay: 1.2 },
+        { x: '75%', color: '#F97316', delay: 1.4 },
+        { x: '85%', color: '#84CC16', delay: 1.6 },
+        { x: '95%', color: '#EF4444', delay: 1.8 },
+      ].map((light, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full shadow-lg"
+          style={{
+            left: light.x,
+            top: '28px',
+            width: '16px',
+            height: '20px',
+            backgroundColor: light.color,
+            boxShadow: `0 0 15px ${light.color}, 0 0 30px ${light.color}80`,
+          }}
+          animate={{
+            opacity: [0.6, 1, 0.6],
+            scale: [0.9, 1.1, 0.9],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            delay: light.delay,
+            ease: "easeInOut",
+          }}
+        >
+          {/* Bulb cap */}
+          <div
+            className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-1.5 rounded-t-sm"
+            style={{ backgroundColor: '#475569' }}
+          />
+        </motion.div>
+      ))}
+
+      {/* Floating stars */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={`star-${i}`}
+          className="absolute text-yellow-300 text-xl"
+          style={{
+            left: `${10 + i * 12}%`,
+            top: `${50 + Math.random() * 20}px`,
+          }}
+          animate={{
+            opacity: [0.3, 0.8, 0.3],
+            rotate: [0, 180, 360],
+            scale: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            repeat: Infinity,
+            delay: i * 0.3,
+            ease: "easeInOut",
+          }}
+        >
+          ✦
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// --- Reveillon Locked Modal ---
+interface ReveillonLockedModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  dayNumber: number;
+  unlockDate: Date;
+  onNotify?: () => void;
+}
+
+export const ReveillonLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNotify }: ReveillonLockedModalProps) => {
+  if (!isOpen) return null;
+
+  const now = new Date();
+  const diff = unlockDate.getTime() - now.getTime();
+  const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+  const hours = Math.max(0, Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+  const minutes = Math.max(0, Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Background stars */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-yellow-300"
+            style={{
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 60}%`,
+            }}
+            animate={{
+              opacity: [0.2, 1, 0.2],
+              scale: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 2 + Math.random(),
+              repeat: Infinity,
+              delay: i * 0.2,
+              ease: "easeInOut",
+            }}
+          >
+            ✨
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-4 border-amber-400"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header */}
+        <div className="pt-8 pb-4 text-center relative z-10 bg-gradient-to-b from-amber-50 to-white">
+          {/* Hourglass icon */}
+          <motion.div
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-yellow-300 shadow-lg shadow-amber-500/30 flex items-center justify-center mx-auto mb-3"
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Clock className="w-8 h-8 text-slate-900" />
+          </motion.div>
+
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight px-4">
+            Ainda não é a hora! 🎆
+          </h2>
+          <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mt-1">
+            Contagem Regressiva
+          </p>
+        </div>
+
+        {/* Countdown Display */}
+        <div className="px-6 pb-4 bg-gradient-to-b from-white to-amber-50/30">
+          <div className="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm">
+            <p className="text-slate-600 text-sm text-center mb-4">
+              A virada está chegando! Aguarde o momento certo para revelar a surpresa do dia <span className="text-amber-600 font-bold">{dayNumber}</span>.
+            </p>
+
+            {/* Timer boxes */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="bg-gradient-to-b from-amber-500 to-yellow-400 rounded-xl p-3 min-w-[70px] text-center shadow-lg shadow-amber-500/20">
+                <span className="block text-3xl font-black text-slate-900">{days}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase">dias</span>
+              </div>
+              <span className="text-amber-500 text-2xl font-bold">:</span>
+              <div className="bg-gradient-to-b from-amber-500 to-yellow-400 rounded-xl p-3 min-w-[70px] text-center shadow-lg shadow-amber-500/20">
+                <span className="block text-3xl font-black text-slate-900">{hours.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase">horas</span>
+              </div>
+              <span className="text-amber-500 text-2xl font-bold">:</span>
+              <div className="bg-gradient-to-b from-amber-500 to-yellow-400 rounded-xl p-3 min-w-[70px] text-center shadow-lg shadow-amber-500/20">
+                <span className="block text-3xl font-black text-slate-900">{minutes.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase">min</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-amber-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={onNotify}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Bell className="w-5 h-5" />
+            Me Avise Quando Abrir
+          </button>
+          <button
+            onClick={onClose}
+            className="text-amber-600 text-[10px] font-black uppercase tracking-widest py-2 hover:text-amber-700 transition-colors"
+          >
+            Continuar Explorando
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Reveillon Fireworks Modal (Surprise) ---
+interface ReveillonFireworksModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const ReveillonFireworksModal = ({ isOpen, onClose, content, config }: ReveillonFireworksModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-b from-slate-900/90 to-blue-950/90 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Animated fireworks background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 60}%`,
+            }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{
+              scale: [0, 1.5, 2, 0],
+              opacity: [0, 1, 0.5, 0],
+              rotate: [0, 45, 90],
+            }}
+            transition={{
+              duration: 2 + Math.random(),
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeOut",
+            }}
+          >
+            <Sparkles
+              className={`w-${6 + (i % 4)} h-${6 + (i % 4)}`}
+              style={{
+                color: ['#FCD34D', '#F59E0B', '#EC4899', '#3B82F6', '#10B981'][i % 5],
+              }}
+            />
+          </motion.div>
+        ))}
+
+        {/* Floating stars */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute text-yellow-200 text-sm"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.2, 0.8, 0.2],
+              scale: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          >
+            ✨
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-4 border-amber-400"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header */}
+        <div className="pt-8 pb-4 text-center relative z-10 bg-gradient-to-b from-amber-50 to-white">
+          <motion.div
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-yellow-300 shadow-lg shadow-amber-500/30 flex items-center justify-center mx-auto mb-3"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <PartyPopper className="w-8 h-8 text-slate-900" />
+          </motion.div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight px-4">
+            {content.title || "Feliz Ano Novo! 🎉"}
+          </h2>
+          <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mt-1">
+            Surpresa Especial
+          </p>
+        </div>
+
+        {/* Content Body - Scrollable */}
+        <div className="flex-1 px-6 pb-4 overflow-y-auto overscroll-contain bg-gradient-to-b from-white to-amber-50/30">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-amber-200 bg-amber-100 mb-5 relative group">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                  <a
+                    href={content.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-2 text-white group-hover:scale-105 transition-transform"
+                  >
+                    <Play className="w-12 h-12 fill-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Assistir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  alt="Surpresa"
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=2069"}
+                />
+              )}
+              {/* Corner decorations */}
+              <div className="absolute top-2 left-2 text-2xl">🎆</div>
+              <div className="absolute top-2 right-2 text-2xl">✨</div>
+              <div className="absolute bottom-2 left-2 text-2xl">🥂</div>
+              <div className="absolute bottom-2 right-2 text-2xl">🎊</div>
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-amber-100 relative group hover:scale-[1.02] transition-transform duration-300">
+              {/* Sparkle decorations */}
+              <Sparkles className="w-6 h-6 text-amber-400/40 absolute -top-3 -left-2" />
+              <Sparkles className="w-5 h-5 text-amber-400/40 absolute -bottom-2 -right-2 rotate-12" />
+
+              <p className="text-slate-800 text-lg font-medium leading-relaxed text-center">
+                "{content.message}"
+              </p>
+
+              {/* Bottom emoji decorations */}
+              <div className="flex justify-center gap-2 mt-4 text-2xl">
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  🎆
+                </motion.span>
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                >
+                  🥂
+                </motion.span>
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                >
+                  ✨
+                </motion.span>
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.6 }}
+                >
+                  🎊
+                </motion.span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-amber-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Feliz Ano Novo! 🎉",
+                text: content.message || "Veja essa surpresa especial!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🎆", description: "Compartilhe a alegria!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar Magia
+          </button>
+          <button
+            onClick={onClose}
+            className="text-amber-600 text-[10px] font-black uppercase tracking-widest py-2 hover:text-amber-700 transition-colors"
+          >
+            Continuar Celebrando
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};

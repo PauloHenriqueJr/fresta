@@ -217,7 +217,12 @@ export const UniversalTemplate = ({
                 <div className="absolute top-6 left-0 w-full px-6 flex items-center justify-between z-[60] pointer-events-none">
                     <button
                         onClick={onNavigateBack}
-                        className={cn("flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all active:scale-90 hover:scale-105 pointer-events-auto bg-white/90 backdrop-blur-sm border border-white/50 text-foreground")}
+                        className={cn(
+                            "flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all active:scale-90 hover:scale-105 pointer-events-auto backdrop-blur-sm border-2",
+                            ui.actions?.like?.bgColor || "bg-white",
+                            ui.actions?.like?.borderColor || "border-rose-50",
+                            ui.actions?.like?.color || "text-red-500"
+                        )}
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
@@ -225,15 +230,22 @@ export const UniversalTemplate = ({
                         <button
                             onClick={onLike}
                             className={cn(
-                                "flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all active:scale-90 hover:scale-105 border-2 border-rose-50 bg-white",
-                                liked ? "bg-red-500 text-white border-red-400" : "text-red-500"
+                                "flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all active:scale-90 hover:scale-105 border-2",
+                                liked
+                                    ? (ui.actions?.like?.likedBgColor || ui.actions?.like?.bgColor || "bg-red-500") + " " + (ui.actions?.like?.likedColor || "text-white") + " " + (ui.actions?.like?.borderColor || "border-red-400")
+                                    : (ui.actions?.like?.bgColor || "bg-white") + " " + (ui.actions?.like?.color || "text-red-500") + " " + (ui.actions?.like?.borderColor || "border-rose-50")
                             )}
                         >
                             <Heart className={cn("w-5 h-5 transition-colors", liked && "fill-current")} />
                         </button>
                         <button
                             onClick={onShare}
-                            className={cn("flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all active:scale-90 hover:scale-105 bg-white border-2 border-rose-50 text-red-500 shadow-rose-200/50 pointer-events-auto")}
+                            className={cn(
+                                "flex items-center justify-center w-11 h-11 rounded-full shadow-lg transition-all active:scale-90 hover:scale-105 border-2 pointer-events-auto",
+                                ui.actions?.share?.bgColor || "bg-white",
+                                ui.actions?.share?.borderColor || "border-rose-50",
+                                ui.actions?.share?.color || "text-red-500"
+                            )}
                         >
                             <Share2 className="w-5 h-5 stroke-[2.5px]" />
                         </button>
