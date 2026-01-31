@@ -158,7 +158,7 @@ export const UniversalTemplate = ({
                             type="button"
                             className={cn(
                                 "text-white px-5 py-2.5 rounded-full shadow-lg hover:brightness-110 active:scale-95 transition-all text-xs font-black flex items-center gap-2 ring-2 ring-white relative z-[100]",
-                                ui.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary"
+                                ui.footer.button.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-') || c.startsWith('via-')).join(' ') || "bg-primary"
                             )}
                         >
                             {isSaving ? <Check className="w-4 h-4 animate-pulse" /> : <Save className="w-4 h-4" />}
@@ -413,7 +413,7 @@ export const UniversalTemplate = ({
                         onClick={onShare}
                         className={cn(
                             "flex items-center justify-center gap-2 h-11 px-4 lg:px-6 rounded-full font-black text-[10px] uppercase tracking-widest text-white shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap",
-                            ui.footer.button.split(' ').find(c => c.startsWith('bg-')) || "bg-primary"
+                            ui.footer.button.split(' ').filter(c => c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-') || c.startsWith('via-')).join(' ') || "bg-primary"
                         )}
                     >
                         <Share2 className="w-4 h-4" />

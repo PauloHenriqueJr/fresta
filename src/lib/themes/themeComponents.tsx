@@ -847,6 +847,17 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
       descColor: "text-[#8D6E63] dark:text-[#D7CCC8]",
       icon: Flame
     },
+    pascoa: {
+      title: "O coelhinho ainda não chegou! 🐰",
+      message: "Calma, essa surpresa ainda está escondida no jardim. Aguarde o momento certo!",
+      buttonColor: "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600",
+      iconColor: "text-purple-500",
+      bgColor: "bg-[#FDF4FF] dark:bg-zinc-900",
+      borderColor: "border-purple-200 dark:border-purple-900",
+      textColor: "text-purple-900 dark:text-purple-100",
+      descColor: "text-purple-600/80 dark:text-purple-300/80",
+      icon: Gift
+    },
     default: {
       title: "Calma, Coração!",
       message: "Essa surpresa ainda está sendo preparada. Segura a ansiedade!",
@@ -1527,6 +1538,123 @@ export const SaoJoaoBarracaModal = ({ isOpen, onClose, content, config }: SaoJoa
           </button>
           <button onClick={onClose} className="text-[#8D6E63] text-[10px] font-black uppercase tracking-widest py-2 hover:text-[#5D4037] transition-colors">
             Voltar pro Arraial
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+};
+
+// --- Páscoa Egg Modal (Premium - Easter) ---
+interface PascoaEggModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const PascoaEggModal = ({ isOpen, onClose, content, config }: PascoaEggModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-purple-950/60 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Decorações de Páscoa */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        <div className="absolute top-16 left-8 text-4xl animate-bounce" style={{ animationDelay: '0s' }}>🥚</div>
+        <div className="absolute bottom-32 right-10 text-3xl animate-pulse">🐰</div>
+        <div className="absolute top-32 right-16 text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🌷</div>
+        <div className="absolute top-1/2 left-6 text-3xl animate-pulse" style={{ animationDelay: '1s' }}>🐣</div>
+        <div className="absolute bottom-20 left-20 text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>🍫</div>
+        <div className="absolute top-24 left-1/2 text-2xl animate-pulse" style={{ animationDelay: '0.7s' }}>🌸</div>
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-[#FDF4FF] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-[6px] border-purple-200"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-purple-600 transition-colors shadow-md"
+        >
+          <span className="text-lg font-bold">✕</span>
+        </button>
+
+        {/* Header */}
+        <div className="pt-10 pb-4 text-center relative z-10 bg-gradient-to-b from-purple-100/50 to-transparent">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-400 to-purple-500 shadow-lg flex items-center justify-center mx-auto mb-4 text-white rotate-3 border-4 border-white">
+            <Gift className="w-10 h-10 drop-shadow-sm" />
+          </div>
+          <h2 className="text-2xl font-black text-purple-700 tracking-tight drop-shadow-sm px-4">
+            {content.title || "Surpresa de Páscoa! 🐰"}
+          </h2>
+          <p className="text-pink-500 text-xs font-black uppercase tracking-widest mt-1">Ovo encontrado!</p>
+        </div>
+
+        {/* Content Body - Scrollable */}
+        <div className="flex-1 px-6 pb-6 overflow-y-auto overscroll-contain text-center">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-purple-200 bg-purple-50 mb-6 relative group rotate-1">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                  <a href={content.mediaUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-purple-600 group-hover:scale-105 transition-transform">
+                    <Play className="w-12 h-12 fill-current" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Abrir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1521967906867-14ec9d64bee8?q=80&w=3870"}
+                />
+              )}
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-purple-100 relative group hover:scale-[1.02] transition-transform duration-300">
+              <Gift className="w-6 h-6 text-purple-300 absolute -top-3 -left-2" />
+              <p className="text-purple-700 text-lg font-medium leading-relaxed italic">
+                "{content.message}"
+              </p>
+              <div className="flex justify-center gap-3 mt-4 text-2xl opacity-100 grayscale-[0.2] group-hover:grayscale-0 transition-all">
+                <span>🥚</span><span>🐰</span><span>🍫</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-purple-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Surpresa de Páscoa! 🐰",
+                text: content.message || "Encontrei um ovo especial!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🥚", description: "Espalhe a doçura!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-purple-300/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Espalhar Doçura
+          </button>
+          <button onClick={onClose} className="text-purple-400 text-[10px] font-black uppercase tracking-widest py-2 hover:text-purple-600 transition-colors">
+            Continuar a Caça
           </button>
         </div>
       </motion.div>
