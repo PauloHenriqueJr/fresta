@@ -111,12 +111,22 @@ export const CalendarsRepository = {
       .select('status')
       .eq('user_id', calendar.owner_id);
 
+    // 4. Fetch owner's role to check if admin
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', calendar.owner_id)
+      .limit(1);
+    
+    const ownerRole = userRoles?.[0]?.role || 'user';
+
     // Merge into the expected structure for the UI
     const calendarWithData = {
       ...calendar,
       profiles: profile ? {
         ...profile,
-        subscriptions: subscriptions ?? []
+        subscriptions: subscriptions ?? [],
+        role: ownerRole
       } : null
     };
 

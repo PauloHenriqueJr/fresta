@@ -17,7 +17,10 @@ import {
   PartyPopper,
   ChevronRight,
   DoorOpen,
-  Lock
+  Lock,
+  Pencil,
+  Clock,
+  CheckCircle
 } from "lucide-react";
 import { PlusIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
@@ -342,8 +345,23 @@ const MeusCalendarios = () => {
                                 <Lock className="w-3 h-3 text-[#F9A03F]" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-[#F9A03F]">Pendente</span>
                               </div>
+                            ) : (calendar.status as string) === 'rascunho' ? (
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                <Pencil className="w-3 h-3 text-amber-600" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">Rascunho</span>
+                              </div>
+                            ) : (calendar.status as string) === 'inativo' ? (
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-500 border border-slate-300/30 dark:border-slate-600/30">
+                                <Clock className="w-3 h-3 text-slate-500" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Inativo</span>
+                              </div>
+                            ) : (calendar.status as string) === 'finalizado' ? (
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                                <CheckCircle className="w-3 h-3 text-blue-600" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Finalizado</span>
+                              </div>
                             ) : (
-                              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest">Inativo</span>
+                              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest">Desconhecido</span>
                             )}
 
                             <DropdownMenu>

@@ -12,6 +12,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "natal",
     gradientClass: "bg-gradient-festive",
     description: "Magia natalina e surpresas especiais!",
+    emoji: "🎄",
     enabledByDefault: true,
   },
   {
@@ -22,6 +23,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "reveillon",
     gradientClass: "bg-gradient-festive",
     description: "Contagem regressiva para o novo ano!",
+    emoji: "🥂",
     enabledByDefault: true,
   },
   {
@@ -32,6 +34,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "pascoa",
     gradientClass: "bg-gradient-festive",
     description: "Carinho, chocolate e mensagens especiais.",
+    emoji: "🐰",
     enabledByDefault: true,
   },
 
@@ -44,6 +47,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "carnaval",
     gradientClass: "bg-gradient-carnaval",
     description: "Energia, cores vibrantes e muita alegria!",
+    emoji: "🎭",
     enabledByDefault: true,
   },
   {
@@ -54,6 +58,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "saojoao",
     gradientClass: "bg-gradient-saojoao",
     description: "Arraial, forró e tradição junina!",
+    emoji: "🔥",
     enabledByDefault: true,
   },
   {
@@ -64,6 +69,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "independencia",
     gradientClass: "bg-gradient-festive",
     description: "Celebrar o Brasil com surpresas diárias.",
+    emoji: "🇧🇷",
     enabledByDefault: true,
   },
   {
@@ -74,6 +80,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "diadasmaes",
     gradientClass: "bg-gradient-festive",
     description: "Mensagens e memórias para a mãe.",
+    emoji: "💝",
     enabledByDefault: true,
   },
   {
@@ -84,6 +91,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "diadospais",
     gradientClass: "bg-gradient-festive",
     description: "Gratidão e surpresas para o pai.",
+    emoji: "👔",
     enabledByDefault: true,
   },
   {
@@ -94,6 +102,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "diadascriancas",
     gradientClass: "bg-gradient-carnaval",
     description: "Diversão e carinho para os pequenos.",
+    emoji: "🧸",
     enabledByDefault: true,
   },
 
@@ -106,6 +115,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "aniversario",
     gradientClass: "bg-gradient-festive",
     description: "Um presente por dia até o grande dia.",
+    emoji: "🎂",
     enabledByDefault: true,
   },
   {
@@ -116,6 +126,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "viagem",
     gradientClass: "bg-gradient-saojoao",
     description: "Checklist e surpresas até a partida.",
+    emoji: "✈️",
     enabledByDefault: true,
   },
   {
@@ -126,6 +137,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "estudos",
     gradientClass: "bg-gradient-festive",
     description: "Rotina e motivação para a prova.",
+    emoji: "📚",
     enabledByDefault: true,
   },
   {
@@ -136,6 +148,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "metas",
     gradientClass: "bg-gradient-carnaval",
     description: "Micro-hábitos e progresso diário.",
+    emoji: "🎯",
     enabledByDefault: true,
   },
   {
@@ -146,6 +159,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "peeking",
     gradientClass: "bg-gradient-festive",
     description: "Crie o seu estilo único!",
+    emoji: "🎨",
     enabledByDefault: true,
   },
 
@@ -158,6 +172,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "namoro",
     gradientClass: "bg-gradient-romance",
     description: "Para celebrar o amor todos os dias.",
+    emoji: "❤️",
     enabledByDefault: true,
   },
   {
@@ -168,6 +183,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "noivado",
     gradientClass: "bg-gradient-romance",
     description: "Momentos especiais e memórias juntos.",
+    emoji: "💍",
     enabledByDefault: true,
   },
   {
@@ -178,6 +194,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "casamento",
     gradientClass: "bg-gradient-wedding",
     description: "Comemorando nossa história de amor.",
+    emoji: "👰",
     enabledByDefault: true,
   },
   {
@@ -188,6 +205,7 @@ export const BASE_THEMES: ThemeDefinition[] = [
     imageKey: "bodas",
     gradientClass: "bg-gradient-romance",
     description: "Celebre etapas e conquistas juntos.",
+    emoji: "🥂",
     enabledByDefault: true,
   },
 

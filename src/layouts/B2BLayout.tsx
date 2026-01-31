@@ -2,12 +2,12 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/state/auth/AuthProvider";
 import B2BSidebar from "@/components/b2b/B2BSidebar";
-import { Plus, Settings, Menu, CircleUser, LayoutDashboard, Megaphone, BarChart3, Sun, Moon } from "lucide-react";
+import { Plus, Settings, Menu, CircleUser, LayoutDashboard, Megaphone, BarChart3, Sun, Moon, Calendar, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export default function B2BLayout() {
-  const { profile, logout, themePreference, updateThemePreference } = useAuth();
+  const { profile, logout, themePreference, updateThemePreference, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +50,26 @@ export default function B2BLayout() {
                 >
                   {themePreference === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
+
+                {/* Dashboard Switcher */}
+                <div className="flex items-center gap-1 bg-[#F9F9F9] dark:bg-white/5 rounded-xl p-1">
+                  <button
+                    onClick={() => navigate("/meus-calendarios")}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white dark:hover:bg-white/10 transition-all"
+                    title="Ir para B2C"
+                  >
+                    <Calendar className="w-4 h-4" />
+                  </button>
+                  {role === 'admin' && (
+                    <button
+                      onClick={() => navigate("/admin")}
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white dark:hover:bg-white/10 transition-all"
+                      title="Ir para Admin"
+                    >
+                      <Shield className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
 
                 {/* Create button */}
                 <button

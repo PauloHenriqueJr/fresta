@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink, Music } from "lucide-react";
+import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink, Music, PartyPopper } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DaySurpriseModalProps {
@@ -17,7 +17,7 @@ interface DaySurpriseModalProps {
   isTemplate?: boolean;
 }
 
-import { LoveLetterModal, CarnavalTicketModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal } from "@/lib/themes/themeComponents";
 
 const DaySurpriseModal = ({
   isOpen,
@@ -28,6 +28,89 @@ const DaySurpriseModal = ({
   isTemplate = false,
 }: DaySurpriseModalProps) => {
   const { toast } = useToast();
+
+  if (theme === "aniversario") {
+    return (
+      <BirthdayCardModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Porta ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
+  if (theme === "saojoao") {
+    return (
+      <SaoJoaoBarracaModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Janela ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
+  const getGradientClass = () => {
+    switch (theme) {
+      case "carnaval":
+        return "bg-gradient-to-br from-[#6A0DAD] via-[#FF007F] to-[#FFD700]";
+      case "saojoao":
+        return "bg-gradient-to-br from-[#FF4500] to-[#FFD700]";
+      case "namoro":
+      case "noivado":
+      case "casamento":
+      case "bodas":
+        return "bg-gradient-romance";
+      case "aniversario":
+        return "bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500";
+      default:
+        return "bg-gradient-festive";
+    }
+  };
+
+  const getButtonClass = () => {
+    switch (theme) {
+      case "carnaval":
+        return "bg-purple-600 hover:bg-purple-700 text-white";
+      case "saojoao":
+        return "bg-orange-500 hover:bg-orange-600 text-white";
+      case "aniversario":
+        return "bg-sky-500 hover:bg-sky-600 text-white";
+      case "namoro":
+      case "noivado":
+      case "casamento":
+      case "bodas":
+        return "bg-rose-500 hover:bg-rose-600 text-white";
+      default:
+        return "bg-primary text-primary-foreground";
+    }
+  };
+
+  const getIcon = () => {
+    switch (theme) {
+      case "carnaval":
+      case "saojoao":
+        return <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}><Ticket className="w-8 h-8 md:w-12 md:h-12 text-white/90 mx-auto mb-3 drop-shadow-md" /></motion.div>;
+      case "namoro":
+      case "noivado":
+      case "bodas":
+      case "casamento":
+        return <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}><Heart className="w-8 h-8 md:w-12 md:h-12 text-white/90 mx-auto mb-3" /></motion.div>;
+      case "aniversario":
+        return <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}><PartyPopper className="w-8 h-8 md:w-12 md:h-12 text-white/90 mx-auto mb-3 drop-shadow-md" /></motion.div>;
+      default:
+        return <Gift className="w-8 h-8 md:w-12 md:h-12 text-primary-foreground mx-auto mb-3" />;
+    }
+  };
 
   if (isTemplate) {
     // Force a generic "Explore Template" design for strangers
@@ -50,19 +133,9 @@ const DaySurpriseModal = ({
             >
               <div className="bg-card rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
                 {/* Dynamic Gradient Header */}
-                <div className={`p-8 text-center relative ${theme === 'carnaval' ? 'bg-gradient-to-br from-[#6A0DAD] via-[#FF007F] to-[#FFD700]' :
-                  theme === 'saojoao' ? 'bg-gradient-to-br from-[#FF4500] to-[#FFD700]' :
-                    (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? 'bg-gradient-to-br from-[#E11D48] to-[#FF6B6B]' :
-                      'bg-gradient-to-br from-[#1B4D3E] to-[#2D7A5F]'
-                  }`}>
+                <div className={`p-8 text-center relative ${getGradientClass()}`}>
                   <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto mb-4 border border-white/20">
-                    {theme === 'carnaval' || theme === 'saojoao' ? (
-                      <Ticket className="w-8 h-8 text-white drop-shadow-md" />
-                    ) : (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? (
-                      <Heart className="w-8 h-8 text-white drop-shadow-md" />
-                    ) : (
-                      <Sparkles className="w-8 h-8 text-[#FFD166]" />
-                    )}
+                    {getIcon()}
                   </div>
                   <h2 className="text-2xl font-black text-white drop-shadow-sm">Visualização</h2>
                   <p className="text-white/80 text-xs font-bold uppercase tracking-widest mt-1">Modelo de Exemplo</p>
@@ -83,18 +156,16 @@ const DaySurpriseModal = ({
                     <p className="text-xs text-muted-foreground italic">
                       {theme === 'carnaval' ? '"Prepare-se para a folia! Aqui você pode adicionar fotos da galera, vídeos do bloquinho e mensagens divertidas! 🎉🎭"' :
                         theme === 'saojoao' ? '"Olha a cobra! É mentira! 🐍 Aqui vai ter foto de quadrilha, correio elegante e muita canjica virtual! 🌽🔥"' :
-                          (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? '"No seu calendário, você poderá colocar mensagens carinhosas, fotos ou vídeos especiais aqui! ❤️"' :
-                            '"No seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ✨"'}
+                          theme === 'aniversario' ? '"Parabéns! Aqui você pode colocar mensagens de carinho, retrospectiva de fotos e desejos para o novo ciclo! 🎂🎈"' :
+                            (theme === 'namoro' || theme === 'casamento' || theme === 'noivado') ? '"No seu calendário, você poderá colocar mensagens carinhosas, fotos ou vídeos especiais aqui! ❤️"' :
+                              '"No seu calendário, você poderá colocar mensagens carinhosas, fotos de momentos especiais ou vídeos favoritos aqui! ✨"'}
                     </p>
                   </div>
 
                   <div className="pt-2">
                     <button
                       onClick={() => window.location.href = '#/criar'}
-                      className={`w-full text-white font-black py-4 rounded-2xl shadow-glow hover:scale-[1.02] transition-all ${theme === 'carnaval' ? 'bg-[#6A0DAD]' :
-                        theme === 'saojoao' ? 'bg-[#FF4500]' :
-                          'bg-[#F9A03F]'
-                        }`}
+                      className={`w-full font-black py-4 rounded-2xl shadow-glow hover:scale-[1.02] transition-all ${getButtonClass()}`}
                     >
                       CRIAR MEU CALENDÁRIO
                     </button>
@@ -145,37 +216,7 @@ const DaySurpriseModal = ({
     );
   }
 
-  const getGradientClass = () => {
-    switch (theme) {
-      case "carnaval":
-        return "bg-gradient-to-br from-[#6A0DAD] via-[#FF007F] to-[#FFD700]"; // Vibrant Purple/Pink/Gold
-      case "saojoao":
-        return "bg-gradient-to-br from-[#FF4500] to-[#FFD700]"; // Festive Orange/Gold
-      case "namoro":
-      case "noivado":
-      case "bodas":
-        return "bg-gradient-romance";
-      case "casamento":
-        return "bg-gradient-wedding";
-      default:
-        return "bg-gradient-festive";
-    }
-  };
 
-  const getIcon = () => {
-    switch (theme) {
-      case "carnaval":
-      case "saojoao":
-        return <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}><Ticket className="w-12 h-12 text-white/90 mx-auto mb-3 drop-shadow-md" /></motion.div>;
-      case "namoro":
-      case "noivado":
-      case "bodas":
-      case "casamento":
-        return <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}><Heart className="w-12 h-12 text-white/90 mx-auto mb-3" /></motion.div>;
-      default:
-        return <Gift className="w-12 h-12 text-primary-foreground mx-auto mb-3" />;
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -192,16 +233,16 @@ const DaySurpriseModal = ({
 
           {/* Modal */}
           <motion.div
-            className={`fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-md mx-auto theme-${theme}`}
+            className={`fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 max-w-md mx-auto max-h-[85vh] flex flex-col theme-${theme}`}
             initial={{ opacity: 0, scale: 0.9, y: "-40%" }}
             animate={{ opacity: 1, scale: 1, y: "-50%" }}
             exit={{ opacity: 0, scale: 0.9, y: "-40%" }}
             transition={{ type: "spring", duration: 0.5 }}
           >
-            <div className="bg-card rounded-3xl shadow-elevated overflow-hidden">
-              {/* Header with day number */}
+            <div className={`rounded-3xl shadow-elevated overflow-hidden flex flex-col h-full ${theme === 'aniversario' ? 'bg-[#F0F9FF] border-4 border-white' : 'bg-card'}`}>
+              {/* Header with day number - FIXED */}
               <div
-                className={`${getGradientClass()} p-6 text-center relative overflow-hidden`}
+                className={`${getGradientClass()} p-6 text-center relative overflow-hidden shrink-0`}
               >
                 {/* Sparkle effects */}
                 <Sparkles className="absolute top-4 left-4 w-6 h-6 text-white/30 animate-pulse" />
@@ -225,8 +266,8 @@ const DaySurpriseModal = ({
                 </button>
               </div>
 
-              {/* Content */}
-              <div className="p-8 relative bg-background/50 backdrop-blur-sm">
+              {/* Content - SCROLLABLE */}
+              <div className="p-8 relative bg-background/50 backdrop-blur-sm overflow-y-auto overscroll-contain">
                 {/* Decorative background motifs */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-40 h-40 border-[20px] border-primary rounded-full" />
@@ -234,9 +275,36 @@ const DaySurpriseModal = ({
                 </div>
                 {content?.type === "text" && (
                   <div className="text-center">
-                    <p className="text-foreground font-medium text-lg leading-relaxed">
-                      {content.message}
-                    </p>
+                    {theme === 'aniversario' ? (
+                      <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-sky-100 relative overflow-hidden mx-2 my-2 group hover:scale-[1.01] transition-transform duration-500">
+                        {/* Birthday Card Pattern */}
+                        <div className="absolute inset-0 opacity-[0.4]" style={{
+                          backgroundImage: "radial-gradient(#7dd3fc 2px, transparent 2px), radial-gradient(#fcd34d 2px, transparent 2px)",
+                          backgroundSize: "30px 30px",
+                          backgroundPosition: "0 0, 15px 15px"
+                        }}></div>
+
+                        {/* Decorative Corner Ribbons */}
+                        <div className="absolute -top-10 -left-10 w-20 h-20 bg-sky-100 rotate-45"></div>
+                        <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-sky-100 rotate-45"></div>
+
+                        <div className="relative z-10">
+                          <p className={`text-sky-950 font-medium text-2xl leading-relaxed mb-6 font-festive drop-shadow-sm`}>
+                            "{content.message}"
+                          </p>
+
+                          <div className="flex justify-center gap-4 mt-2">
+                            <span className="text-3xl animate-bounce" style={{ animationDelay: '0s' }}>🎂</span>
+                            <span className="text-3xl animate-bounce" style={{ animationDelay: '0.1s' }}>🥳</span>
+                            <span className="text-3xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎁</span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-foreground font-medium text-lg leading-relaxed">
+                        {content.message}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -452,7 +520,7 @@ const DaySurpriseModal = ({
 
                 {/* Action button */}
                 <motion.button
-                  className="w-full bg-primary text-primary-foreground font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mt-6"
+                  className={`w-full font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mt-6 ${getButtonClass()}`}
                   onClick={onClose}
                   whileHover={{ scale: 1.02, translateY: -2 }}
                   whileTap={{ scale: 0.98, translateY: 0 }}

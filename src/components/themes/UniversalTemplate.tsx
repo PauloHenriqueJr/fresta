@@ -243,8 +243,8 @@ export const UniversalTemplate = ({
 
             <div className={cn(ui.layout.headerWrapper, "pt-24 sm:pt-32 pb-8")}>
                 {!isEditorContext && ui.header.badge && (
-                    <div className={ui.header.badge}>
-                        <span className={ui.header.badgeTextClass}>
+                    <div className="flex justify-center mb-4">
+                        <span className={cn("px-4 py-1.5 rounded-full text-center", ui.header.badge, ui.header.badgeTextClass)}>
                             {config.content.headerBadge?.text || ui.header.badgeText}
                         </span>
                     </div>

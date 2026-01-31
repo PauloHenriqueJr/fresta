@@ -42,7 +42,7 @@ Uma plataforma Web (PWA) para criação de **Calendários de Contagem Regressiva
 | Funcionalidade | **Fresta Free** (Isca Viral) | **Fresta Premium** (Produto Principal) |
 |---|---|---|
 | **Preço** | **R$ 0,00** | **R$ 14,90** (Único) |
-| **Duração** | Até 5 dias (janelas) | **Ilimitado** (até 365 dias) |
+| **Duração** | Até 7 dias (janelas) | **Ilimitado** (até 365 dias) |
 | **Mídia** | Apenas Texto + Link | **Fotos + Vídeos (Embed) + Áudio** |
 | **Temas** | 1 Tema Básico (Clean) | **Todos os Temas Premium** |
 | **Uploads** | Não permitido | Fotos Otimizadas |

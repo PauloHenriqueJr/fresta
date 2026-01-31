@@ -123,15 +123,16 @@ const LandingPage = () => {
 
   const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
 
-  // Role-based redirect for logged-in users
+  // SEGURANÇA: Role vem EXCLUSIVAMENTE do Supabase (user_roles table)
   const { role: authRole } = useAuth();
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      // Prefer role from hook, fallback to localStorage if needed
-      const userRole = authRole || localStorage.getItem('fresta_user_role') || 'user';
+      // Aguarda role carregar do banco
+      if (!authRole) return;
 
-      if (['admin', 'rh'].includes(userRole)) {
+      // Redirecionamento por role após login
+      if (['admin', 'rh'].includes(authRole)) {
         navigate("/b2b", { replace: true });
       } else {
         navigate("/meus-calendarios", { replace: true });

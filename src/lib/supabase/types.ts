@@ -443,6 +443,7 @@ export type Database = {
           is_premium: boolean | null
           addons: Json | null
           expires_at: string | null
+          keep_active: boolean | null
         }
         Insert: {
           created_at?: string | null
@@ -468,6 +469,7 @@ export type Database = {
           is_premium?: boolean | null
           addons?: Json | null
           expires_at?: string | null
+          keep_active?: boolean | null
         }
         Update: {
           created_at?: string | null
@@ -493,6 +495,7 @@ export type Database = {
           is_premium?: boolean | null
           addons?: Json | null
           expires_at?: string | null
+          keep_active?: boolean | null
         }
         Relationships: []
       }
@@ -714,7 +717,7 @@ export type Database = {
       b2b_member_status: "active" | "invited"
       b2b_role: "owner" | "admin" | "editor" | "analyst"
       calendar_privacy: "public" | "private"
-      calendar_status: "ativo" | "rascunho" | "finalizado" | "aguardando_pagamento"
+      calendar_status: "ativo" | "rascunho" | "finalizado" | "aguardando_pagamento" | "inativo"
       day_content_type: "text" | "photo" | "gif" | "link"
       plan_interval: "month" | "year"
       plan_status: "active" | "archived"

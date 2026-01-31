@@ -52,14 +52,14 @@ const THEME_BG_COLORS: Record<string, string> = {
   pascoa: 'bg-[#D4F4F0]',
   independencia: 'bg-[#E8F5E0]',
   reveillon: 'bg-[#E8E4F5]',
-  aniversario: 'bg-[#FFF0E5]',
+  aniversario: 'bg-[#F0F9FF]',
 };
 
 const VisualizarCalendario = () => {
   const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [days, setDays] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,9 +85,14 @@ const VisualizarCalendario = () => {
 
   // Check if the CALENDAR OWNER is premium (data comes from getPublic)
   const ownerSubscriptions = (calendar as any)?.profiles?.subscriptions || [];
+  const ownerRole = (calendar as any)?.profiles?.role || 'user';
+
   const isOwnerPlus = calendar?.is_premium || ownerSubscriptions.some(
     (s: any) => s.status === 'active' || s.status === 'trialing'
   );
+
+  // Owner is Plus if has subscription OR is admin (no watermark for visitors)
+  const isOwnerPlusOrAdmin = isOwnerPlus || ownerRole === 'admin';
 
   const getRedactedContent = (day: CalendarDay) => {
     if (!calendar) return { type: 'text', message: "", title: "" };
@@ -645,7 +650,7 @@ const VisualizarCalendario = () => {
           title={calendar.title}
           subtitle="A contagem regressiva para o altar"
           isEditor={false}
-          showWatermark={!isOwnerPlus}
+          showWatermark={!isOwnerPlusOrAdmin}
         />
         <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
       </div>
@@ -742,7 +747,7 @@ const VisualizarCalendario = () => {
         </div>
 
         <div className="flex items-center justify-center gap-4 w-full mb-1">
-          {!isOwnerPlus && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+          {!isOwnerPlusOrAdmin && <BrandWatermark variant="compact" className="hidden sm:flex" />}
           <h1
             className={cn(
               "text-3xl font-black leading-tight text-center",
@@ -752,11 +757,11 @@ const VisualizarCalendario = () => {
           >
             {calendar.title}
           </h1>
-          {!isOwnerPlus && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+          {!isOwnerPlusOrAdmin && <BrandWatermark variant="compact" className="hidden sm:flex" />}
         </div>
 
         {/* Mobile Watermarks */}
-        {!isOwnerPlus && (
+        {!isOwnerPlusOrAdmin && (
           <div className="flex sm:hidden items-center justify-center gap-2 mb-4">
             <BrandWatermark variant="compact" />
             <BrandWatermark variant="compact" />
@@ -923,7 +928,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -958,11 +963,11 @@ const VisualizarCalendario = () => {
             }
           }}
           onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
-          showWatermark={!isOwnerPlus}
+          showWatermark={!isOwnerPlusOrAdmin}
         />
 
         {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao) */}
-        {!['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+        {!['carnaval', 'saojoao', 'aniversario'].includes(calendar.theme_id) && (
           <LoveLetterModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -972,7 +977,7 @@ const VisualizarCalendario = () => {
         )}
 
         {/* Festive Modals for Carnaval/SaoJoao */}
-        {['carnaval', 'saojoao'].includes(calendar.theme_id) && (
+        {['carnaval', 'saojoao', 'aniversario'].includes(calendar.theme_id) && (
           <DaySurpriseModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -992,7 +997,7 @@ const VisualizarCalendario = () => {
           theme={calendar.theme_id}
         />
 
-        {!isOwnerPlus && (
+        {!isOwnerPlusOrAdmin && (
           <div className="py-12 flex justify-center relative z-10">
             <BrandWatermark />
           </div>
@@ -1070,7 +1075,7 @@ const VisualizarCalendario = () => {
         theme={calendar.theme_id}
       />
 
-      {!isOwnerPlus && (
+      {!isOwnerPlusOrAdmin && (
         <div className="py-12 flex justify-center relative z-10">
           <BrandWatermark />
         </div>

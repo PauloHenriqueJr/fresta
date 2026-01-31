@@ -31,17 +31,20 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
 import { DeleteConfirmModal } from "@/components/ui/DeleteConfirmModal";
+import { useAuth } from "@/state/auth/AuthProvider";
 
 const Configuracoes = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { profile, role } = useAuth();
   const [calendar, setCalendar] = useState<any>(null);
   const [title, setTitle] = useState("");
   const [themeId, setThemeId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [loading, setLoading] = useState(true);
-  const [privacy, setPrivacy] = useState<"public" | "private">("public");
+  const [status, setStatus] = useState<"ativo" | "inativo">("ativo");
+  const [keepActive, setKeepActive] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -52,6 +55,10 @@ const Configuracoes = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  // Check if user is Plus (admin or has active subscription - for now, admin = Plus)
+  // TODO: Add subscription check when needed
+  const isPlus = role === 'admin';
+
   useEffect(() => {
     const fetchCalendar = async () => {
       if (!id) return;
@@ -61,7 +68,8 @@ const Configuracoes = () => {
           setCalendar(data);
           setTitle(data.title);
           setThemeId(data.theme_id);
-          setPrivacy(data.privacy);
+          setStatus(data.status === 'ativo' ? 'ativo' : 'inativo');
+          setKeepActive(data.keep_active || false);
           setPassword(data.password || "");
           setHeaderMessage(data.header_message || "");
           setFooterMessage(data.footer_message || "");
@@ -106,7 +114,8 @@ const Configuracoes = () => {
       await CalendarsRepository.update(id, {
         title: title.trim(),
         theme_id: themeId,
-        privacy,
+        status,
+        keep_active: isPlus ? keepActive : false,
         password: password || null,
         start_date: startDate || null,
         header_message: headerMessage || null,
@@ -282,47 +291,83 @@ const Configuracoes = () => {
                 </div>
               </motion.section>
 
-              {/* Privacy & Sharing Section */}
+              {/* Status & Settings Section */}
               <motion.section variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}>
                 <div className="bg-card rounded-[2.5rem] p-8 shadow-xl border border-border/10 transition-colors">
                   <h2 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#D4F4F0] flex items-center justify-center"><Lock className="w-4 h-4 text-[#4ECDC4]" /></div>
-                    Privacidade e Senha
+                    <div className="w-8 h-8 rounded-lg bg-[#D4F4F0] flex items-center justify-center"><Settings className="w-4 h-4 text-[#4ECDC4]" /></div>
+                    Status e Configurações
                   </h2>
 
                   <div className="space-y-6">
+                    {/* Status Toggle */}
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-black text-foreground flex items-center gap-2">
-                          Visibilidade
+                          Status do Calendário
                         </h3>
                         <p className="text-[10px] text-muted-foreground/40 italic">
-                          * Público: Aparecerá no "Explorar" para todos.
+                          Controle se o calendário está ativo ou pausado.
                         </p>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
-                        {[
-                          { id: 'public', label: 'Público', desc: 'No Explorar', icon: Globe },
-                          { id: 'private', label: 'Privado', desc: 'Apenas Link', icon: Link }
-                        ].map(p => (
-                          <button
-                            key={p.id}
-                            onClick={() => setPrivacy(p.id as any)}
-                            className={cn(
-                              "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all text-left",
-                              privacy === p.id ? "border-[#4ECDC4] bg-[#4ECDC4]/5 ring-4 ring-[#4ECDC4]/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
-                            )}
-                          >
-                            <div className="flex items-center gap-2">
-                              <Check className={cn("w-3 h-3 text-[#4ECDC4] transition-opacity", privacy === p.id ? "opacity-100" : "opacity-0")} />
-                              <p className="font-black text-foreground text-sm">{p.label}</p>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">{p.desc}</p>
-                          </button>
-                        ))}
+                        <button
+                          onClick={() => setStatus('ativo')}
+                          className={cn(
+                            "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all text-left",
+                            status === 'ativo' ? "border-[#2D7A5F] bg-[#2D7A5F]/5 ring-4 ring-[#2D7A5F]/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Check className={cn("w-3 h-3 text-[#2D7A5F] transition-opacity", status === 'ativo' ? "opacity-100" : "opacity-0")} />
+                            <p className="font-black text-foreground text-sm">Ativo</p>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">Calendário visível</p>
+                        </button>
+                        <button
+                          onClick={() => setStatus('inativo')}
+                          className={cn(
+                            "w-full p-4 rounded-2xl border-2 flex flex-col gap-1 transition-all text-left",
+                            status === 'inativo' ? "border-slate-500 bg-slate-500/5 ring-4 ring-slate-500/5" : "border-transparent bg-background/50 dark:bg-white/5 opacity-60 hover:opacity-100"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Check className={cn("w-3 h-3 text-slate-500 transition-opacity", status === 'inativo' ? "opacity-100" : "opacity-0")} />
+                            <p className="font-black text-foreground text-sm">Inativo</p>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground/60 font-medium leading-tight ml-5">Calendário pausado</p>
+                        </button>
                       </div>
                     </div>
 
+                    {/* Keep Active Toggle (Plus Only) */}
+                    {isPlus && (
+                      <div className="p-4 rounded-2xl bg-gradient-to-r from-[#F9A03F]/10 to-[#FFD166]/10 border border-[#F9A03F]/20">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-black text-foreground flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-[#F9A03F]" />
+                              Manter Ativo Sempre
+                            </h4>
+                            <p className="text-[10px] text-muted-foreground/60 mt-1">Não inativar automaticamente após o período final</p>
+                          </div>
+                          <button
+                            onClick={() => setKeepActive(!keepActive)}
+                            className={cn(
+                              "w-12 h-7 rounded-full transition-all relative",
+                              keepActive ? "bg-[#F9A03F]" : "bg-slate-200 dark:bg-slate-700"
+                            )}
+                          >
+                            <div className={cn(
+                              "absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all",
+                              keepActive ? "left-6" : "left-1"
+                            )} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Password */}
                     <div className="space-y-3">
                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Senha de Acesso (Opcional)</label>
                       <div className="relative">
@@ -341,6 +386,9 @@ const Configuracoes = () => {
                           {showPassword ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
                         </button>
                       </div>
+                      <p className="text-[10px] text-muted-foreground/40 italic ml-1">
+                        Se definida, visitantes precisarão desta senha para abrir os cards.
+                      </p>
                     </div>
                   </div>
                 </div>
