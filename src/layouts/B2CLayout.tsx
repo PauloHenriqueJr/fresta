@@ -2,13 +2,13 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import B2CSidebar from "@/components/b2c/B2CSidebar";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { Plus, Search, Calendar, Home, Moon, Sun, Sparkles } from "lucide-react";
+import { Plus, Search, Calendar, Home, Moon, Sun, Sparkles, Briefcase, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
 
 export default function B2CLayout() {
-  const { user, profile, logout, themePreference, updateThemePreference } = useAuth();
+  const { user, profile, logout, themePreference, updateThemePreference, role } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -57,6 +57,28 @@ export default function B2CLayout() {
                 >
                   {themePreference === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
+
+                {/* Dashboard Switcher - Only for Admin/RH */}
+                {(role === 'admin' || role === 'rh') && (
+                  <div className="flex items-center gap-1 bg-muted/50 dark:bg-card rounded-xl p-1 border border-border/10">
+                    <button
+                      onClick={() => navigate("/b2b")}
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
+                      title="Ir para B2B"
+                    >
+                      <Briefcase className="w-4 h-4" />
+                    </button>
+                    {role === 'admin' && (
+                      <button
+                        onClick={() => navigate("/admin")}
+                        className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all"
+                        title="Ir para Admin"
+                      >
+                        <Shield className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <button
                   onClick={() => navigate("/plus")}

@@ -184,8 +184,13 @@ const LandingPageBrand = () => {
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            const userRole = authRole || localStorage.getItem('fresta_user_role') || 'user';
-            if (['admin', 'rh'].includes(userRole)) {
+            // SEGURANÇA: authRole vem EXCLUSIVAMENTE do Supabase (user_roles table)
+            // Não há possibilidade de manipulação via console/localStorage
+            // O ProtectedRoute ainda valida novamente antes de renderizar qualquer rota protegida
+            if (!authRole) return; // Aguarda role carregar do banco
+
+            // Redirecionamento por role após login
+            if (['admin', 'rh'].includes(authRole)) {
                 navigate("/b2b", { replace: true });
             } else {
                 navigate("/meus-calendarios", { replace: true });

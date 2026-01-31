@@ -196,11 +196,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string) => {
     setIsLoading(true);
 
-    // Testing Bypass for TestSprite or Local QA in Dev Mode
-    if (email === 'testsprite@fresta.com' && (import.meta.env.DEV || window.location.hostname === 'localhost')) {
-      console.log("AuthProvider: TestSprite bypass activated for testsprite@fresta.com");
+    // SECURITY: Bypass de teste DESABILITADO em produção
+    // Para habilitar testes automatizados, defina VITE_ENABLE_TEST_BYPASS=true no .env
+    if (email === 'testsprite@fresta.com' && import.meta.env.VITE_ENABLE_TEST_BYPASS === 'true') {
+      console.warn('[SEGURANÇA] Bypass de teste ativado - use apenas em ambiente de testes automatizados');
       try {
-        // Mock a minimal session/user object
         const mockUser: any = {
           id: '00000000-0000-0000-0000-000000000000',
           email: 'testsprite@fresta.com',
@@ -210,8 +210,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setUser(mockUser);
         setSession(mockSession);
-        setRole('admin'); // Grant admin access for testing
-        setPermissions(['*']);
+        // SECURITY: Usuário de teste recebe role 'user' por padrão, não 'admin'
+        setRole('user');
+        setPermissions([]);
         setIsLoading(false);
         return { error: null };
       } catch (err: any) {
@@ -221,12 +222,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      // SECURITY: Verificar rate limit antes de permitir login
+      type RateLimitResult = { allowed: boolean; attempts: number; max_attempts: number; remaining_seconds: number };
+
+      // Helper para chamar RPC sem erros de TypeScript (funções não estão tipadas)
+      const checkRateLimit = async (identifier: string): Promise<RateLimitResult | null> => {
+        try {
+          const result = await (supabase as any).rpc('check_rate_limit', { p_identifier: identifier });
+          return result.data as RateLimitResult | null;
+        } catch {
+          return null;
+        }
+      };
+
+      const recordLoginAttempt = (identifier: string, success: boolean) => {
+        (supabase as any).rpc('record_login_attempt', {
+          p_identifier: identifier,
+          p_success: success,
+          p_attempt_type: 'email'
+        }).catch(() => { });
+      };
+
+      const rateLimitData = await checkRateLimit(email.toLowerCase());
+
+      if (rateLimitData && !rateLimitData.allowed) {
+        const minutesLeft = Math.ceil((rateLimitData.remaining_seconds || 0) / 60);
+        console.warn(`[RATE LIMIT] Email ${email} bloqueado por ${minutesLeft} minutos`);
+        setIsLoading(false);
+        return {
+          error: new Error(`Muitas tentativas de login. Aguarde ${minutesLeft} minuto(s) e tente novamente.`)
+        };
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
           emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
         },
       });
+
+      // SECURITY: Registrar tentativa de login (fire and forget)
+      recordLoginAttempt(email.toLowerCase(), !error);
+
       return { error: error as Error | null };
     } catch (err: any) {
       console.error("AuthProvider: signInWithEmail exception:", err);
@@ -254,14 +291,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Sign out
+  // Sign out - LIMPA TUDO para evitar auto-login no reload
   const signOut = async () => {
     setIsLoading(true);
     try {
       await supabase.auth.signOut();
+
+      // Limpar estado interno
       setUser(null);
       setSession(null);
       setProfile(null);
+      setRole(null);
+      setPermissions([]);
+      setThemePreference('light');
+
+      // SECURITY: Limpar TODOS os dados de localStorage relacionados à auth
+      const keysToRemove = [
+        'fresta_user_role',
+        'fresta_theme',
+        'fresta_active_theme',
+        'hasSeenOnboarding',
+        'sb-olhiedtptokvbbjjmega-auth-token', // Supabase auth token
+      ];
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      // Limpar sessionStorage também
+      sessionStorage.clear();
+
+      console.log('[AUTH] Logout completo - todos os dados de sessão removidos');
     } catch (err) {
       console.error("AuthProvider: signOut exception:", err);
     } finally {

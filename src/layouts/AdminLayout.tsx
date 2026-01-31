@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import { LayoutDashboard, Users, DollarSign, BarChart3, CircleUser, MoreHorizontal } from "lucide-react";
+import { LayoutDashboard, Users, DollarSign, BarChart3, CircleUser, MoreHorizontal, Calendar, Briefcase } from "lucide-react";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { motion } from "framer-motion";
 
@@ -32,6 +32,24 @@ export default function AdminLayout() {
               </div>
 
               <div className="flex items-center gap-4">
+                {/* Dashboard Switcher */}
+                <div className="flex items-center gap-1 bg-amber-500/10 rounded-xl p-1 border border-amber-500/20">
+                  <button
+                    onClick={() => navigate("/meus-calendarios")}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600/60 hover:text-amber-600 hover:bg-amber-500/10 transition-all"
+                    title="Ir para B2C"
+                  >
+                    <Calendar className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => navigate("/b2b")}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600/60 hover:text-amber-600 hover:bg-amber-500/10 transition-all"
+                    title="Ir para B2B"
+                  >
+                    <Briefcase className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <span className="text-[10px] font-black px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 uppercase tracking-widest">
                   Ambiente de Controle
                 </span>
