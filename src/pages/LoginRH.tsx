@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Briefcase, Mail, Lock, ArrowRight, ArrowLeft, Send, CheckCircle, ArrowLeftCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { useGlobalSettings } from "@/state/GlobalSettingsContext";
+import { THEMES } from "@/constants/landingThemes";
 
 export default function LoginRH() {
     const navigate = useNavigate();
@@ -10,6 +12,13 @@ export default function LoginRH() {
     const [recoveryEmail, setRecoveryEmail] = useState("");
     const [recoveryStatus, setRecoveryStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState("");
+    const { settings } = useGlobalSettings();
+
+    const currentTheme = useMemo(() => {
+        const active = settings.activeTheme || localStorage.getItem('fresta_active_theme') || 'carnaval';
+        const themeKey = active === 'love' ? 'namoro' : active;
+        return THEMES[themeKey] || THEMES.carnaval;
+    }, [settings.activeTheme]);
 
     const handleRecovery = async () => {
         if (!recoveryEmail) return;
@@ -34,15 +43,16 @@ export default function LoginRH() {
         <div className="min-h-screen flex">
             {/* Left Side: Branding/Visual */}
             <div className="hidden lg:flex w-1/2 bg-slate-950 relative overflow-hidden items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-amber-500/10" />
+                <div className="absolute inset-0 opacity-20" style={{ background: `radial-gradient(circle at top right, ${currentTheme.colors.primary}, transparent)` }} />
+                <div className="absolute inset-0 opacity-10" style={{ background: `radial-gradient(circle at bottom left, ${currentTheme.colors.accent}, transparent)` }} />
                 <div className="absolute inset-0 bg-festive-pattern opacity-10 bg-[length:60px_60px]" />
 
                 <div className="relative z-10 p-20 space-y-8 max-w-xl">
-                    <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-2xl">
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl" style={{ backgroundColor: currentTheme.colors.primary }}>
                         <Briefcase className="w-8 h-8 text-white" />
                     </div>
                     <h2 className="text-5xl font-black tracking-tighter text-white leading-tight">
-                        O futuro do <span className="text-primary italic">engajamento</span> começa aqui.
+                        O futuro do <span className="italic" style={{ color: currentTheme.colors.accent }}>engajamento</span> começa aqui.
                     </h2>
                     <p className="text-slate-400 text-lg font-medium leading-relaxed">
                         Painel exclusivo para gestores de RH e People Ops. Transforme a jornada dos seus colaboradores hoje.
@@ -116,7 +126,8 @@ export default function LoginRH() {
                                         <button
                                             onClick={handleRecovery}
                                             disabled={recoveryStatus === 'sending' || !recoveryEmail}
-                                            className="w-full py-4 bg-primary text-white font-black rounded-[1.25rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm disabled:opacity-50"
+                                            className="w-full py-4 text-white font-black rounded-[1.25rem] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm disabled:opacity-50"
+                                            style={{ backgroundColor: currentTheme.colors.primary, boxShadow: `0 10px 25px -5px ${currentTheme.colors.primary}40` }}
                                         >
                                             {recoveryStatus === 'sending' ? "Enviando..." : "Enviar Link de Recuperação"} <Send className="w-4 h-4" />
                                         </button>
@@ -159,7 +170,8 @@ export default function LoginRH() {
 
                                 <button
                                     onClick={() => navigate("/b2b")}
-                                    className="w-full py-4 bg-primary text-white font-black rounded-[1.25rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
+                                    className="w-full py-4 text-white font-black rounded-[1.25rem] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
+                                    style={{ backgroundColor: currentTheme.colors.primary, boxShadow: `0 10px 25px -5px ${currentTheme.colors.primary}40` }}
                                 >
                                     Entrar no Painel <ArrowRight className="w-5 h-5" />
                                 </button>

@@ -142,8 +142,8 @@ const AppContent = () => {
     <HashRouter>
       <AuthHandler />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/landing-brand" element={<LandingPageBrand />} />
+        <Route path="/" element={<LandingPageBrand />} />
+        <Route path="/landing-legacy" element={<LandingPage />} />
         <Route path="/portal" element={<Gateway />} />
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />

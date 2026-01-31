@@ -3,25 +3,36 @@ import { ArrowLeft, Mail, Loader2, CheckCircle, DoorOpen, Sparkles } from "lucid
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
-import mascotLoginHeader from "@/assets/mascot-login-header.png";
+import { useGlobalSettings } from "@/state/GlobalSettingsContext";
+import { THEMES } from "@/constants/landingThemes";
 
 const Entrar = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const redirect = useMemo(() => params.get("redirect") || "/meus-calendarios", [params]);
-  const { signInWithEmail, signInWithGoogle, isAuthenticated, isLoading } = useAuth();
+  const { signInWithEmail, signInWithGoogle, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { settings, isLoading: isSettingsLoading } = useGlobalSettings();
+
+  const currentTheme = useMemo(() => {
+    const active = settings.activeTheme || localStorage.getItem('fresta_active_theme') || 'carnaval';
+    const themeKey = active === 'love' ? 'namoro' : active;
+    return THEMES[themeKey] || THEMES.carnaval;
+  }, [settings.activeTheme]);
+
   const [imageReady, setImageReady] = useState(false);
 
   useEffect(() => {
     const img = new Image();
-    img.src = mascotLoginHeader;
+    img.src = currentTheme.mascot;
     img.onload = () => setImageReady(true);
-  }, []);
+  }, [currentTheme.mascot]);
 
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const isLoading = isAuthLoading || isSettingsLoading;
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -68,6 +79,20 @@ const Entrar = () => {
     // OAuth will redirect automatically
   };
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const mascotStyle = useMemo(() => {
+    return isMobile
+      ? (currentTheme.mobileMascotStyle || currentTheme.mascotStyle)
+      : currentTheme.mascotStyle;
+  }, [isMobile, currentTheme]);
+
   if (emailSent) {
     return (
       <div className="min-h-screen bg-background pb-24 lg:pb-0 lg:flex lg:items-center lg:justify-center">
@@ -109,23 +134,23 @@ const Entrar = () => {
       <div className="w-full max-w-[1100px] bg-card rounded-[3rem] shadow-2xl min-h-[600px] grid lg:grid-cols-2 border border-border/10 relative">
 
         {/* Lado Esquerdo - Visual (Desktop Only) */}
-        <div className="hidden lg:block relative bg-solidroad-beige dark:bg-black/20 overflow-hidden rounded-l-[3rem] border-r border-border/10">
+        <div className="hidden lg:block relative overflow-hidden rounded-l-[3rem] border-r border-border/10" style={{ backgroundColor: `${currentTheme.colors.primary}05` }}>
           {/* Background Elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-solidroad-accent/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-solidroad-accent/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" style={{ backgroundColor: `${currentTheme.colors.accent}10` }} />
+          <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" style={{ backgroundColor: `${currentTheme.colors.primary}10` }} />
 
           <div className="relative z-20 p-16 h-full flex flex-col justify-center">
             <button onClick={() => navigate("/")} className="flex items-center gap-3 group w-fit mb-12 absolute top-12 left-12">
-              <div className="w-12 h-12 rounded-2xl bg-solidroad-accent flex items-center justify-center text-2xl shadow-glow group-hover:scale-110 transition-transform text-solidroad-text">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg transition-transform text-white ${currentTheme.primaryGradient}`}>
                 <DoorOpen className="w-6 h-6" />
               </div>
-              <span className="font-black text-3xl text-solidroad-text dark:text-white tracking-tight">Fresta</span>
+              <span className="font-black text-3xl tracking-tight" style={{ color: currentTheme.colors.primary }}>Fresta</span>
             </button>
 
             <div className="relative z-10">
-              <h1 className="text-6xl font-black text-solidroad-text dark:text-white leading-[1.05] mb-8 tracking-tighter">
+              <h1 className="text-6xl font-black leading-[1.05] mb-8 tracking-tighter" style={{ color: currentTheme.colors.primary }}>
                 A magia começa <br />
-                <span className="text-solidroad-accent shadow-glow">agora.</span>
+                <span className="bg-clip-text text-transparent" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>agora.</span>
               </h1>
               <p className="text-muted-foreground text-xl font-medium max-w-sm leading-relaxed">
                 Crie experiências inesquecíveis, abra portas para novas memórias e surpreenda quem você ama.
@@ -138,9 +163,18 @@ const Entrar = () => {
         <div className={`flex flex-col justify-center p-8 lg:p-20 relative bg-card rounded-[3rem] lg:rounded-l-none lg:rounded-r-[3rem] transition-all duration-700 ${imageReady ? 'opacity-100' : 'opacity-0'}`}>
           {/* Mascote FIXO na borda - Atrás do Card (-z-10) */}
           <div
-            className={`absolute -top-[165px] lg:-top-[210px] left-1/2 -translate-x-1/2 z-10 w-64 lg:w-80 pointer-events-none transition-opacity duration-1000 delay-500 ease-in ${imageReady ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute top-0 left-1/2 -translate-x-1/2 z-10 w-64 lg:w-80 h-[180px] lg:h-[220px] pointer-events-none transition-opacity duration-1000 delay-500 ease-in flex items-end justify-center ${imageReady ? 'opacity-100' : 'opacity-0'}`}
+            style={{ transform: 'translate(-50%, -100%)' }}
           >
-            <img src={mascotLoginHeader} alt="Mascote" className="w-full drop-shadow-2xl" />
+            <img
+              src={currentTheme.mascot}
+              alt="Mascote"
+              className="max-w-full max-h-full object-contain drop-shadow-2xl transition-transform"
+              style={{
+                transform: `scale(${mascotStyle?.scale || 1}) translateY(${mascotStyle?.bottomOffset || 0}px)`,
+                transformOrigin: 'bottom center'
+              }}
+            />
           </div>
 
           <div className="max-w-md mx-auto w-full">
@@ -165,7 +199,8 @@ const Entrar = () => {
               <button
                 onClick={handleGoogle}
                 disabled={isLoading}
-                className="w-full bg-background dark:bg-white/5 text-foreground font-black py-5 px-6 rounded-2xl border-2 border-border/10 hover:border-solidroad-accent/30 hover:bg-solidroad-accent/5 transition-all flex items-center justify-center gap-4 disabled:opacity-50 group shadow-sm hover:shadow-xl hover:shadow-solidroad-accent/5"
+                className="w-full bg-background dark:bg-white/5 text-foreground font-black py-5 px-6 rounded-2xl border-2 border-border/10 transition-all flex items-center justify-center gap-4 disabled:opacity-50 group shadow-sm hover:shadow-xl"
+                style={{ ['--hover-border-color' as any]: `${currentTheme.colors.accent}30` }}
               >
                 <svg className="w-6 h-6 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -184,7 +219,8 @@ const Entrar = () => {
             <div className="mt-10 pt-6 border-t border-gray-100">
               <button
                 onClick={() => navigate("/login-rh")}
-                className="w-full text-center text-xs font-bold text-gray-400 hover:text-orange-600 transition-colors uppercase tracking-widest"
+                className="w-full text-center text-xs font-bold transition-colors uppercase tracking-widest opacity-60 hover:opacity-100"
+                style={{ color: currentTheme.colors.primary }}
               >
                 Acesso Corporativo / RH
               </button>

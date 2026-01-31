@@ -24,11 +24,9 @@ import { useGlobalSettings } from "@/state/GlobalSettingsContext";
 
 // Assets
 import mascotPeeking from "@/assets/mascot-peeking.png";
-import mascotCarnaval from "@/assets/mascot-carnaval.jpg";
-import mascotSaoJoao from "@/assets/mascot-saojoao.png";
-import mascotLove from "@/assets/mascot-love.png";
 import calendarMockup from "@/assets/calendar-mockup.png";
 import { DynamicCalendarMockup } from "@/components/landing/DynamicCalendarMockup";
+import { THEMES, type ThemeConfig } from "@/constants/landingThemes";
 
 // Dynamic Theme Particles Component
 const ThemeParticles = ({ theme }: { theme: string }) => {
@@ -131,109 +129,7 @@ const ThemeParticles = ({ theme }: { theme: string }) => {
     );
 };
 
-type ThemeConfig = {
-    id: string;
-    name: string;
-    brandName: string; // Dynamic brand name for navbar
-    primaryGradient: string;
-    accentGradient: string;
-    floatingElement: 'confetti' | 'hearts' | 'flags' | 'flowers';
-    mascot: any;
-    emojis: {
-        logo: string;
-        hero: string;
-        section: string;
-    };
-    colors: {
-        primary: string;
-        accent: string;
-        textGradient: string;
-        lightBloom: string;
-    };
-};
 
-const THEMES: Record<string, ThemeConfig> = {
-    carnaval: {
-        id: 'carnaval',
-        name: 'Carnaval Folia',
-        brandName: 'Fresta Folia',
-        primaryGradient: 'bg-gradient-to-br from-[#8B5CF6] to-[#D946EF]',
-        accentGradient: 'bg-gradient-to-br from-[#F59E0B] to-[#F97316]',
-        floatingElement: 'confetti',
-        mascot: mascotCarnaval,
-        emojis: {
-            logo: '🎭',
-            hero: '🎉',
-            section: '🥁'
-        },
-        colors: {
-            primary: '#7C3AED',
-            accent: '#F59E0B',
-            textGradient: 'text-[#4C1D95]',
-            lightBloom: 'bg-purple-400/20'
-        }
-    },
-    namoro: {
-        id: 'namoro',
-        name: 'Dia dos Namorados',
-        brandName: 'Fresta Love',
-        primaryGradient: 'bg-gradient-to-br from-red-500 to-rose-600',
-        accentGradient: 'bg-gradient-to-br from-pink-400 to-red-400',
-        floatingElement: 'hearts',
-        mascot: mascotLove,
-        emojis: {
-            logo: '💌',
-            hero: '💖',
-            section: '👩‍❤️‍👨'
-        },
-        colors: {
-            primary: '#E11D48',
-            accent: '#FB7185',
-            textGradient: 'bg-gradient-to-r from-red-600 to-rose-500 bg-clip-text text-transparent italic pb-2 pr-4',
-            lightBloom: 'bg-red-400/10'
-        }
-    },
-    saojoao: {
-        id: 'saojoao',
-        name: 'Festa Junina',
-        brandName: 'Fresta Junina',
-        primaryGradient: 'bg-gradient-to-br from-orange-500 to-amber-600',
-        accentGradient: 'bg-gradient-to-br from-yellow-400 to-orange-400',
-        floatingElement: 'flags',
-        mascot: mascotSaoJoao,
-        emojis: {
-            logo: '🔥',
-            hero: '🌽',
-            section: '🎶'
-        },
-        colors: {
-            primary: '#EA580C',
-            accent: '#F59E0B',
-            textGradient: 'text-orange-800',
-            lightBloom: 'bg-orange-400/20'
-        }
-    },
-    casamento: {
-        id: 'casamento',
-        name: 'Casamento',
-        brandName: 'Fresta Celebra',
-        primaryGradient: 'bg-gradient-to-br from-[#D4AF37] to-[#B8860B]',
-        accentGradient: 'bg-gradient-to-br from-[#F5F0E6] to-[#D4AF37]',
-        floatingElement: 'flowers',
-        mascot: mascotLove, // Can create specific mascot later
-        emojis: {
-            logo: '💍',
-            hero: '💒',
-            section: '🥂'
-        },
-        colors: {
-            primary: '#D4AF37',
-            accent: '#B8860B',
-            textGradient: 'text-[#8B7355]',
-            lightBloom: 'bg-amber-300/20'
-        }
-    }
-};
 
 const LandingPageBrand = () => {
     const navigate = useNavigate();
@@ -360,19 +256,19 @@ const LandingPageBrand = () => {
             name: "Carnaval",
             emoji: "🎭",
             gradientClass: "bg-gradient-carnaval",
-            mascot: mascotCarnaval
+            mascot: THEMES.carnaval.mascot
         },
         {
             name: "São João",
             emoji: "🔥",
             gradientClass: "bg-gradient-saojoao",
-            mascot: mascotSaoJoao
+            mascot: THEMES.saojoao.mascot
         },
         {
             name: "Namoro",
             emoji: "❤️",
             gradientClass: "bg-gradient-to-br from-red-500 to-rose-600",
-            mascot: mascotLove
+            mascot: THEMES.namoro.mascot
         }
     ];
 
@@ -433,10 +329,11 @@ const LandingPageBrand = () => {
                     <div className="flex items-center gap-6">
                         <button
                             onClick={toggleTheme}
-                            className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-90"
+                            style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : `${currentTheme.colors.primary}10` }}
                             title={isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
                         >
-                            {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-700" />}
+                            {isDark ? <Sun className="w-5 h-5 text-yellow-500 fill-yellow-500/20" /> : <Moon className="w-5 h-5" style={{ color: currentTheme.colors.primary }} />}
                         </button>
                         <button onClick={() => navigate(isAuthenticated ? "/portal" : "/entrar")} className="font-bold hover:opacity-70 transition-opacity" style={{ color: currentTheme.colors.primary }}>
                             Entrar
@@ -631,12 +528,12 @@ const LandingPageBrand = () => {
                                 whileInView={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.9 }}
                             >
-                                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center shadow-inner">
-                                    <Sparkles className="w-6 h-6 text-amber-500" />
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: `${currentTheme.colors.accent}15` }}>
+                                    <Sparkles className="w-6 h-6" style={{ color: currentTheme.colors.accent }} />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Efeito</p>
-                                    <p className="font-bold text-slate-700">Surpresa Real</p>
+                                    <p className="font-bold text-slate-700">Abertura Mágica</p>
                                 </div>
                             </motion.div>
                         </div>
@@ -648,12 +545,12 @@ const LandingPageBrand = () => {
                                 whileInView={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 1.1 }}
                             >
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-inner">
-                                    <Zap className="w-6 h-6 text-indigo-500" />
+                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: `${currentTheme.colors.primary}15` }}>
+                                    <Zap className="w-6 h-6" style={{ color: currentTheme.colors.primary }} />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</p>
-                                    <p className="font-bold text-slate-700">Notificação Ativa</p>
+                                    <p className="font-bold text-slate-700">Lembrete de Afeto</p>
                                 </div>
                             </motion.div>
                         </div>
