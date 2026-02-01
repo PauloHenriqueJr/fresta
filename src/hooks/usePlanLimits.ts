@@ -253,5 +253,5 @@ export function useUserPlanStatus() {
 }
 
 // Plus themes that require payment
-export const PLUS_THEMES = ["casamento", "bodas", "noivado", "reveillon", "viagem"];
+export const PLUS_THEMES = ["casamento", "bodas", "noivado", "reveillon", "viagem", "natal", "pascoa", "carnaval", "saojoao", "independencia"];
 

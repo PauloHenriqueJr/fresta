@@ -242,13 +242,13 @@ const Explorar = () => {
 
                   {/* Premium Indicators */}
                   {isPlus && (
-                    <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-10">
-                      <div className="px-3 py-1 bg-[#F9A03F] text-white text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1 shadow-lg">
-                        <Crown className="w-3 h-3" />
+                    <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-30">
+                      <div className="px-3 py-1 bg-[#F9A03F] text-white text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1 shadow-2xl border border-white/20">
+                        <Crown className="w-3.5 h-3.5" />
                         PLUS
                       </div>
-                      <div className="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white shadow-lg">
-                        <Lock className="w-4 h-4" />
+                      <div className="w-9 h-9 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white shadow-2xl border border-white/10">
+                        <Lock className="w-4.5 h-4.5" />
                       </div>
                     </div>
                   )}
@@ -324,11 +324,15 @@ const Explorar = () => {
                           </div>
                         )}
 
-                        {/* Lock Overlay */}
+                        {/* Plus Indicators */}
                         {isPlus && (
-                          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-                            <div className="w-8 h-8 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white shadow-lg">
-                              <Lock className="w-4 h-4" />
+                          <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-30">
+                            <div className="px-3 py-1 bg-[#F9A03F] text-white text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1 shadow-2xl border border-white/20">
+                              <Crown className="w-3.5 h-3.5" />
+                              PLUS
+                            </div>
+                            <div className="w-9 h-9 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white shadow-2xl border border-white/10">
+                              <Lock className="w-4.5 h-4.5" />
                             </div>
                           </div>
                         )}
