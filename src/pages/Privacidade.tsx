@@ -44,6 +44,7 @@ const Privacidade = () => {
                         <ul className="list-disc pl-6 space-y-2">
                             <li>Permitir o acesso e a gestão dos seus calendários.</li>
                             <li>Entregar os links mágicos de acesso.</li>
+                            <li>Enviar comunicações de marketing, novidades e ofertas (conforme autorizado).</li>
                             <li>Melhorar a experiência do usuário através de análises anônimas.</li>
                         </ul>
 

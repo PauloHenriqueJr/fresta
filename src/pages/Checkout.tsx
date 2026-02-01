@@ -19,17 +19,24 @@ import {
     Loader2,
     Gift,
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 import { createPaymentPreference, verifyPaymentStatus, activatePaidCalendar, PRICING, type PaymentItem } from "@/lib/services/payment";
-// Exit Intent disabled - can be re-enabled later
-// import { ExitIntentModal, useExitIntent } from "@/components/common/ExitIntentModal";
+import { supabase } from "@/lib/supabase/client";
+import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
+import { format } from "date-fns";
 
 const Checkout = () => {
     const { calendarId } = useParams();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user } = useAuth(); // Assume signUp exists in context, or use supabase directly
+
+    const quizEmail = searchParams.get("email") || "";
+    const quizTheme = searchParams.get("theme");
+    const quizDuration = searchParams.get("duration");
+    const isFromQuiz = searchParams.get("from") === "quiz";
 
     const [isLoading, setIsLoading] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -43,8 +50,37 @@ const Checkout = () => {
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
 
+
+
     // Selected addons
     const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+
+
+
+
+    // Auto-create calendar logic if coming from Quiz and now Logged In
+    const handleAutoCreateCalendar = async () => {
+        if (!user || user.email !== quizEmail) return null;
+
+        try {
+            const calendar = await CalendarsRepository.create({
+                ownerId: user.id,
+                themeId: quizTheme || 'aniversario',
+                title: "Meu Presente Especial",
+                duration: parseInt(quizDuration || "12"),
+                startDate: format(new Date(), "yyyy-MM-dd"),
+                status: 'rascunho',
+                privacy: 'private',
+                isPremium: false
+            });
+
+            return calendar.id;
+        } catch (err) {
+            console.error("Erro ao criar calendario automático", err);
+            return null;
+        }
+    };
+
 
     // Payment status polling
     useEffect(() => {
@@ -118,13 +154,20 @@ const Checkout = () => {
     };
 
     const handleCreatePayment = async () => {
+        // Validação de Sessão (só necessária se NÃO veio do Quiz recém cadastrado? Não, user deve existir de qualquer jeito)
         if (!user?.id) {
-            setError("Você precisa estar logado para fazer o upgrade.");
+            setError("Você precisa estar logado para finalizar.");
             return;
         }
 
-        if (!calendarId) {
-            setError("ID do calendário não encontrado. Volte e tente criar o calendário novamente.");
+        // Se veio do quiz, ID pode ser nulo -> Criamos agora
+        let targetCalendarId = calendarId;
+        if (!targetCalendarId && isFromQuiz) {
+            targetCalendarId = await handleAutoCreateCalendar();
+        }
+
+        if (!targetCalendarId) {
+            setError("ID do calendário não encontrado. Tente recriar.");
             return;
         }
 
@@ -153,7 +196,7 @@ const Checkout = () => {
         setError(null);
 
         try {
-            // Build items list
+            // Build items list logic updated to service standard
             const items: PaymentItem[] = [
                 { type: "premium", quantity: 1 }
             ];
@@ -173,7 +216,7 @@ const Checkout = () => {
 
             const result = await createPaymentPreference({
                 userId: user.id,
-                calendarId,
+                calendarId: targetCalendarId,
                 items,
                 customer: {
                     cellphone: customerInfo.cellphone,
@@ -188,11 +231,17 @@ const Checkout = () => {
                     pixCode: result.data.pixCode,
                     qrCodeUrl: result.data.qrCodeUrl,
                 });
+
+                // Se foi criado dinamicamente, atualiza URL silenciosamente para se recuperarmos o ID em refresh
+                if (!calendarId) {
+                    window.history.replaceState(null, "", `/checkout/${targetCalendarId}`);
+                }
             } else {
                 setError(result.error || "Erro ao criar pagamento. Tente novamente.");
             }
         } catch (err) {
             setError("Erro inesperado. Tente novamente.");
+            console.error(err);
         } finally {
             setIsProcessing(false);
         }
@@ -211,6 +260,8 @@ const Checkout = () => {
             window.open(paymentData.checkoutUrl, "_blank");
         }
     };
+
+
 
     // Success screen
     if (isSuccess) {
