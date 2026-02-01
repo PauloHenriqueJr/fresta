@@ -23,7 +23,8 @@ import { useAuth } from "@/state/auth/AuthProvider";
 import { BASE_THEMES } from "@/lib/offline/themes";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "@/components/PremiumIcon";
-import { useUserPlanStatus } from "@/hooks/usePlanLimits";
+import { useUserPlanStatus, PLUS_THEMES } from "@/hooks/usePlanLimits";
+import { UpgradeChoiceModal } from "@/components/modals/UpgradeChoiceModal";
 
 // Import mascots
 import mascotNatal from "@/assets/mascot-natal.jpg";
@@ -112,8 +113,7 @@ const demoById: Record<string, string> = {
   aniversario: "/calendario/aniversario",
 };
 
-// Theme premium status - premium themes require payment
-const PREMIUM_THEMES = ["casamento", "bodas", "noivado", "reveillon", "viagem"];
+// Theme premium status - premium themes require payment (Now using usePlanLimits source of truth)
 
 const Explorar = () => {
   const navigate = useNavigate();
@@ -127,7 +127,7 @@ const Explorar = () => {
   };
 
   const handleThemeSelect = (themeId: string) => {
-    const isPlus = PREMIUM_THEMES.includes(themeId);
+    const isPlus = PLUS_THEMES.includes(themeId);
 
     // If it's a Plus theme and user doesn't have a Plus plan or isn't admin
     if (isPlus && !planStatus.isAdmin) {
@@ -214,7 +214,7 @@ const Explorar = () => {
             {["namoro", "carnaval", "natal", "reveillon"].map((themeId, index) => {
               const theme = getTheme(themeId);
               if (!theme) return null;
-              const isPlus = PREMIUM_THEMES.includes(themeId);
+              const isPlus = PLUS_THEMES.includes(themeId);
               const hasMascot = !!mascotByKey[themeId];
 
               return (
@@ -295,7 +295,7 @@ const Explorar = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {categoryThemes.map((theme, index) => {
                     if (!theme) return null;
-                    const isPlus = PREMIUM_THEMES.includes(theme.id);
+                    const isPlus = PLUS_THEMES.includes(theme.id);
                     const hasMascot = !!mascotByKey[theme.id];
 
                     return (
@@ -404,86 +404,12 @@ const Explorar = () => {
         </section>
       </div>
 
-      {/* Upgrade Choice Modal */}
-      <AnimatePresence>
-        {showUpgradeModal && (
-          <>
-            <motion.div
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[200]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowUpgradeModal(null)}
-            />
-            <motion.div
-              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-[201] max-w-lg mx-auto"
-              initial={{ opacity: 0, scale: 0.9, y: "-40%" }}
-              animate={{ opacity: 1, scale: 1, y: "-50%" }}
-              exit={{ opacity: 0, scale: 0.9, y: "-40%" }}
-            >
-              <div className="bg-card rounded-[3rem] shadow-2xl overflow-hidden border border-border/10">
-                <div className="p-8 md:p-12 text-center">
-                  <div className="w-16 h-16 rounded-[1.5rem] bg-[#F9A03F]/10 flex items-center justify-center mx-auto mb-6">
-                    <Crown className="w-8 h-8 text-[#F9A03F]" />
-                  </div>
-
-                  <h3 className="text-3xl font-black text-foreground mb-4 leading-tight">
-                    Tema Plus Selecionado
-                  </h3>
-
-                  <p className="text-muted-foreground font-medium mb-8">
-                    O tema <span className="text-foreground font-bold italic">"{selectedThemeForModal?.name}"</span> é exclusivo do Plano Plus. Deseja ver um exemplo ou começar a criação agora?
-                  </p>
-
-                  <div className="space-y-4">
-                    <button
-                      onClick={() => {
-                        const themeId = showUpgradeModal;
-                        setShowUpgradeModal(null);
-                        navigate(isAuthenticated ? `/criar?theme=${themeId}` : `/entrar?redirect=/criar?theme=${themeId}`);
-                      }}
-                      className="w-full py-5 bg-[#F9A03F] text-white font-black rounded-2xl text-lg shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
-                    >
-                      <CreditCard className="w-6 h-6" />
-                      CRIAR COM ESTE TEMA
-                    </button>
-
-                    <button
-                      onClick={(e) => {
-                        const themeId = showUpgradeModal;
-                        setShowUpgradeModal(null);
-                        handleViewSample(e, themeId);
-                      }}
-                      className="w-full py-5 bg-card text-foreground border-2 border-border/50 font-black rounded-2xl text-lg hover:bg-muted/50 transition-all flex items-center justify-center gap-3"
-                    >
-                      <Eye className="w-6 h-6" />
-                      VER EXEMPLO GRÁTIS
-                    </button>
-                  </div>
-
-                  <div className="mt-8 flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      Até 365 dias de duração
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      Upload de fotos e vídeos
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setShowUpgradeModal(null)}
-                    className="mt-8 text-muted-foreground text-sm font-bold uppercase tracking-widest hover:text-foreground transition-colors"
-                  >
-                    Voltar
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <UpgradeChoiceModal
+        themeId={showUpgradeModal}
+        isOpen={!!showUpgradeModal}
+        onClose={() => setShowUpgradeModal(null)}
+        isAuthenticated={isAuthenticated}
+      />
     </div>
   );
 };

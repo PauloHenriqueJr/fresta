@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
-import { getThemeConfig, type PremiumThemeConfig } from "./registry";
+import { getThemeConfig, type PlusThemeConfig } from "./registry";
 
 // --- Legacy Compatibility Aliases ---
 // These allow older theme-specific pages to continue working after the standardization
@@ -113,7 +113,7 @@ export const HangingHearts = () => {
 
 // --- Header ---
 
-export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onEditSubtitle, onShare, onLike, liked, headerBgSvg, showWatermark }: { title?: React.ReactNode, subtitle?: React.ReactNode, config: PremiumThemeConfig, isEditor?: boolean, onEdit?: (e: React.MouseEvent) => void, onEditSubtitle?: (e: React.MouseEvent) => void, onShare?: () => void, onLike?: () => void, liked?: boolean, headerBgSvg?: string, showWatermark?: boolean }) => {
+export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onEditSubtitle, onShare, onLike, liked, headerBgSvg, showWatermark }: { title?: React.ReactNode, subtitle?: React.ReactNode, config: PlusThemeConfig, isEditor?: boolean, onEdit?: (e: React.MouseEvent) => void, onEditSubtitle?: (e: React.MouseEvent) => void, onShare?: () => void, onLike?: () => void, liked?: boolean, headerBgSvg?: string, showWatermark?: boolean }) => {
   const titleFont = config.ui?.layout.titleFont || "";
   const subtitleFont = config.ui?.layout.secondaryFont || "";
   return (

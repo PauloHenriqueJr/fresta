@@ -76,6 +76,7 @@ export default function CalendarioIndependencia() {
       onDayClick={handleDayClick}
       onLockedClick={(day) => console.log("Locked day:", day)}
       showWatermark={false}
+      isDemoMode={true}
     />
   );
 }

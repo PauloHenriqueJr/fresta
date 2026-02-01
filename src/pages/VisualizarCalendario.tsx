@@ -966,6 +966,7 @@ const VisualizarCalendario = () => {
           }}
           onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
           showWatermark={!isOwnerPlusOrAdmin}
+          isDemoMode={isTemplatePreview}
         />
 
         {/* Surprise Modals (Romantic themes - NOT Festive themes) */}

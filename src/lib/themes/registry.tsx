@@ -12,7 +12,7 @@ import { CarnavalDecorations } from "./carnavalComponents";
 import { SaoJoaoDecorations } from "./saojoaoComponents";
 import { PascoaDecorations } from "./pascoaComponents";
 
-export interface PremiumThemeConfig {
+export interface PlusThemeConfig {
   id: string;
   content: {
     capsule: {
@@ -174,7 +174,7 @@ export interface PremiumThemeConfig {
   };
 }
 
-export const natalTheme: PremiumThemeConfig = {
+export const natalTheme: PlusThemeConfig = {
   id: 'natal',
   content: {
     capsule: {
@@ -324,7 +324,7 @@ export const natalTheme: PremiumThemeConfig = {
   }
 };
 
-export const weddingTheme: PremiumThemeConfig = {
+export const weddingTheme: PlusThemeConfig = {
   id: 'casamento',
   content: {
     capsule: {
@@ -469,7 +469,7 @@ export const weddingTheme: PremiumThemeConfig = {
   }
 };
 
-export const namoroTheme: PremiumThemeConfig = {
+export const namoroTheme: PlusThemeConfig = {
   id: 'namoro',
   content: {
     capsule: {
@@ -607,7 +607,7 @@ export const namoroTheme: PremiumThemeConfig = {
   }
 };
 
-export const carnavalTheme: PremiumThemeConfig = {
+export const carnavalTheme: PlusThemeConfig = {
   id: 'carnaval',
   content: {
     capsule: {
@@ -752,7 +752,7 @@ export const carnavalTheme: PremiumThemeConfig = {
 };
 
 // === SÃO JOÃO THEME ===
-export const saojoaoTheme: PremiumThemeConfig = {
+export const saojoaoTheme: PlusThemeConfig = {
   id: 'saojoao',
   content: {
     capsule: {
@@ -898,7 +898,7 @@ export const saojoaoTheme: PremiumThemeConfig = {
 };
 
 // === ANIVERSÁRIO THEME ===
-export const aniversarioTheme: PremiumThemeConfig = {
+export const aniversarioTheme: PlusThemeConfig = {
   id: 'aniversario',
   content: {
     capsule: {
@@ -1041,7 +1041,7 @@ export const aniversarioTheme: PremiumThemeConfig = {
   }
 };
 
-export const pascoaTheme: PremiumThemeConfig = {
+export const pascoaTheme: PlusThemeConfig = {
   id: 'pascoa',
   content: {
     capsule: {
@@ -1189,7 +1189,7 @@ export const pascoaTheme: PremiumThemeConfig = {
 };
 
 // === REVEILLON THEME ===
-export const reveillonTheme: PremiumThemeConfig = {
+export const reveillonTheme: PlusThemeConfig = {
   id: 'reveillon',
   content: {
     capsule: {
@@ -1341,7 +1341,7 @@ export const reveillonTheme: PremiumThemeConfig = {
   }
 };
 
-export const getThemeConfig = (themeId: string): PremiumThemeConfig => {
+export const getThemeConfig = (themeId: string): PlusThemeConfig => {
   switch (themeId) {
     case 'natal': return natalTheme;
     case 'casamento': return weddingTheme;

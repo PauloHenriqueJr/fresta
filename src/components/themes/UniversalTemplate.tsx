@@ -4,13 +4,17 @@ import type { Tables } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Eye, Settings, Clock, Save, X, Check, Heart, Share2, BarChart3 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import type { PremiumThemeConfig } from "@/lib/themes/registry";
+import { useState, useRef, useEffect, useMemo } from "react";
+import type { PlusThemeConfig } from "@/lib/themes/registry";
+import { PLUS_THEMES } from "@/hooks/usePlanLimits";
+import { UpgradeChoiceModal } from "@/components/modals/UpgradeChoiceModal";
+import { useAuth } from "@/state/auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 // --- MAIN TEMPLATE ---
 
 interface UniversalTemplateProps {
-    config: PremiumThemeConfig;
+    config: PlusThemeConfig;
     calendar: Tables<"calendars"> & { views?: number; header_message?: string; footer_message?: string; message?: string; capsule_title?: string };
     days: Tables<"calendar_days">[];
     openedDays: number[];
@@ -28,6 +32,7 @@ interface UniversalTemplateProps {
     onUpdateCalendar?: (data: Partial<Tables<"calendars">>) => Promise<void>;
     onStats?: () => void;
     showWatermark?: boolean;
+    isDemoMode?: boolean;
 }
 
 export const UniversalTemplate = ({
@@ -47,8 +52,14 @@ export const UniversalTemplate = ({
     previewMode = false,
     onUpdateCalendar,
     onStats,
-    showWatermark = false
+    showWatermark = false,
+    isDemoMode = false
 }: UniversalTemplateProps) => {
+    const { isAuthenticated, role } = useAuth();
+    const navigate = useNavigate();
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+    const isAdmin = useMemo(() => role === 'admin', [role]);
     const ui = config.ui!;
     const FloatingComponent = config.FloatingComponent;
 
@@ -414,9 +425,23 @@ export const UniversalTemplate = ({
                 <UniversalFooter
                     config={ui}
                     isEditor={false}
-                    onNavigate={() => window.open('/', '_blank')}
+                    onNavigate={() => {
+                        const isPlus = PLUS_THEMES.includes(config.id);
+                        if (isDemoMode && isPlus && !isAdmin) {
+                            setShowUpgradeModal(true);
+                        } else {
+                            navigate(`/criar?theme=${config.id}`);
+                        }
+                    }}
                 />
             )}
+
+            <UpgradeChoiceModal
+                themeId={config.id}
+                isOpen={showUpgradeModal}
+                onClose={() => setShowUpgradeModal(false)}
+                isAuthenticated={isAuthenticated}
+            />
 
             {/* Floating Editor Action Bar (Owners Only) */}
             {showEditingControls && (
