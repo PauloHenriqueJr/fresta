@@ -23,6 +23,7 @@ import {
   LoveLetterModal,
   LoveLockedModal,
   ReveillonLockedModal,
+  NatalLockedModal,
   WeddingBackground,
   WeddingHeader,
   WeddingProgress,
@@ -967,8 +968,8 @@ const VisualizarCalendario = () => {
           showWatermark={!isOwnerPlusOrAdmin}
         />
 
-        {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao/Reveillon) */}
-        {!['carnaval', 'saojoao', 'aniversario', 'pascoa', 'reveillon'].includes(calendar.theme_id) && (
+        {/* Surprise Modals (Romantic themes - NOT Festive themes) */}
+        {!['carnaval', 'saojoao', 'aniversario', 'pascoa', 'reveillon', 'natal'].includes(calendar.theme_id) && (
           <LoveLetterModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -977,8 +978,8 @@ const VisualizarCalendario = () => {
           />
         )}
 
-        {/* Festive Modals for Carnaval/SaoJoao/Reveillon */}
-        {['carnaval', 'saojoao', 'aniversario', 'pascoa', 'reveillon'].includes(calendar.theme_id) && (
+        {/* Festive Modals for Carnaval/SaoJoao/Reveillon/Natal */}
+        {['carnaval', 'saojoao', 'aniversario', 'pascoa', 'reveillon', 'natal'].includes(calendar.theme_id) && (
           <DaySurpriseModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -996,6 +997,12 @@ const VisualizarCalendario = () => {
             dayNumber={lockedModalData?.day || 0}
             unlockDate={lockedModalData?.date || new Date()}
             onNotify={handleNotifyMe}
+          />
+        ) : calendar.theme_id === 'natal' ? (
+          <NatalLockedModal
+            isOpen={!!lockedModalData?.isOpen}
+            onClose={() => setLockedModalData(null)}
+            timeLeft={lockedModalData?.date ? `${Math.ceil((lockedModalData.date.getTime() - Date.now()) / (1000 * 60 * 60))}h` : undefined}
           />
         ) : (
           <LoveLockedModal
@@ -1084,6 +1091,12 @@ const VisualizarCalendario = () => {
           dayNumber={lockedModalData?.day || 0}
           unlockDate={lockedModalData?.date || new Date()}
           onNotify={handleNotifyMe}
+        />
+      ) : calendar.theme_id === 'natal' ? (
+        <NatalLockedModal
+          isOpen={!!lockedModalData?.isOpen}
+          onClose={() => setLockedModalData(null)}
+          timeLeft={lockedModalData?.date ? `${Math.ceil((lockedModalData.date.getTime() - Date.now()) / (1000 * 60 * 60))}h` : undefined}
         />
       ) : (
         <LoveLockedModal

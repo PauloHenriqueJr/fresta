@@ -6,7 +6,7 @@ import {
   Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane,
   MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Cake, HeartHandshake, Egg
 } from "lucide-react";
-import { HangingHearts, WeddingShower, ReveillonDecorations } from "./themeComponents";
+import { HangingHearts, WeddingShower, ReveillonDecorations, NatalDecorations } from "./themeComponents";
 import { CarnavalDecorations } from "./carnavalComponents";
 import { SaoJoaoDecorations } from "./saojoaoComponents";
 import { PascoaDecorations } from "./pascoaComponents";
@@ -184,6 +184,10 @@ export const natalTheme: PremiumThemeConfig = {
       title: "Ainda não é Natal! 🎅",
       message: "Papai Noel está preparando sua surpresa. Volte na data certa para abrir seu presente!"
     },
+    headerBadge: {
+      text: "Natal Mágico",
+      className: "bg-red-100 text-red-600 font-extrabold tracking-widest"
+    },
     footerMessage: "Feliz Natal e um próspero Ano Novo! 🎄✨",
     subtitle: "A magia do Natal em cada surpresa",
     editorSubtitle: "Configurando sua magia de Natal"
@@ -195,6 +199,7 @@ export const natalTheme: PremiumThemeConfig = {
       backgroundColor: "#FDF5E6"
     }
   },
+  FloatingComponent: NatalDecorations,
   ui: {
     layout: {
       bgClass: "bg-[#FDF5E6]",

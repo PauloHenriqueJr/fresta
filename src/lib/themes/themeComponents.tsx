@@ -2099,3 +2099,238 @@ export const ReveillonFireworksModal = ({ isOpen, onClose, content, config }: Re
     </div>
   );
 };
+
+// ============ NATAL THEME COMPONENTS ============
+
+// NatalDecorations - Hanging snowflakes and stars
+export const NatalDecorations = () => {
+  const decorations = [
+    { type: '❄️', size: 'text-xl', delay: 0, left: '10%' },
+    { type: '🎄', size: 'text-2xl', delay: -0.5, left: '25%' },
+    { type: '⭐', size: 'text-xl', delay: -1, left: '40%' },
+    { type: '🔔', size: 'text-lg', delay: -0.3, left: '55%' },
+    { type: '🎁', size: 'text-xl', delay: -0.8, left: '70%' },
+    { type: '❄️', size: 'text-lg', delay: -0.2, left: '85%' },
+  ];
+
+  return (
+    <div className="fixed top-0 left-0 w-full h-24 overflow-hidden pointer-events-none z-40">
+      {decorations.map((item, i) => (
+        <motion.div
+          key={i}
+          className="absolute top-0"
+          style={{ left: item.left }}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{
+            y: [0, 5, 0],
+            opacity: 1,
+            rotate: [-5, 5, -5],
+          }}
+          transition={{
+            y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: item.delay },
+            rotate: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: item.delay },
+            opacity: { duration: 0.5 },
+          }}
+        >
+          <div className={`${item.size} drop-shadow-lg`}>{item.type}</div>
+          {/* String */}
+          <div className="w-[2px] h-8 bg-gradient-to-b from-red-300/50 to-transparent mx-auto" />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// NatalFireworksModal - Modal de surpresa
+export const NatalFireworksModal = ({
+  isOpen,
+  onClose,
+  content,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  content: { title?: string; message?: string; mediaUrl?: string; type?: string };
+}) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+      >
+        {/* Header */}
+        <div className="p-6 bg-gradient-to-b from-green-50 to-white relative">
+          {/* Corner decorations */}
+          <div className="absolute top-3 left-3 text-2xl">🎄</div>
+          <div className="absolute top-3 right-3 text-2xl">⭐</div>
+          <div className="absolute bottom-3 left-3 text-xl">❄️</div>
+          <div className="absolute bottom-3 right-3 text-xl">🎁</div>
+
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 z-20"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="text-center pt-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4 shadow-lg">
+              <Gift className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-xl font-black text-green-800">{content.title || "Feliz Natal! 🎄"}</h2>
+            <p className="text-green-600/80 text-sm mt-1">Uma surpresa especial para você!</p>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-5 bg-white">
+          {/* Media */}
+          {content.mediaUrl ? (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-green-100 bg-green-50 mb-5 relative">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                  <a
+                    href={content.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-2 text-white"
+                  >
+                    <Play className="w-12 h-12 fill-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Assistir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img src={content.mediaUrl} alt="Surpresa" className="w-full h-full object-cover" />
+              )}
+              <div className="absolute top-2 left-2 text-2xl">🎄</div>
+              <div className="absolute top-2 right-2 text-2xl">⭐</div>
+              <div className="absolute bottom-2 left-2 text-xl">❄️</div>
+              <div className="absolute bottom-2 right-2 text-xl">🎁</div>
+            </div>
+          ) : (
+            <div className="w-full aspect-square rounded-2xl bg-green-50 border-4 border-green-100 flex items-center justify-center mb-5">
+              <Gift className="w-20 h-20 text-green-300" />
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-green-50 p-6 rounded-3xl shadow-sm border-2 border-green-100 relative">
+              <Sparkles className="w-6 h-6 text-green-400/40 absolute -top-3 -left-2" />
+              <p className="text-slate-800 text-lg font-medium leading-relaxed text-center">
+                &ldquo;{content.message}&rdquo;
+              </p>
+              <div className="flex justify-center gap-2 mt-4 text-2xl">
+                <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity }}>🎄</motion.span>
+                <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}>⭐</motion.span>
+                <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}>🎁</motion.span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-green-100 flex flex-col gap-3">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Feliz Natal! 🎄",
+                text: content.message || "Veja essa surpresa especial!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🎄", description: "Compartilhe a magia do Natal!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-green-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar Magia
+          </button>
+          <button onClick={onClose} className="text-green-600 text-[10px] font-black uppercase tracking-widest py-2 hover:text-green-700">
+            Continuar Celebrando
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// NatalLockedModal - Modal de cadeado
+export const NatalLockedModal = ({
+  isOpen,
+  onClose,
+  timeLeft,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  timeLeft?: string;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        className="relative w-full max-w-sm bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-700"
+      >
+        {/* Header */}
+        <div className="p-6 bg-gradient-to-b from-red-900/50 to-slate-900 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white z-20"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="text-center pt-2">
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 border-2 border-red-500/30 mb-4"
+            >
+              <span className="text-4xl">🎅</span>
+            </motion.div>
+            <h2 className="text-2xl font-black text-white">Ainda não é Natal!</h2>
+            <p className="text-slate-400 text-sm mt-2">Papai Noel está preparando sua surpresa</p>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 bg-slate-900">
+          <div className="bg-slate-800/50 rounded-2xl p-4 text-center border border-slate-700">
+            <p className="text-slate-300 text-sm mb-3">Volte na data certa para abrir seu presente!</p>
+            {timeLeft && (
+              <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/30 rounded-full px-4 py-2">
+                <Clock className="w-4 h-4 text-red-400" />
+                <span className="text-red-200 font-bold">{timeLeft}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-center gap-3 text-3xl">
+            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity }}>🎄</motion.span>
+            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}>⭐</motion.span>
+            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>🎁</motion.span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 bg-slate-950 border-t border-slate-800">
+          <button
+            onClick={onClose}
+            className="w-full h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition-colors"
+          >
+            Entendido 🎄
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};

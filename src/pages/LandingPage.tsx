@@ -131,12 +131,9 @@ const LandingPage = () => {
       // Aguarda role carregar do banco
       if (!authRole) return;
 
-      // Redirecionamento por role após login
-      if (['admin', 'rh'].includes(authRole)) {
-        navigate("/b2b", { replace: true });
-      } else {
-        navigate("/meus-calendarios", { replace: true });
-      }
+      // Redirecionamento: TODOS vão para B2C por padrão ao logar
+      // Quem quiser ir para outra área (Admin/B2B), usa o seletor
+      navigate("/meus-calendarios", { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate, authRole]);
 

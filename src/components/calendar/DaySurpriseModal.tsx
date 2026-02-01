@@ -17,7 +17,7 @@ interface DaySurpriseModalProps {
   isTemplate?: boolean;
 }
 
-import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal, PascoaEggModal, ReveillonFireworksModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal, PascoaEggModal, ReveillonFireworksModal, NatalFireworksModal } from "@/lib/themes/themeComponents";
 
 const DaySurpriseModal = ({
   isOpen,
@@ -82,6 +82,21 @@ const DaySurpriseModal = ({
         content={{
           type: content?.type === "text" ? "text" : "image",
           title: `Janela ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
+  if (theme === "natal") {
+    return (
+      <NatalFireworksModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Porta ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
         }}
