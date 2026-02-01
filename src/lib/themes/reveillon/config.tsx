@@ -84,6 +84,7 @@ export const reveillonTheme: PlusThemeConfig = {
                 seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 shadow-lg shadow-amber-500/50 z-[2] flex items-center justify-center",
                 button: "bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-900 text-[10px] font-extrabold px-5 py-2.5 rounded-full shadow-lg shadow-amber-500/30 hover:from-amber-300 hover:to-yellow-200 transition-all tracking-widest uppercase",
                 buttonText: "Revelar Surpresa",
+                numberClass: "text-amber-400",
                 glowClass: "shadow-[0_0_30px_10px_rgba(251,191,36,0.2)]",
                 borderClass: "border-amber-500/30"
             },

@@ -76,6 +76,7 @@ export const carnavalTheme: PlusThemeConfig = {
                 seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 shadow-md z-[2] flex items-center justify-center",
                 button: "bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:from-purple-700 hover:to-pink-700 transition-colors tracking-widest",
                 buttonText: "Abrir o Bloco",
+                numberClass: "text-purple-600",
                 glowClass: "shadow-[0_0_20px_5px_rgba(147,51,234,0.3)]",
                 borderClass: "border-purple-200"
             },

@@ -295,7 +295,7 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-center justify-between h-full py-4 text-center font-display">
         {/* Top: Day Number */}
-        <span className={cn("text-2xl font-black", config.cards.envelope.numberClass ? config.cards.envelope.numberClass : (config.icons?.envelopeSeal ? "text-red-700" : "text-rose-900"))}>
+        <span className={cn("text-2xl font-black", config.cards.envelope.numberClass || "text-foreground")}>
           Dia {dayNumber}
         </span>
 
@@ -321,7 +321,7 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
       </div>
 
       {isEditor && (
-        <button className="absolute top-2 right-2 bg-white/80 p-1.5 rounded-full shadow-sm text-rose-500 z-20 hover:text-rose-700">
+        <button className="absolute top-2 right-2 bg-white/80 p-1.5 rounded-full shadow-sm text-primary z-20 hover:text-primary-foreground">
           <Pencil className="w-3 h-3" />
         </button>
       )}
@@ -369,17 +369,17 @@ export const UniversalUnlockedCard = ({ dayNumber, imageUrl, onClick, isEditor =
           <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shadow-lg mb-2">
             <Play className="w-6 h-6 text-white" />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-rose-500/10" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/5" />
         </div>
       ) : (
         <div
           className={cn(
-            "absolute inset-0 bg-[#fffafa] transition-opacity duration-500",
+            "absolute inset-0 bg-white/80 transition-opacity duration-500",
             !isEditor && config.cards.unlocked.placeholderWrapper
           )}
           style={config.cards.unlocked.placeholderPattern || {}}
         >
-          <div className="absolute top-0 right-0 w-8 h-8 bg-rose-200/40 rounded-bl-3xl" />
+          <div className="absolute top-0 right-0 w-8 h-8 bg-current/10 rounded-bl-3xl" />
         </div>
       )}
 

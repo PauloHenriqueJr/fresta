@@ -81,6 +81,7 @@ export const natalTheme: PlusThemeConfig = {
                 seal: "hidden",
                 button: "bg-gradient-to-r from-red-600 to-red-700 text-white text-[10px] font-black px-5 py-3 rounded-full shadow-xl hover:from-red-500 hover:to-red-600 transition-all tracking-widest uppercase border-2 border-white",
                 buttonText: "ABRIR PRESENTE",
+                numberClass: "text-red-700",
                 glowClass: "shadow-[0_0_30px_10px_rgba(220,38,38,0.3)]",
                 borderClass: "border-red-500"
             },

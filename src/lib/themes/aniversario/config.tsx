@@ -76,6 +76,7 @@ export const aniversarioTheme: PlusThemeConfig = {
                 button: "bg-gradient-to-r from-sky-500 to-indigo-600 text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:from-sky-600 hover:to-indigo-700 transition-colors tracking-widest",
                 buttonText: "Abrir Presente",
                 glowClass: "shadow-[0_0_20px_5px_rgba(14,165,233,0.3)]",
+                numberClass: "text-sky-600",
                 borderClass: "border-sky-200"
             },
             locked: {

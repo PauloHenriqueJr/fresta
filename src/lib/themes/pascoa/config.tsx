@@ -78,6 +78,7 @@ export const pascoaTheme: PlusThemeConfig = {
                 seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md z-[2] flex items-center justify-center",
                 button: "bg-gradient-to-r from-amber-400 to-orange-400 text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:from-amber-500 hover:to-orange-500 transition-colors tracking-widest",
                 buttonText: "PEGAR OVO",
+                numberClass: "text-purple-600",
                 glowClass: "shadow-[0_0_20px_5px_rgba(192,132,252,0.25)]",
                 borderClass: "border-purple-200/50"
             },

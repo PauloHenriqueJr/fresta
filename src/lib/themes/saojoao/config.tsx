@@ -76,6 +76,7 @@ export const saojoaoTheme: PlusThemeConfig = {
                 seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-[#E65100] to-[#FF8F00] shadow-md z-[2] flex items-center justify-center",
                 button: "bg-white text-[#5D4037] text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:bg-amber-50 transition-colors tracking-widest",
                 buttonText: "ABRA A JANELA!",
+                numberClass: "text-white",
                 glowClass: "shadow-[0_0_20px_5px_rgba(230,81,0,0.3)]",
                 borderClass: "border-[#8D6E63]"
             },

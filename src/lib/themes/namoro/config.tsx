@@ -70,6 +70,7 @@ export const namoroTheme: PlusThemeConfig = {
         seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[radial-gradient(circle,#f43f5e_0%,#be123c_100%)] shadow-md z-[2] flex items-center justify-center",
         button: "bg-love-red text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:bg-rose-700 transition-colors tracking-widest",
         buttonText: "Abrir o Coração",
+        numberClass: "text-rose-600",
         glowClass: "shadow-[0_0_20px_5px_rgba(225,29,72,0.3)]",
         borderClass: "border-love-red/20"
       },
