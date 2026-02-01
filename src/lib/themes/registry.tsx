@@ -4,7 +4,8 @@ import {
   Share2, Eye, Save, Rocket, MessageSquare, X, Play, Music,
   Camera, Gift, Settings, Clock, Download, Flame, GripHorizontal,
   Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane,
-  MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Cake, HeartHandshake, Egg
+  MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Cake, HeartHandshake, Egg,
+  Flower2
 } from "lucide-react";
 import { HangingHearts, WeddingShower, ReveillonDecorations } from "./themeComponents";
 import { NatalDecorationsFull } from "./natalComponents";
@@ -103,6 +104,7 @@ export interface PlusThemeConfig {
         buttonText: string;
         glowClass: string;
         borderClass: string;
+        numberClass?: string;
       };
       locked: {
         container: string;
@@ -139,6 +141,7 @@ export interface PlusThemeConfig {
       button: string;
       secondaryButton: string;
       message?: string;
+      messageClass?: string;
     };
     editor?: {
       topBar: {
@@ -333,11 +336,15 @@ export const weddingTheme: PlusThemeConfig = {
       icon: Heart
     },
     lockedModal: {
-      title: "Ainda não é o momento... 💍",
-      message: "Estamos preparando este detalhe com todo carinho do mundo. Em breve você verá!"
+      title: "Segura a emoção! 💍",
+      message: "Este detalhe do nosso grande dia está sendo preparado com todo carinho. Volte na data certa para descobrir!"
     },
-    footerMessage: "Para sempre começa hoje. ❤️",
-    subtitle: "Onde o amor ganha vida",
+    headerBadge: {
+      text: "Private Event",
+      className: "bg-[#FFF9F0] text-[#B5942F] font-extrabold tracking-[0.2em]"
+    },
+    footerMessage: "Cada detalhe foi preparado com amor para você. ❤️",
+    subtitle: "A CONTAGEM REGRESSIVA PARA O ALTAR",
     editorSubtitle: "Configurando o seu felizes para sempre"
   },
   styles: {
@@ -350,121 +357,124 @@ export const weddingTheme: PlusThemeConfig = {
   FloatingComponent: WeddingShower,
   ui: {
     layout: {
-      bgClass: "bg-[#FFFCF5]",
-      bgSvg: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20l5-5-5-5-5 5z' fill='%23D4AF37' fill-opacity='0.03'/%3E%3C/svg%3E")`,
+      bgClass: "bg-[#FDFBF7]",
+      bgSvg: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10zm0-30c-5 0-10-5-10-10S45 0 50 0s10 5 10 10-5 10-10 10zm0 60c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10zm30-30c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10zm-60 0c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10z' fill='%23D4AF37' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E")`,
       containerClass: "font-display",
-      headerWrapper: "relative w-full bg-white pb-6 rounded-b-[3rem] shadow-sm z-10 pt-6 border-b border-wedding-gold/10",
+      headerWrapper: "relative w-full bg-white/90 pb-6 rounded-b-[3rem] shadow-sm z-10 pt-6 border-b border-[#D4AF37]/10 backdrop-blur-md",
       mainClass: "flex-1 px-4 py-8 pb-12 relative z-0",
-      messageFont: "font-serif italic text-wedding-gold-dark/70",
+      messageFont: "font-serif italic text-[#B5942F]/80",
       titleFont: "font-serif italic",
       secondaryFont: "font-display"
     },
     header: {
       container: "px-6 mt-4 text-center relative z-10 flex flex-col items-center gap-2",
-      title: "text-[36px] font-serif italic text-wedding-gold-dark drop-shadow-sm relative",
-      subtitle: "text-slate-500 font-medium tracking-wide uppercase text-[10px]",
-      badgeText: "Celebrando o Amor",
-      badgeTextClass: "text-[10px] font-bold text-wedding-gold-dark uppercase tracking-widest",
-      backButton: "bg-wedding-cream text-wedding-gold hover:bg-wedding-gold/10 transition-colors"
+      title: "text-[42px] font-serif italic text-[#B5942F] drop-shadow-sm relative leading-tight mb-2",
+      subtitle: "text-[#D4AF37] font-medium tracking-[0.2em] uppercase text-[11px] sm:text-xs",
+      badgeText: "Private Event",
+      badgeTextClass: "text-[9px] font-black text-[#B5942F] uppercase tracking-[0.3em]",
+      backButton: "bg-[#FDFBF7] text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors border border-[#D4AF37]/20"
     },
     actions: {
       like: {
-        color: "text-amber-600",
+        color: "text-[#D4AF37]",
         bgColor: "bg-white",
-        borderColor: "border-amber-200",
+        borderColor: "border-[#D4AF37]/20",
         likedColor: "text-white",
-        likedBgColor: "bg-amber-500"
+        likedBgColor: "bg-[#D4AF37]"
       },
       share: {
-        color: "text-amber-600",
+        color: "text-[#D4AF37]",
         bgColor: "bg-white",
-        borderColor: "border-amber-200"
+        borderColor: "border-[#D4AF37]/20"
       }
     },
     progress: {
-      container: "flex flex-col gap-3 px-8 mt-6 relative z-10",
-      label: "text-wedding-gold-dark text-[10px] font-bold uppercase tracking-widest",
-      labelText: "% Concluído",
-      barContainer: "h-2 w-full rounded-full bg-slate-100 overflow-hidden",
-      barFill: "h-full bg-gradient-to-r from-wedding-gold to-wedding-gold-dark relative",
-      barShimmer: "absolute inset-0 bg-white/20 animate-pulse"
+      container: "flex flex-col gap-2 px-8 mt-10 relative z-10 max-w-sm mx-auto",
+      label: "text-[#B5942F] text-[10px] font-bold uppercase tracking-[0.2em]",
+      labelText: " DO CAMINHO",
+      barContainer: "h-2 w-full rounded-full bg-slate-100 overflow-hidden shadow-inner",
+      barFill: "h-full bg-gradient-to-r from-[#D4AF37] via-[#F7E7CE] to-[#B5942F] relative",
+      barShimmer: "absolute inset-0 bg-white/30 animate-pulse"
     },
     cards: {
       envelope: {
-        container: "aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-xl shadow-lg cursor-pointer transition-transform duration-300 border border-wedding-gold/20 bg-white overflow-hidden group",
-        pattern: "absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(135deg,transparent_50%,#FDFBF7_50%),linear-gradient(225deg,transparent_50%,#FDFBF7_50%)] bg-[length:50%_100%] bg-no-repeat bg-[position:left_top,right_top] z-[1]",
-        seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-wedding-gold shadow-md z-[2] flex items-center justify-center",
-        button: "bg-wedding-gold text-white text-[10px] font-black px-6 py-2 rounded-full hover:bg-wedding-gold-dark transition-colors tracking-widest uppercase",
-        buttonText: "Nossa Memória",
-        glowClass: "shadow-[0_0_20px_rgba(212,175,55,0.1)]",
-        borderClass: "border-wedding-gold/20"
+        container: "aspect-square sm:aspect-[2/1] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-[2.5rem] shadow-xl cursor-pointer transition-all duration-500 border-2 border-[#D4AF37]/20 bg-white overflow-hidden group hover:shadow-2xl hover:scale-[1.02]",
+        pattern: "absolute inset-0 bg-[radial-gradient(circle_at_center,#FFFBF0_0%,#fff_100%)] z-[0]",
+        seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#B5942F] shadow-lg z-[2] flex items-center justify-center border-4 border-white",
+        numberClass: "text-[#B5942F]",
+        button: "bg-gradient-to-r from-[#D4AF37] to-[#B5942F] text-white text-[10px] font-black px-8 py-3 rounded-full hover:shadow-lg transition-all tracking-widest uppercase z-10 mt-16",
+        buttonText: "VER SURPRESA",
+        glowClass: "shadow-[0_0_40px_rgba(212,175,55,0.15)]",
+        borderClass: "border-[#D4AF37]/20"
       },
       locked: {
-        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-[2rem] border-2 border-wedding-gold/5 bg-wedding-cream overflow-hidden cursor-pointer",
+        container: "aspect-square relative flex flex-col items-center justify-center p-2 rounded-[2rem] border-2 border-[#D4AF37]/5 bg-[#FDFBF7] overflow-hidden cursor-pointer group",
         style: { background: `linear-gradient(135deg, #FDFBF7 0%, #F5F0E6 100%)` },
-        overlay: "absolute inset-0 bg-white/10",
-        number: "text-wedding-gold text-2xl font-serif italic mb-1",
-        iconWrapper: "w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm",
-        iconClass: "w-3 h-3 text-wedding-gold-soft",
-        text: "text-[8px] font-bold text-wedding-gold-dark/40 tracking-widest uppercase",
-        badge: "bg-wedding-gold/10 text-wedding-gold text-[8px] font-bold px-2 py-0.5 rounded-full",
-        borderClass: "border-wedding-gold/5"
+        overlay: "absolute inset-0 bg-white/10 backdrop-blur-[1px]",
+        number: "text-[#D4AF37] text-3xl font-serif italic mb-1 opacity-80",
+        iconWrapper: "w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-[#D4AF37]/10",
+        iconClass: "w-3 h-3 text-[#D4AF37]/60",
+        text: "text-[8px] font-bold text-[#D4AF37]/40 tracking-[0.2em] uppercase",
+        badge: "bg-[#D4AF37]/10 text-[#D4AF37] text-[8px] font-bold px-2 py-0.5 rounded-full",
+        borderClass: "border-[#D4AF37]/5"
       },
       unlocked: {
-        container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-[2rem] bg-white border border-wedding-gold/10 shadow-sm overflow-hidden cursor-pointer",
-        imageOverlay: "opacity-40 grayscale-[0.5]",
+        container: "aspect-square relative flex flex-col items-center justify-center p-2 rounded-[2rem] bg-white border border-[#D4AF37]/10 shadow-md overflow-hidden cursor-pointer group",
+        imageOverlay: "grayscale-[0.2] blur-[25px] group-hover:blur-0 transition-all duration-700",
         placeholderWrapper: "opacity-40",
         placeholderPattern: {
           backgroundImage: `linear-gradient(90deg, transparent 19px, #D4AF37 19px, #D4AF37 20px, transparent 20px), linear-gradient(#eee 0.1em, transparent 0.1em)`,
           backgroundSize: '100% 0.8em'
         },
-        badge: "text-[10px] font-bold px-2 rounded-full mb-1 text-wedding-gold-dark bg-wedding-cream",
-        iconWrapper: "absolute top-2 right-2 bg-white/90 rounded-full p-1 shadow-sm z-20",
-        borderClass: "border-wedding-gold/10",
+        badge: "text-[9px] font-black px-3 py-1 rounded-full mb-1 text-[#B5942F] bg-[#FFF9F0] border border-[#D4AF37]/10 tracking-widest",
+        iconWrapper: "absolute top-3 right-3 bg-white/90 rounded-full p-1.5 shadow-sm z-20 border border-[#D4AF37]/10",
+        borderClass: "border-[#D4AF37]/10",
         bgClass: "bg-white"
       },
       empty: {
-        container: "aspect-[4/5] bg-wedding-cream/50 relative flex flex-col items-center justify-center p-2 rounded-[2rem] border border-wedding-gold/20 border-dashed cursor-pointer",
-        number: "text-wedding-gold-soft font-serif italic text-2xl mb-2",
-        iconWrapper: "w-8 h-8 rounded-full bg-wedding-gold text-white flex items-center justify-center shadow-md",
-        borderClass: "border-wedding-gold/20",
-        bgClass: "bg-wedding-cream/50"
+        container: "aspect-square bg-white/50 relative flex flex-col items-center justify-center p-2 rounded-[2rem] border border-[#D4AF37]/20 border-dashed cursor-pointer hover:bg-white transition-all",
+        number: "text-[#E5CFAA] font-serif italic text-2xl mb-2",
+        iconWrapper: "w-8 h-8 rounded-full bg-[#D4AF37] text-white flex items-center justify-center shadow-md",
+        borderClass: "border-[#D4AF37]/20",
+        bgClass: "bg-white/50"
       }
     },
     footer: {
-      container: "relative w-full px-4 pt-12 pb-24 flex items-center justify-center",
+      container: "relative w-full px-4 pt-12 pb-24 flex flex-col items-center justify-center gap-6",
       editorContainer: "relative w-full px-4 pt-8 pb-16 flex items-center justify-center gap-4",
-      button: "bg-wedding-gold hover:bg-wedding-gold-dark text-white px-8 h-14 rounded-full font-bold shadow-lg shadow-wedding-gold/20 transition-all",
-      secondaryButton: "h-14 w-14 rounded-full bg-wedding-cream text-wedding-gold border border-wedding-gold/10"
+      button: "bg-gradient-to-r from-[#D4AF37] to-[#B5942F] hover:to-[#754C0E] text-white px-10 h-14 rounded-2xl font-black text-[10px] tracking-widest uppercase shadow-xl shadow-[#D4AF37]/20 transition-all active:scale-95",
+      secondaryButton: "h-14 w-14 rounded-2xl bg-[#FDFBF7] text-[#D4AF37] border border-[#D4AF37]/10 flex items-center justify-center hover:bg-[#D4AF37]/5",
+      messageClass: "text-[#B5942F] font-serif italic text-center max-w-xs opacity-70 px-8"
     },
     editor: {
       topBar: {
-        container: "border-wedding-gold/10",
-        backButton: "text-wedding-gold",
-        modeText: "text-wedding-gold",
-        badgeText: "text-wedding-gold-dark",
-        previewButtonActive: "bg-wedding-gold text-white shadow-wedding-gold/20",
-        previewButtonInactive: "bg-wedding-cream text-wedding-gold border-wedding-gold/10",
-        settingsButton: "bg-wedding-cream text-wedding-gold border-wedding-gold/10"
+        container: "border-[#D4AF37]/10 bg-white/90 backdrop-blur-md",
+        backButton: "text-[#D4AF37]",
+        modeText: "text-[#B5942F]",
+        badgeText: "text-[#B5942F]",
+        previewButtonActive: "bg-[#D4AF37] text-white shadow-[#D4AF37]/20",
+        previewButtonInactive: "bg-[#FDFBF7] text-[#D4AF37] border-[#D4AF37]/10",
+        settingsButton: "bg-[#FDFBF7] text-[#D4AF37] border-[#D4AF37]/10"
       },
       stats: {
-        card: "border-wedding-gold/10",
-        number: "text-wedding-gold-dark",
-        label: "text-wedding-gold"
+        card: "border-[#D4AF37]/10 bg-white/50 backdrop-blur-sm",
+        number: "text-[#B5942F]",
+        label: "text-[#D4AF37]"
       }
     },
     quote: {
-      container: "mt-10 p-8 rounded-[3rem] bg-white border border-wedding-gold/10 flex flex-col items-center text-center gap-4 shadow-sm max-w-lg mx-auto relative group",
-      icon: "text-wedding-gold w-6 h-6 opacity-30",
-      title: "text-[10px] font-bold uppercase tracking-[0.3em] text-wedding-gold-dark/40 mb-1",
-      text: "text-xl text-wedding-gold-dark font-serif italic leading-relaxed"
+      container: "mt-10 p-8 rounded-[3rem] bg-white border border-[#D4AF37]/10 flex flex-col items-center text-center gap-4 shadow-sm max-w-lg mx-auto relative group",
+      icon: "text-[#D4AF37] w-6 h-6 opacity-40 fill-current",
+      title: "text-[10px] font-black uppercase tracking-[0.3em] text-[#B5942F]/50 mb-1",
+      text: "text-2xl text-[#B5942F] font-serif italic leading-relaxed"
     },
     icons: {
       main: Heart,
       locked: Lock,
       open: Heart,
       quote: Quote,
-      footer: Sparkles
+      footer: Heart,
+      envelopeSeal: Heart
     }
   }
 };

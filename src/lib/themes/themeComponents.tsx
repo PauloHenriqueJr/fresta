@@ -1,7 +1,7 @@
 import { useState, useMemo, ReactNode, forwardRef } from "react";
 import { BrandWatermark } from "@/components/calendar/BrandWatermark";
 import { motion } from "framer-motion";
-import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket } from "lucide-react";
+import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Flower2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 import { useToast } from "@/hooks/use-toast";
@@ -119,6 +119,9 @@ export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onE
   return (
     <div className={cn(config.ui?.header.container, "group pointer-events-auto")}>
       <div className="flex items-center justify-center gap-4 w-full mb-2">
+        {config.id === 'casamento' && (
+          null
+        )}
         {showWatermark && <BrandWatermark variant="compact" className="hidden sm:flex" />}
         <h1
           className={cn(config.ui?.header.title, titleFont, "relative cursor-pointer transition-all active:scale-[0.99] text-center")}
@@ -138,6 +141,9 @@ export const UniversalHeader = ({ title, subtitle, config, isEditor, onEdit, onE
           )}
         </h1>
         {showWatermark && <BrandWatermark variant="compact" className="hidden sm:flex" />}
+        {config.id === 'casamento' && (
+          null
+        )}
       </div>
 
       {/* Mobile Watermarks (stacked above title if needed or different layout) */}
@@ -289,17 +295,15 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
       {/* Content Container */}
       <div className="relative z-10 flex flex-col items-center justify-between h-full py-4 text-center font-display">
         {/* Top: Day Number */}
-        <span className={cn("text-2xl font-black", config.icons?.envelopeSeal ? "text-red-700" : "text-rose-900")}>
+        <span className={cn("text-2xl font-black", config.cards.envelope.numberClass ? config.cards.envelope.numberClass : (config.icons?.envelopeSeal ? "text-red-700" : "text-rose-900"))}>
           Dia {dayNumber}
         </span>
 
-        {/* Center: Gift Icon / Seal */}
+        {/* Center: Icon / Seal (only if defined) */}
         <div className="flex-1 flex items-center justify-center">
-          {config.icons?.envelopeSeal ? (
-            <div className="text-6xl">🎁</div>
-          ) : (
+          {config.icons?.envelopeSeal && (
             <div className={config.cards.envelope.seal}>
-              <Heart className="w-4 h-4 text-white fill-white" />
+              <config.icons.envelopeSeal className="w-6 h-6 text-white fill-current" />
             </div>
           )}
         </div>
@@ -486,14 +490,22 @@ export const UniversalFooter = ({
         isEditor ? "pb-24" : "pb-12"
       )}
     >
-      <div className="flex items-center gap-3 w-full justify-center">
-        <button
-          onClick={onNavigate}
-          className={cn(config.footer.button, "w-full sm:w-auto px-12 min-w-[200px]")}
-        >
-          {config.icons.footer && <config.icons.footer className="w-4 h-4" />}
-          {buttonText ? buttonText : (isEditor ? "Salvar Alterações" : "Criar meu calendário")}
-        </button>
+      <div className="flex flex-col items-center gap-6 w-full justify-center">
+        <div className="flex items-center gap-3 w-full justify-center">
+          <button
+            onClick={onNavigate}
+            className={cn(config.footer.button, "w-full sm:w-auto px-12 min-w-[200px] flex items-center justify-center gap-3")}
+          >
+            {config.icons.footer && <config.icons.footer className="w-4 h-4 fill-current" />}
+            {buttonText ? buttonText : (isEditor ? "Salvar Alterações" : "Criar meu calendário")}
+          </button>
+        </div>
+
+        {config.content?.footerMessage && !isEditor && (
+          <p className={config.ui?.footer.messageClass}>
+            {config.content.footerMessage}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -501,16 +513,12 @@ export const UniversalFooter = ({
 
 // --- Legacy support for existing components if needed ---
 export const FlagBanner = () => null;
-export const WeddingShower = () => null;
-
-// --- Wedding Theme Components ---
-
 // --- Wedding Theme Components ---
 
 // Wedding Background
 export const WeddingBackground = () => {
   return (
-    <div className="fixed inset-0 z-[-1] bg-[#FDFBF7] pointer-events-none text-wedding-gold/20">
+    <div className="fixed inset-0 z-[-1] bg-[#FDFBF7] pointer-events-none text-[#D4AF37]/20">
       {/* Lace Pattern from User's HTML */}
       <div
         className="absolute inset-0 opacity-[0.4]"
@@ -529,17 +537,54 @@ export const WeddingBackground = () => {
 // Wedding Top Decorations (Flowers)
 export const WeddingTopDecorations = () => {
   return (
-    <div className="fixed top-0 left-0 w-full flex justify-between items-start z-50 pointer-events-none px-4 pt-1 opacity-60">
-      {/* Using Lucide Flower/Sparkles as approximations for 'filter_vintage' and 'local_florist' */}
-      <Settings className="w-8 h-8 text-wedding-gold/40 animate-pulse-soft hidden" /> {/* Placeholder structure */}
-      <div className="text-4xl text-wedding-gold/40">❀</div>
-      <div className="text-3xl text-wedding-gold/30 mt-2">✿</div>
-      <div className="text-4xl text-wedding-gold/40">❀</div>
-      <div className="text-3xl text-wedding-gold/30 mt-2">✿</div>
-      <div className="text-4xl text-wedding-gold/40">❀</div>
+    <div className="fixed inset-0 z-[60] pointer-events-none overflow-hidden">
+      {/* Center Flowers (From Explore Theme) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center pt-2 gap-1 animate-in fade-in zoom-in duration-1000 z-50">
+        <div className="text-4xl text-[#D4AF37]/40 select-none font-serif leading-none">✿</div>
+        <div className="text-3xl text-[#D4AF37]/30 -mt-3 select-none font-serif leading-none">✿</div>
+      </div>
     </div>
   )
 }
+
+// Wedding Shower (Falling Flowers)
+export const WeddingShower = () => {
+  const petals = [
+    { height: "h-8", color: "text-[#D4AF37]/10", delay: 0, left: "10%" },
+    { height: "h-12", color: "text-[#D4AF37]/20", delay: -0.5, left: "25%" },
+    { height: "h-10", color: "text-[#B5942F]/15", delay: -1.2, left: "40%" },
+    { height: "h-14", color: "text-[#D4AF37]/10", delay: -0.8, left: "60%" },
+    { height: "h-9", color: "text-[#B5942F]/20", delay: -1.5, left: "75%" },
+    { height: "h-11", color: "text-[#D4AF37]/15", delay: -0.3, left: "90%" },
+  ];
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {petals.map((item, i) => (
+        <motion.div
+          key={i}
+          className={cn("absolute top-[-50px]", item.color)}
+          style={{ left: item.left }}
+          initial={{ y: -100, x: 0, rotate: 0, opacity: 0 }}
+          animate={{
+            y: "110vh",
+            x: [0, 50, -50, 0],
+            rotate: 360,
+            opacity: [0, 1, 1, 0]
+          }}
+          transition={{
+            duration: 10 + Math.random() * 5,
+            repeat: Infinity,
+            delay: Math.random() * 10,
+            ease: "linear"
+          }}
+        >
+          <Flower2 className="w-6 h-6 fill-current opacity-40" />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 // Wedding Header
 export const WeddingHeader = ({ title = "O Grande Sim!", subtitle = "A contagem regressiva para o altar", isEditor = false, showWatermark = false }: { title?: string, subtitle?: string, isEditor?: boolean, showWatermark?: boolean }) => {
@@ -751,12 +796,9 @@ export const WeddingFooter = ({ isEditor = false }: { isEditor?: boolean }) => {
 
   return (
     <div className="fixed bottom-0 left-0 w-full p-6 pb-10 bg-white/90 backdrop-blur-xl border-t border-[#F9F6F0] z-50 font-display">
-      <div className="max-w-md mx-auto flex items-center gap-3">
-        <button className="flex-[3] bg-gradient-to-r from-[#D4AF37] to-[#996515] hover:to-[#754C0E] text-white h-14 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-[#D4AF37]/25 transition-all active:scale-95">
-          Enviar Amor
-        </button>
-        <button className="flex-1 h-14 rounded-2xl bg-[#F9F6F0] text-[#996515] flex items-center justify-center hover:bg-[#E5CFAA]/20 transition-colors">
-          <Heart className="w-5 h-5 fill-current" />
+      <div className="max-w-md mx-auto">
+        <button className="w-full bg-gradient-to-r from-[#D4AF37] to-[#996515] hover:to-[#754C0E] text-white h-14 rounded-2xl font-bold text-sm tracking-wide flex items-center justify-center gap-3 shadow-xl shadow-[#D4AF37]/25 transition-all active:scale-95">
+          Criar meu calendário
         </button>
       </div>
     </div>
@@ -2378,6 +2420,118 @@ export const NatalLockedModal = ({
           >
             Entendido 🎄
           </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// Wedding Card Modal (Premium Gold/Champagne)
+export const WeddingCardModal = ({ isOpen, onClose, content, config }: LoveLetterModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+      {/* Floating Elements (Decorations) - Premium Flowers */}
+      <div className="absolute top-10 left-10 w-40 h-40 text-[#D4AF37] opacity-60 animate-pulse delay-700 pointer-events-none">
+        <Flower2 className="w-full h-full rotate-[-15deg]" />
+      </div>
+      <div className="absolute bottom-20 right-5 w-40 h-40 text-[#D4AF37] opacity-60 animate-pulse delay-300 pointer-events-none">
+        <Flower2 className="w-full h-full rotate-[15deg]" />
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-[#FDFBF7] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col font-serif border border-[#D4AF37]/20"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 flex items-center justify-center text-[#B5942F] transition-colors border border-[#D4AF37]/20"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Premium Header */}
+        <div className="pt-10 pb-6 text-center relative z-10">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#B5942F] shadow-lg flex items-center justify-center mx-auto mb-4 border-[3px] border-white">
+            {<Heart className="w-8 h-8 text-white fill-white" />}
+          </div>
+          <h2 className="text-3xl font-serif italic text-[#B5942F]">
+            {content.title}
+          </h2>
+        </div>
+
+        {/* Content Body */}
+        <div className="flex-1 px-8 pb-8 overflow-y-auto overscroll-contain relative">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: `radial-gradient(#D4AF37 1px, transparent 1px)`,
+            backgroundSize: '20px 20px'
+          }}></div>
+
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-[4/5] rounded-xl overflow-hidden shadow-lg border-[6px] border-white bg-white mb-6 relative shrink-0 rotate-1 transform">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('youtu.be') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full bg-slate-100 flex items-center justify-center overflow-hidden">
+                  {content.mediaUrl.includes('youtube.com') || content.mediaUrl.includes('youtu.be') ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${content.mediaUrl.includes('youtu.be') ? content.mediaUrl.split('/').pop() : new URLSearchParams(new URL(content.mediaUrl).search).get('v')}?autoplay=0&rel=0&showinfo=0`}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : content.mediaUrl.includes('tiktok.com') ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-black text-white relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-20 bg-[url('https://sf16-scmcdn-va.ibytedtos.com/goofy/tiktok/web/node/_next/static/images/logo-dark-e95da587b61920d5.png')] bg-cover bg-center" />
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div className="w-14 h-14 rounded-full bg-[#FE2C55] flex items-center justify-center shadow-lg mb-3 animate-pulse">
+                          <Play className="w-6 h-6 text-white fill-current ml-1" />
+                        </div>
+                        <p className="font-sans font-bold text-xs uppercase tracking-widest text-shadow">Abrir no TikTok</p>
+                        <a
+                          href={content.mediaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 z-20"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-[#D4AF37]">
+                      <Play className="w-12 h-12 opacity-80" />
+                      <a href={content.mediaUrl} target="_blank" rel="noreferrer" className="mt-2 text-xs font-bold underline font-sans">
+                        Ver Vídeo Original
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  alt="Wedding Memory"
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+          )}
+
+          <div className="relative z-10 text-center">
+            <p className="text-[#8C7335] text-lg leading-relaxed font-serif italic whitespace-pre-line">
+              {content.message}
+            </p>
+          </div>
+
+          <div className="mt-8 flex justify-center opacity-40">
+            <div className="h-px w-20 bg-[#D4AF37]"></div>
+            <Flower2 className="w-4 h-4 text-[#D4AF37] -mt-2 mx-2" />
+            <div className="h-px w-20 bg-[#D4AF37]"></div>
+          </div>
+
         </div>
       </motion.div>
     </div>
