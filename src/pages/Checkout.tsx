@@ -78,6 +78,7 @@ const Checkout = () => {
         if (id === "addon_ai") return sum + PRICING.ADDON_AI.price_cents;
         if (id === "pdf_kit") return sum + PRICING.PDF_KIT.price_cents;
         if (id === "addon_password") return sum + PRICING.ADDON_PASSWORD.price_cents;
+        if (id === "storage_extra") return sum + PRICING.STORAGE_EXTRA.price_cents;
         return sum;
     }, 0);
     const totalPrice = basePrice + addonTotal;
@@ -165,6 +166,9 @@ const Checkout = () => {
             }
             if (selectedAddons.includes("addon_password")) {
                 items.push({ type: "addon_password", quantity: 1 });
+            }
+            if (selectedAddons.includes("storage_extra")) {
+                items.push({ type: "storage_extra", quantity: 1 });
             }
 
             const result = await createPaymentPreference({
@@ -351,6 +355,33 @@ const Checkout = () => {
                                             </div>
                                             <div className="text-right">
                                                 <p className="font-black text-foreground">+{formatPrice(PRICING.PDF_KIT.price_cents)}</p>
+                                            </div>
+                                        </button>
+
+                                        <button
+                                            onClick={() => toggleAddon("storage_extra")}
+                                            className={cn(
+                                                "w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all",
+                                                selectedAddons.includes("storage_extra")
+                                                    ? "border-[#F9A03F] bg-[#F9A03F]/5"
+                                                    : "border-border/50 hover:border-[#F9A03F]/30"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "w-12 h-12 rounded-xl flex items-center justify-center",
+                                                selectedAddons.includes("storage_extra") ? "bg-[#F9A03F]" : "bg-muted"
+                                            )}>
+                                                <Calendar className={cn(
+                                                    "w-6 h-6",
+                                                    selectedAddons.includes("storage_extra") ? "text-white" : "text-muted-foreground"
+                                                )} />
+                                            </div>
+                                            <div className="flex-1 text-left">
+                                                <p className="font-bold text-foreground">+50MB Fotos HD</p>
+                                                <p className="text-sm text-muted-foreground">Fotos em alta resolução</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-black text-foreground">+{formatPrice(PRICING.STORAGE_EXTRA.price_cents)}</p>
                                             </div>
                                         </button>
                                     </div>
@@ -622,6 +653,12 @@ const Checkout = () => {
                                         <div className="flex justify-between items-center text-white/70">
                                             <span>+ Kit Memória</span>
                                             <span>{formatPrice(PRICING.PDF_KIT.price_cents)}</span>
+                                        </div>
+                                    )}
+                                    {selectedAddons.includes("storage_extra") && (
+                                        <div className="flex justify-between items-center text-white/70">
+                                            <span>+ 50MB Fotos HD</span>
+                                            <span>{formatPrice(PRICING.STORAGE_EXTRA.price_cents)}</span>
                                         </div>
                                     )}
                                 </div>

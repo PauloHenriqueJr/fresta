@@ -281,19 +281,30 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
       {/* Envelope Pattern Background */}
       <div className={config.cards.envelope.pattern}></div>
 
-      {/* Wax Seal */}
-      <div className={config.cards.envelope.seal}>
-        <Heart className="w-4 h-4 text-white fill-white" />
-      </div>
-
       {/* Glow Aura */}
       {config.cards.envelope.glowClass && (
         <div className={cn("absolute inset-0 z-0 pointer-events-none rounded-xl", config.cards.envelope.glowClass)}></div>
       )}
 
-      <div className="relative z-10 mt-8 flex flex-col items-center text-center font-display">
-        <span className="text-rose-900 font-romantic text-3xl mb-1">Dia {dayNumber}</span>
+      {/* Content Container */}
+      <div className="relative z-10 flex flex-col items-center justify-between h-full py-4 text-center font-display">
+        {/* Top: Day Number */}
+        <span className={cn("text-2xl font-black", config.icons?.envelopeSeal ? "text-red-700" : "text-rose-900")}>
+          Dia {dayNumber}
+        </span>
 
+        {/* Center: Gift Icon / Seal */}
+        <div className="flex-1 flex items-center justify-center">
+          {config.icons?.envelopeSeal ? (
+            <div className="text-6xl">🎁</div>
+          ) : (
+            <div className={config.cards.envelope.seal}>
+              <Heart className="w-4 h-4 text-white fill-white" />
+            </div>
+          )}
+        </div>
+
+        {/* Bottom: Button */}
         {isEditor ? (
           <button className={config.cards.envelope.button}>
             <Pencil className="w-3 h-3 inline mr-1" /> EDITAR
@@ -2211,23 +2222,61 @@ export const NatalFireworksModal = ({
               <div className="absolute bottom-2 left-2 text-xl">❄️</div>
               <div className="absolute bottom-2 right-2 text-xl">🎁</div>
             </div>
+          ) : content.message ? (
+            /* Message without media - show prominently */
+            <div className="w-full min-h-[200px] rounded-2xl bg-gradient-to-br from-green-50 to-red-50 border-4 border-green-200 flex flex-col items-center justify-center mb-5 relative overflow-hidden p-6">
+              {/* Background decorations */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-4 left-4 text-4xl">❄️</div>
+                <div className="absolute top-4 right-4 text-4xl">⭐</div>
+                <div className="absolute bottom-4 left-4 text-4xl">🎄</div>
+                <div className="absolute bottom-4 right-4 text-4xl">🎁</div>
+              </div>
+
+              {/* Message is the main content */}
+              <div className="relative z-10 text-center">
+                <div className="text-5xl mb-4">🎁</div>
+                <p className="text-slate-800 text-xl font-medium leading-relaxed">
+                  &ldquo;{content.message}&rdquo;
+                </p>
+              </div>
+            </div>
           ) : (
-            <div className="w-full aspect-square rounded-2xl bg-green-50 border-4 border-green-100 flex items-center justify-center mb-5">
-              <Gift className="w-20 h-20 text-green-300" />
+            /* No content - show gift placeholder */
+            <div className="w-full aspect-square rounded-2xl bg-gradient-to-br from-green-50 to-red-50 border-4 border-green-200 flex flex-col items-center justify-center mb-5 relative overflow-hidden">
+              {/* Background decorations */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-4 left-4 text-4xl">❄️</div>
+                <div className="absolute top-4 right-4 text-4xl">⭐</div>
+                <div className="absolute bottom-4 left-4 text-4xl">🎄</div>
+                <div className="absolute bottom-4 right-4 text-4xl">🎁</div>
+              </div>
+
+              {/* Large Gift Box */}
+              <motion.div
+                animate={{ scale: [1, 1.05, 1], rotate: [-5, 5, -5] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="relative z-10"
+              >
+                <div className="text-8xl mb-4">🎁</div>
+              </motion.div>
+
+              {/* Gift message */}
+              <p className="text-green-700 font-bold text-lg text-center relative z-10 mt-2">
+                Um presente especial!
+              </p>
+              <p className="text-green-600/70 text-sm text-center relative z-10">
+                Abra com carinho 🎄
+              </p>
             </div>
           )}
 
-          {content.message && (
-            <div className="bg-green-50 p-6 rounded-3xl shadow-sm border-2 border-green-100 relative">
-              <Sparkles className="w-6 h-6 text-green-400/40 absolute -top-3 -left-2" />
-              <p className="text-slate-800 text-lg font-medium leading-relaxed text-center">
-                &ldquo;{content.message}&rdquo;
-              </p>
-              <div className="flex justify-center gap-2 mt-4 text-2xl">
-                <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity }}>🎄</motion.span>
-                <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}>⭐</motion.span>
-                <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}>🎁</motion.span>
-              </div>
+          {/* Only show message box if not already shown above */}
+          {content.message && !content.mediaUrl && (
+            <div className="flex justify-center gap-3 text-2xl">
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity }}>🎄</motion.span>
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}>⭐</motion.span>
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}>🎁</motion.span>
             </div>
           )}
         </div>

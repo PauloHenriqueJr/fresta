@@ -10,7 +10,7 @@ import { supabase } from "@/lib/supabase/client";
 // TYPES
 // =====================
 
-export type OrderItemType = "premium" | "addon_password" | "addon_ai" | "pdf_kit";
+export type OrderItemType = "premium" | "addon_password" | "addon_ai" | "pdf_kit" | "storage_extra";
 
 export type OrderItem = {
   type: OrderItemType;
@@ -93,6 +93,11 @@ export const PRICING = {
     name: "Kit Memória Física (PDF)",
     price_cents: 990, // R$ 9,90
   },
+  STORAGE_EXTRA: {
+    type: "storage_extra" as const,
+    name: "+50MB Fotos em Alta Resolução",
+    price_cents: 490, // R$ 4,90
+  },
 } as const;
 
 // =====================
@@ -108,6 +113,7 @@ function paymentItemToOrderItem(item: PaymentItem): OrderItem {
     addon_password: PRICING.ADDON_PASSWORD,
     addon_ai: PRICING.ADDON_AI,
     pdf_kit: PRICING.PDF_KIT,
+    storage_extra: PRICING.STORAGE_EXTRA,
   };
 
   const info = priceMap[item.type];

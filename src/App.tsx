@@ -39,6 +39,7 @@ import CalendarioDetalhe from "./pages/CalendarioDetalhe";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Upsell from "./pages/Upsell";
+import QuizLanding from "./pages/QuizLanding";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -148,6 +149,7 @@ const AppContent = () => {
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />
         <Route path="/login-colaborador" element={<LoginEmployee />} />
+        <Route path="/quiz" element={<QuizLanding />} />
 
         {/* B2B */}
         <Route

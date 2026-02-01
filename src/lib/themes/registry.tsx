@@ -6,7 +6,8 @@ import {
   Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane,
   MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Cake, HeartHandshake, Egg
 } from "lucide-react";
-import { HangingHearts, WeddingShower, ReveillonDecorations, NatalDecorations } from "./themeComponents";
+import { HangingHearts, WeddingShower, ReveillonDecorations } from "./themeComponents";
+import { NatalDecorationsFull } from "./natalComponents";
 import { CarnavalDecorations } from "./carnavalComponents";
 import { SaoJoaoDecorations } from "./saojoaoComponents";
 import { PascoaDecorations } from "./pascoaComponents";
@@ -168,6 +169,7 @@ export interface PremiumThemeConfig {
       open: any;
       quote: any;
       footer: any;
+      envelopeSeal?: any;
     };
   };
 }
@@ -199,7 +201,7 @@ export const natalTheme: PremiumThemeConfig = {
       backgroundColor: "#FDF5E6"
     }
   },
-  FloatingComponent: NatalDecorations,
+  FloatingComponent: NatalDecorationsFull,
   ui: {
     layout: {
       bgClass: "bg-[#FDF5E6]",
@@ -207,14 +209,14 @@ export const natalTheme: PremiumThemeConfig = {
       containerClass: "font-display",
       headerWrapper: "relative w-full bg-white/90 pb-6 rounded-b-[2.5rem] shadow-sm z-10 pt-6 backdrop-blur-sm border-b border-red-100",
       mainClass: "flex-1 px-4 py-8 pb-12 relative z-0",
-      messageFont: "font-festive",
-      titleFont: "font-serif italic",
-      secondaryFont: "font-display"
+      messageFont: "font-medium",
+      titleFont: "font-black",
+      secondaryFont: "font-bold"
     },
     header: {
       container: "px-6 mt-4 text-center relative z-10 flex flex-col items-center gap-2",
-      title: "text-[36px] font-serif italic font-bold leading-tight text-red-900 drop-shadow-sm relative",
-      subtitle: "text-green-700 font-festive text-2xl drop-shadow-sm",
+      title: "text-[36px] font-black leading-tight text-red-700 drop-shadow-sm relative tracking-tight",
+      subtitle: "text-green-700 font-bold text-xl uppercase tracking-wide",
       badgeText: "Natal Mágico",
       badgeTextClass: "text-[10px] xs:text-xs font-bold text-red-600 tracking-wide",
       backButton: "bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
@@ -243,13 +245,13 @@ export const natalTheme: PremiumThemeConfig = {
     },
     cards: {
       envelope: {
-        container: "aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-xl shadow-lg cursor-pointer transition-transform duration-300 border-2 border-red-200 bg-white overflow-hidden group",
-        pattern: "absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(135deg,transparent_50%,#fee2e2_50%),linear-gradient(225deg,transparent_50%,#fee2e2_50%)] bg-[length:50%_100%] bg-no-repeat bg-[position:left_top,right_top] z-[1]",
-        seal: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-red-600 shadow-md z-[2] flex items-center justify-center",
-        button: "bg-red-600 text-white text-[10px] font-extrabold px-4 py-2 rounded-full shadow-md hover:bg-red-700 transition-colors tracking-widest",
-        buttonText: "Abrir Presente",
-        glowClass: "shadow-[0_0_20px_5px_rgba(220,38,38,0.2)]",
-        borderClass: "border-red-200"
+        container: "aspect-[4/5] sm:aspect-[2/1.4] col-span-1 sm:col-span-2 relative flex flex-col items-center justify-center p-4 rounded-2xl shadow-xl cursor-pointer transition-transform duration-300 border-4 border-red-500 bg-gradient-to-br from-red-100 via-white to-green-100 overflow-hidden group",
+        pattern: "absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,#DC2626_48%,#DC2626_52%,transparent_52%),linear-gradient(-45deg,transparent_48%,#16A34A_48%,#16A34A_52%,transparent_52%)] z-[1] opacity-30",
+        seal: "hidden",
+        button: "bg-gradient-to-r from-red-600 to-red-700 text-white text-[10px] font-black px-5 py-3 rounded-full shadow-xl hover:from-red-500 hover:to-red-600 transition-all tracking-widest uppercase border-2 border-white",
+        buttonText: "ABRIR PRESENTE",
+        glowClass: "shadow-[0_0_30px_10px_rgba(220,38,38,0.3)]",
+        borderClass: "border-red-500"
       },
       locked: {
         container: "aspect-[4/5] relative flex flex-col items-center justify-center p-2 rounded-xl opacity-90 border border-green-200/30 overflow-hidden group cursor-pointer",
@@ -316,7 +318,8 @@ export const natalTheme: PremiumThemeConfig = {
       locked: Lock,
       open: Gift,
       quote: Quote,
-      footer: Bell
+      footer: Bell,
+      envelopeSeal: Gift
     }
   }
 };
