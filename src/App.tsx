@@ -41,6 +41,7 @@ import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Upsell from "./pages/Upsell";
 import QuizLanding from "./pages/QuizLanding";
+import MemoriaPage from "./pages/memoria";
 import CheckoutQuiz from "./pages/CheckoutQuiz";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
@@ -233,6 +234,7 @@ const AppContent = () => {
         <Route path="/login-rh" element={<LoginRH />} />
         <Route path="/login-colaborador" element={<LoginEmployee />} />
         <Route path="/quiz" element={<QuizLanding />} />
+        <Route path="/memoria" element={<MemoriaPage />} />
 
         {/* B2B */}
         <Route
