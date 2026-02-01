@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Settings, Share2, MoreHorizontal, SlidersHorizontal, Heart, Pencil } from "lucide-react";
 import {
   WeddingBackground,
@@ -18,8 +18,11 @@ import {
 
 export default function CalendarioCasamento() {
   const navigate = useNavigate();
-  // State for Editor Mode toggle
-  const [isEditor, setIsEditor] = useState(true);
+  const [searchParams] = useSearchParams();
+  const isTemplateMode = searchParams.get('template') === 'true';
+
+  // Start in view mode when accessed as template/example
+  const [isEditor, setIsEditor] = useState(!isTemplateMode);
 
   // Mock data matching reference
   const days = [

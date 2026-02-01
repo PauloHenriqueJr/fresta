@@ -318,7 +318,7 @@ export const natalTheme: PremiumThemeConfig = {
       locked: Lock,
       open: Gift,
       quote: Quote,
-      footer: Bell,
+      footer: null,
       envelopeSeal: Gift
     }
   }
