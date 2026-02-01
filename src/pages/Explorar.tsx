@@ -109,6 +109,7 @@ const demoById: Record<string, string> = {
   independencia: "/calendario/independencia",
   namoro: "/calendario/namoro",
   casamento: "/calendario/casamento",
+  aniversario: "/calendario/aniversario",
 };
 
 // Theme premium status - premium themes require payment
@@ -210,7 +211,7 @@ const Explorar = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {["namoro", "carnaval", "natal", "aniversario"].map((themeId, index) => {
+            {["namoro", "carnaval", "natal", "reveillon"].map((themeId, index) => {
               const theme = getTheme(themeId);
               if (!theme) return null;
               const isPlus = PREMIUM_THEMES.includes(themeId);

@@ -22,6 +22,8 @@ import { supabase } from "@/lib/supabase/client";
 import {
   LoveLetterModal,
   LoveLockedModal,
+  ReveillonLockedModal,
+  NatalLockedModal,
   WeddingBackground,
   WeddingHeader,
   WeddingProgress,
@@ -49,7 +51,7 @@ const THEME_BG_COLORS: Record<string, string> = {
   casamento: 'bg-[#FFF8E8]',
   carnaval: 'bg-[#E8E4F5]',
   saojoao: 'bg-[#FFF8E8]',
-  pascoa: 'bg-[#D4F4F0]',
+  pascoa: 'bg-[#FDF4FF]',
   independencia: 'bg-[#E8F5E0]',
   reveillon: 'bg-[#E8E4F5]',
   aniversario: 'bg-[#F0F9FF]',
@@ -928,7 +930,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -966,8 +968,8 @@ const VisualizarCalendario = () => {
           showWatermark={!isOwnerPlusOrAdmin}
         />
 
-        {/* Surprise Modals (Romantic themes - NOT Carnaval/SaoJoao) */}
-        {!['carnaval', 'saojoao', 'aniversario'].includes(calendar.theme_id) && (
+        {/* Surprise Modals (Romantic themes - NOT Festive themes) */}
+        {!['carnaval', 'saojoao', 'aniversario', 'pascoa', 'reveillon', 'natal'].includes(calendar.theme_id) && (
           <LoveLetterModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -976,8 +978,8 @@ const VisualizarCalendario = () => {
           />
         )}
 
-        {/* Festive Modals for Carnaval/SaoJoao */}
-        {['carnaval', 'saojoao', 'aniversario'].includes(calendar.theme_id) && (
+        {/* Festive Modals for Carnaval/SaoJoao/Reveillon/Natal */}
+        {['carnaval', 'saojoao', 'aniversario', 'pascoa', 'reveillon', 'natal'].includes(calendar.theme_id) && (
           <DaySurpriseModal
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
@@ -988,14 +990,30 @@ const VisualizarCalendario = () => {
           />
         )}
 
-        <LoveLockedModal
-          isOpen={!!lockedModalData?.isOpen}
-          onClose={() => setLockedModalData(null)}
-          dayNumber={lockedModalData?.day || 0}
-          unlockDate={lockedModalData?.date || new Date()}
-          onNotify={handleNotifyMe}
-          theme={calendar.theme_id}
-        />
+        {calendar.theme_id === 'reveillon' ? (
+          <ReveillonLockedModal
+            isOpen={!!lockedModalData?.isOpen}
+            onClose={() => setLockedModalData(null)}
+            dayNumber={lockedModalData?.day || 0}
+            unlockDate={lockedModalData?.date || new Date()}
+            onNotify={handleNotifyMe}
+          />
+        ) : calendar.theme_id === 'natal' ? (
+          <NatalLockedModal
+            isOpen={!!lockedModalData?.isOpen}
+            onClose={() => setLockedModalData(null)}
+            timeLeft={lockedModalData?.date ? `${Math.ceil((lockedModalData.date.getTime() - Date.now()) / (1000 * 60 * 60))}h` : undefined}
+          />
+        ) : (
+          <LoveLockedModal
+            isOpen={!!lockedModalData?.isOpen}
+            onClose={() => setLockedModalData(null)}
+            dayNumber={lockedModalData?.day || 0}
+            unlockDate={lockedModalData?.date || new Date()}
+            onNotify={handleNotifyMe}
+            theme={calendar.theme_id}
+          />
+        )}
 
         {!isOwnerPlusOrAdmin && (
           <div className="py-12 flex justify-center relative z-10">
@@ -1066,14 +1084,30 @@ const VisualizarCalendario = () => {
         />
       )}
 
-      <LoveLockedModal
-        isOpen={!!lockedModalData?.isOpen}
-        onClose={() => setLockedModalData(null)}
-        dayNumber={lockedModalData?.day || 0}
-        unlockDate={lockedModalData?.date || new Date()}
-        onNotify={handleNotifyMe}
-        theme={calendar.theme_id}
-      />
+      {calendar.theme_id === 'reveillon' ? (
+        <ReveillonLockedModal
+          isOpen={!!lockedModalData?.isOpen}
+          onClose={() => setLockedModalData(null)}
+          dayNumber={lockedModalData?.day || 0}
+          unlockDate={lockedModalData?.date || new Date()}
+          onNotify={handleNotifyMe}
+        />
+      ) : calendar.theme_id === 'natal' ? (
+        <NatalLockedModal
+          isOpen={!!lockedModalData?.isOpen}
+          onClose={() => setLockedModalData(null)}
+          timeLeft={lockedModalData?.date ? `${Math.ceil((lockedModalData.date.getTime() - Date.now()) / (1000 * 60 * 60))}h` : undefined}
+        />
+      ) : (
+        <LoveLockedModal
+          isOpen={!!lockedModalData?.isOpen}
+          onClose={() => setLockedModalData(null)}
+          dayNumber={lockedModalData?.day || 0}
+          unlockDate={lockedModalData?.date || new Date()}
+          onNotify={handleNotifyMe}
+          theme={calendar.theme_id}
+        />
+      )}
 
       {!isOwnerPlusOrAdmin && (
         <div className="py-12 flex justify-center relative z-10">

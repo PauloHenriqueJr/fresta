@@ -281,19 +281,30 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
       {/* Envelope Pattern Background */}
       <div className={config.cards.envelope.pattern}></div>
 
-      {/* Wax Seal */}
-      <div className={config.cards.envelope.seal}>
-        <Heart className="w-4 h-4 text-white fill-white" />
-      </div>
-
       {/* Glow Aura */}
       {config.cards.envelope.glowClass && (
         <div className={cn("absolute inset-0 z-0 pointer-events-none rounded-xl", config.cards.envelope.glowClass)}></div>
       )}
 
-      <div className="relative z-10 mt-8 flex flex-col items-center text-center font-display">
-        <span className="text-rose-900 font-romantic text-3xl mb-1">Dia {dayNumber}</span>
+      {/* Content Container */}
+      <div className="relative z-10 flex flex-col items-center justify-between h-full py-4 text-center font-display">
+        {/* Top: Day Number */}
+        <span className={cn("text-2xl font-black", config.icons?.envelopeSeal ? "text-red-700" : "text-rose-900")}>
+          Dia {dayNumber}
+        </span>
 
+        {/* Center: Gift Icon / Seal */}
+        <div className="flex-1 flex items-center justify-center">
+          {config.icons?.envelopeSeal ? (
+            <div className="text-6xl">🎁</div>
+          ) : (
+            <div className={config.cards.envelope.seal}>
+              <Heart className="w-4 h-4 text-white fill-white" />
+            </div>
+          )}
+        </div>
+
+        {/* Bottom: Button */}
         {isEditor ? (
           <button className={config.cards.envelope.button}>
             <Pencil className="w-3 h-3 inline mr-1" /> EDITAR
@@ -846,6 +857,17 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
       textColor: "text-[#5D4037] dark:text-[#FFB74D]",
       descColor: "text-[#8D6E63] dark:text-[#D7CCC8]",
       icon: Flame
+    },
+    pascoa: {
+      title: "O coelhinho ainda não chegou! 🐰",
+      message: "Calma, essa surpresa ainda está escondida no jardim. Aguarde o momento certo!",
+      buttonColor: "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600",
+      iconColor: "text-purple-500",
+      bgColor: "bg-[#FDF4FF] dark:bg-zinc-900",
+      borderColor: "border-purple-200 dark:border-purple-900",
+      textColor: "text-purple-900 dark:text-purple-100",
+      descColor: "text-purple-600/80 dark:text-purple-300/80",
+      icon: Gift
     },
     default: {
       title: "Calma, Coração!",
@@ -1532,4 +1554,832 @@ export const SaoJoaoBarracaModal = ({ isOpen, onClose, content, config }: SaoJoa
       </motion.div>
     </div>
   )
+};
+
+// --- Páscoa Egg Modal (Premium - Easter) ---
+interface PascoaEggModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const PascoaEggModal = ({ isOpen, onClose, content, config }: PascoaEggModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-purple-950/60 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Decorações de Páscoa */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        <div className="absolute top-16 left-8 text-4xl animate-bounce" style={{ animationDelay: '0s' }}>🥚</div>
+        <div className="absolute bottom-32 right-10 text-3xl animate-pulse">🐰</div>
+        <div className="absolute top-32 right-16 text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>🌷</div>
+        <div className="absolute top-1/2 left-6 text-3xl animate-pulse" style={{ animationDelay: '1s' }}>🐣</div>
+        <div className="absolute bottom-20 left-20 text-4xl animate-bounce" style={{ animationDelay: '0.2s' }}>🍫</div>
+        <div className="absolute top-24 left-1/2 text-2xl animate-pulse" style={{ animationDelay: '0.7s' }}>🌸</div>
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-[#FDF4FF] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-[6px] border-purple-200"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-purple-600 transition-colors shadow-md"
+        >
+          <span className="text-lg font-bold">✕</span>
+        </button>
+
+        {/* Header */}
+        <div className="pt-10 pb-4 text-center relative z-10 bg-gradient-to-b from-purple-100/50 to-transparent">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-400 to-purple-500 shadow-lg flex items-center justify-center mx-auto mb-4 text-white rotate-3 border-4 border-white">
+            <Gift className="w-10 h-10 drop-shadow-sm" />
+          </div>
+          <h2 className="text-2xl font-black text-purple-700 tracking-tight drop-shadow-sm px-4">
+            {content.title || "Surpresa de Páscoa! 🐰"}
+          </h2>
+          <p className="text-pink-500 text-xs font-black uppercase tracking-widest mt-1">Ovo encontrado!</p>
+        </div>
+
+        {/* Content Body - Scrollable */}
+        <div className="flex-1 px-6 pb-6 overflow-y-auto overscroll-contain text-center">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-purple-200 bg-purple-50 mb-6 relative group rotate-1">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                  <a href={content.mediaUrl} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 text-purple-600 group-hover:scale-105 transition-transform">
+                    <Play className="w-12 h-12 fill-current" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Abrir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1521967906867-14ec9d64bee8?q=80&w=3870"}
+                />
+              )}
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-purple-100 relative group hover:scale-[1.02] transition-transform duration-300">
+              <Gift className="w-6 h-6 text-purple-300 absolute -top-3 -left-2" />
+              <p className="text-purple-700 text-lg font-medium leading-relaxed italic">
+                "{content.message}"
+              </p>
+              <div className="flex justify-center gap-3 mt-4 text-2xl opacity-100 grayscale-[0.2] group-hover:grayscale-0 transition-all">
+                <span>🥚</span><span>🐰</span><span>🍫</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-purple-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Surpresa de Páscoa! 🐰",
+                text: content.message || "Encontrei um ovo especial!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🥚", description: "Espalhe a doçura!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-purple-300/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Espalhar Doçura
+          </button>
+          <button onClick={onClose} className="text-purple-400 text-[10px] font-black uppercase tracking-widest py-2 hover:text-purple-600 transition-colors">
+            Continuar a Caça
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+};
+
+// --- Reveillon Decorations (Top) ---
+export const ReveillonDecorations = () => {
+  return (
+    <div className="fixed top-0 left-0 w-full z-50 pointer-events-none select-none overflow-hidden" style={{ height: '80px' }}>
+      {/* String of lights */}
+      <svg className="absolute top-0 left-0 w-full h-full" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lightString" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1e3a8a" />
+            <stop offset="50%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1e3a8a" />
+          </linearGradient>
+        </defs>
+        {/* Curved string */}
+        <path
+          d="M -50 20 Q 25% 60, 50% 40 T 105% 20"
+          stroke="url(#lightString)"
+          strokeWidth="2"
+          fill="none"
+          className="drop-shadow-md"
+        />
+        <path
+          d="M -50 20 Q 25% 60, 50% 40 T 105% 20"
+          stroke="rgba(59, 130, 246, 0.3)"
+          strokeWidth="4"
+          fill="none"
+        />
+      </svg>
+
+      {/* Colorful light bulbs */}
+      {[
+        { x: '5%', color: '#EF4444', delay: 0 },
+        { x: '15%', color: '#3B82F6', delay: 0.2 },
+        { x: '25%', color: '#F59E0B', delay: 0.4 },
+        { x: '35%', color: '#10B981', delay: 0.6 },
+        { x: '45%', color: '#8B5CF6', delay: 0.8 },
+        { x: '55%', color: '#EC4899', delay: 1.0 },
+        { x: '65%', color: '#06B6D4', delay: 1.2 },
+        { x: '75%', color: '#F97316', delay: 1.4 },
+        { x: '85%', color: '#84CC16', delay: 1.6 },
+        { x: '95%', color: '#EF4444', delay: 1.8 },
+      ].map((light, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full shadow-lg"
+          style={{
+            left: light.x,
+            top: '28px',
+            width: '16px',
+            height: '20px',
+            backgroundColor: light.color,
+            boxShadow: `0 0 15px ${light.color}, 0 0 30px ${light.color}80`,
+          }}
+          animate={{
+            opacity: [0.6, 1, 0.6],
+            scale: [0.9, 1.1, 0.9],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            delay: light.delay,
+            ease: "easeInOut",
+          }}
+        >
+          {/* Bulb cap */}
+          <div
+            className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-1.5 rounded-t-sm"
+            style={{ backgroundColor: '#475569' }}
+          />
+        </motion.div>
+      ))}
+
+      {/* Floating stars */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={`star-${i}`}
+          className="absolute text-yellow-300 text-xl"
+          style={{
+            left: `${10 + i * 12}%`,
+            top: `${50 + Math.random() * 20}px`,
+          }}
+          animate={{
+            opacity: [0.3, 0.8, 0.3],
+            rotate: [0, 180, 360],
+            scale: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            repeat: Infinity,
+            delay: i * 0.3,
+            ease: "easeInOut",
+          }}
+        >
+          ✦
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// --- Reveillon Locked Modal ---
+interface ReveillonLockedModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  dayNumber: number;
+  unlockDate: Date;
+  onNotify?: () => void;
+}
+
+export const ReveillonLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNotify }: ReveillonLockedModalProps) => {
+  if (!isOpen) return null;
+
+  const now = new Date();
+  const diff = unlockDate.getTime() - now.getTime();
+  const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+  const hours = Math.max(0, Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+  const minutes = Math.max(0, Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Background stars */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-yellow-300"
+            style={{
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 60}%`,
+            }}
+            animate={{
+              opacity: [0.2, 1, 0.2],
+              scale: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 2 + Math.random(),
+              repeat: Infinity,
+              delay: i * 0.2,
+              ease: "easeInOut",
+            }}
+          >
+            ✨
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-4 border-amber-400"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header */}
+        <div className="pt-8 pb-4 text-center relative z-10 bg-gradient-to-b from-amber-50 to-white">
+          {/* Hourglass icon */}
+          <motion.div
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-yellow-300 shadow-lg shadow-amber-500/30 flex items-center justify-center mx-auto mb-3"
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Clock className="w-8 h-8 text-slate-900" />
+          </motion.div>
+
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight px-4">
+            Ainda não é a hora! 🎆
+          </h2>
+          <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mt-1">
+            Contagem Regressiva
+          </p>
+        </div>
+
+        {/* Countdown Display */}
+        <div className="px-6 pb-4 bg-gradient-to-b from-white to-amber-50/30">
+          <div className="bg-white rounded-2xl p-5 border-2 border-amber-100 shadow-sm">
+            <p className="text-slate-600 text-sm text-center mb-4">
+              A virada está chegando! Aguarde o momento certo para revelar a surpresa do dia <span className="text-amber-600 font-bold">{dayNumber}</span>.
+            </p>
+
+            {/* Timer boxes */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="bg-gradient-to-b from-amber-500 to-yellow-400 rounded-xl p-3 min-w-[70px] text-center shadow-lg shadow-amber-500/20">
+                <span className="block text-3xl font-black text-slate-900">{days}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase">dias</span>
+              </div>
+              <span className="text-amber-500 text-2xl font-bold">:</span>
+              <div className="bg-gradient-to-b from-amber-500 to-yellow-400 rounded-xl p-3 min-w-[70px] text-center shadow-lg shadow-amber-500/20">
+                <span className="block text-3xl font-black text-slate-900">{hours.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase">horas</span>
+              </div>
+              <span className="text-amber-500 text-2xl font-bold">:</span>
+              <div className="bg-gradient-to-b from-amber-500 to-yellow-400 rounded-xl p-3 min-w-[70px] text-center shadow-lg shadow-amber-500/20">
+                <span className="block text-3xl font-black text-slate-900">{minutes.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] font-bold text-slate-800 uppercase">min</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-amber-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={onNotify}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Bell className="w-5 h-5" />
+            Me Avise Quando Abrir
+          </button>
+          <button
+            onClick={onClose}
+            className="text-amber-600 text-[10px] font-black uppercase tracking-widest py-2 hover:text-amber-700 transition-colors"
+          >
+            Continuar Explorando
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Reveillon Fireworks Modal (Surprise) ---
+interface ReveillonFireworksModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  config?: any;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const ReveillonFireworksModal = ({ isOpen, onClose, content, config }: ReveillonFireworksModalProps) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-b from-slate-900/90 to-blue-950/90 backdrop-blur-md animate-in fade-in duration-300">
+      {/* Animated fireworks background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 60}%`,
+            }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{
+              scale: [0, 1.5, 2, 0],
+              opacity: [0, 1, 0.5, 0],
+              rotate: [0, 45, 90],
+            }}
+            transition={{
+              duration: 2 + Math.random(),
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeOut",
+            }}
+          >
+            <Sparkles
+              className={`w-${6 + (i % 4)} h-${6 + (i % 4)}`}
+              style={{
+                color: ['#FCD34D', '#F59E0B', '#EC4899', '#3B82F6', '#10B981'][i % 5],
+              }}
+            />
+          </motion.div>
+        ))}
+
+        {/* Floating stars */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute text-yellow-200 text-sm"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.2, 0.8, 0.2],
+              scale: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          >
+            ✨
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[380px] max-h-[85vh] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col font-display border-4 border-amber-400"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header */}
+        <div className="pt-8 pb-4 text-center relative z-10 bg-gradient-to-b from-amber-50 to-white">
+          <motion.div
+            className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-yellow-300 shadow-lg shadow-amber-500/30 flex items-center justify-center mx-auto mb-3"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <PartyPopper className="w-8 h-8 text-slate-900" />
+          </motion.div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight px-4">
+            {content.title || "Feliz Ano Novo! 🎉"}
+          </h2>
+          <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mt-1">
+            Surpresa Especial
+          </p>
+        </div>
+
+        {/* Content Body - Scrollable */}
+        <div className="flex-1 px-6 pb-4 overflow-y-auto overscroll-contain bg-gradient-to-b from-white to-amber-50/30">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-amber-200 bg-amber-100 mb-5 relative group">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                  <a
+                    href={content.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-2 text-white group-hover:scale-105 transition-transform"
+                  >
+                    <Play className="w-12 h-12 fill-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Assistir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={content.mediaUrl}
+                  alt="Surpresa"
+                  className="w-full h-full object-cover"
+                  onError={(e) => (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?q=80&w=2069"}
+                />
+              )}
+              {/* Corner decorations */}
+              <div className="absolute top-2 left-2 text-2xl">🎆</div>
+              <div className="absolute top-2 right-2 text-2xl">✨</div>
+              <div className="absolute bottom-2 left-2 text-2xl">🥂</div>
+              <div className="absolute bottom-2 right-2 text-2xl">🎊</div>
+            </div>
+          )}
+
+          {content.message && (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border-2 border-amber-100 relative group hover:scale-[1.02] transition-transform duration-300">
+              {/* Sparkle decorations */}
+              <Sparkles className="w-6 h-6 text-amber-400/40 absolute -top-3 -left-2" />
+              <Sparkles className="w-5 h-5 text-amber-400/40 absolute -bottom-2 -right-2 rotate-12" />
+
+              <p className="text-slate-800 text-lg font-medium leading-relaxed text-center">
+                "{content.message}"
+              </p>
+
+              {/* Bottom emoji decorations */}
+              <div className="flex justify-center gap-2 mt-4 text-2xl">
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  🎆
+                </motion.span>
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                >
+                  🥂
+                </motion.span>
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                >
+                  ✨
+                </motion.span>
+                <motion.span
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.6 }}
+                >
+                  🎊
+                </motion.span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-amber-100 flex flex-col gap-3 relative z-20">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Feliz Ano Novo! 🎉",
+                text: content.message || "Veja essa surpresa especial!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🎆", description: "Compartilhe a alegria!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar Magia
+          </button>
+          <button
+            onClick={onClose}
+            className="text-amber-600 text-[10px] font-black uppercase tracking-widest py-2 hover:text-amber-700 transition-colors"
+          >
+            Continuar Celebrando
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// ============ NATAL THEME COMPONENTS ============
+
+// NatalDecorations - Hanging snowflakes and stars
+export const NatalDecorations = () => {
+  const decorations = [
+    { type: '❄️', size: 'text-xl', delay: 0, left: '10%' },
+    { type: '🎄', size: 'text-2xl', delay: -0.5, left: '25%' },
+    { type: '⭐', size: 'text-xl', delay: -1, left: '40%' },
+    { type: '🔔', size: 'text-lg', delay: -0.3, left: '55%' },
+    { type: '🎁', size: 'text-xl', delay: -0.8, left: '70%' },
+    { type: '❄️', size: 'text-lg', delay: -0.2, left: '85%' },
+  ];
+
+  return (
+    <div className="fixed top-0 left-0 w-full h-24 overflow-hidden pointer-events-none z-40">
+      {decorations.map((item, i) => (
+        <motion.div
+          key={i}
+          className="absolute top-0"
+          style={{ left: item.left }}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{
+            y: [0, 5, 0],
+            opacity: 1,
+            rotate: [-5, 5, -5],
+          }}
+          transition={{
+            y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: item.delay },
+            rotate: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: item.delay },
+            opacity: { duration: 0.5 },
+          }}
+        >
+          <div className={`${item.size} drop-shadow-lg`}>{item.type}</div>
+          {/* String */}
+          <div className="w-[2px] h-8 bg-gradient-to-b from-red-300/50 to-transparent mx-auto" />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// NatalFireworksModal - Modal de surpresa
+export const NatalFireworksModal = ({
+  isOpen,
+  onClose,
+  content,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  content: { title?: string; message?: string; mediaUrl?: string; type?: string };
+}) => {
+  const { toast } = useToast();
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+      >
+        {/* Header */}
+        <div className="p-6 bg-gradient-to-b from-green-50 to-white relative">
+          {/* Corner decorations */}
+          <div className="absolute top-3 left-3 text-2xl">🎄</div>
+          <div className="absolute top-3 right-3 text-2xl">⭐</div>
+          <div className="absolute bottom-3 left-3 text-xl">❄️</div>
+          <div className="absolute bottom-3 right-3 text-xl">🎁</div>
+
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 z-20"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="text-center pt-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4 shadow-lg">
+              <Gift className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-xl font-black text-green-800">{content.title || "Feliz Natal! 🎄"}</h2>
+            <p className="text-green-600/80 text-sm mt-1">Uma surpresa especial para você!</p>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-5 bg-white">
+          {/* Media */}
+          {content.mediaUrl ? (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-green-100 bg-green-50 mb-5 relative">
+              {content.type === 'video' || content.mediaUrl.includes('youtube') || content.mediaUrl.includes('tiktok') || content.mediaUrl.includes('instagram') ? (
+                <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                  <a
+                    href={content.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-2 text-white"
+                  >
+                    <Play className="w-12 h-12 fill-white" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Assistir Vídeo</span>
+                  </a>
+                </div>
+              ) : (
+                <img src={content.mediaUrl} alt="Surpresa" className="w-full h-full object-cover" />
+              )}
+              <div className="absolute top-2 left-2 text-2xl">🎄</div>
+              <div className="absolute top-2 right-2 text-2xl">⭐</div>
+              <div className="absolute bottom-2 left-2 text-xl">❄️</div>
+              <div className="absolute bottom-2 right-2 text-xl">🎁</div>
+            </div>
+          ) : content.message ? (
+            /* Message without media - show prominently */
+            <div className="w-full min-h-[200px] rounded-2xl bg-gradient-to-br from-green-50 to-red-50 border-4 border-green-200 flex flex-col items-center justify-center mb-5 relative overflow-hidden p-6">
+              {/* Background decorations */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-4 left-4 text-4xl">❄️</div>
+                <div className="absolute top-4 right-4 text-4xl">⭐</div>
+                <div className="absolute bottom-4 left-4 text-4xl">🎄</div>
+                <div className="absolute bottom-4 right-4 text-4xl">🎁</div>
+              </div>
+
+              {/* Message is the main content */}
+              <div className="relative z-10 text-center">
+                <div className="text-5xl mb-4">🎁</div>
+                <p className="text-slate-800 text-xl font-medium leading-relaxed">
+                  &ldquo;{content.message}&rdquo;
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* No content - show gift placeholder */
+            <div className="w-full aspect-square rounded-2xl bg-gradient-to-br from-green-50 to-red-50 border-4 border-green-200 flex flex-col items-center justify-center mb-5 relative overflow-hidden">
+              {/* Background decorations */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-4 left-4 text-4xl">❄️</div>
+                <div className="absolute top-4 right-4 text-4xl">⭐</div>
+                <div className="absolute bottom-4 left-4 text-4xl">🎄</div>
+                <div className="absolute bottom-4 right-4 text-4xl">🎁</div>
+              </div>
+
+              {/* Large Gift Box */}
+              <motion.div
+                animate={{ scale: [1, 1.05, 1], rotate: [-5, 5, -5] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="relative z-10"
+              >
+                <div className="text-8xl mb-4">🎁</div>
+              </motion.div>
+
+              {/* Gift message */}
+              <p className="text-green-700 font-bold text-lg text-center relative z-10 mt-2">
+                Um presente especial!
+              </p>
+              <p className="text-green-600/70 text-sm text-center relative z-10">
+                Abra com carinho 🎄
+              </p>
+            </div>
+          )}
+
+          {/* Only show message box if not already shown above */}
+          {content.message && !content.mediaUrl && (
+            <div className="flex justify-center gap-3 text-2xl">
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity }}>🎄</motion.span>
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}>⭐</motion.span>
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}>🎁</motion.span>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-5 bg-white border-t border-green-100 flex flex-col gap-3">
+          <button
+            onClick={async () => {
+              const result = await shareContent({
+                title: content.title || "Feliz Natal! 🎄",
+                text: content.message || "Veja essa surpresa especial!",
+                url: window.location.href,
+                imageUrl: content.mediaUrl
+              });
+              if (result === 'copied') {
+                toast({ title: "Link copiado! 🎄", description: "Compartilhe a magia do Natal!" });
+              }
+            }}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-green-500/25 active:scale-95 transition-all uppercase tracking-wide"
+          >
+            <Share2 className="w-5 h-5" />
+            Compartilhar Magia
+          </button>
+          <button onClick={onClose} className="text-green-600 text-[10px] font-black uppercase tracking-widest py-2 hover:text-green-700">
+            Continuar Celebrando
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// NatalLockedModal - Modal de cadeado
+export const NatalLockedModal = ({
+  isOpen,
+  onClose,
+  timeLeft,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  timeLeft?: string;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        className="relative w-full max-w-sm bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-700"
+      >
+        {/* Header */}
+        <div className="p-6 bg-gradient-to-b from-red-900/50 to-slate-900 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white z-20"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="text-center pt-2">
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 border-2 border-red-500/30 mb-4"
+            >
+              <span className="text-4xl">🎅</span>
+            </motion.div>
+            <h2 className="text-2xl font-black text-white">Ainda não é Natal!</h2>
+            <p className="text-slate-400 text-sm mt-2">Papai Noel está preparando sua surpresa</p>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 bg-slate-900">
+          <div className="bg-slate-800/50 rounded-2xl p-4 text-center border border-slate-700">
+            <p className="text-slate-300 text-sm mb-3">Volte na data certa para abrir seu presente!</p>
+            {timeLeft && (
+              <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/30 rounded-full px-4 py-2">
+                <Clock className="w-4 h-4 text-red-400" />
+                <span className="text-red-200 font-bold">{timeLeft}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-center gap-3 text-3xl">
+            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity }}>🎄</motion.span>
+            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}>⭐</motion.span>
+            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}>🎁</motion.span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 bg-slate-950 border-t border-slate-800">
+          <button
+            onClick={onClose}
+            className="w-full h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm transition-colors"
+          >
+            Entendido 🎄
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
 };
