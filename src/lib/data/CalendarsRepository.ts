@@ -1,17 +1,13 @@
-// @ts-nocheck
 import { supabase } from "@/lib/supabase/client";
 import type { Tables, InsertTables, UpdateTables } from "@/lib/supabase/types";
 
 export type Calendar = Tables<'calendars'>;
 export type CalendarDay = Tables<'calendar_days'>;
-type InsertCalendar = InsertTables<'calendars'>;
 type UpdateCalendar = UpdateTables<'calendars'>;
 
 export const CalendarsRepository = {
   // List calendars for current user
   async listByOwner(ownerId: string): Promise<Calendar[]> {
-    console.log('CalendarsRepository.listByOwner: Request started for', ownerId);
-    
     try {
       const { data, error } = await (supabase
         .from('calendars') as any)
@@ -19,157 +15,106 @@ export const CalendarsRepository = {
         .eq('owner_id', ownerId)
         .order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('CalendarsRepository.listByOwner: Erro ao buscar calendários', error.message);
-        throw error;
-      }
-      console.log('CalendarsRepository.listByOwner: Request finished, found', data?.length ?? 0, 'calendars');
-      return data ?? [];
+      if (error) throw error;
+      return (data as any) ?? [];
     } catch (err) {
-      console.error('CalendarsRepository.listByOwner: Fatal error', err);
+      console.error('CalendarsRepository.listByOwner:', err);
       throw err;
     }
   },
 
   // Get single calendar by ID
   async getById(id: string): Promise<Calendar | null> {
-    console.log('CalendarsRepository.getById:', id);
-    const { data, error } = await supabase
-      .from('calendars')
+    const { data, error } = await (supabase
+      .from('calendars') as any)
       .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
       .eq('id', id)
       .single();
     
     if (error) {
-      if (error.code === 'PGRST116') return null; // Not found
-      console.error('CalendarsRepository.getById: Erro', error.message);
+      if (error.code === 'PGRST116') return null;
       throw error;
     }
-    return data;
+    return data as any;
   },
 
   // Get calendar with days
   async getWithDays(id: string): Promise<{ calendar: Calendar; days: CalendarDay[] } | null> {
-    console.log('CalendarsRepository.getWithDays:', id);
-    const { data: calendar, error: calError } = await supabase
-      .from('calendars')
+    const { data: calendar, error: calError } = await (supabase
+      .from('calendars') as any)
       .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
       .eq('id', id)
       .single();
     
     if (calError) {
       if (calError.code === 'PGRST116') return null;
-      console.error('CalendarsRepository.getWithDays: Erro no calendário', calError.message);
       throw calError;
     }
 
-    const { data: days, error: daysError } = await supabase
-      .from('calendar_days')
+    const { data: days, error: daysError } = await (supabase
+      .from('calendar_days') as any)
       .select('*')
       .eq('calendar_id', id)
       .order('day', { ascending: true });
     
-    if (daysError) {
-      console.error('CalendarsRepository.getWithDays: Erro nos dias', daysError.message);
-      throw daysError;
-    }
+    if (daysError) throw daysError;
 
-    return { calendar, days: days ?? [] };
+    return { calendar: calendar as any, days: (days as any) ?? [] };
   },
 
   // Get public calendar (for /c/:id)
   async getPublic(id: string): Promise<{ calendar: Calendar; days: CalendarDay[] } | null> {
-    console.log('CalendarsRepository.getPublic:', id);
-    
-    // 1. Fetch the calendar record first
-    const { data: calendars, error: calError } = await supabase
-      .from('calendars')
+    const { data: calendars, error: calError } = await (supabase
+      .from('calendars') as any)
       .select('*')
       .eq('id', id)
       .limit(1);
     
     const calendar = calendars?.[0];
+    if (calError || !calendar) return null;
 
-    if (calError || !calendar) {
-      if (calError?.code === 'PGRST116' || !calendar) return null;
-      console.error('CalendarsRepository.getPublic: Calendar error', calError);
-      throw calError;
-    }
-
-    // 2. Fetch owner's profile separately
-    const { data: profiles } = await supabase
-      .from('profiles')
+    const { data: profiles } = await (supabase
+      .from('profiles') as any)
       .select('display_name, avatar')
-      .eq('id', calendar.owner_id)
+      .eq('id', (calendar as any).owner_id)
       .limit(1);
 
-    const profile = profiles?.[0];
-
-    // 3. Fetch owner's subscription separately
-    const { data: subscriptions } = await supabase
-      .from('subscriptions')
-      .select('status')
-      .eq('user_id', calendar.owner_id);
-
-    // 4. Fetch owner's role to check if admin
-    const { data: userRoles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', calendar.owner_id)
-      .limit(1);
-    
-    const ownerRole = userRoles?.[0]?.role || 'user';
-
-    // Merge into the expected structure for the UI
-    const calendarWithData = {
-      ...calendar,
-      profiles: profile ? {
-        ...profile,
-        subscriptions: subscriptions ?? [],
-        role: ownerRole
-      } : null
-    };
-
-    const { data: days, error: daysError } = await supabase
-      .from('calendar_days')
+    const { data: days, error: daysError } = await (supabase
+      .from('calendar_days') as any)
       .select('*')
       .eq('calendar_id', id)
       .order('day', { ascending: true });
     
-    if (daysError) {
-      console.error('CalendarsRepository.getPublic: Days error', daysError);
-      throw daysError;
-    }
+    if (daysError) throw daysError;
 
-    return { calendar: calendarWithData as any, days: days ?? [] };
+    const calendarWithData = {
+      ...calendar,
+      profiles: profiles?.[0] || null
+    };
+
+    return { calendar: calendarWithData as any, days: (days as any) ?? [] };
   },
 
   // Increment view count
   async incrementViews(calendarId: string): Promise<void> {
-    console.log('CalendarsRepository.incrementViews:', calendarId);
-    await supabase.rpc('increment_calendar_views', { _calendar_id: calendarId });
+    await (supabase.rpc as any)('increment_calendar_views', { _calendar_id: calendarId });
   },
 
   // List public calendars (for /explorar)
   async listPublic(limit = 20): Promise<any[]> {
-    console.log('CalendarsRepository.listPublic: Fetching public calendars');
-    const { data, error } = await supabase
-      .from('calendars')
+    const { data, error } = await (supabase
+      .from('calendars') as any)
       .select('*, profiles:owner_id(display_name, avatar)')
       .eq('privacy', 'public')
       .eq('status', 'ativo')
       .order('views', { ascending: false })
       .limit(limit);
     
-    if (error) {
-      console.error('CalendarsRepository.listPublic: Error', error);
-      throw error;
-    }
-    console.log('CalendarsRepository.listPublic: Found', data?.length ?? 0, 'calendars');
-    return data ?? [];
+    if (error) throw error;
+    return (data as any) ?? [];
   },
 
-  // Create calendar with days - NO TIMEOUT, Supabase handles it
+  // Create calendar with days
   async create(input: {
     ownerId: string;
     title: string;
@@ -181,27 +126,21 @@ export const CalendarsRepository = {
     primary_color?: string;
     secondary_color?: string;
     background_url?: string;
-    status?: 'ativo' | 'aguardando_pagamento' | 'cancelado';
+    status?: 'ativo' | 'rascunho' | 'finalizado' | 'aguardando_pagamento' | 'inativo';
     isPremium?: boolean;
   }): Promise<Calendar> {
-    console.log('CalendarsRepository.create: Fetching theme defaults for', input.themeId);
-    
-    const { data: themeDefaults, error: defaultsError } = await supabase
-      .from('theme_defaults')
+    const { data: themeDefaults } = await (supabase
+      .from('theme_defaults') as any)
       .select('*')
       .eq('theme_id', input.themeId)
       .single();
 
-    if (defaultsError) {
-      console.warn('CalendarsRepository.create: Could not fetch theme defaults, using fallback', defaultsError);
-    }
-
     // Create calendar
-    const { data: calendar, error: calError } = await supabase
-      .from('calendars')
+    const { data: calendar, error: calError } = await (supabase
+      .from('calendars') as any)
       .insert({
         owner_id: input.ownerId,
-        title: input.title || themeDefaults?.default_title || 'Cápsula do Tempo',
+        title: input.title || (themeDefaults as any)?.default_title || 'Cápsula do Tempo',
         theme_id: input.themeId,
         duration: input.duration,
         privacy: input.privacy,
@@ -211,23 +150,18 @@ export const CalendarsRepository = {
         primary_color: input.primary_color,
         secondary_color: input.secondary_color,
         background_url: input.background_url,
-        header_message: themeDefaults?.default_header_message,
-        footer_message: themeDefaults?.default_footer_message,
-        capsule_title: themeDefaults?.default_capsule_title,
-        capsule_message: themeDefaults?.default_capsule_message,
-        locked_title: themeDefaults?.default_locked_title,
-        locked_message: themeDefaults?.default_locked_message,
+        header_message: (themeDefaults as any)?.default_header_message,
+        footer_message: (themeDefaults as any)?.default_footer_message,
+        capsule_title: (themeDefaults as any)?.default_capsule_title,
+        capsule_message: (themeDefaults as any)?.default_capsule_message,
+        locked_title: (themeDefaults as any)?.default_locked_title,
+        locked_message: (themeDefaults as any)?.default_locked_message,
         is_premium: input.isPremium || false,
       })
       .select()
       .single();
-
-    console.log('CalendarsRepository.create: Calendar insert result', { calendar, calError });
     
-    if (calError) {
-      console.error('CalendarsRepository.create: Falha ao inserir calendário', calError.message);
-      throw calError;
-    }
+    if (calError || !calendar) throw calError || new Error("Falha ao criar calendário");
 
     // Create days
     const days = Array.from({ length: input.duration }, (_, i) => ({
@@ -235,53 +169,35 @@ export const CalendarsRepository = {
       day: i + 1,
     }));
 
-    console.log('CalendarsRepository.create: Inserting', days.length, 'days');
-
-    const { error: daysError } = await supabase
-      .from('calendar_days')
+    const { error: daysError } = await (supabase
+      .from('calendar_days') as any)
       .insert(days);
     
     if (daysError) {
-      console.error('CalendarsRepository.create: Days insert failed, rolling back', daysError);
-      // Rollback - delete the calendar we just created
-      await supabase.from('calendars').delete().eq('id', calendar.id);
+      await (supabase.from('calendars') as any).delete().eq('id', calendar.id);
       throw daysError;
     }
 
-    console.log('CalendarsRepository.create: Success!', calendar.id);
-    return calendar;
+    return calendar as any;
   },
 
   // Update calendar
   async update(id: string, patch: UpdateCalendar): Promise<Calendar> {
-    console.log('CalendarsRepository.update:', id, patch);
-    const { data, error } = await supabase
-      .from('calendars')
-      .update(patch)
+    const { data, error } = await (supabase
+      .from('calendars') as any)
+      .update(patch as any)
       .eq('id', id)
       .select()
       .single();
     
-    if (error) {
-      console.error('CalendarsRepository.update: Error', error);
-      throw error;
-    }
-    return data;
+    if (error) throw error;
+    return data as any;
   },
 
   // Delete calendar
   async delete(id: string): Promise<void> {
-    console.log('CalendarsRepository.delete:', id);
-    const { error } = await supabase
-      .from('calendars')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      console.error('CalendarsRepository.delete: Error', error);
-      throw error;
-    }
-    console.log('CalendarsRepository.delete: Success');
+    const { error } = await (supabase.from('calendars') as any).delete().eq('id', id);
+    if (error) throw error;
   },
 
   // Update day content
@@ -291,28 +207,10 @@ export const CalendarsRepository = {
     url?: string | null;
     label?: string | null;
   }): Promise<CalendarDay> {
-    console.log('CalendarsRepository.updateDay:', calendarId, 'day', day, content);
-    const { url } = content;
-    let contentTypeToSave = content.contentType;
-
-    if (url) {
-      const isVideo = url.includes('tiktok.com') || url.includes('youtube.com') || url.includes('youtu.be') || url.includes('instagram.com');
-      const isMusic = url.includes('spotify.com');
-
-      if (isVideo) {
-        contentTypeToSave = 'video';
-      } else if (isMusic || content.contentType === 'music') {
-        // Use 'link' for database to avoid enum errors, UI will still detect spotify
-        contentTypeToSave = 'link';
-      }
-    } else if (content.contentType === 'music') {
-      contentTypeToSave = 'text';
-    }
-
-    const { data, error } = await supabase
-      .from('calendar_days')
+    const { data, error } = await (supabase
+      .from('calendar_days') as any)
       .update({
-        content_type: contentTypeToSave as any,
+        content_type: content.contentType as any,
         message: content.message,
         url: content.url,
         label: content.label,
@@ -322,18 +220,14 @@ export const CalendarsRepository = {
       .select()
       .single();
     
-    if (error) {
-      console.error('CalendarsRepository.updateDay: Error', error);
-      throw error;
-    }
-    return data;
+    if (error) throw error;
+    return data as any;
   },
 
   // Get day by calendar and day number
   async getDay(calendarId: string, day: number): Promise<CalendarDay | null> {
-    console.log('CalendarsRepository.getDay:', calendarId, 'day', day);
-    const { data, error } = await supabase
-      .from('calendar_days')
+    const { data, error } = await (supabase
+      .from('calendar_days') as any)
       .select('*')
       .eq('calendar_id', calendarId)
       .eq('day', day)
@@ -341,40 +235,32 @@ export const CalendarsRepository = {
     
     if (error) {
       if (error.code === 'PGRST116') return null;
-      console.error('CalendarsRepository.getDay: Error', error);
       throw error;
     }
-    return data;
+    return data as any;
   },
 
   // Increment share count
   async incrementShares(calendarId: string): Promise<void> {
-    console.log('CalendarsRepository.incrementShares:', calendarId);
-    await supabase.rpc('increment_calendar_shares', { _calendar_id: calendarId });
+    await (supabase.rpc as any)('increment_calendar_shares', { _calendar_id: calendarId });
   },
 
   // Increment day opened count
   async incrementDayOpened(dayId: string): Promise<void> {
-    console.log('CalendarsRepository.incrementDayOpened:', dayId);
-    const { error } = await supabase.rpc('increment_day_opened', { _day_id: dayId });
-    if (error) {
-      console.error('CalendarsRepository.incrementDayOpened ERROR:', error);
-    } else {
-      console.log('CalendarsRepository.incrementDayOpened SUCCESS');
-    }
+    await (supabase.rpc as any)('increment_day_opened', { _day_id: dayId });
   },
 
   // Get user-wide stats
   async getUserStats(userId: string) {
-    const { data, error } = await supabase
-      .from('calendars')
+    const { data, error } = await (supabase
+      .from('calendars') as any)
       .select('views, likes, shares, status')
       .eq('owner_id', userId);
     
     if (error) throw error;
 
-    const calendars = data || [];
-    const activeCalendars = calendars.filter((c: any) => c.status === 'ativo').length;
+    const calendars = (data as any[]) || [];
+    const activeCalendars = calendars.filter(c => c.status === 'ativo').length;
     
     const totals = calendars.reduce((acc, curr) => ({
       views: acc.views + (curr.views || 0),
@@ -398,10 +284,7 @@ export const CalendarsRepository = {
         upsert: true
       });
 
-    if (error) {
-      console.error('CalendarsRepository.uploadMedia: Error', error);
-      throw error;
-    }
+    if (error) throw error;
 
     const { data: { publicUrl } } = supabase.storage
       .from('calendar-media')
@@ -415,9 +298,6 @@ export const CalendarsRepository = {
       .from('calendar-media')
       .remove([path]);
 
-    if (error) {
-      console.error('CalendarsRepository.deleteMedia: Error', error);
-      throw error;
-    }
+    if (error) throw error;
   }
 };

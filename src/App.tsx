@@ -40,6 +40,7 @@ import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Upsell from "./pages/Upsell";
 import QuizLanding from "./pages/QuizLanding";
+import CheckoutQuiz from "./pages/CheckoutQuiz";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -76,7 +77,10 @@ import Gateway from "@/pages/Gateway";
 import LoginRH from "@/pages/LoginRH";
 import LoginEmployee from "@/pages/LoginEmployee";
 import { GlobalSettingsProvider } from "@/state/GlobalSettingsContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
@@ -105,6 +109,12 @@ const AuthHandler = () => {
         // Ignorar se for link público
         if (hash.includes("#/c/") || window.location.pathname.startsWith('/c/')) return;
 
+        // Se houver quiz pendente, o QuizProcessor vai gerenciar o redirecionamento
+        if (localStorage.getItem("fresta_pending_quiz")) {
+          console.log("App: Quiz pendente detectado, suspendendo redirecionamento de AuthHandler");
+          return;
+        }
+
         // Aguardar o carregamento do perfil para decidir o redirecionamento
         if (!profile) return;
 
@@ -128,6 +138,77 @@ const AuthHandler = () => {
   return null;
 };
 
+/**
+ * QuizProcessor: Detecta calendários criados via quiz que aguardavam login
+ * e processa a criação final assim que o usuário estiver autenticado.
+ */
+const QuizProcessor = () => {
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+  const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    const processPendingQuiz = async () => {
+      if (!user) return;
+
+      const savedData = localStorage.getItem("fresta_pending_quiz");
+      if (!savedData) return;
+
+      try {
+        const parsed = JSON.parse(savedData);
+        // Evitar processar dados muito antigos (mais de 1 hora)
+        if (Date.now() - parsed.timestamp < 3600000) {
+          setCreating(true);
+          console.log("App: Criando calendário pendente do quiz...");
+
+          const calendar = await CalendarsRepository.create({
+            ownerId: user.id,
+            themeId: parsed.theme || 'surpresa',
+            title: parsed.recipient === 'namorado' ? "Nosso Amor" :
+              parsed.occasion === 'natal' ? "Feliz Natal" : "Um Presente Especial",
+            duration: 7,
+            startDate: format(new Date(), "yyyy-MM-dd"),
+            privacy: 'private',
+            status: 'ativo',
+            isPremium: false
+          });
+
+          localStorage.removeItem("fresta_pending_quiz");
+          toast.success("Seu presente foi criado!");
+
+          // Redireciona para o caminho correto /c/:id (evita 404)
+          navigate(`/meus-calendarios?from=quiz`, { replace: true });
+        } else {
+          localStorage.removeItem("fresta_pending_quiz");
+        }
+      } catch (e) {
+        console.error("App: Erro ao processar presente pendente:", e);
+        localStorage.removeItem("fresta_pending_quiz");
+      } finally {
+        setCreating(false);
+      }
+    };
+
+    if (!authLoading && user) {
+      processPendingQuiz();
+    }
+  }, [user, authLoading, navigate]);
+
+  // Se estiver criando ou se houver quiz pendente aguardando processamento, 
+  // mostramos o loader em tela cheia para evitar renderizar a landing page por baixo.
+  const hasPending = !!localStorage.getItem("fresta_pending_quiz");
+
+  if (creating || (!!user && hasPending)) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-slate-950 flex items-center justify-center">
+        <Loader text="Gerando seu presente agora..." />
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const AppContent = () => {
   const { isLoading, session } = useAuth();
   const hash = window.location.hash;
@@ -142,6 +223,7 @@ const AppContent = () => {
   return (
     <HashRouter>
       <AuthHandler />
+      <QuizProcessor />
       <Routes>
         <Route path="/" element={<LandingPageBrand />} />
         <Route path="/landing-legacy" element={<LandingPage />} />
@@ -206,6 +288,12 @@ const AppContent = () => {
         <Route path="/contato" element={<Contato />} />
         <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/termos" element={<Termos />} />
+
+        {/* Checkout Público (Vindo do Quiz/Ads) - Lida com auth internamente */}
+        <Route path="/checkout" element={<CheckoutQuiz />} />
+        {/* Checkout Interno - Precisa de ID (Venda de plano para calendário existente) */}
+        <Route path="/checkout/:calendarId" element={<Checkout />} />
+
         {/* B2C (app shell apenas no desktop; mobile/tablet inalterado) */}
         <Route
           element={
@@ -223,6 +311,7 @@ const AppContent = () => {
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/conta/configuracoes" element={<ContaConfiguracoes />} />
           <Route path="/plus" element={<Plus />} />
+          {/* Checkout Autenticado (Legado/Upgrade) */}
           <Route path="/checkout/:calendarId" element={<Checkout />} />
           <Route path="/checkout/upsell" element={<Upsell />} />
           <Route path="/checkout/sucesso" element={<PaymentSuccess />} />

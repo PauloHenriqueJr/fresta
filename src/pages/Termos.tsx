@@ -57,8 +57,13 @@ const Termos = () => {
                             Reservamo-nos o direito de modificar o serviço ou estes termos a qualquer momento, visando a melhoria contínua da experiência.
                         </p>
 
+                        <h2 className="text-xl font-black text-foreground pt-4">5. Comunicações e Marketing</h2>
+                        <p>
+                            Ao aceitar estes termos e utilizar nossos formulários de cadastro ou login (como o Google Login), você concorda expressamente em receber comunicações eletrônicas, newsletters e materiais de marketing do <strong>Fresta</strong>. Utilizamos seu e-mail para enviar atualizações sobre seus presentes, dicas de uso e ofertas especiais. Você poderá cancelar a inscrição a qualquer momento através do link de "descadastro" presente em nossos e-mails.
+                        </p>
+
                         <div className="mt-12 pt-8 border-t border-border/50 italic text-sm">
-                            Última atualização: Janeiro de 2026.
+                            Última atualização: Fevereiro de 2026.
                         </div>
                     </section>
                 </div>

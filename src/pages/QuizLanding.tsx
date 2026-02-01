@@ -1,9 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { Heart, Gift, ArrowLeft, Check, Sparkles, Music, Calendar, Star, ChevronRight, User } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Heart, Gift, ArrowLeft, Check, Sparkles, Music, Calendar, Star, ChevronRight, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
+import { useAuth } from "@/state/auth/AuthProvider";
+import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
 // --- Types ---
 interface QuizAnswer {
@@ -166,6 +170,7 @@ const PhoneMockup = ({ answers }: { answers: QuizAnswer }) => {
 
 const QuizLanding = () => {
     const navigate = useNavigate();
+    const { user, signInWithGoogle, isLoading: authLoading } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState<QuizAnswer>({
         recipient: "",
@@ -175,27 +180,13 @@ const QuizLanding = () => {
         duration: "",
         email: ""
     });
-    const [showResult, setShowResult] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState("Gerando...");
-    const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState("");
     const containerRef = useRef<HTMLDivElement>(null);
 
     const stepKey = STEP_ORDER[currentStep];
     const stepConfig = STEPS[stepKey];
     const progress = ((currentStep + 1) / (STEP_ORDER.length + 1)) * 100;
-
-    const handleSelect = (optionId: string) => {
-        setAnswers(prev => ({ ...prev, [stepKey]: optionId }));
-        setTimeout(() => {
-            if (currentStep < STEP_ORDER.length - 1) {
-                setCurrentStep(prev => prev + 1);
-            } else {
-                setShowResult(true);
-            }
-        }, 300);
-    };
 
     // Lógica de Recomendação Assertiva
     const getRecommendedTheme = (recipient: string, occasion: string): string => {
@@ -203,147 +194,84 @@ const QuizLanding = () => {
         if (occasion === 'aniversario') return 'aniversario';
         if (recipient === 'namorado') return 'namoro';
         if (occasion === 'namoro') return 'namoro';
-        // Se não for nenhum acima, fallback neutro ou baseado em genero?
-        // Aniversário é o melhor tema festivo genérico que temos hoje.
         return 'aniversario';
     };
 
-    const handleEmailSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            setEmailError("Email inválido");
-            return;
-        }
+    // Logic moved to global QuizProcessor in App.tsx
+    useEffect(() => {
+        // No longer needed locally
+    }, []);
 
-        setIsLoading(true);
-        setLoadingMessage("Analisando perfil...");
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoadingMessage("Personalizando tema...");
-
-        if (answers.hasMusic !== 'nao') {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            setLoadingMessage("Sincronizando áudio...");
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, colors: ['#F43F5E', '#10B981', '#3B82F6'] });
-        setLoadingMessage("Pronto!");
-
+    // Handler para criar presente
+    const handleCreatePresent = async () => {
         const recommendedTheme = getRecommendedTheme(answers.recipient, answers.occasion);
 
+        // Salvar dados no localStorage de forma padronizada
+        const quizData = {
+            theme: recommendedTheme,
+            recipient: answers.recipient,
+            occasion: answers.occasion,
+            timestamp: Date.now()
+        };
+        localStorage.setItem("fresta_pending_quiz", JSON.stringify(quizData));
+
+        setIsLoading(true);
+        setLoadingMessage("Preparando...");
+
+        if (!user) {
+            // Precisa fazer login primeiro
+            await signInWithGoogle();
+            // Após login, o useEffect vai processar
+        } else {
+            // Já logado, criar direto
+            setLoadingMessage("Criando seu presente...");
+            try {
+                const themeId = recommendedTheme;
+                const duration = Math.min(parseInt(answers.duration || "7"), 7);
+
+                const calendar = await CalendarsRepository.create({
+                    ownerId: user.id,
+                    themeId: themeId,
+                    title: answers.recipient === 'namorado' ? "Nosso Amor" :
+                        answers.occasion === 'natal' ? "Feliz Natal" : "Um Presente Especial",
+                    duration: duration,
+                    startDate: format(new Date(), "yyyy-MM-dd"),
+                    privacy: 'private',
+                    status: 'ativo',
+                    isPremium: false
+                });
+
+                localStorage.removeItem("fresta_pending_quiz");
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#F43F5E', '#10B981', '#3B82F6'] });
+                toast.success("Presente criado com sucesso!");
+
+                setTimeout(() => {
+                    navigate(`/meus-calendarios?from=quiz`);
+                }, 1000);
+            } catch (e) {
+                console.error("Erro ao criar calendário", e);
+                toast.error("Erro ao criar. Tente novamente.");
+                setIsLoading(false);
+            }
+        }
+    };
+
+    const handleSelect = (optionId: string) => {
+        setAnswers(prev => ({ ...prev, [stepKey]: optionId }));
         setTimeout(() => {
-            navigate(`/checkout?theme=${recommendedTheme}&duration=${answers.duration}&email=${encodeURIComponent(email)}&from=quiz`);
-        }, 800);
+            if (currentStep < STEP_ORDER.length - 1) {
+                setCurrentStep(prev => prev + 1);
+            } else {
+                // Quiz completo - redireciona para tela escura de checkout
+                const updatedAnswers = { ...answers, [stepKey]: optionId };
+                const recommendedTheme = getRecommendedTheme(updatedAnswers.recipient, updatedAnswers.occasion);
+                navigate(`/checkout?theme=${recommendedTheme}&duration=${updatedAnswers.duration || '7'}&recipient=${updatedAnswers.recipient}&occasion=${updatedAnswers.occasion}&from=quiz`);
+            }
+        }, 300);
     };
-
     const handleBack = () => {
-        if (showResult) setShowResult(false);
-        else if (currentStep > 0) setCurrentStep(prev => prev - 1);
+        if (currentStep > 0) setCurrentStep(prev => prev - 1);
     };
-
-    // --- Render Result View ---
-    if (showResult) {
-        return (
-            <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row overflow-hidden">
-                {/* Left Side: Visual Preview */}
-                <div className="w-full md:w-1/2 min-h-[45vh] md:min-h-screen bg-slate-100 flex items-center justify-center p-6 md:p-8 relative overflow-hidden order-1 md:order-1">
-                    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-50"></div>
-                    <div className="relative z-10 w-full max-w-sm flex flex-col items-center">
-                        <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, type: "spring" }}
-                        >
-                            <PhoneMockup answers={answers} />
-                        </motion.div>
-                        <p className="text-center mt-4 md:mt-6 text-xs md:text-sm text-slate-400 font-medium uppercase tracking-widest">
-                            Preview do seu Gesto
-                        </p>
-                    </div>
-                </div>
-
-                {/* Right Side: Action & Form */}
-                <div className="w-full md:w-1/2 flex flex-col justify-center bg-white p-6 md:p-12 lg:p-20 shadow-xl z-20 order-2 md:order-2 rounded-t-[2.5rem] md:rounded-none -mt-8 md:mt-0 relative">
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="max-w-md mx-auto w-full"
-                    >
-                        <div className="flex items-center gap-2 mb-4 md:mb-6">
-                            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1">
-                                <Check className="w-3 h-3" /> Resultado Pronto
-                            </span>
-                        </div>
-
-                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 md:mb-6 leading-tight">
-                            Sua surpresa<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-600">está incrível.</span>
-                        </h2>
-
-                        <p className="text-slate-600 text-base md:text-lg mb-6 md:mb-8 leading-relaxed">
-                            Personalizamos o tema perfeito para emocionar quem você ama.
-                            {answers.hasMusic !== 'nao' && " A trilha sonora vai criar o clima exato."}
-                            <br />
-                            <span className="font-semibold text-slate-900">Finalize agora para receber o link de acesso.</span>
-                        </p>
-
-                        <form onSubmit={handleEmailSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700">Para onde enviamos o link do presente?</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="seu@email.com"
-                                    disabled={isLoading}
-                                    className={cn(
-                                        "w-full px-6 py-4 bg-slate-50 border-2 rounded-2xl text-lg font-medium outline-none transition-all placeholder:text-slate-400 disabled:opacity-50",
-                                        emailError ? "border-red-300 bg-red-50" : "border-slate-200 focus:border-rose-500 focus:bg-white"
-                                    )}
-                                />
-                                {emailError && <p className="text-red-500 text-sm font-medium">{emailError}</p>}
-                                <p className="text-xs text-slate-400 px-2 flex items-center gap-1">
-                                    <Sparkles className="w-3 h-3" /> Enviaremos o acesso ao calendário para este email.
-                                </p>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full group relative overflow-hidden bg-slate-900 text-white rounded-2xl p-5 font-bold text-lg shadow-xl shadow-slate-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-r from-rose-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                                    isLoading && "opacity-100 animate-pulse"
-                                )} />
-                                <div className="relative flex items-center justify-center gap-3">
-                                    {isLoading ? (
-                                        <span className="animate-pulse">{loadingMessage}</span>
-                                    ) : (
-                                        <>
-                                            Criar meu Presente
-                                            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
-                                </div>
-                            </button>
-                        </form>
-
-                        <div className="mt-8 text-center border-t border-slate-100 pt-6">
-                            <div className="flex items-center justify-center gap-4 text-xs text-slate-400 font-medium">
-                                <a href="/termos" target="_blank" className="hover:text-slate-600 transition-colors">Termos de Uso</a>
-                                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                <a href="/privacidade" target="_blank" className="hover:text-slate-600 transition-colors">Política de Privacidade</a>
-                            </div>
-                        </div>
-
-                    </motion.div>
-                </div>
-            </div>
-        );
-    }
 
     // --- Render Steps View ---
     return (
@@ -458,7 +386,7 @@ const QuizLanding = () => {
                     {/* Legal Footer for Mobile */}
                     <div className="mt-8 text-center lg:hidden pb-4">
                         <div className="flex items-center justify-center gap-4 text-[10px] text-slate-300 font-bold uppercase tracking-widest">
-                            <a href="/termos">Termos</a> • <a href="/privacidade">Privacidade</a>
+                            <Link to="/termos">Termos</Link> • <Link to="/privacidade">Privacidade</Link>
                         </div>
                     </div>
 
