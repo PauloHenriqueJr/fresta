@@ -1,3 +1,6 @@
+// Carnaval Theme Decorations
+// Festive carnival decorations with streamers, masks, and musical icons
+
 import { motion } from "framer-motion";
 import { Sparkles, PartyPopper, Music, Star } from "lucide-react";
 
@@ -38,6 +41,7 @@ export const CarnavalFloatingIcons = () => {
         </div>
     );
 };
+
 // --- Carnaval Hanging Decorations (Streamers/Masks) ---
 export const CarnavalHangingDecorations = () => {
     const items = [
@@ -85,3 +89,5 @@ export const CarnavalDecorations = () => {
         </>
     );
 };
+
+export default CarnavalDecorations;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Heart, Sparkles, SlidersHorizontal } from "lucide-react";
 import {
   LoveBackground,
@@ -19,11 +19,14 @@ import {
 
 export default function CalendarioNamoro() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isTemplateMode = searchParams.get('template') === 'true';
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState<{ type: 'text' | 'image' | 'video', title?: string, message?: string, mediaUrl?: string } | null>(null);
 
-  // Temporary state to simulate Editor Mode toggle (in real app this would come from props/route)
-  const [isEditor, setIsEditor] = useState(true);
+  // Start in view mode when accessed as template/example
+  const [isEditor, setIsEditor] = useState(!isTemplateMode);
 
   // Mock data to match the visual design
   const days = [

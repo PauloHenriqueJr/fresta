@@ -41,7 +41,7 @@ import type { ThemeDefinition, ThemeId } from "@/lib/offline/types";
 import { BASE_THEMES } from "@/lib/offline/themes";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useUserPlanStatus, PREMIUM_THEMES } from "@/hooks/usePlanLimits";
+import { useUserPlanStatus, PLUS_THEMES } from "@/hooks/usePlanLimits";
 import { PlusIcon } from "@/components/PremiumIcon";
 
 const themeImageByKey: Record<ThemeDefinition["imageKey"], string> = {
@@ -103,7 +103,7 @@ const CriarCalendario = () => {
 
   const totalSteps = 3;
 
-  const isThemePlus = (themeId: string) => PREMIUM_THEMES.includes(themeId);
+  const isThemePlus = (themeId: string) => PLUS_THEMES.includes(themeId);
   const selectedThemePlus = selectedTheme ? isThemePlus(selectedTheme) : false;
   const isDurationFree = (days: number) => days <= FREE_MAX_DAYS;
   const selectedDurationFree = isDurationFree(duration);

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { HangingHearts, FlagBanner, WeddingShower } from "@/lib/themes/themeComponents";
+import { HangingHearts, FlagBanner, WeddingShower, WeddingTopDecorations } from "@/lib/themes/themeComponents";
 
 // Import mascots
 import mascotNatal from "@/assets/mascot-natal.jpg";
@@ -101,6 +101,7 @@ const FloatingDecorations = ({ theme = "default" }: FloatingDecorationsProps) =>
       {/* Specific Theme Component Overlays */}
       {theme === 'saojoao' && <FlagBanner />}
       {theme === 'casamento' && <WeddingShower />}
+      {theme === 'casamento' && <WeddingTopDecorations />}
       {theme === 'namoro' && <HangingHearts />}
     </div>
   );

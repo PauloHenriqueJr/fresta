@@ -1,133 +1,84 @@
-import { useState } from "react";
+import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
+import { getThemeConfig } from "@/lib/themes/registry";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Settings, Share2, MoreHorizontal, SlidersHorizontal, Heart, Pencil } from "lucide-react";
-import {
-  WeddingBackground,
-  WeddingHeader,
-  WeddingProgress,
-  WeddingDayCard,
-  WeddingSpecialCard,
-  WeddingDiarySection,
-  WeddingFooter,
-  EditorHeader,
-  EditorFooter,
-  EmptyDayCard,
-  WeddingShower,
-  WeddingTopDecorations
-} from "@/lib/themes/themeComponents";
+import { useAuth } from "@/state/auth/AuthProvider";
+import type { Tables } from "@/lib/supabase/types";
+
+// Demo data for theme preview - matching Supabase CalendarDay type
+const demoDays: Tables<'calendar_days'>[] = [
+  { id: "demo-1", calendar_id: "demo", day: 1, content_type: "text", message: "Hoje demos o primeiro passo rumo ao altar! 💍", url: null, label: null, opened_count: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: "demo-2", calendar_id: "demo", day: 2, content_type: "text", message: "Cada dia mais perto do nosso sonho se tornar realidade! ✨", url: null, label: null, opened_count: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: "demo-3", calendar_id: "demo", day: 3, content_type: "text", message: "Nossa história de amor merece ser celebrada! 💕", url: null, label: null, opened_count: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: "demo-4", calendar_id: "demo", day: 4, content_type: "text", message: "Preparando o grande dia com todo carinho! 🥂", url: null, label: null, opened_count: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: "demo-5", calendar_id: "demo", day: 5, content_type: null, message: null, url: null, label: null, opened_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: "demo-6", calendar_id: "demo", day: 6, content_type: null, message: null, url: null, label: null, opened_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: "demo-7", calendar_id: "demo", day: 7, content_type: null, message: null, url: null, label: null, opened_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
+
+// Demo calendar data
+const demoCalendar: any = {
+  id: "demo",
+  owner_id: "demo-user",
+  title: "Nossa Jornada ao Altar 💍",
+  theme_id: "casamento",
+  duration: 7,
+  status: "ativo",
+  privacy: "public",
+  password: null,
+  start_date: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  views: 127,
+  likes: 34,
+  shares: 18,
+  is_premium: true,
+  header_message: "A contagem regressiva para o nosso grande dia!",
+  footer_message: "Unidos pelo amor, celebrando cada momento juntos 💛✨",
+  capsule_title: "Nosso Grande Dia",
+  capsule_message: null,
+  locked_title: null,
+  locked_message: null,
+  keep_active: false,
+  expires_at: null,
+  addons: null,
+};
 
 export default function CalendarioCasamento() {
+  const { toast } = useToast();
   const navigate = useNavigate();
-  // State for Editor Mode toggle
-  const [isEditor, setIsEditor] = useState(true);
+  const { isAuthenticated } = useAuth();
+  const themeConfig = getThemeConfig("casamento");
 
-  // Mock data matching reference
-  const days = [
-    { day: 1, status: 'unlocked', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600&auto=format&fit=crop' },
-    { day: 2, status: 'unlocked', img: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=600&auto=format&fit=crop' },
-    { day: 3, status: 'unlocked', img: 'https://images.unsplash.com/photo-1511285560982-1351cdeb9821?q=80&w=600&auto=format&fit=crop' },
-    { day: 4, status: 'unlocked', img: 'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?q=80&w=600&auto=format&fit=crop' },
-    { day: 5, status: 'special' }, // The special day card
-    { day: 6, status: 'empty' },
-    { day: 7, status: 'empty' },
-    { day: 8, status: 'empty' },
-    { day: 9, status: 'locked', time: 'Em breve' },
-  ];
+  const handleDayClick = (day: number) => {
+    console.log("Opening day:", day);
+    toast({
+      title: `Surpresa do Dia ${day} revelada!`,
+      description: "Uma memória especial da nossa história de amor!",
+    });
+  };
 
-  const handleOpenDay = (day: any) => {
-    console.log("Open day", day);
+  const handleShare = () => {
+    toast({
+      title: "Link copiado!",
+      description: "O link do calendário foi copiado para a área de transferência.",
+    });
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink bg-wedding-cream">
-      <WeddingBackground />
-      <WeddingShower />
-      <WeddingTopDecorations />
-
-      {/* Editor Header or User Header */}
-      {isEditor ? (
-        <EditorHeader onPreview={() => setIsEditor(false)} />
-      ) : (
-        <div className="relative z-10">
-          <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-
-            <h2 className="text-[10px] font-bold text-wedding-gold tracking-[0.2em] uppercase">Private Event</h2>
-
-            <button
-              onClick={() => setIsEditor(true)} // Toggle back to editor for demo
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all"
-            >
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </div>
-
-          <WeddingHeader isEditor={false} />
-          <WeddingProgress progress={90} />
-        </div>
-      )}
-
-      {/* Editor specific top content */}
-      {isEditor && (
-        <div className="relative z-10 -mt-2">
-          <WeddingHeader isEditor={true} />
-          <WeddingProgress progress={90} />
-        </div>
-      )}
-
-      {/* Main Content */}
-      <main className="flex-1 px-4 py-4 pb-36 relative z-0">
-        <div className="flex items-center justify-between mb-6 px-2">
-          <h2 className="text-sm font-bold text-wedding-gold uppercase tracking-[0.2em] flex items-center gap-2">
-            Calendário
-          </h2>
-          {isEditor && (
-            <button className="text-[10px] font-bold text-wedding-gold uppercase flex items-center gap-1 hover:text-wedding-gold-dark">
-              <span className="w-2 h-2 rounded-full bg-wedding-gold inline-block mr-1"></span> Aberto
-            </button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-          {days.map((d) => (
-            d.status === 'special' ? (
-              <WeddingSpecialCard
-                key={d.day}
-                dayNumber={d.day}
-                onClick={() => handleOpenDay(d)}
-                isEditor={isEditor}
-              />
-            ) : d.status === 'unlocked' ? (
-              <WeddingDayCard
-                key={d.day}
-                dayNumber={d.day}
-                imageUrl={d.img!}
-                status="unlocked"
-                onClick={() => handleOpenDay(d)}
-                isEditor={isEditor}
-              />
-            ) : (isEditor && d.status === 'empty') ? (
-              <WeddingDayCard key={d.day} dayNumber={d.day} status="empty" />
-            ) : (
-              <WeddingDayCard
-                key={d.day}
-                dayNumber={d.day}
-                status="locked"
-                isEditor={isEditor}
-              />
-            )
-          ))}
-        </div>
-
-        <WeddingDiarySection isEditor={isEditor} />
-      </main>
-
-      {isEditor ? <EditorFooter /> : <WeddingFooter />}
-    </div>
+    <UniversalTemplate
+      config={themeConfig}
+      calendar={demoCalendar}
+      days={demoDays}
+      openedDays={[1, 2, 3, 4]}
+      isEditor={false}
+      isEditorContext={false}
+      onNavigateBack={() => navigate("/explorar")}
+      onShare={handleShare}
+      onDayClick={handleDayClick}
+      onLockedClick={(day) => console.log("Locked day:", day)}
+      showWatermark={false}
+      isDemoMode={true}
+    />
   );
 }

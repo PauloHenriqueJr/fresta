@@ -1,3 +1,6 @@
+// Natal (Christmas) Theme Decorations
+// Festive Christmas decorations with garlands, snowflakes, and lights
+
 import { motion } from "framer-motion";
 
 // --- Guirlanda de Natal ---

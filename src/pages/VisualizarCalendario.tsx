@@ -23,16 +23,7 @@ import {
   LoveLetterModal,
   LoveLockedModal,
   ReveillonLockedModal,
-  NatalLockedModal,
-  WeddingBackground,
-  WeddingHeader,
-  WeddingProgress,
-  WeddingDayCard,
-  WeddingSpecialCard,
-  WeddingDiarySection,
-  WeddingFooter,
-  WeddingShower,
-  WeddingTopDecorations
+  NatalLockedModal
 } from "@/lib/themes/themeComponents";
 import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
 import { scheduleDoorReminder, subscribeToPush, promptInstall } from "@/lib/push/notifications";
@@ -85,16 +76,26 @@ const VisualizarCalendario = () => {
 
   const { isPremium } = useSubscription();
 
-  // Check if the CALENDAR OWNER is premium (data comes from getPublic)
-  const ownerSubscriptions = (calendar as any)?.profiles?.subscriptions || [];
+  // Check premium status (data comes from getPublic RPC which already checks all conditions)
+  // Priority: calendar.is_premium > owner.role='admin' > owner has active subscription
+  const calendarIsPremium = (calendar as any)?.is_premium || false;
+  const ownerIsPremiumFromRPC = (calendar as any)?.profiles?.is_premium || false;
   const ownerRole = (calendar as any)?.profiles?.role || 'user';
 
-  const isOwnerPlus = calendar?.is_premium || ownerSubscriptions.some(
-    (s: any) => s.status === 'active' || s.status === 'trialing'
-  );
+  // Show watermark only if NOT premium (any of the conditions)
+  const isOwnerPlusOrAdmin = calendarIsPremium || ownerIsPremiumFromRPC || ownerRole === 'admin';
 
-  // Owner is Plus if has subscription OR is admin (no watermark for visitors)
-  const isOwnerPlusOrAdmin = isOwnerPlus || ownerRole === 'admin';
+  // DEBUG: Trace watermark visibility calculation
+  console.log('[WATERMARK DEBUG]', {
+    calendarId: calendar?.id,
+    themeId: calendar?.theme_id,
+    calendarIsPremium,
+    ownerIsPremiumFromRPC,
+    ownerRole,
+    isOwnerPlusOrAdmin,
+    showWatermark: !isOwnerPlusOrAdmin,
+    profilesData: (calendar as any)?.profiles
+  });
 
   const getRedactedContent = (day: CalendarDay) => {
     if (!calendar) return { type: 'text', message: "", title: "" };
@@ -619,75 +620,129 @@ const VisualizarCalendario = () => {
 
   const bgColor = THEME_BG_COLORS[calendar.theme_id] || 'bg-background';
 
-  // --- RENDERIZADORES ESPECIALIZADOS ---
-
-
-  // --- RENDERIZADORES ESPECIALIZADOS ---
-
-  const renderWeddingView = () => (
-    <>
-      <WeddingBackground />
-      <WeddingShower />
-      <WeddingTopDecorations />
-      <div className="relative z-10">
-        <div className="flex items-center justify-between px-6 pt-6 pb-2 relative z-10">
-          <button
-            onClick={() => {
-              if (window.history.state && window.history.state.idx > 0) {
-                navigate(-1);
-              } else {
-                navigate(isOwner ? '/meus-calendarios' : '/explorar');
-              }
-            }}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all active:scale-95"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h2 className="text-[10px] font-bold text-wedding-gold tracking-[0.2em] uppercase">Nossa União</h2>
-          <button onClick={handleShare} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 text-wedding-gold hover:bg-white transition-all">
-            <Share2 className="w-5 h-5" />
-          </button>
-        </div>
-        <WeddingHeader
-          title={calendar.title}
-          subtitle="A contagem regressiva para o altar"
-          isEditor={false}
-          showWatermark={!isOwnerPlusOrAdmin}
-        />
-        <WeddingProgress progress={Math.round((openedDays.length / (days.length || 1)) * 100)} />
-      </div>
-
-      <main className="flex-1 px-4 py-4 pb-36 relative z-0">
-        <div className="flex items-center justify-between mb-6 px-2">
-          <h2 className="text-sm font-bold text-wedding-gold uppercase tracking-[0.2em] flex items-center gap-2">
-            Calendário
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-          {days.map((d) => {
-            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
-            const doorDate = startOfDay(addDays(baseDate, d.day - 1));
-            const isLocked = isAfter(doorDate, startOfDay(new Date()));
-            const isOpened = openedDays.includes(d.day) || (d.opened_count || 0) > 0;
-
-            return (
-              <WeddingDayCard
-                key={d.day}
-                dayNumber={d.day}
-                imageUrl={d.url || undefined}
-                status={isOpened ? 'unlocked' : (isLocked ? 'locked' : 'unlocked')}
-                onClick={() => isLocked ? handleLockedClick(d.day, doorDate) : handleDayClick(d.day)}
-              />
-            );
-          })}
-        </div>
-        <WeddingDiarySection isEditor={false} />
-      </main>
-      <WeddingFooter isEditor={false} />
-    </>
+  // --- PREMIUM THEMES: Use UniversalTemplate ---
+  const isPremiumTheme = premiumTheme.ui && (
+    calendar.theme_id === 'namoro' ||
+    calendar.theme_id === 'carnaval' ||
+    calendar.theme_id === 'casamento' ||
+    calendar.theme_id === 'noivado' ||
+    calendar.theme_id === 'bodas' ||
+    calendar.theme_id === 'aniversario' ||
+    calendar.theme_id === 'saojoao' ||
+    calendar.theme_id === 'natal' ||
+    calendar.theme_id === 'pascoa' ||
+    calendar.theme_id === 'reveillon'
   );
 
+  if (isPremiumTheme) {
+    return (
+      <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500 font-display", premiumTheme.ui?.layout.bgClass)}>
+        <UniversalTemplate
+          config={premiumTheme}
+          calendar={calendar}
+          days={days}
+          openedDays={openedDays}
+          isEditorContext={false}
+          isEditor={false}
+          previewMode={false}
+          onNavigateBack={() => {
+            if (window.history.state && window.history.state.idx > 0) {
+              navigate(-1);
+            } else {
+              navigate(isOwner ? '/meus-calendarios' : '/explorar');
+            }
+          }}
+          onShare={handleShare}
+          onDayClick={(day) => {
+            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+            const doorDate = startOfDay(addDays(baseDate, day - 1));
+            const isLocked = isAfter(doorDate, startOfDay(new Date()));
+
+            if (isLocked) {
+              handleLockedClick(day, doorDate);
+              return;
+            }
+
+            setOpenedDays(prev => prev.includes(day) ? prev : [...prev, day]);
+            setTimeout(() => setSelectedDay(day), 600);
+          }}
+          onLockedClick={(day) => {
+            const baseDate = calendar.start_date ? parseISO(calendar.start_date) : parseISO(calendar.created_at || new Date().toISOString());
+            const doorDate = startOfDay(addDays(baseDate, day - 1));
+            handleLockedClick(day, doorDate);
+          }}
+          showWatermark={!isOwnerPlusOrAdmin}
+          isDemoMode={isTemplatePreview}
+        />
+
+        {/* Modal for Premium Themes */}
+        {calendar.theme_id === 'namoro' ? (
+          <LoveLetterModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : { type: 'text', message: "Surpresa! 🎉", title: `Porta ${selectedDay}` }}
+          />
+        ) : (
+          <DaySurpriseModal
+            isOpen={selectedDay !== null}
+            onClose={() => setSelectedDay(null)}
+            day={selectedDay || 1}
+            content={selectedDayData?.content_type ? {
+              type: selectedDayData.content_type as any,
+              message: selectedDayData?.message || "",
+              url: selectedDayData?.url || "",
+              label: selectedDayData?.label || "Abrir",
+            } : undefined}
+            theme={calendar.theme_id as any}
+          />
+        )}
+
+        {/* Locked Modal */}
+        {lockedModalData && (
+          calendar.theme_id === 'namoro' ? (
+            <LoveLockedModal
+              isOpen={lockedModalData.isOpen}
+              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
+              dayNumber={lockedModalData.day}
+              unlockDate={lockedModalData.date}
+              theme="namoro"
+            />
+          ) : calendar.theme_id === 'casamento' ? (
+            <LoveLockedModal
+              isOpen={lockedModalData.isOpen}
+              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
+              dayNumber={lockedModalData.day}
+              unlockDate={lockedModalData.date}
+              theme="casamento"
+            />
+          ) : calendar.theme_id === 'reveillon' ? (
+            <ReveillonLockedModal
+              isOpen={lockedModalData.isOpen}
+              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
+              dayNumber={lockedModalData.day}
+              unlockDate={lockedModalData.date}
+            />
+          ) : calendar.theme_id === 'natal' ? (
+            <NatalLockedModal
+              isOpen={lockedModalData.isOpen}
+              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
+              timeLeft={`${timeLeft.hours}h ${timeLeft.minutes}m`}
+            />
+          ) : (
+            <LoveLockedModal
+              isOpen={lockedModalData.isOpen}
+              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
+              dayNumber={lockedModalData.day}
+              unlockDate={lockedModalData.date}
+              theme={calendar.theme_id}
+            />
+          )
+        )}
+      </div>
+    );
+  }
+
+  // --- DEFAULT/LEGACY THEMES: Use renderDefaultView ---
   const renderDefaultView = () => (
     <>
       <FloatingDecorations theme={(themeData?.id || "natal") as any} />
@@ -930,7 +985,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate
@@ -966,6 +1021,7 @@ const VisualizarCalendario = () => {
           }}
           onStats={() => navigate(`/calendario/${calendar.id}/estatisticas`)}
           showWatermark={!isOwnerPlusOrAdmin}
+          isDemoMode={isTemplatePreview}
         />
 
         {/* Surprise Modals (Romantic themes - NOT Festive themes) */}
@@ -1059,10 +1115,10 @@ const VisualizarCalendario = () => {
         backgroundPosition: 'center'
       } : undefined}
     >
-      {calendar.theme_id === 'casamento' ? renderWeddingView() : renderDefaultView()}
+      {renderDefaultView()}
 
       {/* Love Letter Modal (Romantic - Not Carnaval/SaoJoao) */}
-      {['namoro', 'casamento', 'noivado', 'bodas'].includes(calendar.theme_id) &&
+      {['namoro', 'noivado', 'bodas'].includes(calendar.theme_id) &&
         !['carnaval', 'saojoao'].includes(calendar.theme_id) &&
         !isTemplatePreview && (
           <LoveLetterModal
@@ -1073,7 +1129,7 @@ const VisualizarCalendario = () => {
         )}
 
       {/* Surprise Modal (Global fallback) */}
-      {(isTemplatePreview || !(calendar.theme_id === 'namoro' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) && (
+      {(isTemplatePreview || !(calendar.theme_id === 'namoro' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas')) && (
         <DaySurpriseModal
           isOpen={selectedDay !== null}
           onClose={() => setSelectedDay(null)}

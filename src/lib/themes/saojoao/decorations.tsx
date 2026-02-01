@@ -1,3 +1,6 @@
+// São João Theme Decorations
+// Festive Festa Junina decorations with flags and emojis
+
 import { motion } from "framer-motion";
 
 // --- São João Bandeirinhas (Festa Junina Flags) ---
@@ -103,3 +106,5 @@ export const SaoJoaoDecorations = () => {
         </>
     );
 };
+
+export default SaoJoaoDecorations;

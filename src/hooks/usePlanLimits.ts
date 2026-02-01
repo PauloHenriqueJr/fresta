@@ -252,6 +252,6 @@ export function useUserPlanStatus() {
   };
 }
 
-// Premium themes that require payment
-export const PREMIUM_THEMES = ["casamento", "bodas", "noivado", "reveillon"];
+// Plus themes that require payment
+export const PLUS_THEMES = ["casamento", "bodas", "noivado", "reveillon", "viagem", "natal", "pascoa", "carnaval", "saojoao", "independencia"];
 

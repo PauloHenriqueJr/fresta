@@ -1,3 +1,6 @@
+// Páscoa (Easter) Theme Decorations
+// Festive Easter decorations with eggs, bunnies, and springtime elements
+
 import { motion } from "framer-motion";
 
 // --- Páscoa Floating Eggs ---
@@ -155,3 +158,5 @@ export const PascoaDecorations = () => {
         </>
     );
 };
+
+export default PascoaDecorations;

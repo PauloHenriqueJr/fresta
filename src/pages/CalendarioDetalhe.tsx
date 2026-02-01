@@ -14,17 +14,7 @@ import { ptBR } from "date-fns/locale";
 import { getThemeConfig } from "@/lib/themes/registry";
 import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
 import { cn } from "@/lib/utils";
-import {
-  LoveLetterModal,
-  WeddingBackground,
-  WeddingHeader,
-  WeddingProgress,
-  WeddingDayCard,
-  WeddingSpecialCard,
-  WeddingDiarySection,
-  WeddingFooter,
-  WeddingTopDecorations
-} from "@/lib/themes/themeComponents";
+import { LoveLetterModal } from "@/lib/themes/themeComponents";
 
 type CalendarType = Tables<"calendars"> & {
   primary_color?: string;
@@ -267,112 +257,7 @@ const CalendarioDetalhe = () => {
     );
   }
 
-  // 2. Renderizador para CASAMENTO
-  if (calendar.theme_id === 'casamento') {
-    return (
-      <div className={cn("min-h-screen flex flex-col relative overflow-x-hidden font-display text-wedding-ink transition-colors duration-500", bgColor)}>
-        <WeddingBackground />
-        <WeddingTopDecorations />
 
-        {/* Editor Info Header */}
-        <div className="relative z-50 bg-white/40 backdrop-blur-md px-6 py-2 flex items-center justify-between border-b border-wedding-gold/10">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/meus-calendarios')} className="text-wedding-gold/60 hover:text-wedding-gold transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-wedding-gold">Painel de União</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPreviewMode(!previewMode)}
-              className={cn("p-2 rounded-lg transition-all", previewMode ? "bg-wedding-gold text-white shadow-lg" : "bg-white/50 text-wedding-gold border border-wedding-gold/20")}
-            >
-              <Eye className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => navigate(`/calendario/${calendar.id}/configuracoes`)}
-              className="p-2 rounded-lg bg-white/50 text-wedding-gold border border-wedding-gold/20"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div className="relative z-10 pt-4">
-          <WeddingHeader title={calendar.title} subtitle="Preparativos para o grande dia" isEditor={!previewMode} />
-          <WeddingProgress progress={completionPercentage} />
-        </div>
-
-        <main className="flex-1 px-4 py-8 pb-36 relative z-0">
-          <div className="grid grid-cols-2 xs:grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-            {days.map((d) => {
-              if (d.day === 5 && !previewMode) {
-                return (
-                  <WeddingSpecialCard
-                    key={d.day}
-                    dayNumber={d.day}
-                    onClick={() => navigate(`/editar-dia/${calendar.id}/${d.day}`)}
-                    isEditor={true}
-                  />
-                );
-              }
-
-              return (
-                <WeddingDayCard
-                  key={d.day}
-                  dayNumber={d.day}
-                  imageUrl={daysData.find(dd => dd.day === d.day)?.url || undefined}
-                  status={previewMode ? (d.status === 'locked' ? 'locked' : (previewOpenedDays.includes(d.day) ? 'unlocked' : 'locked')) : 'unlocked'}
-                  onClick={() => {
-                    if (previewMode) {
-                      if (d.status !== 'locked') {
-                        setPreviewOpenedDays(prev => prev.includes(d.day) ? prev : [...prev, d.day]);
-                        setTimeout(() => setSelectedDayPreview(d.day), 600);
-                      }
-                    } else {
-                      navigate(`/editar-dia/${calendar.id}/${d.day}`);
-                    }
-                  }}
-                  isEditor={!previewMode}
-                />
-              );
-            })}
-          </div>
-          <WeddingDiarySection isEditor={!previewMode} />
-        </main>
-
-        {previewMode ? (
-          <WeddingFooter isEditor={false} />
-        ) : (
-          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 lg:bottom-8 lg:right-8 lg:left-auto lg:translate-x-0 w-[92%] max-w-lg lg:max-w-xs p-4 bg-white/90 backdrop-blur-xl border border-wedding-gold/10 z-50 flex items-center gap-4 rounded-3xl shadow-2xl">
-            <button
-              onClick={handleShare}
-              className="flex-1 bg-gradient-to-r from-wedding-gold to-wedding-gold-dark text-white h-12 rounded-2xl font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-wedding-gold/20"
-            >
-              <Share2 className="w-4 h-4" />
-              Compartilhar União
-            </button>
-            <button onClick={() => navigate(`/calendario/${calendar.id}/stats`)} className="h-12 w-12 rounded-2xl bg-[#F9F6F0] text-wedding-gold flex items-center justify-center border border-wedding-gold/20">
-              <BarChart3 className="w-5 h-5" />
-            </button>
-          </div>
-        )}
-
-        <DaySurpriseModal
-          isOpen={selectedDayPreview !== null}
-          onClose={() => setSelectedDayPreview(null)}
-          day={selectedDayPreview || 1}
-          content={selectedDayData?.content_type ? {
-            type: selectedDayData.content_type as any,
-            message: selectedDayData?.message || "",
-            url: selectedDayData?.url || "",
-            label: selectedDayData?.label || "Abrir",
-          } : undefined}
-          theme={calendar.theme_id as any}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className={cn("min-h-screen relative overflow-hidden transition-colors duration-500", bgColor, `theme-${calendar.theme_id}`)}>
