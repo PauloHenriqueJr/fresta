@@ -1,4 +1,5 @@
 import { UniversalHeader, UniversalProgress, UniversalQuote, UniversalFooter, UniversalEmptyCard, UniversalEnvelopeCard, UniversalUnlockedCard, UniversalLockedCard } from "@/lib/themes/themeComponents";
+import { BrandWatermark } from "@/components/calendar/BrandWatermark";
 import { parseISO, startOfDay, isAfter, addDays } from "date-fns";
 import type { Tables } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
@@ -434,6 +435,13 @@ export const UniversalTemplate = ({
                         }
                     }}
                 />
+            )}
+
+            {/* Footer Watermark for Free Users */}
+            {showWatermark && (
+                <div className="py-12 flex justify-center relative z-10">
+                    <BrandWatermark />
+                </div>
             )}
 
             <UpgradeChoiceModal

@@ -7,12 +7,18 @@ import {
   MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Cake, HeartHandshake, Egg,
   Flower2
 } from "lucide-react";
-import { HangingHearts, WeddingShower, ReveillonDecorations } from "./themeComponents";
-import { NatalDecorationsFull } from "./natalComponents";
-import { CarnavalDecorations } from "./carnavalComponents";
-import { SaoJoaoDecorations } from "./saojoaoComponents";
-import { PascoaDecorations } from "./pascoaComponents";
 
+// Import decorations from modular theme folders
+import { HangingHearts } from "./namoro/decorations";
+import { WeddingShower, WeddingDecorations } from "./casamento/decorations";
+import { SaoJoaoDecorations } from "./saojoao/decorations";
+import { NatalDecorationsFull } from "./natal/decorations";
+import { CarnavalDecorations } from "./carnaval/decorations";
+import { PascoaDecorations } from "./pascoa/decorations";
+import { ReveillonDecorations } from "./reveillon/decorations";
+import { AniversarioDecorations } from "./aniversario/decorations";
+
+// Interface definition - will be moved to types.ts in future
 export interface PlusThemeConfig {
   id: string;
   content: {
@@ -929,7 +935,7 @@ export const aniversarioTheme: PlusThemeConfig = {
       backgroundColor: "#F0F9FF"
     }
   },
-  FloatingComponent: CarnavalDecorations,
+  FloatingComponent: AniversarioDecorations,
   ui: {
     layout: {
       bgClass: "bg-[#F0F9FF]",

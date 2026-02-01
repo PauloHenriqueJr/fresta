@@ -76,16 +76,26 @@ const VisualizarCalendario = () => {
 
   const { isPremium } = useSubscription();
 
-  // Check if the CALENDAR OWNER is premium (data comes from getPublic)
-  const ownerSubscriptions = (calendar as any)?.profiles?.subscriptions || [];
+  // Check premium status (data comes from getPublic RPC which already checks all conditions)
+  // Priority: calendar.is_premium > owner.role='admin' > owner has active subscription
+  const calendarIsPremium = (calendar as any)?.is_premium || false;
+  const ownerIsPremiumFromRPC = (calendar as any)?.profiles?.is_premium || false;
   const ownerRole = (calendar as any)?.profiles?.role || 'user';
 
-  const isOwnerPlus = calendar?.is_premium || ownerSubscriptions.some(
-    (s: any) => s.status === 'active' || s.status === 'trialing'
-  );
+  // Show watermark only if NOT premium (any of the conditions)
+  const isOwnerPlusOrAdmin = calendarIsPremium || ownerIsPremiumFromRPC || ownerRole === 'admin';
 
-  // Owner is Plus if has subscription OR is admin (no watermark for visitors)
-  const isOwnerPlusOrAdmin = isOwnerPlus || ownerRole === 'admin';
+  // DEBUG: Trace watermark visibility calculation
+  console.log('[WATERMARK DEBUG]', {
+    calendarId: calendar?.id,
+    themeId: calendar?.theme_id,
+    calendarIsPremium,
+    ownerIsPremiumFromRPC,
+    ownerRole,
+    isOwnerPlusOrAdmin,
+    showWatermark: !isOwnerPlusOrAdmin,
+    profilesData: (calendar as any)?.profiles
+  });
 
   const getRedactedContent = (day: CalendarDay) => {
     if (!calendar) return { type: 'text', message: "", title: "" };

@@ -73,11 +73,15 @@ export const CalendarsRepository = {
     const calendar = calendars?.[0];
     if (calError || !calendar) return null;
 
-    const { data: profiles } = await (supabase
-      .from('profiles') as any)
-      .select('display_name, avatar')
-      .eq('id', (calendar as any).owner_id)
-      .limit(1);
+    // Use RPC function to get owner premium status (bypasses RLS for watermark check)
+    const { data: ownerStatus, error: rpcError } = await (supabase.rpc as any)(
+      'get_calendar_owner_premium_status',
+      { calendar_id: id }
+    );
+    
+    if (rpcError) {
+      console.warn('[CalendarsRepository] Error fetching owner premium status:', rpcError);
+    }
 
     const { data: days, error: daysError } = await (supabase
       .from('calendar_days') as any)
@@ -87,9 +91,16 @@ export const CalendarsRepository = {
     
     if (daysError) throw daysError;
 
+    // Build profiles object from RPC result
+    const ownerData = ownerStatus?.[0];
     const calendarWithData = {
       ...calendar,
-      profiles: profiles?.[0] || null
+      profiles: {
+        display_name: ownerData?.display_name || null,
+        avatar: ownerData?.avatar || null,
+        role: ownerData?.role || 'user',
+        is_premium: ownerData?.is_premium || false
+      }
     };
 
     return { calendar: calendarWithData as any, days: (days as any) ?? [] };
