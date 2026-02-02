@@ -1,7 +1,7 @@
 import { useState, useMemo, ReactNode, forwardRef } from "react";
 import { BrandWatermark } from "@/components/calendar/BrandWatermark";
 import { motion } from "framer-motion";
-import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Flower2 } from "lucide-react";
+import { Pencil, Plus, Share2, Heart, Lock, Eye, Save, Rocket, Quote, MessageSquare, Sparkles, X, Play, Music, Camera, Gift, Settings, PartyPopper, Clock, Bell, Download, Flame, GripHorizontal, Calendar, Star, Wand2, Coffee, Wine, Pizza, Utensils, Plane, MapPin, Sun, Moon, Cloud, Ghost, Palette, User, Info, HelpCircle, Ticket, Flower2, Crown, Flower } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canInstallPWA, promptInstall, isPWAInstalled } from "@/lib/push/notifications";
 import { useToast } from "@/hooks/use-toast";
@@ -910,6 +910,39 @@ export const LoveLockedModal = ({ isOpen, onClose, dayNumber, unlockDate, onNoti
       textColor: "text-purple-900 dark:text-purple-100",
       descColor: "text-purple-600/80 dark:text-purple-300/80",
       icon: Gift
+    },
+    metas: {
+      title: "Calma, campeão! ⭐",
+      message: "Essa meta ainda está guardada. O sucesso vem para quem sabe esperar!",
+      buttonColor: "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-indigo-950",
+      iconColor: "text-amber-400",
+      bgColor: "bg-indigo-950 dark:bg-indigo-950",
+      borderColor: "border-amber-400/30 dark:border-amber-400/30",
+      textColor: "text-white dark:text-white",
+      descColor: "text-indigo-200 dark:text-indigo-200",
+      icon: Star
+    },
+    diadasmaes: {
+      title: "Calma, querido(a)! 💐",
+      message: "Essa surpresa para a mamãe ainda está sendo preparada com muito amor!",
+      buttonColor: "bg-gradient-to-r from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600",
+      iconColor: "text-pink-500",
+      bgColor: "bg-pink-50 dark:bg-zinc-900",
+      borderColor: "border-pink-200 dark:border-pink-900",
+      textColor: "text-pink-900 dark:text-pink-100",
+      descColor: "text-pink-600/80 dark:text-pink-300/80",
+      icon: Heart
+    },
+    diadospais: {
+      title: "Calma, campeão! 👔",
+      message: "Essa surpresa para o paizão ainda está guardada. Paciência é uma virtude!",
+      buttonColor: "bg-gradient-to-r from-slate-600 to-blue-600 hover:from-slate-700 hover:to-blue-700",
+      iconColor: "text-slate-500",
+      bgColor: "bg-slate-50 dark:bg-zinc-900",
+      borderColor: "border-slate-200 dark:border-slate-800",
+      textColor: "text-slate-900 dark:text-slate-100",
+      descColor: "text-slate-600/80 dark:text-slate-300/80",
+      icon: Crown
     },
     default: {
       title: "Calma, Coração!",
@@ -2532,6 +2565,268 @@ export const WeddingCardModal = ({ isOpen, onClose, content, config }: LoveLette
             <div className="h-px w-20 bg-[#D4AF37]"></div>
           </div>
 
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Metas Goal Modal (Year Goals Theme) ---
+interface MetasGoalModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const MetasGoalModal = ({ isOpen, onClose, content }: MetasGoalModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-indigo-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+      {/* Decorative Stars */}
+      <div className="absolute top-10 left-10 w-4 h-4 bg-amber-400 rounded-full animate-pulse opacity-60" />
+      <div className="absolute top-20 right-20 w-3 h-3 bg-amber-300 rounded-full animate-pulse opacity-50" style={{ animationDelay: '0.5s' }} />
+      <div className="absolute bottom-32 left-20 w-2 h-2 bg-amber-500 rounded-full animate-pulse opacity-70" style={{ animationDelay: '1s' }} />
+      <Star className="absolute top-1/4 left-10 w-6 h-6 text-amber-400 opacity-40 animate-pulse" />
+      <Star className="absolute top-1/3 right-12 w-5 h-5 text-amber-300 opacity-30 animate-spin" style={{ animationDuration: '8s' }} />
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-gradient-to-br from-indigo-900 via-purple-800 to-indigo-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-amber-400/30"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header */}
+        <div className="h-16 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 w-full relative shrink-0 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-indigo-950 fill-current" />
+            <span className="text-indigo-950 font-black text-sm uppercase tracking-widest">Meta Alcançada</span>
+            <Star className="w-5 h-5 text-indigo-950 fill-current" />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 px-6 py-8 flex flex-col items-center overflow-y-auto overscroll-contain">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden border-4 border-amber-400/50 shadow-lg mb-6 relative shrink-0">
+              {content.type === 'video' ? (
+                <div className="w-full h-full bg-black flex items-center justify-center">
+                  <Play className="w-12 h-12 text-amber-400" />
+                </div>
+              ) : (
+                <img src={content.mediaUrl} alt="Meta" className="w-full h-full object-cover" />
+              )}
+            </div>
+          )}
+
+          {/* Message */}
+          {content.message && (
+            <p className="text-white text-lg text-center font-medium leading-relaxed mb-6">
+              "{content.message}"
+            </p>
+          )}
+
+          {/* Inspirational Badge */}
+          <div className="flex items-center gap-2 bg-amber-400/20 px-4 py-2 rounded-full border border-amber-400/30">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span className="text-amber-300 text-xs font-bold uppercase tracking-wider">Continue brilhando!</span>
+          </div>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="mt-8 w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-indigo-950 font-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          >
+            Continuar
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Dia das Mães Modal (Mother's Day Theme) ---
+interface DiadasmaesModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const DiadasmaesModal = ({ isOpen, onClose, content }: DiadasmaesModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-pink-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+      {/* Floating Flowers */}
+      <Flower className="absolute top-1/4 left-10 w-8 h-8 text-pink-400 opacity-40 animate-bounce" style={{ animationDuration: '3s' }} />
+      <Heart className="absolute top-1/3 right-12 w-6 h-6 text-rose-400 opacity-50 animate-pulse" />
+      <Flower className="absolute bottom-1/4 right-20 w-7 h-7 text-pink-300 opacity-30 animate-bounce" style={{ animationDelay: '1s', animationDuration: '4s' }} />
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, rotate: -2 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-pink-100 hover:bg-pink-200 flex items-center justify-center text-pink-600 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header with Flowers */}
+        <div className="h-20 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 w-full relative shrink-0 flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-2 left-4"><Flower className="w-8 h-8 text-white" /></div>
+            <div className="absolute top-4 right-6"><Flower className="w-6 h-6 text-white" /></div>
+            <div className="absolute bottom-2 left-1/3"><Flower className="w-5 h-5 text-white" /></div>
+          </div>
+          <div className="flex items-center gap-2 z-10">
+            <Heart className="w-5 h-5 text-white fill-white" />
+            <span className="text-white font-black text-sm uppercase tracking-widest">Para a Melhor Mãe</span>
+            <Heart className="w-5 h-5 text-white fill-white" />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 px-6 py-8 flex flex-col items-center bg-gradient-to-b from-pink-50 to-white overflow-y-auto overscroll-contain">
+          {/* Media (Photo frame style) */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden border-8 border-white shadow-xl mb-6 relative shrink-0 rotate-1">
+              <img src={content.mediaUrl} alt="Presente" className="w-full h-full object-cover" />
+              <div className="absolute bottom-2 right-2 bg-white/80 px-2 py-1 rounded-full">
+                <Heart className="w-4 h-4 text-rose-500 fill-current" />
+              </div>
+            </div>
+          )}
+
+          {/* Message */}
+          {content.message && (
+            <div className="bg-pink-50 border border-pink-200 rounded-2xl p-6 mb-6 w-full">
+              <p className="text-pink-900 text-lg text-center font-medium leading-relaxed font-festive">
+                "{content.message}"
+              </p>
+            </div>
+          )}
+
+          {/* Love Badge */}
+          <div className="flex items-center gap-2 text-rose-400 mb-4">
+            <Heart className="w-4 h-4 fill-current" />
+            <span className="text-xs font-bold uppercase tracking-wider">Com todo amor do mundo</span>
+            <Heart className="w-4 h-4 fill-current" />
+          </div>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="w-full py-4 bg-gradient-to-r from-pink-400 to-rose-500 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          >
+            Continuar
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Dia dos Pais Modal (Father's Day Theme) ---
+interface DiadospaisModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const DiadospaisModal = ({ isOpen, onClose, content }: DiadospaisModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+      {/* Decorative Elements */}
+      <div className="absolute top-10 left-10 w-4 h-4 bg-blue-400 rounded-full animate-pulse opacity-40" />
+      <Crown className="absolute top-1/4 right-12 w-6 h-6 text-slate-400 opacity-30 animate-pulse" />
+      <Star className="absolute bottom-1/3 left-16 w-5 h-5 text-blue-300 opacity-20" />
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Header */}
+        <div className="h-16 bg-gradient-to-r from-slate-600 via-blue-600 to-slate-700 w-full relative shrink-0 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <Crown className="w-5 h-5 text-white" />
+            <span className="text-white font-black text-sm uppercase tracking-widest">Para o Melhor Pai</span>
+            <Crown className="w-5 h-5 text-white" />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 px-6 py-8 flex flex-col items-center bg-gradient-to-b from-slate-50 to-white overflow-y-auto overscroll-contain">
+          {/* Media */}
+          {content.mediaUrl && (
+            <div className="w-full aspect-square rounded-2xl overflow-hidden border-4 border-slate-200 shadow-lg mb-6 relative shrink-0">
+              <img src={content.mediaUrl} alt="Presente" className="w-full h-full object-cover" />
+            </div>
+          )}
+
+          {/* Message */}
+          {content.message && (
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6 w-full">
+              <p className="text-slate-700 text-lg text-center font-medium leading-relaxed">
+                "{content.message}"
+              </p>
+            </div>
+          )}
+
+          {/* Badge */}
+          <div className="flex items-center gap-2 text-slate-500 mb-4">
+            <Star className="w-4 h-4 fill-current" />
+            <span className="text-xs font-bold uppercase tracking-wider">Meu herói</span>
+            <Star className="w-4 h-4 fill-current" />
+          </div>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="w-full py-4 bg-gradient-to-r from-slate-600 to-blue-600 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          >
+            Continuar
+          </button>
         </div>
       </motion.div>
     </div>

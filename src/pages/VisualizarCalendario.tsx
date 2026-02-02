@@ -631,7 +631,10 @@ const VisualizarCalendario = () => {
     calendar.theme_id === 'saojoao' ||
     calendar.theme_id === 'natal' ||
     calendar.theme_id === 'pascoa' ||
-    calendar.theme_id === 'reveillon'
+    calendar.theme_id === 'reveillon' ||
+    calendar.theme_id === 'metas' ||
+    calendar.theme_id === 'diadasmaes' ||
+    calendar.theme_id === 'diadospais'
   );
 
   if (isPremiumTheme) {
@@ -985,7 +988,7 @@ const VisualizarCalendario = () => {
 
   const premiumConfig = getThemeConfig(calendar.theme_id);
 
-  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon')) {
+  if (premiumConfig.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon' || calendar.theme_id === 'metas' || calendar.theme_id === 'diadasmaes' || calendar.theme_id === 'diadospais')) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         <UniversalTemplate

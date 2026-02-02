@@ -191,10 +191,14 @@ export type ThemeId =
   | 'reveillon' 
   | 'aniversario'
   | 'noivado'
-  | 'bodas';
+  | 'bodas'
+  | 'diadasmaes'
+  | 'diadospais'
+  | 'metas';
 
 /**
  * List of Plus (premium) theme IDs
+ * NOTE: diadasmaes, diadospais, metas are FREE themes and NOT included here
  */
 export const PLUS_THEME_IDS: ThemeId[] = [
   'namoro',

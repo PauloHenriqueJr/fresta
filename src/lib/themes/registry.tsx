@@ -7,6 +7,9 @@ import { carnavalTheme } from "./carnaval";
 import { natalTheme } from "./natal";
 import { weddingTheme } from "./casamento";
 import { reveillonTheme } from "./reveillon";
+import { diadasmaesTheme } from "./diadasmaes";
+import { diadospaisTheme } from "./diadospais";
+import { metasTheme } from "./metas";
 
 // Interface and ID exports for backward compatibility if needed elsewhere
 export { PLUS_THEME_IDS } from "./types";
@@ -21,7 +24,10 @@ export {
   carnavalTheme,
   natalTheme,
   weddingTheme,
-  reveillonTheme
+  reveillonTheme,
+  diadasmaesTheme,
+  diadospaisTheme,
+  metasTheme
 };
 
 /**
@@ -38,6 +44,9 @@ export const getThemeConfig = (themeId: string): PlusThemeConfig => {
     case 'aniversario': return aniversarioTheme;
     case 'pascoa': return pascoaTheme;
     case 'reveillon': return reveillonTheme;
-    default: return namoroTheme;
+    case 'diadasmaes': return diadasmaesTheme;
+    case 'diadospais': return diadospaisTheme;
+    case 'metas': return metasTheme;
+    default: return aniversarioTheme; // Changed default to aniversario (free, universal)
   }
 };

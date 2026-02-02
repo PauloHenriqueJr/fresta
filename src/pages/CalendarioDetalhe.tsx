@@ -33,6 +33,9 @@ const THEME_BG_COLORS: Record<string, string> = {
   independencia: 'bg-[#E8F5E0]',
   reveillon: 'bg-[#E8E4F5]',
   aniversario: 'bg-[#FFF0E5]',
+  metas: 'bg-[#1E1B4B]',
+  diadasmaes: 'bg-[#FDF2F8]',
+  diadospais: 'bg-[#F0F4F8]',
 };
 
 const ALL_THEMES = ["default", "carnaval", "saojoao", "natal", "reveillon", "pascoa", "independencia", "namoro", "casamento"] as const;
@@ -179,7 +182,7 @@ const CalendarioDetalhe = () => {
   // 1. Renderizador UNIVERSAL (Namoro, Carnaval, Casamento, etc)
   const premiumTheme = getThemeConfig(calendar.theme_id);
 
-  if (premiumTheme.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon')) {
+  if (premiumTheme.ui && (calendar.theme_id === 'namoro' || calendar.theme_id === 'carnaval' || calendar.theme_id === 'casamento' || calendar.theme_id === 'noivado' || calendar.theme_id === 'bodas' || calendar.theme_id === 'aniversario' || calendar.theme_id === 'saojoao' || calendar.theme_id === 'natal' || calendar.theme_id === 'pascoa' || calendar.theme_id === 'reveillon' || calendar.theme_id === 'metas' || calendar.theme_id === 'diadasmaes' || calendar.theme_id === 'diadospais')) {
     const ui = premiumTheme.ui;
     return (
       <div className={cn("min-h-screen flex flex-col relative overflow-hidden transition-colors duration-500 font-display", premiumTheme.ui.layout.bgClass)}>
