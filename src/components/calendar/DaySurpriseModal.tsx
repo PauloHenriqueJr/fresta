@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink, Music, PartyPopper } from "lucide-react";
+import { X, Gift, Sparkles, Heart, Copy, Ticket, Play, ExternalLink, Music, PartyPopper, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface DaySurpriseModalProps {
@@ -17,7 +17,7 @@ interface DaySurpriseModalProps {
   isTemplate?: boolean;
 }
 
-import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal, PascoaEggModal, ReveillonFireworksModal, NatalFireworksModal, WeddingCardModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal, PascoaEggModal, ReveillonFireworksModal, NatalFireworksModal, WeddingCardModal, MetasGoalModal, DiadasmaesModal, DiadospaisModal } from "@/lib/themes/themeComponents";
 
 const DaySurpriseModal = ({
   isOpen,
@@ -119,6 +119,51 @@ const DaySurpriseModal = ({
     )
   }
 
+  if (theme === "metas") {
+    return (
+      <MetasGoalModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Meta ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
+  if (theme === "diadasmaes") {
+    return (
+      <DiadasmaesModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Dia ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
+  if (theme === "diadospais") {
+    return (
+      <DiadospaisModal
+        isOpen={isOpen}
+        onClose={onClose}
+        content={{
+          type: content?.type === "text" ? "text" : "image",
+          title: `Dia ${day}`,
+          message: content?.message || "",
+          mediaUrl: content?.url,
+        }}
+      />
+    )
+  }
+
   const getGradientClass = () => {
     switch (theme) {
       case "carnaval":
@@ -132,6 +177,12 @@ const DaySurpriseModal = ({
         return "bg-gradient-romance";
       case "aniversario":
         return "bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-500";
+      case "metas":
+        return "bg-gradient-to-br from-indigo-900 via-purple-800 to-amber-500";
+      case "diadasmaes":
+        return "bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600";
+      case "diadospais":
+        return "bg-gradient-to-br from-slate-600 via-blue-600 to-slate-700";
       default:
         return "bg-gradient-festive";
     }
@@ -150,6 +201,12 @@ const DaySurpriseModal = ({
       case "casamento":
       case "bodas":
         return "bg-rose-500 hover:bg-rose-600 text-white";
+      case "metas":
+        return "bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-indigo-950";
+      case "diadasmaes":
+        return "bg-pink-500 hover:bg-pink-600 text-white";
+      case "diadospais":
+        return "bg-slate-600 hover:bg-slate-700 text-white";
       default:
         return "bg-primary text-primary-foreground";
     }
@@ -167,6 +224,12 @@ const DaySurpriseModal = ({
         return <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}><Heart className="w-8 h-8 md:w-12 md:h-12 text-white/90 mx-auto mb-3" /></motion.div>;
       case "aniversario":
         return <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}><PartyPopper className="w-8 h-8 md:w-12 md:h-12 text-white/90 mx-auto mb-3 drop-shadow-md" /></motion.div>;
+      case "metas":
+        return <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}><Star className="w-8 h-8 md:w-12 md:h-12 text-amber-400 mx-auto mb-3 drop-shadow-md" /></motion.div>;
+      case "diadasmaes":
+        return <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}><Heart className="w-8 h-8 md:w-12 md:h-12 text-pink-200 mx-auto mb-3 drop-shadow-md" /></motion.div>;
+      case "diadospais":
+        return <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 2 }}><Gift className="w-8 h-8 md:w-12 md:h-12 text-white/90 mx-auto mb-3 drop-shadow-md" /></motion.div>;
       default:
         return <Gift className="w-8 h-8 md:w-12 md:h-12 text-primary-foreground mx-auto mb-3" />;
     }

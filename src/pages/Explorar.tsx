@@ -111,6 +111,9 @@ const demoById: Record<string, string> = {
   namoro: "/calendario/namoro",
   casamento: "/calendario/casamento",
   aniversario: "/calendario/aniversario",
+  metas: "/calendario/metas",
+  diadasmaes: "/calendario/diadasmaes",
+  diadospais: "/calendario/diadospais",
 };
 
 // Theme premium status - premium themes require payment (Now using usePlanLimits source of truth)

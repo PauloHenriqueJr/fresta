@@ -26,6 +26,9 @@ import CalendarioIndependencia from "./pages/CalendarioIndependencia";
 import CalendarioNamoro from "./pages/CalendarioNamoro";
 import CalendarioCasamento from "./pages/CalendarioCasamento";
 import CalendarioAniversario from "./pages/CalendarioAniversario";
+import CalendarioMetas from "./pages/CalendarioMetas";
+import CalendarioDiadasmaes from "./pages/CalendarioDiadasmaes";
+import CalendarioDiadospais from "./pages/CalendarioDiadospais";
 import CriarCalendario from "./pages/CriarCalendario";
 import EscolherTema from "./pages/EscolherTema";
 import VisualizarCalendario from "./pages/VisualizarCalendario";
@@ -429,6 +432,9 @@ const AppContent = () => {
         <Route path="/calendario/namoro" element={<CalendarioNamoro />} />
         <Route path="/calendario/casamento" element={<CalendarioCasamento />} />
         <Route path="/calendario/aniversario" element={<CalendarioAniversario />} />
+        <Route path="/calendario/metas" element={<CalendarioMetas />} />
+        <Route path="/calendario/diadasmaes" element={<CalendarioDiadasmaes />} />
+        <Route path="/calendario/diadospais" element={<CalendarioDiadospais />} />
         <Route path="/configuracoes" element={<Configuracoes />} />
         {/* /editar-dia/:calendarId/:dia agora está dentro do B2CLayout */}
         <Route path="/editar-dia/:dia" element={<EditarDia />} />

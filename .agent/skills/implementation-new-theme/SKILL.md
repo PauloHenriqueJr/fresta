@@ -12,6 +12,7 @@ Each theme has its own folder in `src/lib/themes/`.
 3. **Decorations**: `decorations.tsx` - Floating effects (framer-motion).
 4. **Entry Point**: `index.tsx` - Re-exports everything for the registry.
 5. **Registry**: `src/lib/themes/registry.tsx` - Central distribution (keep it lightweight).
+6. **Demo**: `src/lib/offline/themes.ts` - Theme listing for Explorar page (visualization only).
 
 ---
 
@@ -108,10 +109,184 @@ export const getThemeConfig = (themeId: string): PlusThemeConfig => {
   switch (themeId) {
     case 'halloween': return halloweenTheme;
     // ...
-    default: return namoroTheme;
+    default: return aniversarioTheme;
   }
 };
 ```
+
+## Step 5.1: Add Theme ID to Types (`types.ts`)
+
+Add the new theme ID to the `ThemeId` type in `src/lib/themes/types.ts`:
+
+```tsx
+export type ThemeId = 
+  | 'namoro' 
+  | 'casamento' 
+  // ... existing themes
+  | 'halloween'; // Add new theme
+```
+
+> ⚠️ **NOTE**: If the theme is FREE (not Plus), do NOT add it to `PLUS_THEME_IDS` array.
+
+## Step 5.2: Register in Page Renderers (CRITICAL!)
+
+> 🔴 **THIS STEP IS OFTEN MISSED!** Without it, themes render with the fallback/default view.
+
+Add the new theme ID to the `isPremiumTheme` condition in **both files**:
+
+**`src/pages/CalendarioDetalhe.tsx` (Editor View)**:
+```tsx
+// Around line 182 - find the condition and add your theme
+if (premiumTheme.ui && (
+  calendar.theme_id === 'namoro' ||
+  // ... existing themes
+  calendar.theme_id === 'halloween' // ADD THIS
+)) {
+```
+
+**`src/pages/VisualizarCalendario.tsx` (Public View)**:
+There are **TWO** places to update:
+1. `isPremiumTheme` constant (around line 624)
+2. `premiumConfig.ui &&` condition (around line 988)
+
+```tsx
+// Around line 624
+const isPremiumTheme = premiumTheme.ui && (
+  // ... existing themes
+  calendar.theme_id === 'halloween' // ADD THIS
+);
+
+// Around line 988
+if (premiumConfig.ui && (
+  // ... existing themes
+  calendar.theme_id === 'halloween' // ADD THIS
+)) {
+```
+
+## Step 6: Add to Explorar Demo (`src/lib/offline/themes.ts`)
+
+> ⚠️ **IMPORTANT**: This step is for **visualization only** in the Explorar page. 
+> The Demo view (`ThemedCalendarDemo.tsx`) shows how a theme looks WITHOUT real data.
+> The **shared calendar view** (`VisualizarCalendario.tsx`) is controlled by the `registry.tsx`.
+
+Add the theme definition to `BASE_THEMES` array:
+
+```tsx
+// src/lib/offline/themes.ts
+{
+  id: "halloween",
+  name: "Halloween",
+  iconName: "Ghost",
+  scope: "b2c",           // or "common" for universal themes
+  imageKey: "halloween",  // Must have mascot in assets!
+  gradientClass: "bg-gradient-festive",
+  description: "Surpresas assustadoras!",
+  emoji: "🎃",
+  enabledByDefault: true,
+},
+```
+
+Then add the mascot image mapping in `ThemedCalendarDemo.tsx`:
+
+```tsx
+// src/pages/ThemedCalendarDemo.tsx
+import mascotHalloween from "@/assets/mascot-halloween.jpg";
+
+const imageByKey: Record<...> = {
+  // ...existing mappings
+  halloween: mascotHalloween,
+};
+```
+
+**Key Distinction:**
+- `BASE_THEMES` → What appears in **Explorar** page (theme selection grid)
+- `ThemedCalendarDemo` → How the **demo preview** looks (sample days, no real data)
+- `registry.tsx` → What powers **real shared calendars** (with actual user content)
+
+---
+
+## Step 7: Modal Configuration (REQUIRED!)
+
+> ⚠️ **MANDATORY**: Every theme needs modal styling configured. Skip this and modals will look broken!
+
+### 7.1: Day Surprise Modal - Create Theme-Specific Modal
+
+1. **Create the modal** in `src/lib/themes/themeComponents.tsx`:
+
+```tsx
+// --- YourTheme Modal ---
+interface YourThemeModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  content: {
+    type: 'text' | 'image' | 'video';
+    title?: string;
+    message?: string;
+    mediaUrl?: string;
+  };
+}
+
+export const YourThemeModal = ({ isOpen, onClose, content }: YourThemeModalProps) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-yourcolor/80 backdrop-blur-sm">
+      {/* Modal content with theme-specific styling */}
+    </div>
+  );
+};
+```
+
+2. **Route to it** in `src/components/calendar/DaySurpriseModal.tsx`:
+
+```tsx
+// Add import at top
+import { YourThemeModal } from "@/lib/themes/themeComponents";
+
+// Add condition before getGradientClass
+if (theme === "yourtheme") {
+  return (
+    <YourThemeModal
+      isOpen={isOpen}
+      onClose={onClose}
+      content={{
+        type: content?.type === "text" ? "text" : "image",
+        title: `Dia ${day}`,
+        message: content?.message || "",
+        mediaUrl: content?.url,
+      }}
+    />
+  )
+}
+```
+
+3. **Also add to getGradientClass, getButtonClass, getIcon** functions for fallback styling.
+
+### 7.2: Locked Modal - Add Theme Config
+
+The `LoveLockedModal` uses a `themeConfig` object. Add your theme to it in `themeComponents.tsx`:
+
+```tsx
+// In LoveLockedModal's themeConfig object (around line 826)
+yourtheme: {
+  title: "Calma! 🎯",
+  message: "Essa surpresa está guardada para o momento certo!",
+  buttonColor: "bg-yourcolor-500 hover:bg-yourcolor-600",
+  iconColor: "text-yourcolor-500",
+  bgColor: "bg-yourcolor-50 dark:bg-zinc-900",
+  borderColor: "border-yourcolor-200 dark:border-yourcolor-900",
+  textColor: "text-yourcolor-900 dark:text-yourcolor-100",
+  descColor: "text-yourcolor-600/80 dark:text-yourcolor-300/80",
+  icon: YourIcon
+},
+```
+
+### Modal Files Reference
+
+| File | What it controls |
+|------|------------------|
+| `DaySurpriseModal.tsx` | Routes to theme-specific modals for day content |
+| `themeComponents.tsx` | Contains all theme modals + `LoveLockedModal` theme configs |
+| `VisualizarCalendario.tsx` | Uses `DaySurpriseModal` + `LoveLockedModal` |
 
 ---
 
@@ -119,15 +294,25 @@ export const getThemeConfig = (themeId: string): PlusThemeConfig => {
 
 - [ ] **Folder Structure**: Folder contains `config.tsx`, `decorations.tsx`, and `index.tsx`.
 - [ ] **Extension**: Entry point is `.tsx` (not `.ts`).
+- [ ] **Types**: Theme ID added to `ThemeId` type in `types.ts`.
 - [ ] **Registry**: Theme is imported and added to `getThemeConfig`.
+- [ ] **Page Renderers**: Theme ID added to `isPremiumTheme` in BOTH:
+  - [ ] `CalendarioDetalhe.tsx` (line ~182)
+  - [ ] `VisualizarCalendario.tsx` (lines ~624 AND ~988)
 - [ ] **Colors**: `numberClass` is defined in `config.tsx` to prevent red/rose overrides.
 - [ ] **Visuals**: Decorations are subtle and don't block interaction.
 - [ ] **Responsive**: Check layout on mobile vs desktop.
+- [ ] **Modals**: Verify day content and locked modals work correctly.
+- [ ] **Explorar**: Theme added to `BASE_THEMES` in `src/lib/offline/themes.ts`.
+- [ ] **Mascot**: Image exists in `src/assets/` and mapped in `ThemedCalendarDemo.tsx`.
 
 ## Common Mistakes to Avoid
 
 ❌ **Direct Import**: Importing from `theme/config` instead of `theme` in the registry.
 ❌ **Hardcoded Colors**: Leaving `UniversalEnvelopeCard` components with default red classes (fix them in `config.tsx`).
-❌ **Missing Imports**: Forgetting to add the new theme ID to the `isPlusTheme` check in both `CalendarioDetalhe.tsx` and `VisualizarCalendario.tsx`.
+❌ **Missing Page Registrations**: Forgetting to add the new theme ID to the `isPremiumTheme` check in both `CalendarioDetalhe.tsx` and `VisualizarCalendario.tsx`. **This causes the theme to render with fallback/default styling!**
+❌ **Missing Types**: Forgetting to add theme ID to `ThemeId` in `types.ts`.
 ❌ **Z-Index**: Setting decorations z-index too high (should be `z-50` max for overlay, but `pointer-events-none` is mandatory).
-
+❌ **Demo vs Shared Confusion**: Adding theme to `BASE_THEMES` but forgetting to add to `registry.tsx` (or vice versa).
+❌ **Missing Mascot**: Theme appears in Explorar but demo crashes because mascot image isn't imported.
+❌ **Modal Broken**: Theme renders but modals don't show or show wrong styling - verify modal conditions include new theme.
