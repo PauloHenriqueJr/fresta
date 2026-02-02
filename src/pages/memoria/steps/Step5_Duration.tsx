@@ -3,9 +3,9 @@ import { useMemoria } from "../context/MemoriaContext";
 import { motion } from "framer-motion";
 
 const options = [
-    "Alguns dias",
+    "Poucos dias",
     "Uma semana",
-    "Um pouco mais",
+    "Um tempo maior",
     "Ainda não pensei nisso",
 ];
 

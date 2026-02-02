@@ -228,10 +228,10 @@ const CriarCalendario = () => {
               className="space-y-8"
             >
               <div className="text-center md:text-left space-y-2">
-                <h2 className="text-3xl md:text-4xl font-black text-solidroad-text dark:text-white">
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-solidroad-text dark:text-white">
                   Escolha um Tema
                 </h2>
-                <p className="text-lg text-muted-foreground/80">
+                <p className="text-lg text-muted-foreground/80 font-serif italic">
                   Qual é a ocasião especial que vamos celebrar?
                 </p>
               </div>
@@ -305,10 +305,10 @@ const CriarCalendario = () => {
               className="space-y-8"
             >
               <div className="space-y-2">
-                <h2 className="text-3xl md:text-4xl font-black text-solidroad-text dark:text-white">
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-solidroad-text dark:text-white">
                   Personalizar Experiência
                 </h2>
-                <p className="text-lg text-muted-foreground/80">
+                <p className="text-lg text-muted-foreground/80 font-serif italic">
                   Vamos dar um nome e definir a duração.
                 </p>
               </div>
@@ -418,7 +418,7 @@ const CriarCalendario = () => {
                 <Sparkles className="w-12 h-12 text-white" />
               </div>
 
-              <h2 className="text-4xl font-black text-solidroad-text dark:text-white mb-4">Revisar e Criar</h2>
+              <h2 className="text-4xl font-serif font-bold text-solidroad-text dark:text-white mb-4">Revisar e Criar</h2>
 
               <div className="bg-white dark:bg-white/5 p-8 rounded-[2.5rem] border border-border/10 w-full max-w-md shadow-xl mb-8">
                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-dashed border-border/10 text-left">
@@ -427,7 +427,7 @@ const CriarCalendario = () => {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Tema Escolhido</p>
-                    <p className="text-xl font-black text-solidroad-text dark:text-white">{selectedThemeData?.name}</p>
+                    <p className="text-xl font-serif font-bold text-solidroad-text dark:text-white">{selectedThemeData?.name}</p>
                   </div>
                 </div>
 

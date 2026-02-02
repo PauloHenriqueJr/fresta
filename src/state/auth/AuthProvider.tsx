@@ -17,7 +17,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   signInWithEmail: (email: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
+  signInWithGoogle: (metaData?: Record<string, any>) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (patch: Partial<Pick<Profile, "display_name" | "avatar" | "onboarding_completed">>) => Promise<void>;
   updateThemePreference: (theme: ThemePreference) => Promise<void>;
@@ -274,14 +274,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Sign in with Google OAuth
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (metaData?: Record<string, any>) => {
     // Note: Don't set isLoading here - OAuth redirects immediately and setting state causes unnecessary delay
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
-          skipBrowserRedirect: false, // Ensure immediate redirect
+          skipBrowserRedirect: false,
+          queryParams: metaData ? { ...metaData } : undefined,
+          // @ts-ignore - 'data' is valid for metadata in newer runtimes but might be missing in types
+          data: metaData,
         },
       });
       return { error: error as Error | null };

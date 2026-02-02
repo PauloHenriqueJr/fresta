@@ -3,9 +3,7 @@ import { useMemoria } from "../context/MemoriaContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const messages = [
-    "Organizando sentimentos...",
-    "Dando forma à memória...",
-    "Preparando o gesto...",
+    "Transformando intenção em gesto...",
 ];
 
 export default function Step6_Processing() {

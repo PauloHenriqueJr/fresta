@@ -1,18 +1,19 @@
 import React, { useEffect } from "react";
 import { useMemoria } from "./context/MemoriaContext";
 import { AnimatePresence, motion } from "framer-motion";
+import { PersistentAudioPlayer } from "./components/PersistentAudioPlayer.tsx";
 
 // Steps
-import Step0_Entrada from "./steps/Step0_Entrada";
-import Step1_Recipient from "./steps/Step1_Recipient";
-import Step2_Relationship from "./steps/Step2_Relationship";
-import Step3_Occasion from "./steps/Step3_Occasion";
-import Step4_Vibe from "./steps/Step4_Vibe";
-import Step5_Duration from "./steps/Step5_Duration";
-import Step6_Processing from "./steps/Step6_Processing";
-import Step7_Result from "./steps/Step7_Result";
-import Step8_AuthWall from "./steps/Step8_AuthWall";
-import Step9_Dashboard from "./steps/Step9_Dashboard";
+import Step0_Entrada from "./steps/Step0_Entrada.tsx";
+import Step1_Recipient from "./steps/Step1_Recipient.tsx";
+import Step2_Relationship from "./steps/Step2_Relationship.tsx";
+import Step3_Occasion from "./steps/Step3_Occasion.tsx";
+import Step4_Vibe from "./steps/Step4_Vibe.tsx";
+import Step5_Duration from "./steps/Step5_Duration.tsx";
+import Step6_Processing from "./steps/Step6_Processing.tsx";
+import Step7_Result from "./steps/Step7_Result.tsx";
+import Step8_AuthWall from "./steps/Step8_AuthWall.tsx";
+import Step9_Dashboard from "./steps/Step9_Dashboard.tsx";
 
 const steps = [
     Step0_Entrada,
@@ -51,6 +52,9 @@ export default function MemoriaFlow() {
                     <CurrentComponent />
                 </motion.div>
             </AnimatePresence>
+
+            {/* Persistent Audio Player */}
+            <PersistentAudioPlayer />
         </div>
     );
 }

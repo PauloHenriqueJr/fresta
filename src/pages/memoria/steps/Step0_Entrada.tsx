@@ -14,7 +14,7 @@ export default function Step0_Entrada() {
                 className="space-y-4 font-serif text-2xl md:text-3xl text-stone-800 leading-snug tracking-tight"
             >
                 <p>Algumas coisas não precisam ser explicadas.</p>
-                <p className="text-stone-500">Apenas sentidas.</p>
+                <p className="text-stone-500">Apenas cuidadas.</p>
             </motion.div>
 
             <motion.button
