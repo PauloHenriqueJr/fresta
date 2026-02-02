@@ -41,6 +41,7 @@ import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Upsell from "./pages/Upsell";
 import QuizLanding from "./pages/QuizLanding";
+import MemoriaPage from "./pages/memoria";
 import CheckoutQuiz from "./pages/CheckoutQuiz";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
@@ -78,10 +79,12 @@ import Gateway from "@/pages/Gateway";
 import LoginRH from "@/pages/LoginRH";
 import LoginEmployee from "@/pages/LoginEmployee";
 import { GlobalSettingsProvider } from "@/state/GlobalSettingsContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase/client";
+import React from "react";
 
 const queryClient = new QueryClient();
 
@@ -147,53 +150,122 @@ const QuizProcessor = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const [creating, setCreating] = useState(false);
+  const processingRef = useRef(false); // Mutex to prevent duplicate processing
 
   useEffect(() => {
     const processPendingQuiz = async () => {
-      if (!user) return;
+      // Mutex: Prevent concurrent executions
+      if (processingRef.current) return;
+
+      console.log("App: QuizProcessor check. User:", !!user, "Loading:", authLoading);
+
+      if (authLoading || !user) return;
 
       const savedData = localStorage.getItem("fresta_pending_quiz");
+      console.log("App: localStorage 'fresta_pending_quiz':", savedData ? "FOUND" : "EMPTY");
+
       if (!savedData) return;
 
+      // Lock immediately
+      processingRef.current = true;
+      setCreating(true);
+
+      // Remove BEFORE processing to prevent re-runs on re-renders
+      localStorage.removeItem("fresta_pending_quiz");
+
       try {
-        const parsed = JSON.parse(savedData);
-        // Evitar processar dados muito antigos (mais de 1 hora)
-        if (Date.now() - parsed.timestamp < 3600000) {
-          setCreating(true);
-          console.log("App: Criando calendário pendente do quiz...");
-
-          const calendar = await CalendarsRepository.create({
-            ownerId: user.id,
-            themeId: parsed.theme || 'surpresa',
-            title: parsed.recipient === 'namorado' ? "Nosso Amor" :
-              parsed.occasion === 'natal' ? "Feliz Natal" : "Um Presente Especial",
-            duration: 7,
-            startDate: format(new Date(), "yyyy-MM-dd"),
-            privacy: 'private',
-            status: 'ativo',
-            isPremium: false
+        // === MARKETING CONSENT UPDATE (Post-Login Fail-safe) ===
+        // OAuth doesn't allow passing custom metadata, so we save to localStorage
+        // and update the user profile AFTER successful login
+        const marketingConsent = localStorage.getItem('fresta_marketing_consent');
+        if (marketingConsent === 'true') {
+          console.log("App: Updating user metadata with marketing_opt_in...");
+          const { error } = await supabase.auth.updateUser({
+            data: { marketing_opt_in: true }
           });
-
-          localStorage.removeItem("fresta_pending_quiz");
-          toast.success("Seu presente foi criado!");
-
-          // Redireciona para o caminho correto /c/:id (evita 404)
-          navigate(`/meus-calendarios?from=quiz`, { replace: true });
-        } else {
-          localStorage.removeItem("fresta_pending_quiz");
+          if (error) {
+            console.error("App: Failed to update marketing consent:", error);
+          } else {
+            console.log("App: Marketing consent saved successfully!");
+          }
+          localStorage.removeItem('fresta_marketing_consent'); // Clean up
         }
+
+        const parsed = JSON.parse(savedData);
+
+        // Check timestamp (1 hour expiry)
+        if (Date.now() - parsed.timestamp > 3600000) {
+          console.warn("App: Quiz data expired.");
+          return;
+        }
+
+        console.log("App: Processing quiz data:", parsed);
+
+        // === THEME INFERENCE (Fixed) ===
+        // ONLY use themes that EXIST in `theme_defaults` table!
+        // Valid themes: natal, reveillon, pascoa, carnaval, saojoao, independencia, 
+        //               diadasmaes, diadospais, diadascriancas, aniversario, viagem,
+        //               estudos, custom, namoro, noivado, casamento, bodas, surpresa
+        // INVALID: metas (doesn't exist in theme_defaults!)
+
+        let inferredThemeId = 'surpresa'; // Safe default (exists in DB)
+
+        const recipient = (parsed.recipient || '').toLowerCase().trim();
+        const occasion = (parsed.occasion || '').toLowerCase().trim();
+
+        // Priority 1: Romantic recipient -> namoro
+        // "Alguém que eu amo" contains "amo", "Meu parceiro" contains "parceiro", etc.
+        if (recipient.includes('amo') || recipient.includes('amor') || recipient.includes('parceiro') || recipient.includes('namorad')) {
+          inferredThemeId = 'namoro';
+        }
+        // Priority 2: Specific occasions
+        else if (occasion.includes('aniversário') || occasion.includes('aniversario')) {
+          inferredThemeId = 'aniversario';
+        }
+        else if (occasion.includes('natal')) {
+          inferredThemeId = 'natal';
+        }
+        else if (occasion.includes('casamento')) {
+          inferredThemeId = 'casamento';
+        }
+        // Priority 3: Family
+        else if (recipient.includes('mãe') || recipient.includes('mae')) {
+          inferredThemeId = 'diadasmaes';
+        }
+        else if (recipient.includes('pai')) {
+          inferredThemeId = 'diadospais';
+        }
+        // Default: surpresa (generic, always works)
+
+        console.log("App: Theme selected:", inferredThemeId);
+
+        await CalendarsRepository.create({
+          ownerId: user.id,
+          themeId: inferredThemeId,
+          title: parsed.relationship || "Uma Memória Especial",
+          duration: 7,
+          startDate: format(new Date(), "yyyy-MM-dd"),
+          privacy: 'private',
+          status: 'ativo',
+          isPremium: false
+        });
+
+        toast.success("Seu presente foi criado!");
+
+        // Navigate with full page reload to ensure clean state
+        window.location.href = `${window.location.origin}/#/meus-calendarios?from=quiz`;
+
       } catch (e) {
-        console.error("App: Erro ao processar presente pendente:", e);
-        localStorage.removeItem("fresta_pending_quiz");
+        console.error("App: Error creating calendar:", e);
+        toast.error("Erro ao criar calendário. Tente novamente.");
       } finally {
+        processingRef.current = false;
         setCreating(false);
       }
     };
 
-    if (!authLoading && user) {
-      processPendingQuiz();
-    }
-  }, [user, authLoading, navigate]);
+    processPendingQuiz();
+  }, [user, authLoading]);
 
   // Se estiver criando ou se houver quiz pendente aguardando processamento, 
   // mostramos o loader em tela cheia para evitar renderizar a landing page por baixo.
@@ -202,7 +274,7 @@ const QuizProcessor = () => {
   if (creating || (!!user && hasPending)) {
     return (
       <div className="fixed inset-0 z-[9999] bg-slate-950 flex items-center justify-center">
-        <Loader text="Gerando seu presente agora..." />
+        <Loader text="Costurando sua memória..." />
       </div>
     );
   }
@@ -233,6 +305,7 @@ const AppContent = () => {
         <Route path="/login-rh" element={<LoginRH />} />
         <Route path="/login-colaborador" element={<LoginEmployee />} />
         <Route path="/quiz" element={<QuizLanding />} />
+        <Route path="/memoria" element={<MemoriaPage />} />
 
         {/* B2B */}
         <Route

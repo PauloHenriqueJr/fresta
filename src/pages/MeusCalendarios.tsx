@@ -194,10 +194,10 @@ const MeusCalendarios = () => {
                 <Sparkles className="w-3 h-3 text-solidroad-accent" />
                 <span className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Painel de Controle</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">
-                Meus <span className="text-solidroad-accent">Calendários</span>
+              <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-2 tracking-tight">
+                Meus <span className="text-solidroad-accent italic">Calendários</span>
               </h1>
-              <p className="text-lg text-white/60 font-medium">
+              <p className="text-lg text-white/60 font-serif italic">
                 Gerencie suas experiências e acompanhe os momentos
               </p>
             </div>
@@ -412,7 +412,7 @@ const MeusCalendarios = () => {
                       </div>
 
                       <div className="mb-8">
-                        <h3 className="text-2xl font-black text-foreground line-clamp-1 mb-2 tracking-tight group-hover:text-solidroad-accent transition-colors">
+                        <h3 className="text-2xl font-serif font-bold text-foreground line-clamp-1 mb-2 tracking-tight group-hover:text-solidroad-accent transition-colors">
                           {calendar.title}
                         </h3>
                         <div className="flex items-center gap-4">
@@ -442,6 +442,13 @@ const MeusCalendarios = () => {
               })}
             </motion.div>
           )}
+
+          {/* Micro-frase (Mobile Only - Bottom of list) */}
+          <div className="mt-12 mb-8 text-center xl:hidden opacity-60">
+            <span className="text-sm font-serif italic text-muted-foreground tracking-wide">
+              "Cuidar também é uma forma de lembrar."
+            </span>
+          </div>
         </div>
       </div>
 

@@ -186,10 +186,10 @@ const Explorar = () => {
               <span className="text-white/80 text-sm font-medium">Biblioteca de Temas</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4 leading-tight tracking-tight">
               Escolha o tema
               <br />
-              <span className="text-[#FFD166]">perfeito</span>
+              <span className="text-[#FFD166] italic">perfeito</span>
             </h1>
 
             <p className="text-lg text-white/70 mb-8 max-w-lg mx-auto">

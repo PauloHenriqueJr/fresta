@@ -36,6 +36,13 @@ export default function B2CLayout() {
                 </div>
               </div>
 
+              {/* Micro-frase (Opção 2 - Sussurro Visual) */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden xl:block">
+                <span className="text-sm font-serif italic text-muted-foreground/40 tracking-wide select-none">
+                  "Cuidar também é uma forma de lembrar."
+                </span>
+              </div>
+
               <div className="flex items-center gap-4">
                 <div className="hidden xl:flex items-center bg-muted/50 dark:bg-card rounded-2xl px-4 py-2.5 border border-border/10 group focus-within:border-solidroad-accent/50 focus-within:ring-2 focus-within:ring-solidroad-accent/10 transition-all">
                   <Search className="w-4 h-4 text-muted-foreground/60 mr-2" />

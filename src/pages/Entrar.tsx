@@ -179,8 +179,8 @@ const Entrar = () => {
 
           <div className="max-w-md mx-auto w-full">
             <div className="text-center lg:text-left mb-12">
-              <h2 className="text-4xl lg:text-5xl font-black text-foreground mb-4 tracking-tighter">Bem-vindo(a)!</h2>
-              <p className="text-muted-foreground text-lg font-medium">Faça login para continuar sua jornada.</p>
+              <h2 className="text-4xl lg:text-5xl font-serif font-bold text-foreground mb-4 tracking-tight">Bem-vindo(a)!</h2>
+              <p className="text-muted-foreground text-lg font-medium font-serif italic">Faça login para continuar sua jornada.</p>
             </div>
 
             {error && (
