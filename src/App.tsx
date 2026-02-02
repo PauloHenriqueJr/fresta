@@ -208,36 +208,54 @@ const QuizProcessor = () => {
         //               estudos, custom, namoro, noivado, casamento, bodas, surpresa
         // INVALID: metas (doesn't exist in theme_defaults!)
 
-        let inferredThemeId = 'surpresa'; // Safe default (exists in DB)
+        // === FREE THEMES FOR QUIZ (No payment required) ===
+        // These are the only themes that can be created via quiz flow
+        // Note: 'aniversario' is used as fallback (universal, already migrated)
+        const FREE_THEMES = ['aniversario', 'namoro', 'diadasmaes', 'diadospais', 'diadascriancas', 'estudos', 'metas'];
+
+        let inferredThemeId = 'aniversario'; // Safe default (free, migrated, universal)
 
         const recipient = (parsed.recipient || '').toLowerCase().trim();
         const occasion = (parsed.occasion || '').toLowerCase().trim();
 
-        // Priority 1: Romantic recipient -> namoro
-        // "Alguém que eu amo" contains "amo", "Meu parceiro" contains "parceiro", etc.
+        // === MAPEAMENTO QUIZ → TEMA ===
+        // Priority 1: Romantic recipient -> namoro (FREE)
         if (recipient.includes('amo') || recipient.includes('amor') || recipient.includes('parceiro') || recipient.includes('namorad')) {
           inferredThemeId = 'namoro';
         }
-        // Priority 2: Specific occasions
+        // Priority 2: Birthday -> aniversario (FREE) - already the default
         else if (occasion.includes('aniversário') || occasion.includes('aniversario')) {
           inferredThemeId = 'aniversario';
         }
-        else if (occasion.includes('natal')) {
-          inferredThemeId = 'natal';
+        // Priority 3: New beginning / Goals -> metas (FREE)
+        else if (occasion.includes('começo importante') || occasion.includes('novo ciclo') || occasion.includes('metas')) {
+          inferredThemeId = 'metas';
         }
-        else if (occasion.includes('casamento')) {
-          inferredThemeId = 'casamento';
-        }
-        // Priority 3: Family
-        else if (recipient.includes('mãe') || recipient.includes('mae')) {
-          inferredThemeId = 'diadasmaes';
+        // Priority 4: Family (FREE)
+        else if (recipient.includes('mãe') || recipient.includes('mae') || recipient.includes('familia') || recipient.includes('família')) {
+          if (recipient.includes('mãe') || recipient.includes('mae')) {
+            inferredThemeId = 'diadasmaes';
+          } else {
+            inferredThemeId = 'aniversario'; // Generic for "alguém da família"
+          }
         }
         else if (recipient.includes('pai')) {
           inferredThemeId = 'diadospais';
         }
-        // Default: surpresa (generic, always works)
+        // Priority 5: Friends -> aniversario (universal, celebratory)
+        else if (recipient.includes('amig')) {
+          inferredThemeId = 'aniversario';
+        }
+        // NOTE: natal, casamento, reveillon, etc. are PLUS - not available via quiz
+        // Default: aniversario (FREE, universal, works for any celebration)
 
-        console.log("App: Theme selected:", inferredThemeId);
+        // VALIDATION: Ensure only FREE themes are used
+        if (!FREE_THEMES.includes(inferredThemeId)) {
+          console.warn(`App: Theme '${inferredThemeId}' is PLUS, falling back to 'aniversario'`);
+          inferredThemeId = 'aniversario';
+        }
+
+        console.log("App: Theme selected (guaranteed FREE):", inferredThemeId);
 
         await CalendarsRepository.create({
           ownerId: user.id,
@@ -283,14 +301,21 @@ const QuizProcessor = () => {
 };
 
 const AppContent = () => {
-  const { isLoading, session } = useAuth();
+  const { isLoading, session, user } = useAuth();
   const hash = window.location.hash;
   const isAuthenticating = hash.includes("access_token=") || hash.includes("error_description=");
 
-  // Se estiver carregando auth inicial OU se tivermos um fragmento de token mas o Supabase ainda não emitiu a sessão,
-  // mostramos o Loader para evitar que o HashRouter interprete o token como uma rota inexistente (404).
-  if (isLoading) {
-    return <Loader text="Sua porta está abrindo..." />;
+  // Signs that user just came back from OAuth and we're waiting for session
+  const hasPendingQuiz = typeof window !== 'undefined' && !!localStorage.getItem("fresta_pending_quiz");
+  const hasMarketingConsent = typeof window !== 'undefined' && !!localStorage.getItem("fresta_marketing_consent");
+  const isReturningFromOAuth = hasPendingQuiz || hasMarketingConsent;
+
+  // Show loader if:
+  // 1. Auth is still loading
+  // 2. There's an OAuth token in URL being processed
+  // 3. We have evidence of returning from OAuth (pending quiz/consent) but no user yet
+  if (isLoading || isAuthenticating || (isReturningFromOAuth && !user)) {
+    return <Loader text="Preparando sua experiência..." />;
   }
 
   return (
