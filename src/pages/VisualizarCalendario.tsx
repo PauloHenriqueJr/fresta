@@ -83,17 +83,6 @@ const VisualizarCalendario = () => {
   // Show watermark only if NOT premium (any of the conditions)
   const isOwnerPlusOrAdmin = calendarIsPremium || ownerIsPremiumFromRPC || ownerRole === 'admin';
 
-  // DEBUG: Trace watermark visibility calculation
-  console.log('[WATERMARK DEBUG]', {
-    calendarId: calendar?.id,
-    themeId: calendar?.theme_id,
-    calendarIsPremium,
-    ownerIsPremiumFromRPC,
-    ownerRole,
-    isOwnerPlusOrAdmin,
-    showWatermark: !isOwnerPlusOrAdmin,
-    profilesData: (calendar as any)?.profiles
-  });
 
   const getRedactedContent = (day: CalendarDay) => {
     if (!calendar) return { type: 'text', message: "", title: "" };
