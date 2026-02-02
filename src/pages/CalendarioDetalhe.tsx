@@ -14,7 +14,7 @@ import { ptBR } from "date-fns/locale";
 import { getThemeConfig } from "@/lib/themes/registry";
 import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
 import { cn } from "@/lib/utils";
-import { LoveLetterModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal } from "@/lib/themes/namoro/modals";
 
 type CalendarType = Tables<"calendars"> & {
   primary_color?: string;

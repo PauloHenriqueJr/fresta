@@ -8,46 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import { getThemeConfig, type PlusThemeConfig } from "./registry";
 
-// =============================================================================
-// RE-EXPORTS FOR BACKWARD COMPATIBILITY
-// =============================================================================
-// These re-exports allow existing files to continue importing from themeComponents
-// while the actual implementations have been moved to their respective theme folders.
-
-// Modals
-export { LoveLetterModal } from "@/lib/themes/namoro/modals";
-export { LoveLockedModal, LockedModal } from "@/lib/themes/shared/LockedModal";
-
-// Theme-specific Locked Modal Aliases (wrap LockedModal with preset theme)
-import { LockedModal as GenericLockedModal } from "@/lib/themes/shared/LockedModal";
-
-type LockedModalAliasProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  dayNumber: number;
-  unlockDate: Date;
-  onNotify?: () => void;
-};
-
-export const NatalLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="natal" />;
-export const ReveillonLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="reveillon" />;
-export const CarnavalLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="carnaval" />;
-export const SaoJoaoLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="saojoao" />;
-export const PascoaLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="pascoa" />;
-export const AniversarioLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="aniversario" />;
-export const CasamentoLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="casamento" />;
-export const MetasLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="metas" />;
-export const DiadasmaesLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="diadasmaes" />;
-export const DiadospaisLockedModal = (props: LockedModalAliasProps) => <GenericLockedModal {...props} theme="diadospais" />;
-
-// Wedding Components (decorations)
-export { WeddingShower, WeddingTopDecorations, WeddingBackground, WeddingDecorations } from "@/lib/themes/casamento/decorations";
-
-// Wedding Components (UI)
-export { WeddingHeader, WeddingProgress, WeddingDayCard, WeddingSpecialCard, WeddingDiarySection, WeddingFooter } from "@/lib/themes/casamento/components";
-
-// =============================================================================
-
+// Note: Theme-specific components have been moved to their respective folders:
+// - Modals: src/lib/themes/[theme]/modals.tsx
+// - Decorations: src/lib/themes/[theme]/decorations.tsx  
+// - Shared: src/lib/themes/shared/LockedModal.tsx
 
 // --- Legacy Compatibility Aliases ---
 // These allow older theme-specific pages to continue working after the standardization

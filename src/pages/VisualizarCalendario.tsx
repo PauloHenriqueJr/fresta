@@ -20,11 +20,9 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
 import {
-  LoveLetterModal,
-  LoveLockedModal,
-  ReveillonLockedModal,
-  NatalLockedModal
-} from "@/lib/themes/themeComponents";
+  LoveLetterModal
+} from "@/lib/themes/namoro/modals";
+import { LockedModal } from "@/lib/themes/shared/LockedModal";
 import { UniversalTemplate } from "@/components/themes/UniversalTemplate";
 import { scheduleDoorReminder, subscribeToPush, promptInstall } from "@/lib/push/notifications";
 import { shareContent } from "@/lib/utils/share-utils";
@@ -702,44 +700,13 @@ const VisualizarCalendario = () => {
 
         {/* Locked Modal */}
         {lockedModalData && (
-          calendar.theme_id === 'namoro' ? (
-            <LoveLockedModal
-              isOpen={lockedModalData.isOpen}
-              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
-              dayNumber={lockedModalData.day}
-              unlockDate={lockedModalData.date}
-              theme="namoro"
-            />
-          ) : calendar.theme_id === 'casamento' ? (
-            <LoveLockedModal
-              isOpen={lockedModalData.isOpen}
-              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
-              dayNumber={lockedModalData.day}
-              unlockDate={lockedModalData.date}
-              theme="casamento"
-            />
-          ) : calendar.theme_id === 'reveillon' ? (
-            <ReveillonLockedModal
-              isOpen={lockedModalData.isOpen}
-              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
-              dayNumber={lockedModalData.day}
-              unlockDate={lockedModalData.date}
-            />
-          ) : calendar.theme_id === 'natal' ? (
-            <NatalLockedModal
-              isOpen={lockedModalData.isOpen}
-              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
-              timeLeft={`${timeLeft.hours}h ${timeLeft.minutes}m`}
-            />
-          ) : (
-            <LoveLockedModal
-              isOpen={lockedModalData.isOpen}
-              onClose={() => { setLockedModalData(null); setLockedDay(null); }}
-              dayNumber={lockedModalData.day}
-              unlockDate={lockedModalData.date}
-              theme={calendar.theme_id}
-            />
-          )
+          <LockedModal
+            isOpen={lockedModalData.isOpen}
+            onClose={() => { setLockedModalData(null); setLockedDay(null); }}
+            dayNumber={lockedModalData.day}
+            unlockDate={lockedModalData.date}
+            theme={calendar.theme_id}
+          />
         )}
       </div>
     );
@@ -1049,30 +1016,14 @@ const VisualizarCalendario = () => {
           />
         )}
 
-        {calendar.theme_id === 'reveillon' ? (
-          <ReveillonLockedModal
-            isOpen={!!lockedModalData?.isOpen}
-            onClose={() => setLockedModalData(null)}
-            dayNumber={lockedModalData?.day || 0}
-            unlockDate={lockedModalData?.date || new Date()}
-            onNotify={handleNotifyMe}
-          />
-        ) : calendar.theme_id === 'natal' ? (
-          <NatalLockedModal
-            isOpen={!!lockedModalData?.isOpen}
-            onClose={() => setLockedModalData(null)}
-            timeLeft={lockedModalData?.date ? `${Math.ceil((lockedModalData.date.getTime() - Date.now()) / (1000 * 60 * 60))}h` : undefined}
-          />
-        ) : (
-          <LoveLockedModal
-            isOpen={!!lockedModalData?.isOpen}
-            onClose={() => setLockedModalData(null)}
-            dayNumber={lockedModalData?.day || 0}
-            unlockDate={lockedModalData?.date || new Date()}
-            onNotify={handleNotifyMe}
-            theme={calendar.theme_id}
-          />
-        )}
+        <LockedModal
+          isOpen={!!lockedModalData?.isOpen}
+          onClose={() => setLockedModalData(null)}
+          dayNumber={lockedModalData?.day || 0}
+          unlockDate={lockedModalData?.date || new Date()}
+          onNotify={handleNotifyMe}
+          theme={calendar.theme_id}
+        />
 
         {!isOwnerPlusOrAdmin && (
           <div className="py-12 flex justify-center relative z-10">
@@ -1143,30 +1094,14 @@ const VisualizarCalendario = () => {
         />
       )}
 
-      {calendar.theme_id === 'reveillon' ? (
-        <ReveillonLockedModal
-          isOpen={!!lockedModalData?.isOpen}
-          onClose={() => setLockedModalData(null)}
-          dayNumber={lockedModalData?.day || 0}
-          unlockDate={lockedModalData?.date || new Date()}
-          onNotify={handleNotifyMe}
-        />
-      ) : calendar.theme_id === 'natal' ? (
-        <NatalLockedModal
-          isOpen={!!lockedModalData?.isOpen}
-          onClose={() => setLockedModalData(null)}
-          timeLeft={lockedModalData?.date ? `${Math.ceil((lockedModalData.date.getTime() - Date.now()) / (1000 * 60 * 60))}h` : undefined}
-        />
-      ) : (
-        <LoveLockedModal
-          isOpen={!!lockedModalData?.isOpen}
-          onClose={() => setLockedModalData(null)}
-          dayNumber={lockedModalData?.day || 0}
-          unlockDate={lockedModalData?.date || new Date()}
-          onNotify={handleNotifyMe}
-          theme={calendar.theme_id}
-        />
-      )}
+      <LockedModal
+        isOpen={!!lockedModalData?.isOpen}
+        onClose={() => setLockedModalData(null)}
+        dayNumber={lockedModalData?.day || 0}
+        unlockDate={lockedModalData?.date || new Date()}
+        onNotify={handleNotifyMe}
+        theme={calendar.theme_id}
+      />
 
       {!isOwnerPlusOrAdmin && (
         <div className="py-12 flex justify-center relative z-10">
