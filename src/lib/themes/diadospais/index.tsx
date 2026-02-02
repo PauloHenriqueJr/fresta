@@ -3,3 +3,4 @@
 
 export { diadospaisTheme } from './config';
 export { DiadospaisDecorations, DiadospaisFloatingIcons, DiadospaisStripes } from './decorations';
+export { DiadospaisModal, diadospaisLockedConfig } from './modals';

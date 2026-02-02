@@ -205,44 +205,84 @@ const imageByKey: Record<...> = {
 
 ---
 
-## Step 7: Modal Configuration (REQUIRED!)
+## Step 7: Modal Configuration - MODULAR PATTERN (REQUIRED!)
 
-> ⚠️ **MANDATORY**: Every theme needs modal styling configured. Skip this and modals will look broken!
+> ⚠️ **MANDATORY**: Every theme needs modal styling configured in its own folder. 
 
-### 7.1: Day Surprise Modal - Create Theme-Specific Modal
+### Architecture Overview
 
-1. **Create the modal** in `src/lib/themes/themeComponents.tsx`:
+Following SOLID principles (SRP - Single Responsibility), modals are stored in each theme's folder:
+
+```
+src/lib/themes/{theme_id}/
+├── config.tsx       # Theme identity and colors
+├── decorations.tsx  # Floating effects
+├── modals.tsx       # [MODALS] Theme-specific modals ← NEW
+└── index.tsx        # Re-exports everything
+```
+
+Shared types are in `src/lib/themes/shared/types.ts`.
+
+### 7.1: Create Theme Modal (`modals.tsx`)
+
+Create `src/lib/themes/{theme_id}/modals.tsx`:
 
 ```tsx
-// --- YourTheme Modal ---
-interface YourThemeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  content: {
-    type: 'text' | 'image' | 'video';
-    title?: string;
-    message?: string;
-    mediaUrl?: string;
-  };
-}
+import { motion } from "framer-motion";
+import { X, YourIcon } from "lucide-react";
+import type { BaseModalProps } from "../shared/types";
 
-export const YourThemeModal = ({ isOpen, onClose, content }: YourThemeModalProps) => {
+export const YourThemeModal = ({ isOpen, onClose, content }: BaseModalProps) => {
   if (!isOpen) return null;
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-yourcolor/80 backdrop-blur-sm">
-      {/* Modal content with theme-specific styling */}
+      {/* Modal with theme-specific styling */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="relative w-full max-w-[360px] max-h-[85vh] bg-white rounded-3xl"
+      >
+        {/* Close, Header, Content, Button */}
+      </motion.div>
     </div>
   );
 };
+
+// Locked Modal Config - used by LoveLockedModal for this theme
+export const yourthemeLockedConfig = {
+  title: "Calma! 🎯",
+  message: "Essa surpresa está guardada para o momento certo!",
+  buttonColor: "bg-yourcolor-500 hover:bg-yourcolor-600",
+  iconColor: "text-yourcolor-500",
+  bgColor: "bg-yourcolor-50 dark:bg-zinc-900",
+  borderColor: "border-yourcolor-200 dark:border-yourcolor-900",
+  textColor: "text-yourcolor-900 dark:text-yourcolor-100",
+  descColor: "text-yourcolor-600/80 dark:text-yourcolor-300/80",
+  icon: YourIcon
+};
 ```
 
-2. **Route to it** in `src/components/calendar/DaySurpriseModal.tsx`:
+### 7.2: Update Theme Index (`index.tsx`)
+
+Add the modal exports:
 
 ```tsx
-// Add import at top
-import { YourThemeModal } from "@/lib/themes/themeComponents";
+// src/lib/themes/{theme_id}/index.tsx
+export { yourthemeTheme } from './config';
+export { YourthemeDecorations } from './decorations';
+export { YourThemeModal, yourthemeLockedConfig } from './modals';  // ADD THIS
+```
 
-// Add condition before getGradientClass
+### 7.3: Route Modal in DaySurpriseModal
+
+Update `src/components/calendar/DaySurpriseModal.tsx`:
+
+```tsx
+// Add import from theme folder
+import { YourThemeModal } from "@/lib/themes/yourtheme/modals";
+
+// Add condition in component
 if (theme === "yourtheme") {
   return (
     <YourThemeModal
@@ -259,34 +299,28 @@ if (theme === "yourtheme") {
 }
 ```
 
-3. **Also add to getGradientClass, getButtonClass, getIcon** functions for fallback styling.
+### 7.4: Register Locked Config in LoveLockedModal
 
-### 7.2: Locked Modal - Add Theme Config
-
-The `LoveLockedModal` uses a `themeConfig` object. Add your theme to it in `themeComponents.tsx`:
+In `src/lib/themes/themeComponents.tsx`, import and add to `themeConfig`:
 
 ```tsx
-// In LoveLockedModal's themeConfig object (around line 826)
-yourtheme: {
-  title: "Calma! 🎯",
-  message: "Essa surpresa está guardada para o momento certo!",
-  buttonColor: "bg-yourcolor-500 hover:bg-yourcolor-600",
-  iconColor: "text-yourcolor-500",
-  bgColor: "bg-yourcolor-50 dark:bg-zinc-900",
-  borderColor: "border-yourcolor-200 dark:border-yourcolor-900",
-  textColor: "text-yourcolor-900 dark:text-yourcolor-100",
-  descColor: "text-yourcolor-600/80 dark:text-yourcolor-300/80",
-  icon: YourIcon
-},
+import { yourthemeLockedConfig } from './yourtheme/modals';
+
+// In LoveLockedModal's themeConfig object
+const themeConfig = {
+  // ... existing themes
+  yourtheme: yourthemeLockedConfig,  // ADD THIS
+};
 ```
 
 ### Modal Files Reference
 
-| File | What it controls |
-|------|------------------|
-| `DaySurpriseModal.tsx` | Routes to theme-specific modals for day content |
-| `themeComponents.tsx` | Contains all theme modals + `LoveLockedModal` theme configs |
-| `VisualizarCalendario.tsx` | Uses `DaySurpriseModal` + `LoveLockedModal` |
+| File | Location | Purpose |
+|------|----------|---------|
+| `modals.tsx` | `themes/{theme}/` | Theme-specific surprise modal |
+| `shared/types.ts` | `themes/shared/` | Shared modal interfaces |
+| `DaySurpriseModal.tsx` | `components/calendar/` | Routes to theme modals |
+| `themeComponents.tsx` | `themes/` | Contains `LoveLockedModal` + legacy modals |
 
 ---
 

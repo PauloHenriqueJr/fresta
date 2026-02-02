@@ -3,3 +3,4 @@
 
 export { diadasmaesTheme } from './config';
 export { DiadasmaesDecorations, DiadasmaesFloatingIcons, DiadasmaesPetals } from './decorations';
+export { DiadasmaesModal, diadasmaesLockedConfig } from './modals';

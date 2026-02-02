@@ -3,3 +3,4 @@
 
 export { metasTheme } from './config';
 export { MetasDecorations, MetasFloatingIcons, MetasStars, MetasShootingStar } from './decorations';
+export { MetasGoalModal, metasLockedConfig } from './modals';

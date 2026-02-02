@@ -17,7 +17,11 @@ interface DaySurpriseModalProps {
   isTemplate?: boolean;
 }
 
-import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal, PascoaEggModal, ReveillonFireworksModal, NatalFireworksModal, WeddingCardModal, MetasGoalModal, DiadasmaesModal, DiadospaisModal } from "@/lib/themes/themeComponents";
+import { LoveLetterModal, CarnavalTicketModal, BirthdayCardModal, SaoJoaoBarracaModal, PascoaEggModal, ReveillonFireworksModal, NatalFireworksModal, WeddingCardModal } from "@/lib/themes/themeComponents";
+// Theme-specific modals from their folders
+import { MetasGoalModal } from "@/lib/themes/metas/modals";
+import { DiadasmaesModal } from "@/lib/themes/diadasmaes/modals";
+import { DiadospaisModal } from "@/lib/themes/diadospais/modals";
 
 const DaySurpriseModal = ({
   isOpen,
