@@ -3,3 +3,4 @@
 
 export { carnavalTheme } from './config';
 export { CarnavalDecorations, CarnavalFloatingIcons, CarnavalHangingDecorations } from './decorations';
+export { CarnavalTicketModal, carnavalLockedConfig } from './modals';

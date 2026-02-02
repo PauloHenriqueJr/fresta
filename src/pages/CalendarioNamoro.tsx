@@ -11,11 +11,11 @@ import {
   UnlockedDayCard,
   LoveQuote,
   LoveFooter,
-  LoveLetterModal,
   EditorHeader,
   EditorFooter,
   EmptyDayCard
 } from "@/lib/themes/themeComponents";
+import { LoveLetterModal } from "@/lib/themes/namoro/modals";
 
 export default function CalendarioNamoro() {
   const navigate = useNavigate();

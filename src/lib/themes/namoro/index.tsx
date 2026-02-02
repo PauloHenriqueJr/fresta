@@ -3,3 +3,4 @@
 
 export { namoroTheme } from './config';
 export { HangingHearts } from './decorations';
+export { LoveLetterModal, namoroLockedConfig } from './modals';

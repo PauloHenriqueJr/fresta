@@ -3,3 +3,4 @@
 
 export { pascoaTheme } from './config';
 export { PascoaDecorations, PascoaFloatingEggs, PascoaBunnyEars, PascoaEggsBorder } from './decorations';
+export { PascoaEggModal, pascoaLockedConfig } from './modals';

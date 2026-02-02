@@ -160,12 +160,10 @@ const QuizProcessor = () => {
       // Mutex: Prevent concurrent executions
       if (processingRef.current) return;
 
-      console.log("App: QuizProcessor check. User:", !!user, "Loading:", authLoading);
 
       if (authLoading || !user) return;
 
       const savedData = localStorage.getItem("fresta_pending_quiz");
-      console.log("App: localStorage 'fresta_pending_quiz':", savedData ? "FOUND" : "EMPTY");
 
       if (!savedData) return;
 

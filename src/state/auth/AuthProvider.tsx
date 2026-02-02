@@ -108,7 +108,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, newSession) => {
         if (!mounted) return;
 
-        console.log("AuthProvider: Auth event observed:", event);
 
         // Update core state
         setSession(newSession);
@@ -119,9 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // If we have an auth fragment, don't release loading on INITIAL_SESSION if it's null
           // Supabase will emit SIGNED_IN shortly after processing the hash
           if (event === 'INITIAL_SESSION' && !newSession && hasAuthFragment) {
-            console.log("AuthProvider: INITIAL_SESSION null but fragment detected, holding loading state...");
           } else {
-            console.log("AuthProvider: Releasing loading state via event", event);
             setIsLoading(false);
           }
         }
@@ -166,7 +163,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (!hasAuthFragment) {
         // Only release loading IF we didn't see an auth fragment
         // If we DO have a fragment, let onAuthStateChange handle it
-        console.log("AuthProvider: No session and no fragment, releasing loading");
         setIsLoading(false);
       }
     }).catch(err => {

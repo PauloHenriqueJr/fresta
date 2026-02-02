@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { HangingHearts, FlagBanner, WeddingShower, WeddingTopDecorations } from "@/lib/themes/themeComponents";
+import { HangingHearts } from "@/lib/themes/namoro/decorations";
+import { FlagBanner } from "@/lib/themes/themeComponents";
+import { WeddingShower, WeddingTopDecorations } from "@/lib/themes/casamento/decorations";
 
 // Import mascots
 import mascotNatal from "@/assets/mascot-natal.jpg";

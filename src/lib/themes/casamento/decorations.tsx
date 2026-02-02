@@ -4,6 +4,27 @@
 import { motion } from "framer-motion";
 
 /**
+ * WeddingBackground - Elegant lace pattern background with soft glows
+ */
+export const WeddingBackground = () => {
+    return (
+        <div className="fixed inset-0 z-[-1] bg-[#FDFBF7] pointer-events-none text-[#D4AF37]/20">
+            {/* Lace Pattern */}
+            <div
+                className="absolute inset-0 opacity-[0.4]"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10zm0-30c-5 0-10-5-10-10S45 0 50 0s10 5 10 10-5 10-10 10zm0 60c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10zm30-30c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10zm-60 0c-5 0-10-5-10-10s5-10 10-10 10 5 10 10-5 10-10 10z' fill='%23D4AF37' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+                    backgroundSize: '100px 100px'
+                }}
+            />
+            {/* Soft Glows */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,#D4AF37_0%,transparent_70%)] opacity-[0.05] blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle,#F7E7CE_0%,transparent_70%)] opacity-[0.08] blur-3xl pointer-events-none" />
+        </div>
+    );
+};
+
+/**
  * WeddingTopDecorations - Distributed flowers at the top
  */
 export const WeddingTopDecorations = () => {
