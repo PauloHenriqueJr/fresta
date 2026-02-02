@@ -3,3 +3,4 @@
 
 export { aniversarioTheme } from './config';
 export { AniversarioDecorations, AniversarioFloatingIcons, AniversarioBalloons, AniversarioConfetti } from './decorations';
+export { BirthdayCardModal, aniversarioLockedConfig } from './modals';

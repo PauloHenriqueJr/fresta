@@ -3,3 +3,4 @@
 
 export { weddingTheme } from './config';
 export { WeddingDecorations, WeddingShower, WeddingTopDecorations } from './decorations';
+export { WeddingCardModal, casamentoLockedConfig } from './modals';

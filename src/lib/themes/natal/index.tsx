@@ -3,3 +3,4 @@
 
 export { natalTheme } from './config';
 export { NatalDecorationsFull, NatalGuirlanda, NatalNeve, NatalFloatingIcons, NatalLuzes } from './decorations';
+export { NatalFireworksModal, natalLockedConfig } from './modals';

@@ -12,6 +12,7 @@ export interface BaseModalProps {
   onClose: () => void;
   content: ModalContentProps;
   config?: any;
+  theme?: string;
 }
 
 export interface LockedModalProps {

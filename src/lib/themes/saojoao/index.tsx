@@ -3,3 +3,4 @@
 
 export { saojoaoTheme } from './config';
 export { SaoJoaoDecorations, SaoJoaoBandeirinhas, SaoJoaoFloatingIcons } from './decorations';
+export { SaoJoaoBarracaModal, saojoaoLockedConfig } from './modals';
