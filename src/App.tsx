@@ -81,6 +81,7 @@ import BulkInvite from "@/pages/b2b/BulkInvite";
 import Gateway from "@/pages/Gateway";
 import LoginRH from "@/pages/LoginRH";
 import LoginEmployee from "@/pages/LoginEmployee";
+import RedefinirSenha from "@/pages/RedefinirSenha";
 import { GlobalSettingsProvider } from "@/state/GlobalSettingsContext";
 import { useEffect, useState, useRef } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -331,6 +332,7 @@ const AppContent = () => {
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />
         <Route path="/login-colaborador" element={<LoginEmployee />} />
+        <Route path="/redefinir-senha" element={<RedefinirSenha />} />
         <Route path="/quiz" element={<QuizLanding />} />
         <Route path="/memoria" element={<MemoriaPage />} />
 

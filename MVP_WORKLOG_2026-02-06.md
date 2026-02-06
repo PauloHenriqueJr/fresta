@@ -81,10 +81,24 @@ As telas B2B estavam usando `@/lib/offline/db` (localStorage). Isso não serve p
   - `src/pages/b2b/B2BCriarCampanha.tsx`
   - `src/pages/b2b/B2BCampanhaDetalhe.tsx`
   - `src/pages/b2b/B2BEquipe.tsx`
-  - `src/pages/b2b/B2BBranding.tsx`
+- `src/pages/b2b/B2BBranding.tsx`
   - Ajustes complementares em componentes:
     - `src/components/b2b/B2BCampaignsTable.tsx`
     - `src/components/b2b/B2BCampaignsKanban.tsx`
+
+## 3.1) Login RH (sem magic link)
+
+### Por que
+Você pediu explicitamente que RH **não** acesse via link mágico. Então o fluxo correto é e-mail/senha (com recuperação de senha).
+
+### O que ficou
+- `src/pages/LoginRH.tsx`
+  - Login real com `supabase.auth.signInWithPassword(...)`.
+  - Recuperação de senha com `supabase.auth.resetPasswordForEmail(...)` e redirect compatível com HashRouter.
+- `src/pages/RedefinirSenha.tsx`
+  - Tela de redefinição que chama `supabase.auth.updateUser({ password })`.
+- `src/App.tsx`
+  - Rota adicionada: `/redefinir-senha`.
 
 ## 4) RPCs/migrations que o código usa (mas não estavam versionadas)
 
@@ -110,4 +124,3 @@ As telas B2B estavam usando `@/lib/offline/db` (localStorage). Isso não serve p
 - Garantir RLS/policies no Supabase para:
   - `b2b_*`, `calendars`, `calendar_days`, `profiles`, `user_roles`, `site_settings`, etc.
 - Consolidar schema/migrations “baseline” (hoje o repo tem migrations pontuais; seu banco real está “à frente”).
-
