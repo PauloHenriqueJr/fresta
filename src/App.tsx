@@ -212,7 +212,7 @@ const QuizProcessor = () => {
         // === FREE THEMES FOR QUIZ (No payment required) ===
         // These are the only themes that can be created via quiz flow
         // Note: 'aniversario' is used as fallback (universal, already migrated)
-        const FREE_THEMES = ['aniversario', 'namoro', 'diadasmaes', 'diadospais', 'diadascriancas', 'estudos', 'metas'];
+        const FREE_THEMES = ['aniversario', 'namoro', 'diadasmaes', 'diadospais', 'diadascriancas', 'estudos', 'metas', 'carnaval'];
 
         let inferredThemeId = 'aniversario'; // Safe default (free, migrated, universal)
 
