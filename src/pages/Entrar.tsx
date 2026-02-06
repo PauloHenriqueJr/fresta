@@ -194,7 +194,7 @@ const Entrar = () => {
               </motion.div>
             )}
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Google Button */}
               <button
                 onClick={handleGoogle}
@@ -211,8 +211,49 @@ const Entrar = () => {
                 <span>Entrar com Google</span>
               </button>
 
+              {/* Divider */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-border/50" />
+                <span className="text-xs text-muted-foreground font-medium">ou</span>
+                <div className="flex-1 h-px bg-border/50" />
+              </div>
+
+              {/* Email Magic Link */}
+              <div className="space-y-3">
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Seu email"
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/10 focus:border-primary/30 focus:ring-2 focus:ring-primary/10 transition-all text-foreground placeholder:text-muted-foreground bg-background"
+                    disabled={submitting}
+                    onKeyDown={(e) => e.key === 'Enter' && handleEmail()}
+                  />
+                </div>
+                <button
+                  onClick={handleEmail}
+                  disabled={submitting || !email.trim()}
+                  className="w-full font-bold py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-white shadow-lg hover:shadow-xl"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Enviando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      <span>Receber link mágico</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               <p className="text-center text-xs text-muted-foreground">
-                Use sua conta Google para entrar de forma rápida e segura
+                Enviamos um link para você entrar sem senha
               </p>
             </div>
 
