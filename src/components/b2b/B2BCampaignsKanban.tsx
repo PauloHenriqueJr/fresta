@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import type { B2BCampaign } from "@/lib/offline/types";
+import type { Tables } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import { Clock, CheckCircle2, Archive, Eye, MousePointer2, Layout } from "lucide-react";
 
 type Props = {
-  campaigns: B2BCampaign[];
+  campaigns: Tables<'b2b_campaigns'>[];
   onOpen: (id: string) => void;
 };
 
-const columns: { key: B2BCampaign["status"]; label: string; icon: any; color: string }[] = [
+const columns: { key: Tables<'b2b_campaigns'>["status"]; label: string; icon: any; color: string }[] = [
   { key: "draft", label: "Rascunho", icon: Clock, color: "text-muted-foreground" },
   { key: "active", label: "Ativa", icon: CheckCircle2, color: "text-[#2D7A5F]" },
   { key: "archived", label: "Arquivada", icon: Archive, color: "text-muted-foreground/60" },
@@ -16,7 +16,7 @@ const columns: { key: B2BCampaign["status"]; label: string; icon: any; color: st
 
 export default function B2BCampaignsKanban({ campaigns, onOpen }: Props) {
   const byStatus = useMemo(() => {
-    const map = new Map<B2BCampaign["status"], B2BCampaign[]>();
+    const map = new Map<Tables<'b2b_campaigns'>["status"], Tables<'b2b_campaigns'>[]>();
     columns.forEach((c) => map.set(c.key, []));
     for (const c of campaigns) {
       map.get(c.status)?.push(c);
@@ -50,22 +50,22 @@ export default function B2BCampaignsKanban({ campaigns, onOpen }: Props) {
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div className="min-w-0">
                       <p className="font-bold text-[#0E220E] dark:text-white truncate group-hover:text-[#F6D045] transition-colors">{c.title}</p>
-                      <p className="text-[10px] font-medium text-muted-foreground/60 dark:text-white/30 uppercase mt-0.5">{c.theme}</p>
+                      <p className="text-[10px] font-medium text-muted-foreground/60 dark:text-white/30 uppercase mt-0.5">{(c as any).theme_id}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 py-3 border-t border-border/5">
                     <div className="flex flex-col">
                       <p className="text-[10px] font-bold text-muted-foreground/40 uppercase">Views</p>
-                      <p className="text-sm font-black text-[#0E220E] dark:text-white">{c.stats.views}</p>
+                      <p className="text-sm font-black text-[#0E220E] dark:text-white">{(c as any).views || 0}</p>
                     </div>
                     <div className="flex flex-col">
                       <p className="text-[10px] font-bold text-muted-foreground/40 uppercase">Opens</p>
-                      <p className="text-sm font-black text-[#0E220E] dark:text-white">{c.stats.opens}</p>
+                      <p className="text-sm font-black text-[#0E220E] dark:text-white">{(c as any).opens || 0}</p>
                     </div>
                     <div className="flex flex-col">
                       <p className="text-[10px] font-bold text-muted-foreground/40 uppercase">Leads</p>
-                      <p className="text-sm font-black text-[#0E220E] dark:text-white">{c.stats.leads}</p>
+                      <p className="text-sm font-black text-[#0E220E] dark:text-white">{(c as any).leads || 0}</p>
                     </div>
                   </div>
 

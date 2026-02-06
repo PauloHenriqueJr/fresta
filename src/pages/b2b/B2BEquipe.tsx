@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { UserPlus, UserCircle2 } from "lucide-react";
+import { UserPlus, UserCircle2, Loader2 } from "lucide-react";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { db } from "@/lib/offline/db";
 import { useToast } from "@/hooks/use-toast";
-import type { B2BRole } from "@/lib/offline/types";
 import { cn } from "@/lib/utils";
+import { B2BRepository } from "@/lib/data/B2BRepository";
+
+type B2BRole = "owner" | "admin" | "editor" | "analyst";
 
 const roleOptions: { value: B2BRole; label: string }[] = [
   { value: "owner", label: "Owner" },
@@ -39,13 +40,33 @@ export default function B2BEquipe() {
   const { profile } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!profile) return;
-    db.ensureB2BOrg(profile.id, profile.email);
-  }, [profile]);
+  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState<any>(null);
+  const [members, setMembers] = useState<any[]>([]);
 
-  const org = useMemo(() => (profile ? db.getB2BOrgByOwner(profile.id) : null), [profile]);
-  const members = useMemo(() => (org ? db.listB2BMembers(org.id) : []), [org]);
+  useEffect(() => {
+    const run = async () => {
+      if (!profile) return;
+      setLoading(true);
+      try {
+        const ensured = await B2BRepository.ensureOrgForOwner({
+          ownerId: profile.id,
+          ownerEmail: (profile as any).email,
+          ownerName: (profile as any).display_name,
+        });
+        setOrg(ensured);
+        const mems = await B2BRepository.getMembers((ensured as any).id);
+        setMembers((mems as any[]) || []);
+      } catch (e) {
+        console.error("B2BEquipe load error:", e);
+        setOrg(null);
+        setMembers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, [profile]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -53,20 +74,41 @@ export default function B2BEquipe() {
 
   const canInvite = name.trim() && email.trim() && !!org;
 
-  const invite = () => {
+  const invite = async () => {
     if (!org || !canInvite) return;
     const initials = getInitials(name);
     // Store initials/color marker instead of emoji. 
     // Ideally we'd change the DB schema, but for compatibility we'll store a special marker or just empty string 
     // and rely on name derived avatar in UI. 
     // Since 'avatar' field exists, let's store the initials there for now.
-    db.inviteB2BMember(org.id, { name: name.trim(), email: email.trim(), role, avatar: initials });
+    try {
+      await B2BRepository.inviteMember((org as any).id, {
+        name: name.trim(),
+        email: email.trim(),
+        role,
+        avatar: initials,
+      });
 
-    toast({ title: "Convite criado", description: "Membro adicionado à equipe." });
-    setName("");
-    setEmail("");
-    setRole("editor");
+      const mems = await B2BRepository.getMembers((org as any).id);
+      setMembers((mems as any[]) || []);
+
+      toast({ title: "Convite criado", description: "Membro adicionado à equipe." });
+      setName("");
+      setEmail("");
+      setRole("editor");
+    } catch (e: any) {
+      console.error("inviteMember error:", e);
+      toast({ title: "Erro ao convidar", description: e?.message || "Tente novamente.", variant: "destructive" });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F6D045]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">

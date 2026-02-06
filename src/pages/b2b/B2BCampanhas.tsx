@@ -22,10 +22,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { db } from "@/lib/offline/db";
 import B2BCampaignsTable from "@/components/b2b/B2BCampaignsTable";
 import B2BCampaignsKanban from "@/components/b2b/B2BCampaignsKanban";
 import { cn } from "@/lib/utils";
+import { B2BRepository } from "@/lib/data/B2BRepository";
+import { Loader2 } from "lucide-react";
 
 // Premium Pastel cards
 const CARD_COLORS = [
@@ -42,19 +43,47 @@ export default function B2BCampanhas() {
   const [q, setQ] = useState("");
   const [desktopView, setDesktopView] = useState<"table" | "kanban">("table");
 
+  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState<any>(null);
+  const [allCampaigns, setAllCampaigns] = useState<any[]>([]);
+
   useEffect(() => {
-    if (!profile) return;
-    db.ensureB2BOrg(profile.id, profile.email);
+    const run = async () => {
+      if (!profile) return;
+      setLoading(true);
+      try {
+        const ensured = await B2BRepository.ensureOrgForOwner({
+          ownerId: profile.id,
+          ownerEmail: (profile as any).email,
+          ownerName: (profile as any).display_name,
+        });
+        setOrg(ensured);
+        const camps = await B2BRepository.listCampaigns((ensured as any).id);
+        setAllCampaigns((camps as any[]) || []);
+      } catch (e) {
+        console.error("B2BCampanhas load error:", e);
+        setOrg(null);
+        setAllCampaigns([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
   }, [profile]);
 
-  const org = useMemo(() => (profile ? db.getB2BOrgByOwner(profile.id) : null), [profile]);
   const campaigns = useMemo(() => {
-    if (!org) return [];
-    const all = db.listB2BCampaigns(org.id);
     const query = q.trim().toLowerCase();
-    if (!query) return all;
-    return all.filter((c) => c.title.toLowerCase().includes(query));
-  }, [org, q]);
+    if (!query) return allCampaigns;
+    return allCampaigns.filter((c) => String((c as any).title || "").toLowerCase().includes(query));
+  }, [allCampaigns, q]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F6D045]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F9F5] -m-6 md:-m-10 pb-20">
@@ -226,12 +255,12 @@ export default function B2BCampanhas() {
                 <div className="mt-6 flex items-center justify-between border-t border-black/5 dark:border-white/5 pt-4">
                   <div className="flex gap-4 text-xs font-semibold text-solidroad-text/60 dark:text-white/40">
                     <div className="flex flex-col">
-                      <span className="text-lg font-black text-solidroad-text dark:text-white leading-none">{c.stats.views}</span>
+                      <span className="text-lg font-black text-solidroad-text dark:text-white leading-none">{(c as any).views || 0}</span>
                       <span className="text-[10px] uppercase tracking-widest mt-0.5 opacity-60">Views</span>
                     </div>
                     <div className="w-px h-8 bg-black/5 dark:bg-white/5 mx-2" />
                     <div className="flex flex-col">
-                      <span className="text-lg font-black text-solidroad-text dark:text-white leading-none">{c.stats.opens}</span>
+                      <span className="text-lg font-black text-solidroad-text dark:text-white leading-none">{(c as any).opens || 0}</span>
                       <span className="text-[10px] uppercase tracking-widest mt-0.5 opacity-60">Opens</span>
                     </div>
                   </div>

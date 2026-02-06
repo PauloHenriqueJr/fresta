@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Calendar as CalendarIcon, Sparkles, Flame, Snowflake } from "lucide-react";
+import { ArrowLeft, Check, Calendar as CalendarIcon, Sparkles, Flame, Snowflake, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { db } from "@/lib/offline/db";
-import type { ThemeId } from "@/lib/offline/types";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
+import { B2BRepository } from "@/lib/data/B2BRepository";
+
+type ThemeId = "carnaval" | "saojoao" | "natal";
 
 const durationOptions = [7, 12, 18, 24, 30];
 const themes: { id: ThemeId; label: string; Icon: React.ElementType; color: string }[] = [
@@ -24,26 +25,55 @@ export default function B2BCriarCampanha() {
   const [duration, setDuration] = useState(24);
   const [startDate, setStartDate] = useState("");
 
-  useEffect(() => {
-    if (!profile) return;
-    db.ensureB2BOrg(profile.id, profile.email);
-  }, [profile]);
+  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState<any>(null);
 
-  const org = useMemo(() => (profile ? db.getB2BOrgByOwner(profile.id) : null), [profile]);
+  useEffect(() => {
+    const run = async () => {
+      if (!profile) return;
+      setLoading(true);
+      try {
+        const ensured = await B2BRepository.ensureOrgForOwner({
+          ownerId: profile.id,
+          ownerEmail: (profile as any).email,
+          ownerName: (profile as any).display_name,
+        });
+        setOrg(ensured);
+      } catch (e) {
+        console.error("B2BCriarCampanha load error:", e);
+        setOrg(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, [profile]);
 
   const canCreate = title.trim().length > 0 && !!org;
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!org) return;
-    const created = db.createB2BCampaign({
-      orgId: org.id,
-      title: title.trim(),
-      theme,
-      duration,
-      startDate: startDate || undefined,
-    });
-    navigate(`/b2b/campanhas/${created.id}`);
+    try {
+      const created = await B2BRepository.createCampaign({
+        orgId: (org as any).id,
+        title: title.trim(),
+        themeId: theme,
+        duration,
+        startDate: startDate || null,
+      });
+      navigate(`/b2b/campanhas/${(created as any).id}`);
+    } catch (e) {
+      console.error("B2BCriarCampanha create error:", e);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F6D045]" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl space-y-8 pb-20">

@@ -1,27 +1,47 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, BarChart3, Clock, Layout, MousePointer2, Eye } from "lucide-react";
+import { ArrowLeft, BarChart3, Clock, Layout, MousePointer2, Eye, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "@/state/auth/AuthProvider";
-import { db } from "@/lib/offline/db";
 import { cn } from "@/lib/utils";
+import { B2BRepository } from "@/lib/data/B2BRepository";
 
 export default function B2BCampanhaDetalhe() {
   const { id } = useParams();
-  const { profile } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState<"draft" | "active" | "archived">("draft");
 
-  useEffect(() => {
-    if (!profile) return;
-    db.ensureB2BOrg(profile.id, profile.email);
-  }, [profile]);
-
-  const campaign = useMemo(() => (id ? db.getB2BCampaign(id) : null), [id]);
+  const [loading, setLoading] = useState(true);
+  const [campaign, setCampaign] = useState<any>(null);
 
   useEffect(() => {
-    if (campaign) setStatus(campaign.status);
+    const run = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const c = await B2BRepository.getCampaign(id);
+        setCampaign(c);
+        setStatus((c as any).status);
+      } catch (e) {
+        console.error("B2BCampanhaDetalhe load error:", e);
+        setCampaign(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, [id]);
+
+  useEffect(() => {
+    if (campaign) setStatus((campaign as any).status);
   }, [campaign]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F6D045]" />
+      </div>
+    );
+  }
 
   if (!campaign) {
     return (
@@ -34,9 +54,9 @@ export default function B2BCampanhaDetalhe() {
   }
 
   const statItems = [
-    { label: "Visualizações", value: campaign.stats.views, icon: Eye, bg: 'bg-[#FFF8E8] dark:bg-[#1C1A0E]', text: 'text-[#F9A03F]' },
-    { label: "Aberturas", value: campaign.stats.opens, icon: MousePointer2, bg: 'bg-[#E8F5E0] dark:bg-[#0E1A12]', text: 'text-[#2D7A5F]' },
-    { label: "Conversão", value: campaign.stats.leads, icon: Layout, bg: 'bg-[#D4F4F0] dark:bg-[#0E1A1A]', text: 'text-[#4ECDC4]' },
+    { label: "Visualizações", value: (campaign as any).views || 0, icon: Eye, bg: 'bg-[#FFF8E8] dark:bg-[#1C1A0E]', text: 'text-[#F9A03F]' },
+    { label: "Aberturas", value: (campaign as any).opens || 0, icon: MousePointer2, bg: 'bg-[#E8F5E0] dark:bg-[#0E1A12]', text: 'text-[#2D7A5F]' },
+    { label: "Conversão", value: (campaign as any).leads || 0, icon: Layout, bg: 'bg-[#D4F4F0] dark:bg-[#0E1A1A]', text: 'text-[#4ECDC4]' },
   ];
 
   return (
@@ -62,7 +82,7 @@ export default function B2BCampanhaDetalhe() {
             </span>
           </div>
           <p className="mt-1 text-muted-foreground/60 dark:text-white/40">
-            {campaign.theme.toUpperCase()} • {campaign.duration} dias de jornada
+            {String((campaign as any).theme_id || "").toUpperCase()} • {(campaign as any).duration} dias de jornada
           </p>
         </div>
       </div>
@@ -105,7 +125,9 @@ export default function B2BCampanhaDetalhe() {
               key={opt.key}
               onClick={() => {
                 setStatus(opt.key);
-                db.updateB2BCampaign(campaign.id, { status: opt.key });
+                B2BRepository.updateCampaign((campaign as any).id, { status: opt.key as any })
+                  .then((updated) => setCampaign(updated))
+                  .catch((e) => console.error("updateCampaign error:", e));
               }}
               className={cn(
                 "p-5 rounded-2xl border-2 text-left transition-all",
