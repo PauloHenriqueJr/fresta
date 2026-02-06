@@ -50,8 +50,13 @@ export default function B2CSidebar() {
             onClick={() => navigate('/')}
             className={cn("flex items-center gap-3 transition-all w-full", collapsed ? "justify-center" : "")}
           >
-            <div className="w-10 h-10 rounded-xl bg-solidroad-accent flex items-center justify-center shadow-lg shadow-solidroad-accent/20 flex-shrink-0 text-solidroad-text">
-              <DoorOpen className="w-6 h-6" strokeWidth={2.5} />
+            {/* Logo Customizada */}
+            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+              <img
+                src="/logo.png"
+                alt="Fresta"
+                className="w-full h-full object-contain drop-shadow-sm"
+              />
             </div>
             {!collapsed && (
               <div className="flex flex-col items-start">
