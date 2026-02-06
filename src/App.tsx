@@ -313,9 +313,10 @@ const AppContent = () => {
 
   // Show loader if:
   // 1. Auth is still loading
-  // 2. There's an OAuth token in URL being processed
-  // 3. We have evidence of returning from OAuth (pending quiz/consent) but no user yet
-  if (isLoading || isAuthenticating || (isReturningFromOAuth && !user)) {
+  // MODIFICAÇÃO: Removemos isAuthenticating e isReturningFromOAuth da condição de bloqueio
+  // para evitar travamentos eternos caso o login falhe ou o hash seja inválido.
+  // O AuthProvider já possui lógica robusta de timeout e detecção de hash.
+  if (isLoading) {
     return <Loader text="Preparando sua experiência..." />;
   }
 
