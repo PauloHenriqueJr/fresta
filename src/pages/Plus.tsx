@@ -413,22 +413,56 @@ const Plus = () => {
 
       {/* CTA Section */}
       <div className="container mx-auto px-6 max-w-md pb-24">
+        {/* Calendar Preview - Show which calendar will be upgraded */}
+        {selectedCalendarId && userCalendars.length > 0 && (
+          <div className="mb-6 p-5 rounded-2xl bg-card border-2 border-solidroad-accent/20">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-solidroad-accent/10 flex items-center justify-center flex-shrink-0">
+                <CalendarIcon className="w-5 h-5 text-solidroad-accent" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                  Calendário Selecionado
+                </p>
+                <h4 className="font-bold text-foreground truncate">
+                  {userCalendars.find(c => c.id === selectedCalendarId)?.title || "Meu Calendário"}
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Este calendário será desbloqueado com todos os recursos Plus
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-solidroad-green">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="font-medium">Pronto para upgrade</span>
+            </div>
+          </div>
+        )}
+
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={selectedCalendarId ? { scale: 1.02 } : {}}
+          whileTap={selectedCalendarId ? { scale: 0.98 } : {}}
           onClick={handleCheckout}
+          disabled={!selectedCalendarId}
           className={cn(
-            "w-full py-5 rounded-2xl font-black text-lg text-[#1A3E3A]",
-            "bg-[#F9A03F]",
-            "shadow-lg shadow-[#F9A03F]/30",
+            "w-full py-5 rounded-2xl font-black text-lg",
+            selectedCalendarId
+              ? "bg-[#F9A03F] text-[#1A3E3A] shadow-lg shadow-[#F9A03F]/30 hover:shadow-xl"
+              : "bg-muted text-muted-foreground cursor-not-allowed",
             "flex items-center justify-center gap-3",
-            "hover:shadow-xl transition-all"
+            "transition-all"
           )}
         >
           <Sparkles className="w-6 h-6" />
-          {selectedCalendarId ? "Desbloquear Este Calendário" : "Criar Calendário Plus"}
+          {selectedCalendarId ? "Desbloquear Este Calendário" : "Selecione um Calendário"}
           <ArrowRight className="w-6 h-6" />
         </motion.button>
+
+        {!selectedCalendarId && (
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            👆 Escolha uma das opções acima para continuar
+          </p>
+        )}
 
         <div className="mt-6 flex items-center justify-center gap-6 text-xs font-bold text-muted-foreground/60">
           <div className="flex items-center gap-2">

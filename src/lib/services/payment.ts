@@ -153,7 +153,8 @@ export async function createPaymentPreference(
     
     const customerName = (profile as any)?.display_name || "Cliente Fresta";
     const customerCellphone = params.customer?.cellphone || ""; 
-    const customerTaxId = params.customer?.taxId || ""; 
+    // Sanitize CPF: remove dots, hyphens, and spaces (AbacatePay requires numbers only)
+    const customerTaxId = (params.customer?.taxId || "").replace(/[.\-\s]/g, "");
 
 
     // Create order in database
@@ -210,7 +211,9 @@ export async function createPaymentPreference(
       },
     };
     } catch (error) {
-      return { success: false, error: `Erro no processamento` };
+      console.error('[createPaymentPreference] Error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro no processamento';
+      return { success: false, error: errorMessage };
     }
 }
 

@@ -116,6 +116,25 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[AbacatePay Webhook] Order ${orderId} updated to status: ${newStatus}`);
 
+    // If payment successful and calendar exists, activate it immediately
+    if (newStatus === 'paid' && order.calendar_id) {
+      console.log(`[AbacatePay Webhook] Activating calendar ${order.calendar_id}...`);
+      
+      const { error: activationError } = await supabase
+        .from('calendars')
+        .update({
+          status: 'ativo',
+          is_premium: true
+        })
+        .eq('id', order.calendar_id);
+
+      if (activationError) {
+        console.error(`[AbacatePay Webhook] Failed to activate calendar:`, activationError);
+      } else {
+        console.log(`[AbacatePay Webhook] Calendar ${order.calendar_id} activated successfully`);
+      }
+    }
+
     // Log to audit_logs
     await supabase.from("audit_logs").insert({
       user_id: order.user_id,
