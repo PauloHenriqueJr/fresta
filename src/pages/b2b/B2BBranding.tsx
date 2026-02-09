@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { db } from "@/lib/offline/db";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { Palette, Sparkles, Save, Building2, PartyPopper, Flame, TreePine, Star, Gift, Rocket } from "lucide-react";
+import { Palette, Sparkles, Save, Building2, PartyPopper, Flame, TreePine, Star, Gift, Rocket, Loader2 } from "lucide-react";
 import { PlusIcon } from "@/components/PremiumIcon";
+import { B2BRepository } from "@/lib/data/B2BRepository";
 
 const logoOptions = ["Building2", "PartyPopper", "Music", "Flame", "TreePine", "Star", "Gift", "Rocket"];
 
@@ -13,28 +13,52 @@ export default function B2BBranding() {
   const { profile } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!profile) return;
-    db.ensureB2BOrg(profile.id, profile.email);
-  }, [profile]);
-
-  const org = useMemo(() => (profile ? db.getB2BOrgByOwner(profile.id) : null), [profile]);
-  const branding = useMemo(() => (org ? db.getB2BBranding(org.id) : null), [org]);
+  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState<any>(null);
 
   const [logoIconName, setLogoIconName] = useState("Building2");
   const [primaryHue, setPrimaryHue] = useState(145);
 
   useEffect(() => {
-    if (!branding) return;
-    setLogoIconName(branding.logoIconName);
-    setPrimaryHue(branding.primaryHue);
-  }, [branding]);
+    const run = async () => {
+      if (!profile) return;
+      setLoading(true);
+      try {
+        const ensured = await B2BRepository.ensureOrgForOwner({
+          ownerId: profile.id,
+          ownerEmail: (profile as any).email,
+          ownerName: (profile as any).display_name,
+        });
+        setOrg(ensured);
+        setLogoIconName((ensured as any).avatar || "Building2");
+        setPrimaryHue((ensured as any).primary_hue ?? 145);
+      } catch (e) {
+        console.error("B2BBranding load error:", e);
+        setOrg(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, [profile]);
 
   const handleSave = () => {
     if (!org) return;
-    db.updateB2BBranding(org.id, { logoIconName, primaryHue });
-    toast({ title: "Branding salvo!", description: "Configurações de marca atualizadas com sucesso." });
+    B2BRepository.updateOrgSecurity((org as any).id, { avatar: logoIconName, primary_hue: primaryHue } as any)
+      .then(() => toast({ title: "Branding salvo!", description: "Configurações de marca atualizadas com sucesso." }))
+      .catch((e: any) => {
+        console.error("B2BBranding save error:", e);
+        toast({ title: "Erro ao salvar", description: e?.message || "Tente novamente.", variant: "destructive" });
+      });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F6D045]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 max-w-2xl">

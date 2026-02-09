@@ -239,19 +239,17 @@ const CriarCalendario = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {themes.map((theme) => {
                   const isPlus = isThemePlus(theme.id);
-                  const isLocked = isPlus && planStatus.hasUsedFreeCalendar && !planStatus.isAdmin;
 
                   return (
                     <motion.button
                       key={theme.id}
-                      onClick={() => !isLocked && setSelectedTheme(theme.id)}
+                      onClick={() => setSelectedTheme(theme.id)}
                       className={cn(
                         "group relative bg-white dark:bg-white/5 rounded-[2rem] p-4 border-2 text-left transition-all duration-300 overflow-hidden",
-                        selectedTheme === theme.id ? "border-solidroad-accent shadow-xl shadow-solidroad-accent/10" : "border-transparent hover:border-solidroad-accent/30 shadow-sm",
-                        isLocked && "opacity-60 grayscale-[0.5]"
+                        selectedTheme === theme.id ? "border-solidroad-accent shadow-xl shadow-solidroad-accent/10" : "border-transparent hover:border-solidroad-accent/30 shadow-sm"
                       )}
-                      whileHover={!isLocked ? { scale: 1.02 } : {}}
-                      whileTap={!isLocked ? { scale: 0.98 } : {}}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <div className={cn("w-full aspect-[4/3] rounded-2xl mb-4 overflow-hidden relative")}>
                         <img
@@ -267,12 +265,6 @@ const CriarCalendario = () => {
                           <div className="absolute top-3 left-3 px-2 py-0.5 bg-[#F9A03F] text-white text-[8px] font-black uppercase tracking-widest rounded-full flex items-center gap-1 shadow-lg">
                             <Crown className="w-2 h-2" />
                             PLUS
-                          </div>
-                        )}
-
-                        {isLocked && (
-                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center z-20">
-                            <Lock className="w-8 h-8 text-white" />
                           </div>
                         )}
 

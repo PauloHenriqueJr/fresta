@@ -20,7 +20,9 @@ import {
   Lock,
   Pencil,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Crown,
+  CreditCard
 } from "lucide-react";
 import { PlusIcon } from "@/components/PremiumIcon";
 import { useNavigate } from "react-router-dom";
@@ -299,6 +301,12 @@ const MeusCalendarios = () => {
                 ];
                 const cardBg = colors[index % colors.length];
 
+                // Check for pending payment
+                const pendingOrder = (calendar as any).orders?.find((o: any) =>
+                  o.status === 'pending' && new Date(o.expires_at) > new Date()
+                );
+                const hasPendingPayment = !!pendingOrder;
+
                 return (
                   <motion.div
                     key={calendar.id}
@@ -309,7 +317,7 @@ const MeusCalendarios = () => {
                     <div
                       className="bg-card rounded-[2.5rem] border border-border/10 shadow-sm hover:shadow-xl transition-all duration-300 p-8 cursor-pointer relative overflow-hidden"
                       onClick={() => {
-                        if (calendar.status === 'aguardando_pagamento') {
+                        if (hasPendingPayment) {
                           navigate(`/checkout/${calendar.id}`);
                         } else {
                           navigate(`/calendario/${calendar.id}`);
@@ -334,16 +342,28 @@ const MeusCalendarios = () => {
                         </div>
 
                         <div className="flex flex-col items-end gap-2">
+                          {/* Premium/Free/Pending Badge */}
+                          {calendar.is_premium ? (
+                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-400/30">
+                              <Crown className="w-3 h-3 text-amber-500" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Plus</span>
+                            </div>
+                          ) : hasPendingPayment ? (
+                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F9A03F]/10 text-[#F9A03F] border border-[#F9A03F]/20 animate-pulse">
+                              <CreditCard className="w-3 h-3 text-[#F9A03F]" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-[#F9A03F]">Pagamento Pendente</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Grátis</span>
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-2">
                             {calendar.status === 'ativo' ? (
                               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2D7A5F]/10 text-[#2D7A5F] border border-[#2D7A5F]/20 animate-pulse-soft">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#2D7A5F]"></span>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-[#2D7A5F]">Ativo</span>
-                              </div>
-                            ) : (calendar.status as string) === 'aguardando_pagamento' ? (
-                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F9A03F]/10 text-[#F9A03F] border border-[#F9A03F]/20">
-                                <Lock className="w-3 h-3 text-[#F9A03F]" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[#F9A03F]">Pendente</span>
                               </div>
                             ) : (calendar.status as string) === 'rascunho' ? (
                               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">
@@ -361,7 +381,10 @@ const MeusCalendarios = () => {
                                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Finalizado</span>
                               </div>
                             ) : (
-                              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 text-[10px] font-black uppercase tracking-widest">Desconhecido</span>
+                              // Fallback for any other status (like 'pendente' if still in DB)
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{calendar.status}</span>
+                              </div>
                             )}
 
                             <DropdownMenu>

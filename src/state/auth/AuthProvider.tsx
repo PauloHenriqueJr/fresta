@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
@@ -40,6 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [themePreference, setThemePreference] = useState<ThemePreference>('light');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Guards against double-submission (double-click / Enter+click) for magic link.
+  const magicLinkInFlightRef = useRef(false);
+  const lastMagicLinkSentRef = useRef<{ email: string; at: number } | null>(null);
+
   // Apply theme to document
   const applyTheme = (theme: ThemePreference) => {
     const root = document.documentElement;
@@ -56,7 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const [profileRes, roleRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).single(),
-        supabase.from('user_roles').select('role, permissions').eq('user_id', userId).single()
+        // Use `*` to avoid breaking if `permissions` isn't present in some DB versions.
+        supabase.from('user_roles').select('*').eq('user_id', userId).single()
       ]);
 
       return {
@@ -83,14 +88,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // We should NOT release isLoading immediately if we are expecting a session from the URL
     const hasAuthFragment = window.location.hash.includes("access_token=") ||
       window.location.hash.includes("error_description=") ||
-      window.location.search.includes("code=");
+      window.location.search.includes("code=") ||
+      window.location.hash.includes("code=");
 
     if (hasAuthFragment) {
       console.log("AuthProvider: Fragmento de autenticação detectado, aguardando sessão...");
     }
 
+    // HashRouter + PKCE: sometimes the `code` ends up in `location.search` OR inside the hash query.
+    // Make the exchange explicit to avoid getting stuck with a code that isn't processed.
+    const getAuthCodeFromUrl = () => {
+      try {
+        const searchCode = new URLSearchParams(window.location.search).get("code");
+        if (searchCode) return searchCode;
+
+        const h = window.location.hash || "";
+        const qIdx = h.indexOf("?");
+        if (qIdx === -1) return null;
+        const hashParams = new URLSearchParams(h.slice(qIdx + 1));
+        return hashParams.get("code");
+      } catch {
+        return null;
+      }
+    };
+
+    const stripAuthCodeFromUrl = () => {
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has("code")) {
+          url.searchParams.delete("code");
+          url.searchParams.delete("state");
+          window.history.replaceState({}, document.title, url.toString());
+          return;
+        }
+
+        const h = window.location.hash || "";
+        const qIdx = h.indexOf("?");
+        if (qIdx === -1) return;
+
+        const base = h.slice(0, qIdx);
+        const params = new URLSearchParams(h.slice(qIdx + 1));
+        params.delete("code");
+        params.delete("state");
+
+        const newHash = params.toString() ? `${base}?${params.toString()}` : base;
+        window.history.replaceState(
+          {},
+          document.title,
+          `${window.location.pathname}${window.location.search}${newHash}`
+        );
+      } catch {
+        // ignore
+      }
+    };
+
+    const authCode = getAuthCodeFromUrl();
+    if (authCode) {
+      supabase.auth.exchangeCodeForSession(authCode).then(({ error }) => {
+        if (error) {
+          console.error("AuthProvider: exchangeCodeForSession error:", error.message);
+          return;
+        }
+        stripAuthCodeFromUrl();
+      }).catch(err => {
+        console.error("AuthProvider: exchangeCodeForSession exception:", err?.message || err);
+      });
+    }
+
     // 1. Fallback Timeout (Safety Net)
     // We use a local variable to check the state inside the timeout to avoid stale closures
+    const timeoutMs = hasAuthFragment ? 15000 : 5000;
     const timeoutId = setTimeout(() => {
       if (mounted) {
         setIsLoading(current => {
@@ -101,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return current;
         });
       }
-    }, 5000);
+    }, timeoutMs);
 
     // 2. Auth State Listener (Single Source of Truth)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -194,6 +261,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // SECURITY: Bypass de teste DESABILITADO em produção
     // Para habilitar testes automatizados, defina VITE_ENABLE_TEST_BYPASS=true no .env
+    const normalizedEmail = (email || "").trim().toLowerCase();
+
+    // Client-side cooldown: prevents accidental double-send within a short window.
+    // This complements server-side rate limiting (RPC) when available.
+    if (magicLinkInFlightRef.current) {
+      setIsLoading(false);
+      return { error: new Error("Aguarde: estamos enviando seu link agora.") };
+    }
+
+    const last = lastMagicLinkSentRef.current;
+    if (last && last.email === normalizedEmail && Date.now() - last.at < 3_600_000) {
+      setIsLoading(false);
+      return { error: new Error("Já enviamos um link recentemente. Verifique seu email e tente novamente em 1 hora.") };
+    }
+
     if (email === 'testsprite@fresta.com' && import.meta.env.VITE_ENABLE_TEST_BYPASS === 'true') {
       console.warn('[SEGURANÇA] Bypass de teste ativado - use apenas em ambiente de testes automatizados');
       try {
@@ -218,6 +300,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      magicLinkInFlightRef.current = true;
+
       // SECURITY: Verificar rate limit antes de permitir login
       type RateLimitResult = { allowed: boolean; attempts: number; max_attempts: number; remaining_seconds: number };
 
@@ -260,11 +344,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // SECURITY: Registrar tentativa de login (fire and forget)
       recordLoginAttempt(email.toLowerCase(), !error);
 
+      if (!error) {
+        lastMagicLinkSentRef.current = { email: normalizedEmail, at: Date.now() };
+      }
+
       return { error: error as Error | null };
     } catch (err: any) {
       console.error("AuthProvider: signInWithEmail exception:", err);
       return { error: err as Error };
     } finally {
+      magicLinkInFlightRef.current = false;
       setIsLoading(false);
     }
   };

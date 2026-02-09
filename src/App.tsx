@@ -46,6 +46,7 @@ import Upsell from "./pages/Upsell";
 import QuizLanding from "./pages/QuizLanding";
 import MemoriaPage from "./pages/memoria";
 import CheckoutQuiz from "./pages/CheckoutQuiz";
+import MinhasCompras from "./pages/MinhasCompras";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -81,6 +82,7 @@ import BulkInvite from "@/pages/b2b/BulkInvite";
 import Gateway from "@/pages/Gateway";
 import LoginRH from "@/pages/LoginRH";
 import LoginEmployee from "@/pages/LoginEmployee";
+import RedefinirSenha from "@/pages/RedefinirSenha";
 import { GlobalSettingsProvider } from "@/state/GlobalSettingsContext";
 import { useEffect, useState, useRef } from "react";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
@@ -212,7 +214,7 @@ const QuizProcessor = () => {
         // === FREE THEMES FOR QUIZ (No payment required) ===
         // These are the only themes that can be created via quiz flow
         // Note: 'aniversario' is used as fallback (universal, already migrated)
-        const FREE_THEMES = ['aniversario', 'namoro', 'diadasmaes', 'diadospais', 'diadascriancas', 'estudos', 'metas'];
+        const FREE_THEMES = ['aniversario', 'namoro', 'diadasmaes', 'diadospais', 'diadascriancas', 'estudos', 'metas', 'carnaval'];
 
         let inferredThemeId = 'aniversario'; // Safe default (free, migrated, universal)
 
@@ -313,9 +315,10 @@ const AppContent = () => {
 
   // Show loader if:
   // 1. Auth is still loading
-  // 2. There's an OAuth token in URL being processed
-  // 3. We have evidence of returning from OAuth (pending quiz/consent) but no user yet
-  if (isLoading || isAuthenticating || (isReturningFromOAuth && !user)) {
+  // MODIFICAÇÃO: Removemos isAuthenticating e isReturningFromOAuth da condição de bloqueio
+  // para evitar travamentos eternos caso o login falhe ou o hash seja inválido.
+  // O AuthProvider já possui lógica robusta de timeout e detecção de hash.
+  if (isLoading) {
     return <Loader text="Preparando sua experiência..." />;
   }
 
@@ -330,6 +333,7 @@ const AppContent = () => {
         <Route path="/entrar" element={<Entrar />} />
         <Route path="/login-rh" element={<LoginRH />} />
         <Route path="/login-colaborador" element={<LoginEmployee />} />
+        <Route path="/redefinir-senha" element={<RedefinirSenha />} />
         <Route path="/quiz" element={<QuizLanding />} />
         <Route path="/memoria" element={<MemoriaPage />} />
 
@@ -417,6 +421,7 @@ const AppContent = () => {
           <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />
           <Route path="/explorar" element={<Explorar />} />
+          <Route path="/minhas-compras" element={<MinhasCompras />} />
         </Route>
 
         {/* legacy/demo routes */}

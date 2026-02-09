@@ -1,30 +1,56 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Megaphone, Users, Eye, Plus, Settings } from "lucide-react";
+import { ArrowRight, Megaphone, Users, Eye, Plus, Settings, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
-import { db } from "@/lib/offline/db";
 import { cn } from "@/lib/utils";
+import { B2BRepository } from "@/lib/data/B2BRepository";
 
 export default function B2BDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!profile) return;
-    db.ensureB2BOrg(profile.id, profile.email);
-  }, [profile]);
+  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState<any>(null);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
 
-  const org = useMemo(() => (profile ? db.getB2BOrgByOwner(profile.id) : null), [profile]);
-  const campaigns = useMemo(() => (org ? db.listB2BCampaigns(org.id) : []), [org]);
-  const members = useMemo(() => (org ? db.listB2BMembers(org.id) : []), [org]);
+  useEffect(() => {
+    const run = async () => {
+      if (!profile) return;
+      setLoading(true);
+      try {
+        const ensured = await B2BRepository.ensureOrgForOwner({
+          ownerId: profile.id,
+          ownerEmail: (profile as any).email,
+          ownerName: (profile as any).display_name,
+        });
+        setOrg(ensured);
+        const [camps, mems] = await Promise.all([
+          B2BRepository.listCampaigns((ensured as any).id),
+          B2BRepository.getMembers((ensured as any).id),
+        ]);
+        setCampaigns((camps as any[]) || []);
+        setMembers((mems as any[]) || []);
+      } catch (e) {
+        console.error("B2BDashboard load error:", e);
+        setOrg(null);
+        setCampaigns([]);
+        setMembers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    run();
+  }, [profile]);
 
   const totals = useMemo(() => {
     return campaigns.reduce(
       (acc, c) => {
-        acc.views += c.stats.views;
-        acc.opens += c.stats.opens;
-        acc.leads += c.stats.leads;
+        acc.views += (c as any).views || 0;
+        acc.opens += (c as any).opens || 0;
+        acc.leads += (c as any).leads || 0;
         return acc;
       },
       { views: 0, opens: 0, leads: 0 }
@@ -76,6 +102,14 @@ export default function B2BDashboard() {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F6D045]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F9F5] -m-6 md:-m-10">
@@ -219,7 +253,7 @@ export default function B2BDashboard() {
 
                   <div className="flex items-center gap-8 md:gap-12 mr-2">
                     <div className="hidden md:block text-right">
-                      <p className="text-2xl font-black text-[#1A3E3A] tracking-tighter">{c.stats.views}</p>
+                      <p className="text-2xl font-black text-[#1A3E3A] tracking-tighter">{(c as any).views || 0}</p>
                       <p className="text-[10px] uppercase font-black tracking-widest text-[#5A7470]/40">Views</p>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-[#F8F9F5] group-hover:bg-solidroad-accent transition-colors flex items-center justify-center">

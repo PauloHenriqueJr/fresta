@@ -225,6 +225,40 @@ export const UniversalTemplate = ({
                 </div>
             )}
 
+            {/* Free Plan Notice - Only shown in editor context for non-premium calendars */}
+            {isEditorContext && !previewMode && !(calendar as any)?.is_premium && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative z-40 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200/50 px-4 py-3"
+                >
+                    <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+                                <span className="text-lg">📢</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-amber-800">
+                                    Calendário Gratuito
+                                </span>
+                                <span className="text-[11px] text-amber-700/80 leading-snug mt-0.5">
+                                    Os visitantes verão a marca <strong>Fresta</strong> no seu calendário.
+                                    <br className="sm:hidden" />
+                                    <span className="text-amber-600/70"> Isso nos ajuda a manter o serviço gratuito! ❤️</span>
+                                </span>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => navigate(`/plus?calendar=${calendar.id}`)}
+                            className="shrink-0 px-4 py-2 bg-solidroad-accent text-solidroad-text text-[11px] font-bold rounded-lg shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center gap-1.5"
+                        >
+                            <span>✨</span>
+                            <span>Remover marca · R$ 14,90</span>
+                        </button>
+                    </div>
+                </motion.div>
+            )}
+
             {!isEditorContext && (
                 <div className="absolute top-6 left-0 w-full px-6 flex items-center justify-between z-[60] pointer-events-none">
                     <button

@@ -105,6 +105,9 @@ const Entrar = () => {
             <p className="text-muted-foreground font-medium">
               Enviamos um link mágico para <br /><strong className="text-foreground">{email}</strong>
             </p>
+            <p className="text-xs text-muted-foreground mt-4 font-semibold">
+              Dica: o link expira em 1 hora. Se voc� pediu mais de uma vez, use o e-mail mais recente.
+            </p>
           </motion.header>
 
           <motion.div
@@ -219,38 +222,45 @@ const Entrar = () => {
               </div>
 
               {/* Email Magic Link */}
-              <div className="space-y-3">
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Seu email"
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/10 focus:border-primary/30 focus:ring-2 focus:ring-primary/10 transition-all text-foreground placeholder:text-muted-foreground bg-background"
-                    disabled={submitting}
-                    onKeyDown={(e) => e.key === 'Enter' && handleEmail()}
-                  />
-                </div>
-                <button
-                  onClick={handleEmail}
-                  disabled={submitting || !email.trim()}
-                  className="w-full font-bold py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-white shadow-lg hover:shadow-xl"
-                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Enviando...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-5 h-5" />
-                      <span>Receber link mágico</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <form
+  onSubmit={(e) => {
+    e.preventDefault();
+    void handleEmail();
+  }}
+  className="space-y-3"
+>
+  <div className="relative">
+    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+    <input
+      type="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="Seu email"
+      className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/10 focus:border-primary/30 focus:ring-2 focus:ring-primary/10 transition-all text-foreground placeholder:text-muted-foreground bg-background"
+      disabled={submitting}
+      autoComplete="email"
+      required
+    />
+  </div>
+  <button
+    type="submit"
+    disabled={submitting || !email.trim()}
+    className="w-full font-bold py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-white shadow-lg hover:shadow-xl"
+    style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}
+  >
+    {submitting ? (
+      <>
+        <Loader2 className="w-5 h-5 animate-spin" />
+        <span>Enviando...</span>
+      </>
+    ) : (
+      <>
+        <Sparkles className="w-5 h-5" />
+        <span>Receber link mágico</span>
+      </>
+    )}
+  </button>
+</form>
 
               <p className="text-center text-xs text-muted-foreground">
                 Enviamos um link para você entrar sem senha

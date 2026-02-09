@@ -1,4 +1,4 @@
-import type { B2BCampaign } from "@/lib/offline/types";
+import type { Tables } from "@/lib/supabase/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   MoreVertical,
@@ -19,11 +19,11 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  campaigns: B2BCampaign[];
+  campaigns: Tables<'b2b_campaigns'>[];
   onOpen: (id: string) => void;
 };
 
-const statusLabel: Record<B2BCampaign["status"], string> = {
+const statusLabel: Record<Tables<'b2b_campaigns'>["status"], string> = {
   draft: "Rascunho",
   active: "Ativa",
   archived: "Arquivada",
@@ -75,13 +75,13 @@ export default function B2BCampaignsTable({ campaigns, onOpen }: Props) {
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#F6D045]" />
                   <span className="text-xs font-bold text-[#0E220E] dark:text-white/80 uppercase tracking-tight">
-                    {c.theme}
+                    {(c as any).theme_id}
                   </span>
                 </div>
               </TableCell>
-              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{c.stats.views}</TableCell>
-              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{c.stats.opens}</TableCell>
-              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{c.stats.leads}</TableCell>
+              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{(c as any).views || 0}</TableCell>
+              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{(c as any).opens || 0}</TableCell>
+              <TableCell className="text-right font-black text-[#0E220E] dark:text-white/90">{(c as any).leads || 0}</TableCell>
               <TableCell className="text-right pr-6">
                 <div className="flex items-center justify-end gap-2">
                   <DropdownMenu>

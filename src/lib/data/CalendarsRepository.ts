@@ -7,11 +7,11 @@ type UpdateCalendar = UpdateTables<'calendars'>;
 
 export const CalendarsRepository = {
   // List calendars for current user
-  async listByOwner(ownerId: string): Promise<Calendar[]> {
+  async listByOwner(ownerId: string): Promise<(Calendar & { orders?: any[] })[]> {
     try {
       const { data, error } = await (supabase
         .from('calendars') as any)
-        .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
+        .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message, orders(id, status, expires_at)')
         .eq('owner_id', ownerId)
         .order('created_at', { ascending: false });
       
@@ -24,10 +24,10 @@ export const CalendarsRepository = {
   },
 
   // Get single calendar by ID
-  async getById(id: string): Promise<Calendar | null> {
+  async getById(id: string): Promise<(Calendar & { orders?: any[] }) | null> {
     const { data, error } = await (supabase
       .from('calendars') as any)
-      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
+      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message, orders(id, status, expires_at)')
       .eq('id', id)
       .single();
     
@@ -39,10 +39,10 @@ export const CalendarsRepository = {
   },
 
   // Get calendar with days
-  async getWithDays(id: string): Promise<{ calendar: Calendar; days: CalendarDay[] } | null> {
+  async getWithDays(id: string): Promise<{ calendar: Calendar & { orders?: any[] }; days: CalendarDay[] } | null> {
     const { data: calendar, error: calError } = await (supabase
       .from('calendars') as any)
-      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message')
+      .select('*, primary_color, secondary_color, background_url, header_message, footer_message, capsule_title, capsule_message, locked_title, locked_message, orders(id, status, expires_at)')
       .eq('id', id)
       .single();
     
@@ -63,10 +63,10 @@ export const CalendarsRepository = {
   },
 
   // Get public calendar (for /c/:id)
-  async getPublic(id: string): Promise<{ calendar: Calendar; days: CalendarDay[] } | null> {
+  async getPublic(id: string): Promise<{ calendar: Calendar & { orders?: any[] }; days: CalendarDay[] } | null> {
     const { data: calendars, error: calError } = await (supabase
       .from('calendars') as any)
-      .select('*')
+      .select('*, orders(id, status, expires_at)')
       .eq('id', id)
       .limit(1);
     
@@ -95,6 +95,9 @@ export const CalendarsRepository = {
     const ownerData = ownerStatus?.[0];
     const calendarWithData = {
       ...calendar,
+      // Replace actual password with boolean flag (SECURITY: never send password to client)
+      password: undefined,
+      has_password: !!calendar.password && calendar.password.length > 0,
       profiles: {
         display_name: ownerData?.display_name || null,
         avatar: ownerData?.avatar || null,
