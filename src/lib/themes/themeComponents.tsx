@@ -281,13 +281,13 @@ export const UniversalLockedCard = ({ dayNumber, timeText, config, isEditor = fa
 }
 
 // Envelope Card (Current Day - To Open)
-export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, config, openedCount = 0 }: { dayNumber: number | string, onClick?: () => void, isEditor?: boolean, config: any, openedCount?: number }) => {
+export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, config, openedCount = 0, isOpened = false }: { dayNumber: number | string, onClick?: () => void, isEditor?: boolean, config: any, openedCount?: number, isOpened?: boolean }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={cn(config.cards.envelope.container, "group")}
+      className={cn(config.cards.envelope.container, "group relative")}
     >
       {/* Envelope Pattern Background */}
       <div className={config.cards.envelope.pattern}></div>
@@ -295,6 +295,19 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
       {/* Glow Aura */}
       {config.cards.envelope.glowClass && (
         <div className={cn("absolute inset-0 z-0 pointer-events-none rounded-xl", config.cards.envelope.glowClass)}></div>
+      )}
+
+      {/* Blur overlay for opened cards */}
+      {isOpened && !isEditor && (
+        <div className="absolute inset-0 z-[5] bg-white/40 backdrop-blur-[3px] rounded-xl pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/50">
+              <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
+                <Eye className="w-3 h-3" /> Já aberto
+              </span>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Content Container */}
@@ -320,7 +333,7 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
           </button>
         ) : (
           <button className={config.cards.envelope.button}>
-            {config.cards.envelope.buttonText || "ABRIR"}
+            {isOpened ? "VER NOVAMENTE" : (config.cards.envelope.buttonText || "ABRIR")}
           </button>
         )}
       </div>
@@ -342,7 +355,7 @@ export const UniversalEnvelopeCard = ({ dayNumber, onClick, isEditor = false, co
 }
 
 // Unlocked Day (Past/Opened)
-export const UniversalUnlockedCard = ({ dayNumber, imageUrl, onClick, isEditor = false, config, contentType = 'photo', openedCount = 0 }: { dayNumber: number | string, imageUrl: string, onClick?: () => void, isEditor?: boolean, config: any, contentType?: string, openedCount?: number }) => {
+export const UniversalUnlockedCard = ({ dayNumber, imageUrl, onClick, isEditor = false, config, contentType = 'photo', openedCount = 0, isOpened = false }: { dayNumber: number | string, imageUrl: string, onClick?: () => void, isEditor?: boolean, config: any, contentType?: string, openedCount?: number, isOpened?: boolean }) => {
   const [imgError, setImgError] = useState(false);
   const isVideo = contentType === 'video' || imageUrl?.includes('tiktok.com') || imageUrl?.includes('youtube.com') || imageUrl?.includes('instagram.com');
   const hasImage = imageUrl && !imgError && !isVideo;
@@ -351,7 +364,7 @@ export const UniversalUnlockedCard = ({ dayNumber, imageUrl, onClick, isEditor =
     <motion.div
       whileHover={{ y: -2 }}
       onClick={onClick}
-      className={cn(config.cards.unlocked.container, "group")}
+      className={cn(config.cards.unlocked.container, "group relative")}
     >
       {hasImage ? (
         <div
@@ -385,6 +398,19 @@ export const UniversalUnlockedCard = ({ dayNumber, imageUrl, onClick, isEditor =
           style={config.cards.unlocked.placeholderPattern || {}}
         >
           <div className="absolute top-0 right-0 w-8 h-8 bg-current/10 rounded-bl-3xl" />
+        </div>
+      )}
+
+      {/* Blur overlay for opened cards */}
+      {isOpened && !isEditor && (
+        <div className="absolute inset-0 z-[15] bg-black/20 backdrop-blur-[3px] rounded-xl pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/50">
+              <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
+                <Eye className="w-3 h-3" /> Já aberto
+              </span>
+            </div>
+          </div>
         </div>
       )}
 

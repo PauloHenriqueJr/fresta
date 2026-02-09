@@ -32,7 +32,8 @@ fi
 # --- 3. COMPACTAR E ENVIAR ---
 echo "📦 Compactando código fonte..."
 ARCHIVE_NAME="source_code.tar.gz"
-tar --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='*.tar.gz' -czf $ARCHIVE_NAME . || [[ $? -eq 1 ]]
+# COPYFILE_DISABLE=1 evita metadados do macOS que causam avisos no Linux
+COPYFILE_DISABLE=1 tar --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='*.tar.gz' -czf $ARCHIVE_NAME . || [[ $? -eq 1 ]]
 
 echo "📤 Enviando código para a VPS..."
 ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_PATH"

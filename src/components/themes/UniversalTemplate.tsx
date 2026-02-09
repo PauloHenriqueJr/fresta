@@ -411,6 +411,7 @@ export const UniversalTemplate = ({
                                         onClick={() => onDayClick(d.day)}
                                         isEditor={showEditingControls}
                                         openedCount={d.opened_count || 0}
+                                        isOpened={true}
                                     />
                                 );
                             }
@@ -425,6 +426,7 @@ export const UniversalTemplate = ({
                                     isEditor={showEditingControls}
                                     contentType={d.content_type || 'photo'}
                                     openedCount={d.opened_count || 0}
+                                    isOpened={true}
                                 />
                             );
                         }
