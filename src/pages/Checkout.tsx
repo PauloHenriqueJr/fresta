@@ -24,7 +24,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
 import { cn } from "@/lib/utils";
-import { createPaymentPreference, verifyPaymentStatus, activatePaidCalendar, PRICING, type PaymentItem } from "@/lib/services/payment";
+import { createPaymentPreference, verifyPaymentStatus, activatePaidCalendar, getPendingOrderForCalendar, PRICING, type PaymentItem } from "@/lib/services/payment";
 import { supabase } from "@/lib/supabase/client";
 import { CalendarsRepository } from "@/lib/data/CalendarsRepository";
 import { format } from "date-fns";
@@ -131,6 +131,34 @@ const Checkout = () => {
         }
     };
 
+
+    // Check for pending order on page load (PIX recovery)
+    useEffect(() => {
+        const checkPendingOrder = async () => {
+            if (!user?.id || !calendarId || paymentData) return;
+
+            setIsLoading(true);
+            try {
+                const pendingOrder = await getPendingOrderForCalendar(calendarId, user.id);
+
+                if (pendingOrder && pendingOrder.pix_code) {
+                    // Recover the existing PIX data
+                    setPaymentData({
+                        orderId: pendingOrder.id,
+                        checkoutUrl: pendingOrder.gateway_checkout_url || "",
+                        pixCode: pendingOrder.pix_code,
+                        qrCodeUrl: pendingOrder.pix_qr_url || undefined,
+                    });
+                }
+            } catch (err) {
+                console.error("Error checking pending order:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkPendingOrder();
+    }, [user?.id, calendarId]);
 
     // Countdown timer for PIX expiration
     useEffect(() => {

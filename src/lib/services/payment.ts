@@ -36,6 +36,8 @@ export interface Order {
   gateway: string;
   gateway_payment_id: string | null;
   gateway_checkout_url: string | null;
+  pix_code: string | null;
+  pix_qr_url: string | null;
   items: OrderItem[];
   metadata: Record<string, unknown>;
 }
@@ -178,18 +180,17 @@ export async function createPaymentPreference(
     // Get current user email and profile name
     const { data: { user } } = await supabase.auth.getUser();
     const customerEmail = user?.email || "cliente@fresta.com";
-    
+
     // Fetch profile for name
     const { data: profile } = await supabase
       .from("profiles")
       .select("display_name")
       .eq("id", userId)
       .maybeSingle();
-    
+
     const customerName = (profile as any)?.display_name || "Cliente Fresta";
-    const customerCellphone = params.customer?.cellphone || ""; 
-    // Sanitize CPF: remove dots, hyphens, and spaces (AbacatePay requires numbers only)
-    const customerTaxId = (params.customer?.taxId || "").replace(/[.\-\s]/g, "");
+    const customerCellphone = params.customer?.cellphone || "";
+    const customerTaxId = params.customer?.taxId || "";
 
     // Calculate expiration time (10 minutes from now)
     const expiresAt = new Date(Date.now() + EXPIRATION_MINUTES * 60 * 1000).toISOString();
@@ -232,6 +233,7 @@ export async function createPaymentPreference(
     });
 
     // Update order with checkout URL and PIX data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
       .from("orders")
       .update({
@@ -255,11 +257,9 @@ export async function createPaymentPreference(
         expiresAt: expiresAt,
       },
     };
-    } catch (error) {
-      console.error('[createPaymentPreference] Error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erro no processamento';
-      return { success: false, error: errorMessage };
-    }
+  } catch (error) {
+    return { success: false, error: `Erro no processamento` };
+  }
 }
 
 /**
@@ -286,13 +286,13 @@ async function createAbacatePayCheckout(params: {
   const ENV = import.meta.env.VITE_ABACATEPAY_ENV || 'dev';
   const DEV_KEY = import.meta.env.VITE_ABACATEPAY_DEV_KEY;
   const PROD_KEY = import.meta.env.VITE_ABACATEPAY_PROD_KEY;
-  
+
   // Use prod key if ENV is "prod", otherwise use dev key
   // Falls back to old VITE_ABACATEPAY_API_KEY for backwards compatibility
-  const ABACATEPAY_API_KEY = ENV === 'prod' 
+  const ABACATEPAY_API_KEY = ENV === 'prod'
     ? (PROD_KEY || import.meta.env.VITE_ABACATEPAY_API_KEY)
     : (DEV_KEY || import.meta.env.VITE_ABACATEPAY_API_KEY);
-  
+
   if (!ABACATEPAY_API_KEY || ABACATEPAY_API_KEY.startsWith('abc_dev_mock')) {
     console.warn("AbacatePay API key not configured or mock, using test mode");
     return {
@@ -331,7 +331,7 @@ async function createAbacatePayCheckout(params: {
     if (!response.ok || resBody.success === false) {
       console.error("AbacatePay API Error Status:", response.status);
       console.error("AbacatePay API Error Body:", resBody);
-      
+
       const errorDetail = resBody.error || resBody.message || JSON.stringify(resBody);
       throw new Error(`AbacatePay Error (${response.status}): ${errorDetail}`);
     }
@@ -432,4 +432,34 @@ export async function isCalendarPremium(calendarId: string): Promise<boolean> {
   }
 
   return data.is_premium === true;
+}
+
+/**
+ * Get pending order for a calendar (for PIX recovery)
+ * Returns the most recent pending order created within the last 10 minutes
+ */
+export async function getPendingOrderForCalendar(
+  calendarId: string,
+  userId: string
+): Promise<Order | null> {
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("orders")
+    .select("*")
+    .eq("calendar_id", calendarId)
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .gte("created_at", tenMinutesAgo)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching pending order:", error);
+    return null;
+  }
+
+  return data as Order | null;
 }
