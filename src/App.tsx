@@ -46,6 +46,7 @@ import Upsell from "./pages/Upsell";
 import QuizLanding from "./pages/QuizLanding";
 import MemoriaPage from "./pages/memoria";
 import CheckoutQuiz from "./pages/CheckoutQuiz";
+import MinhasCompras from "./pages/MinhasCompras";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import B2BLayout from "@/layouts/B2BLayout";
 import B2CLayout from "@/layouts/B2CLayout";
@@ -420,6 +421,7 @@ const AppContent = () => {
           <Route path="/checkout/sucesso" element={<PaymentSuccess />} />
           <Route path="/ajuda" element={<Ajuda />} />
           <Route path="/explorar" element={<Explorar />} />
+          <Route path="/minhas-compras" element={<MinhasCompras />} />
         </Route>
 
         {/* legacy/demo routes */}

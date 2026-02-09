@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
-import { CalendarDays, PlusCircle, User, Settings, Crown, HelpCircle, LogOut, LayoutDashboard, DoorOpen, Search } from "lucide-react";
-import { useAuth } from "@/state/auth/AuthProvider";
+import { CalendarDays, PlusCircle, User, Settings, Crown, HelpCircle, LogOut, LayoutDashboard, DoorOpen, Search, Receipt, Sidebar as SidebarIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarHeader,
@@ -14,7 +13,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import UserAvatar from "@/components/UserAvatar";
+import { useAuth } from "@/state/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -25,6 +24,7 @@ const items = [
 
 const accountItems = [
   { title: "Perfil", url: "/perfil", icon: User },
+  { title: "Minhas Compras", url: "/minhas-compras", icon: Receipt },
   { title: "Configurações", url: "/conta/configuracoes", icon: Settings },
   { title: "Fazer Upgrade", url: "/plus", icon: Crown },
   { title: "Ajuda", url: "/ajuda", icon: HelpCircle },
@@ -115,28 +115,31 @@ export default function B2CSidebar() {
                             "flex items-center gap-3 py-3 rounded-xl transition-all",
                             collapsed ? "justify-center px-0" : "px-3",
                             isActive
-                              ? "bg-solidroad-accent text-solidroad-text shadow-glow-accent ring-2 ring-solidroad-accent/20"
+                              ? "bg-muted/80 text-foreground font-medium"
                               : "text-muted-foreground/70 hover:bg-muted dark:hover:bg-card hover:text-foreground transition-all duration-300"
                           )}
                         >
-                          <item.icon className={cn("w-8 h-8", isActive ? "text-solidroad-text" : "text-muted-foreground/40 dark:text-white/20 group-hover:text-foreground")} strokeWidth={isActive ? 2.5 : 2} />
-                          {!collapsed && <span className={cn("font-bold tracking-tight", isActive ? "text-solidroad-text" : "text-foreground")}>{item.title}</span>}
+                          <item.icon className={cn("w-5 h-5", isActive ? "text-foreground" : "text-muted-foreground/40 dark:text-white/20 group-hover:text-foreground")} />
+                          {!collapsed && <span className={cn("text-sm", isActive ? "font-bold" : "font-medium")}>{item.title}</span>}
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )
                 })}
+
+                {/* Logout Button */}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Sair" size="lg" className={cn(collapsed && "!w-full !h-14 !p-0 justify-center")}>
                     <button
-                      onClick={() => { logout(); navigate('/entrar'); }}
+                      onClick={logout}
                       className={cn(
-                        "w-full flex items-center gap-3 py-3 rounded-xl transition-all font-bold text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/10",
-                        collapsed ? "justify-center px-0" : "px-3"
+                        "flex items-center gap-3 py-3 rounded-xl transition-all w-full text-left",
+                        collapsed ? "justify-center px-0" : "px-3",
+                        "text-red-500/70 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300"
                       )}
                     >
-                      <LogOut className="w-8 h-8" strokeWidth={1.5} />
-                      {!collapsed && <span>Sair</span>}
+                      <LogOut className="w-5 h-5" />
+                      {!collapsed && <span className="font-medium text-sm">Sair da Conta</span>}
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -144,19 +147,6 @@ export default function B2CSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-
-        {/* User Footer */}
-        <div className={cn("mt-auto p-4 border-t border-border/10", collapsed ? "flex justify-center" : "")}>
-          <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "")}>
-            <UserAvatar size="md" />
-            {!collapsed && (
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-bold text-foreground truncate">{profile?.display_name || "Usuário"}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 truncate">{user?.email}</span>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </Sidebar>
   );

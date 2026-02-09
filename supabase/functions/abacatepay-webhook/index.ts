@@ -3,38 +3,83 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const WEBHOOK_SECRET = Deno.env.get("ABACATEPAY_WEBHOOK_SECRET");
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+// HMAC-SHA256 signature verification
+async function verifySignature(payload: string, signature: string, secret: string): Promise<boolean> {
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const signatureBytes = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+    const computedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBytes)));
+    
+    // Constant-time comparison to prevent timing attacks
+    if (signature.length !== computedSignature.length) return false;
+    let result = 0;
+    for (let i = 0; i < signature.length; i++) {
+      result |= signature.charCodeAt(i) ^ computedSignature.charCodeAt(i);
+    }
+    return result === 0;
+  } catch {
+    return false;
+  }
+}
+
 Deno.serve(async (req: Request) => {
-  // CORS headers
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  // Response headers (no CORS needed for server-to-server webhooks)
+  const responseHeaders = {
+    "Content-Type": "application/json",
   };
 
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  // Reject non-POST requests
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      { status: 405, headers: responseHeaders }
+    );
   }
 
   try {
-    const payload = await req.json();
+    // Get raw body for signature verification
+    const rawBody = await req.text();
+    
+    // Verify webhook signature (CRITICAL SECURITY CHECK)
+    const signature = req.headers.get("x-abacatepay-signature") || req.headers.get("x-webhook-signature");
+    
+    if (WEBHOOK_SECRET && WEBHOOK_SECRET.length > 0) {
+      if (!signature) {
+        console.error("[AbacatePay Webhook] Missing signature header");
+        return new Response(
+          JSON.stringify({ error: "Missing signature" }),
+          { status: 401, headers: responseHeaders }
+        );
+      }
+      
+      const isValid = await verifySignature(rawBody, signature, WEBHOOK_SECRET);
+      if (!isValid) {
+        console.error("[AbacatePay Webhook] Invalid signature");
+        return new Response(
+          JSON.stringify({ error: "Invalid signature" }),
+          { status: 401, headers: responseHeaders }
+        );
+      }
+    } else {
+      // Log warning if no secret configured (should be set in production!)
+      console.warn("[AbacatePay Webhook] WARNING: No webhook secret configured. Signature verification skipped.");
+    }
+    
+    const payload = JSON.parse(rawBody);
 
-    console.log("[AbacatePay Webhook] Received payload:", JSON.stringify(payload, null, 2));
-
-    // AbacatePay webhook payload structure:
-    // {
-    //   "event": "payment.paid" | "payment.failed" | "payment.refunded",
-    //   "data": {
-    //     "id": "payment_id",
-    //     "status": "paid" | "failed" | "refunded",
-    //     "amount": 1490,
-    //     "metadata": {
-    //       "orderId": "uuid"
-    //     }
-    //   }
-    // }
+    // Sanitized log (don't expose full payload in production)
+    console.log("[AbacatePay Webhook] Event received:", payload.event, "Order:", payload.data?.metadata?.orderId);
 
     const event = payload.event;
     const paymentData = payload.data;
@@ -43,7 +88,7 @@ Deno.serve(async (req: Request) => {
       console.error("[AbacatePay Webhook] Invalid payload structure");
       return new Response(
         JSON.stringify({ error: "Invalid payload" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: responseHeaders }
       );
     }
 
@@ -56,7 +101,7 @@ Deno.serve(async (req: Request) => {
       console.error("[AbacatePay Webhook] Missing orderId in metadata");
       return new Response(
         JSON.stringify({ error: "Missing orderId in metadata" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: responseHeaders }
       );
     }
 
@@ -73,7 +118,7 @@ Deno.serve(async (req: Request) => {
       console.error("[AbacatePay Webhook] Order not found:", orderId);
       return new Response(
         JSON.stringify({ error: "Order not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 404, headers: responseHeaders }
       );
     }
 
@@ -93,7 +138,7 @@ Deno.serve(async (req: Request) => {
         console.log(`[AbacatePay Webhook] Unhandled event type: ${event}`);
         return new Response(
           JSON.stringify({ message: "Event received but not processed" }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 200, headers: responseHeaders }
         );
     }
 
@@ -110,7 +155,7 @@ Deno.serve(async (req: Request) => {
       console.error("[AbacatePay Webhook] Failed to update order:", updateError);
       return new Response(
         JSON.stringify({ error: "Failed to update order" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: responseHeaders }
       );
     }
 
@@ -135,6 +180,19 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // If payment failed, revert calendar status back to 'ativo' (as free calendar)
+    if ((newStatus === 'failed' || newStatus === 'refunded') && order.calendar_id) {
+      console.log(`[AbacatePay Webhook] Reverting calendar ${order.calendar_id} to free status...`);
+      
+      await supabase
+        .from('calendars')
+        .update({
+          status: 'ativo', // Back to active (free)
+          // Note: don't touch is_premium - it might have been premium before
+        })
+        .eq('id', order.calendar_id);
+    }
+
     // Log to audit_logs
     await supabase.from("audit_logs").insert({
       user_id: order.user_id,
@@ -157,14 +215,14 @@ Deno.serve(async (req: Request) => {
         order_id: orderId,
         new_status: newStatus 
       }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: responseHeaders }
     );
 
   } catch (error) {
     console.error("[AbacatePay Webhook] Unexpected error:", error);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: responseHeaders }
     );
   }
 });

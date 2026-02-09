@@ -57,6 +57,7 @@ export interface CreatePaymentResult {
     checkoutUrl: string;
     pixCode?: string;
     qrCodeUrl?: string;
+    expiresAt?: string;
   };
   error?: string;
 }
@@ -127,13 +128,47 @@ function paymentItemToOrderItem(item: PaymentItem): OrderItem {
 /**
  * Create a payment preference for AbacatePay
  * This creates an order in our DB and returns a checkout URL
+ * If there's an existing valid (non-expired) order, returns that instead
  */
 export async function createPaymentPreference(
   params: CreatePaymentParams
 ): Promise<CreatePaymentResult> {
   const { userId, calendarId, items } = params;
+  const EXPIRATION_MINUTES = 10;
 
   try {
+    // Check for existing valid (non-expired) pending order for this calendar
+    const { data: existingOrder } = await (supabase as any)
+      .from("orders")
+      .select("*")
+      .eq("calendar_id", calendarId)
+      .eq("status", "pending")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // If we have a valid existing order with PIX data, return it
+    if (existingOrder && existingOrder.pix_code && existingOrder.gateway_checkout_url) {
+      return {
+        success: true,
+        data: {
+          orderId: existingOrder.id,
+          checkoutUrl: existingOrder.gateway_checkout_url,
+          pixCode: existingOrder.pix_code,
+          qrCodeUrl: existingOrder.pix_qr_url,
+          expiresAt: existingOrder.expires_at,
+        },
+      };
+    }
+
+    // Mark any old pending orders as expired
+    await (supabase as any)
+      .from("orders")
+      .update({ status: "expired" })
+      .eq("calendar_id", calendarId)
+      .eq("status", "pending");
+
     // Convert PaymentItems to OrderItems
     const orderItems = items.map(paymentItemToOrderItem);
 
@@ -156,6 +191,8 @@ export async function createPaymentPreference(
     // Sanitize CPF: remove dots, hyphens, and spaces (AbacatePay requires numbers only)
     const customerTaxId = (params.customer?.taxId || "").replace(/[.\-\s]/g, "");
 
+    // Calculate expiration time (10 minutes from now)
+    const expiresAt = new Date(Date.now() + EXPIRATION_MINUTES * 60 * 1000).toISOString();
 
     // Create order in database
     const { data: order, error: orderError } = await (supabase as any)
@@ -168,6 +205,7 @@ export async function createPaymentPreference(
         status: "pending",
         gateway: "abacatepay",
         items: orderItems,
+        expires_at: expiresAt,
         metadata: {
           customer_email: customerEmail,
           customer_name: customerName,
@@ -177,6 +215,7 @@ export async function createPaymentPreference(
       .single();
 
     if (orderError || !order) {
+      console.error('[createPaymentPreference] Order creation error:', orderError);
       return { success: false, error: "Erro ao criar pedido no banco de dados" };
     }
 
@@ -192,14 +231,19 @@ export async function createPaymentPreference(
       items: orderItems,
     });
 
-    // Update order with checkout URL
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // Update order with checkout URL and PIX data
     await (supabase as any)
       .from("orders")
       .update({
         gateway_checkout_url: checkoutData.url,
+        pix_code: checkoutData.pixCode,
+        pix_qr_url: checkoutData.qrCodeUrl,
       })
       .eq("id", order.id);
+
+    // We no longer update calendar status to 'pendente'. 
+    // Calendar status remains 'ativo' (or 'rascunho') independent of payment.
+    // The UI will determine 'Pending' state based on the existence of a valid open order.
 
     return {
       success: true,
@@ -208,6 +252,7 @@ export async function createPaymentPreference(
         checkoutUrl: checkoutData.url,
         pixCode: checkoutData.pixCode,
         qrCodeUrl: checkoutData.qrCodeUrl,
+        expiresAt: expiresAt,
       },
     };
     } catch (error) {

@@ -3,7 +3,7 @@
  * Single payment for calendar upgrade via AbacatePay PIX
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     ArrowLeft,
@@ -18,6 +18,8 @@ import {
     ExternalLink,
     Loader2,
     Gift,
+    Clock,
+    AlertTriangle,
 } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/state/auth/AuthProvider";
@@ -31,7 +33,7 @@ const Checkout = () => {
     const { calendarId } = useParams();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { user } = useAuth(); // Assume signUp exists in context, or use supabase directly
+    const { user, isLoading: authLoading } = useAuth(); // Assume signUp exists in context, or use supabase directly
 
     const quizEmail = searchParams.get("email") || "";
     const quizTheme = searchParams.get("theme");
@@ -46,11 +48,59 @@ const Checkout = () => {
         orderId: string;
         pixCode?: string;
         qrCodeUrl?: string;
+        expiresAt?: string;
     } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+    const [isExpired, setIsExpired] = useState(false);
+    const [isLoadingExisting, setIsLoadingExisting] = useState(true);
 
+    // Load existing pending order on page load
+    useEffect(() => {
+        const loadExistingOrder = async () => {
+            // Wait for auth to finish loading
+            if (authLoading) return;
 
+            if (!calendarId || !user?.id) {
+                // If auth loaded but no user, stop loading existing check
+                setIsLoadingExisting(false);
+                return;
+            }
+
+            // Start loading check
+            setIsLoadingExisting(true);
+
+            try {
+                const { data: existingOrder } = await (supabase as any)
+                    .from("orders")
+                    .select("*")
+                    .eq("calendar_id", calendarId)
+                    .eq("status", "pending")
+                    // Removed .gt("expires_at", ...) to allow loading expired pending orders
+                    // This lets the UI show "Timeout/Expired" state instead of a fresh form
+                    .order("created_at", { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (existingOrder && existingOrder.pix_code && existingOrder.gateway_checkout_url) {
+                    setPaymentData({
+                        checkoutUrl: existingOrder.gateway_checkout_url,
+                        orderId: existingOrder.id,
+                        pixCode: existingOrder.pix_code,
+                        qrCodeUrl: existingOrder.pix_qr_url,
+                        expiresAt: existingOrder.expires_at,
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading existing order:", error);
+            } finally {
+                setIsLoadingExisting(false);
+            }
+        };
+
+        loadExistingOrder();
+    }, [calendarId, user?.id, authLoading]);
 
     // Selected addons
     const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
@@ -82,9 +132,41 @@ const Checkout = () => {
     };
 
 
+    // Countdown timer for PIX expiration
+    useEffect(() => {
+        if (!paymentData?.expiresAt || isSuccess || isExpired) return;
+
+        const updateTimer = () => {
+            const expiresAt = new Date(paymentData.expiresAt!).getTime();
+            const now = Date.now();
+            const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+
+            if (remaining <= 0) {
+                setIsExpired(true);
+                setTimeRemaining(0);
+                // Do not clear paymentData so we can show the specific "Expired" UI
+                // instead of the generic form
+            } else {
+                setTimeRemaining(remaining);
+            }
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+
+        return () => clearInterval(interval);
+    }, [paymentData?.expiresAt, isSuccess, isExpired]);
+
+    // Format time remaining as MM:SS
+    const formatTimeRemaining = useCallback((seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }, []);
+
     // Payment status polling
     useEffect(() => {
-        if (!paymentData?.orderId || isSuccess) return;
+        if (!paymentData?.orderId || isSuccess || isExpired) return;
 
         const pollInterval = setInterval(async () => {
             try {
@@ -103,7 +185,7 @@ const Checkout = () => {
         }, 5000); // Poll every 5 seconds
 
         return () => clearInterval(pollInterval);
-    }, [paymentData?.orderId, isSuccess]);
+    }, [paymentData?.orderId, isSuccess, isExpired]);
 
     // Exit Intent disabled - can be re-enabled later
     // const { showExitIntent, closeExitIntent } = useExitIntent({ delay: 500, once: true });
@@ -225,11 +307,13 @@ const Checkout = () => {
             });
 
             if (result.success && result.data) {
+                setIsExpired(false);
                 setPaymentData({
                     checkoutUrl: result.data.checkoutUrl,
                     orderId: result.data.orderId,
                     pixCode: result.data.pixCode,
                     qrCodeUrl: result.data.qrCodeUrl,
+                    expiresAt: result.data.expiresAt,
                 });
 
                 // Se foi criado dinamicamente, atualiza URL silenciosamente para se recuperarmos o ID em refresh
@@ -284,7 +368,7 @@ const Checkout = () => {
                     </p>
                     <button
                         onClick={() => navigate(`/calendario/${calendarId}/editar`)}
-                        className="w-full py-4 bg-[#F9A03F] text-[#1A3E3A] font-black text-lg rounded-2xl hover:scale-105 transition-transform"
+                        className="w-full py-4 bg-solidroad-accent text-solidroad-text font-black text-lg rounded-2xl hover:scale-105 transition-transform"
                     >
                         Continuar Editando
                     </button>
@@ -341,7 +425,15 @@ const Checkout = () => {
                     <div className="lg:col-span-7 space-y-6">
                         {/* Payment Card */}
                         <div className="bg-card rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-border/10">
-                            {!paymentData ? (
+                            {isLoadingExisting ? (
+                                // Loading existing order check
+                                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                                    <Loader2 className="w-10 h-10 animate-spin text-[#F9A03F]" />
+                                    <p className="text-muted-foreground font-medium">
+                                        Verificando pagamento pendente...
+                                    </p>
+                                </div>
+                            ) : !paymentData ? (
                                 // Show addons selection before creating payment
                                 <div className="space-y-8">
                                     <div>
@@ -573,7 +665,7 @@ const Checkout = () => {
                                         disabled={isProcessing}
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
-                                        className="w-full py-5 bg-[#F9A03F] text-[#1A3E3A] rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3"
+                                        className="w-full py-5 bg-solidroad-accent text-solidroad-text rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3"
                                     >
                                         {isProcessing ? (
                                             <>
@@ -588,9 +680,64 @@ const Checkout = () => {
                                         )}
                                     </motion.button>
                                 </div>
+                            ) : isExpired ? (
+                                // Show expired message
+                                <div className="flex flex-col items-center text-center gap-6">
+                                    <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center">
+                                        <AlertTriangle className="w-10 h-10 text-red-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="text-2xl font-black text-foreground tracking-tight">
+                                            PIX Expirado
+                                        </h3>
+                                        <p className="text-muted-foreground max-w-sm">
+                                            O tempo de 10 minutos para pagamento expirou.
+                                            Gere um novo PIX para continuar.
+                                        </p>
+                                    </div>
+                                    <motion.button
+                                        onClick={handleCreatePayment}
+                                        disabled={isProcessing}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full py-5 bg-solidroad-accent text-solidroad-text rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3"
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <Loader2 className="w-6 h-6 animate-spin" />
+                                                Gerando novo PIX...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <QrCode className="w-6 h-6" />
+                                                Gerar Novo PIX
+                                            </>
+                                        )}
+                                    </motion.button>
+                                </div>
                             ) : (
                                 // Show PIX payment info
                                 <div className="flex flex-col items-center text-center gap-8">
+                                    {/* Countdown Timer */}
+                                    {timeRemaining !== null && (
+                                        <div className={cn(
+                                            "flex items-center gap-3 px-6 py-3 rounded-2xl border-2",
+                                            timeRemaining <= 60
+                                                ? "bg-red-500/10 border-red-500/30 text-red-600"
+                                                : timeRemaining <= 180
+                                                    ? "bg-amber-500/10 border-amber-500/30 text-amber-600"
+                                                    : "bg-[#2D7A5F]/10 border-[#2D7A5F]/30 text-[#2D7A5F]"
+                                        )}>
+                                            <Clock className="w-5 h-5" />
+                                            <span className="font-black text-lg font-mono">
+                                                {formatTimeRemaining(timeRemaining)}
+                                            </span>
+                                            <span className="text-sm font-bold opacity-70">
+                                                para pagar
+                                            </span>
+                                        </div>
+                                    )}
+
                                     <div className="p-6 bg-muted/50 rounded-[3rem] border-2 border-dashed border-[#F9A03F]/30 relative overflow-hidden">
                                         <div className="w-48 h-48 bg-card rounded-2xl shadow-inner flex items-center justify-center overflow-hidden">
                                             {paymentData.qrCodeUrl ? (

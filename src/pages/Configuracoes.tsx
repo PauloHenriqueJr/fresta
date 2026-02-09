@@ -443,7 +443,7 @@ const Configuracoes = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleCopyLink}
-                    className="w-full h-14 rounded-2xl bg-[#F9A03F] text-white font-black text-sm flex items-center justify-center gap-2 relative z-10 shadow-glow"
+                    className="w-full h-14 rounded-2xl bg-solidroad-accent text-solidroad-text font-black text-sm flex items-center justify-center gap-2 relative z-10 shadow-glow"
                   >
                     {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                     {copied ? "COPIADO!" : "COPIAR LINK"}
@@ -513,7 +513,7 @@ const Configuracoes = () => {
             animate={{ scale: 1, opacity: 1 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="pointer-events-auto h-14 px-8 bg-[#F9A03F] text-white rounded-full font-black text-sm shadow-2xl shadow-orange-500/20 flex items-center gap-3 hover:brightness-110 transition-all border border-white/20 backdrop-blur-md"
+            className="pointer-events-auto h-14 px-8 bg-solidroad-accent text-solidroad-text rounded-full font-black text-sm shadow-2xl shadow-solidroad-accent/20 flex items-center gap-3 hover:brightness-110 transition-all border border-white/20 backdrop-blur-md"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5 stroke-[3px]" />}
             {saving ? "SALVANDO..." : "SALVAR ALTERAÇÕES"}

@@ -535,8 +535,8 @@ const VisualizarCalendario = () => {
     );
   }
 
-  // Password Gate
-  if (!isAuthorized && calendar.password) {
+  // Password Gate - uses has_password flag (actual password is never sent to client)
+  if (!isAuthorized && (calendar as any).has_password) {
     return (
       <div className={`min-h-screen bg-background flex items-center justify-center px-6 relative overflow-hidden theme-${calendar.theme_id}`}>
         <FloatingDecorations theme={(themeData?.id || "natal") as any} />
@@ -564,12 +564,31 @@ const VisualizarCalendario = () => {
             </p>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                if (passwordInput === calendar.password) {
-                  setIsAuthorized(true);
-                  setPasswordError(false);
-                } else {
+                try {
+                  // Server-side password verification (SECURITY: password never exposed to client)
+                  const { data, error } = await (supabase.rpc as any)('verify_calendar_password', {
+                    p_calendar_id: calendar.id,
+                    p_password: passwordInput
+                  });
+
+                  if (error) {
+                    console.error('Password verification error:', error);
+                    setPasswordError(true);
+                    setTimeout(() => setPasswordError(false), 2000);
+                    return;
+                  }
+
+                  if (data?.authorized) {
+                    setIsAuthorized(true);
+                    setPasswordError(false);
+                  } else {
+                    setPasswordError(true);
+                    setTimeout(() => setPasswordError(false), 2000);
+                  }
+                } catch (err) {
+                  console.error('Password verification failed:', err);
                   setPasswordError(true);
                   setTimeout(() => setPasswordError(false), 2000);
                 }

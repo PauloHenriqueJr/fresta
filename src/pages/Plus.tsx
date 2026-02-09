@@ -93,11 +93,12 @@ const Plus = () => {
   const [loadingCalendars, setLoadingCalendars] = useState(false);
   const [selectedCalendarId, setSelectedCalendarId] = useState<string | null>(calendarIdFromUrl);
 
+  // Always load calendars when authenticated (needed to show calendar preview)
   useEffect(() => {
-    if (isAuthenticated && !calendarIdFromUrl) {
+    if (isAuthenticated) {
       loadUserCalendars();
     }
-  }, [isAuthenticated, calendarIdFromUrl]);
+  }, [isAuthenticated]);
 
   const loadUserCalendars = async () => {
     if (!user?.id) return;
@@ -113,12 +114,14 @@ const Plus = () => {
       const calendarsData = (data as any[]) || [];
       setUserCalendars(calendarsData as Calendar[]);
 
-      // Auto-select first free calendar if available
-      const freeCalendar = calendarsData.find(c => !c.is_premium);
-      if (freeCalendar) {
-        setSelectedCalendarId(freeCalendar.id);
-      } else if (calendarsData.length > 0) {
-        setSelectedCalendarId(calendarsData[0].id);
+      // Only auto-select if no calendar was pre-selected via URL
+      if (!calendarIdFromUrl) {
+        const freeCalendar = calendarsData.find(c => !c.is_premium);
+        if (freeCalendar) {
+          setSelectedCalendarId(freeCalendar.id);
+        } else if (calendarsData.length > 0) {
+          setSelectedCalendarId(calendarsData[0].id);
+        }
       }
     } catch (err) {
       console.error("Error loading calendars:", err);
@@ -447,7 +450,7 @@ const Plus = () => {
           className={cn(
             "w-full py-5 rounded-2xl font-black text-lg",
             selectedCalendarId
-              ? "bg-[#F9A03F] text-[#1A3E3A] shadow-lg shadow-[#F9A03F]/30 hover:shadow-xl"
+              ? "bg-solidroad-accent text-solidroad-text shadow-lg shadow-solidroad-accent/30 hover:shadow-xl"
               : "bg-muted text-muted-foreground cursor-not-allowed",
             "flex items-center justify-center gap-3",
             "transition-all"
