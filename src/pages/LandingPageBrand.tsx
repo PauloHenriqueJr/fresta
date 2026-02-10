@@ -6,16 +6,16 @@ import {
     Share2,
     Heart,
     Star,
-    PartyPopper,
     Users,
     Zap,
     ArrowRight,
-    Lock,
     DoorOpen,
     Sparkles,
-    Menu,
     Sun,
     Moon,
+    Smartphone,
+    MessageCircleHeart,
+    Send,
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import { useNavigate } from "react-router-dom";
@@ -323,15 +323,14 @@ const LandingPageBrand = () => {
                     </button>
 
                     <nav className="flex items-center gap-8">
-                        {/* Dropdown triggers would go here, simplifying for now */}
-                        {['Explorar', 'Premium', 'Para Empresas'].map(item => (
+                        {[{ label: 'Explorar', path: '/explorar' }, { label: 'Plus', path: '/plus' }].map(item => (
                             <button
-                                key={item}
-                                onClick={() => navigate(`/${item.toLowerCase().replace(' ', '-')}`)}
+                                key={item.label}
+                                onClick={() => navigate(item.path)}
                                 className="text-base font-semibold transition-colors flex items-center gap-1 opacity-70 hover:opacity-100"
                                 style={{ color: isDark ? 'white' : currentTheme.colors.primary }}
                             >
-                                {item}
+                                {item.label}
                             </button>
                         ))}
                     </nav>
@@ -452,29 +451,36 @@ const LandingPageBrand = () => {
                         <div className="lg:col-span-6 lg:order-1 py-8">
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="relative">
                                 {/* Launch Badge */}
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-bold mb-6 border border-amber-200">
-                                    <Zap className="w-4 h-4" />
-                                    Oferta de Lançamento · 50% OFF
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6 border" style={{ backgroundColor: `${currentTheme.colors.primary}10`, color: currentTheme.colors.primary, borderColor: `${currentTheme.colors.primary}20` }}>
+                                    <Sparkles className="w-4 h-4" />
+                                    Novo · 1 calendário grátis para começar
                                 </div>
                                 <h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.1] mb-6 lg:text-7xl xl:text-8xl xl:leading-[1.0] tracking-tight py-2 text-slate-900">
-                                    O presente mais <br /> <span className="text-transparent bg-clip-text inline-block relative py-1" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>
-                                        emocionante
+                                    O presente que <br /> <span className="text-transparent bg-clip-text inline-block relative py-1" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>
+                                        emociona por dias
                                         <svg className="absolute w-full h-3 -bottom-1 left-0" viewBox="0 0 100 10" preserveAspectRatio="none" style={{ color: currentTheme.colors.accent }}><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" /></svg>
                                     </span>
                                 </h1>
                                 <p className="text-slate-600 text-lg lg:text-xl xl:text-2xl font-medium leading-relaxed mb-4 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
-                                    Surpreenda quem você ama com uma porta por dia.
-                                    Fotos, mensagens e momentos mágicos.
+                                    Crie um calendário de surpresas com mensagens, fotos, vídeos e mais.
+                                    Compartilhe por WhatsApp e faça alguém especial sorrir a cada dia.
                                 </p>
-                                <p className="text-slate-500 text-base lg:text-lg font-medium mb-8 max-w-sm mx-auto lg:mx-0 lg:max-w-xl">
-                                    🎁 Crie grátis em 2 minutos · 💳 Plus por apenas <span className="font-bold" style={{ color: currentTheme.colors.primary }}>R$ 14,90</span>
+                                <p className="text-slate-500 text-base lg:text-lg font-medium mb-8 max-w-sm mx-auto lg:mx-0 lg:max-w-xl flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span>🎁 1 calendário grátis</span>
+                                    <span className="hidden sm:inline text-slate-300">·</span>
+                                    <span>📱 Funciona no celular</span>
+                                    <span className="hidden sm:inline text-slate-300">·</span>
+                                    <span>💳 Plus por <span className="font-bold" style={{ color: currentTheme.colors.primary }}>R$ 14,90</span></span>
                                 </p>
                                 <div className="flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
                                     <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
-                                        <Sparkles className="w-6 h-6" /> Criar meu Calendário
+                                        <Sparkles className="w-6 h-6" /> Criar meu calendário
                                     </button>
-                                    <button onClick={() => navigate("/explorar")} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
-                                        {currentTheme.id === 'love' ? <Heart className="w-5 h-5" /> : <Star className="w-5 h-5" />} Ver exemplos
+                                    <button onClick={() => {
+                                        const el = document.getElementById('como-funciona');
+                                        el?.scrollIntoView({ behavior: 'smooth' });
+                                    }} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
+                                        <Heart className="w-5 h-5" /> Como funciona
                                     </button>
                                 </div>
                             </motion.div>
@@ -575,29 +581,51 @@ const LandingPageBrand = () => {
                 </div>
             </section>
 
-            {/* Stats Section - SUTILE CURVES */}
-            <section className="py-24 text-white rounded-[2rem] relative z-20 w-full my-2 shadow-sm" style={{ backgroundColor: currentTheme.colors.primary }}>
+            {/* How It Works Section */}
+            <section id="como-funciona" className="py-24 text-white rounded-[2rem] relative z-20 w-full my-2 shadow-sm" style={{ backgroundColor: currentTheme.colors.primary }}>
                 <div className="max-w-[1500px] mx-auto px-8">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl lg:text-6xl font-extrabold tracking-tight mb-4">Como funciona</h2>
+                        <p className="text-white/70 text-lg lg:text-xl font-medium max-w-xl mx-auto">Três passos simples para criar algo inesquecível</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                         {[
-                            { value: "50k+", label: "Portas Abertas", icon: PartyPopper },
-                            { value: "12k+", label: "Momentos Mágicos", icon: Heart },
-                            { value: "4.9/5", label: "Satisfação", icon: Star },
-                            { value: "100%", label: "Seguro & Privado", icon: Lock }
-                        ].map((stat, i) => {
-                            const Icon = stat.icon;
+                            { step: "1", title: "Crie", description: "Escolha um tema e monte seu calendário com mensagens, fotos, vídeos, GIFs e mais", icon: Sparkles },
+                            { step: "2", title: "Envie", description: "Compartilhe o link por WhatsApp — a pessoa abre direto no celular, sem instalar nada", icon: Send },
+                            { step: "3", title: "Emocione", description: "A cada dia, uma nova surpresa é revelada. Um presente que dura dias, não minutos", icon: MessageCircleHeart }
+                        ].map((item, i) => {
+                            const Icon = item.icon;
                             return (
-                                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
-                                    <div className="flex justify-center mb-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
-                                            <Icon className="w-7 h-7" style={{ color: currentTheme.colors.accent }} />
-                                        </div>
+                                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }} viewport={{ once: true }} className="text-center">
+                                    <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-6">
+                                        <Icon className="w-8 h-8" style={{ color: currentTheme.colors.accent }} />
                                     </div>
-                                    <p className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-2">{stat.value}</p>
-                                    <p className="text-xs lg:text-sm font-bold uppercase tracking-widest text-white/60">{stat.label}</p>
+                                    <div className="text-sm font-bold uppercase tracking-widest mb-2" style={{ color: currentTheme.colors.accent }}>Passo {item.step}</div>
+                                    <h3 className="text-3xl lg:text-4xl font-extrabold mb-3">{item.title}</h3>
+                                    <p className="text-white/70 font-medium leading-relaxed max-w-xs mx-auto">{item.description}</p>
                                 </motion.div>
                             );
                         })}
+                    </div>
+
+                    {/* Value Props Row */}
+                    <div className="mt-16 pt-12 border-t border-white/10">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                            {[
+                                { icon: Zap, label: "Pronto em 2 min" },
+                                { icon: Smartphone, label: "Funciona no celular" },
+                                { icon: Share2, label: "Envie por WhatsApp" },
+                                { icon: Gift, label: "1 calendário grátis" }
+                            ].map((item, i) => {
+                                const Icon = item.icon;
+                                return (
+                                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
+                                        <Icon className="w-6 h-6 mx-auto mb-3" style={{ color: currentTheme.colors.accent }} />
+                                        <p className="text-sm font-bold uppercase tracking-widest text-white/80">{item.label}</p>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -655,17 +683,37 @@ const LandingPageBrand = () => {
 
                     {/* CTA PART */}
                     <div className="text-center mb-32 max-w-4xl mx-auto">
-                        <div className="w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center shadow-2xl animate-pulse" style={{ backgroundColor: currentTheme.colors.accent }}>
-                            <Sparkles className="w-10 h-10 text-white" />
-                        </div>
-                        <h2 className="text-5xl lg:text-8xl font-extrabold tracking-tighter mb-8 leading-[0.9]">
-                            Crie a sua <span style={{ color: currentTheme.colors.accent }}>Magia</span>
+                        <h2 className="text-5xl lg:text-8xl font-extrabold tracking-tighter mb-6 leading-[0.9]">
+                            Comece <span style={{ color: currentTheme.colors.accent }}>grátis</span>
                         </h2>
-                        <p className="text-xl lg:text-2xl text-white/80 font-medium mb-12 max-w-2xl mx-auto">
-                            Tudo pronto para surpreender? Comece agora e faça alguém sorrir todos os dias.
+                        <p className="text-xl lg:text-2xl text-white/80 font-medium mb-10 max-w-2xl mx-auto">
+                            Crie seu primeiro calendário agora. Se quiser ir além, o Plus custa apenas R$ 14,90.
                         </p>
+
+                        {/* Plan Comparison */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto mb-12">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10 text-left">
+                                <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: currentTheme.colors.accent }}>Grátis</p>
+                                <ul className="space-y-2 text-white/80 text-sm font-medium">
+                                    <li>✓ 1 calendário</li>
+                                    <li>✓ Até 7 dias</li>
+                                    <li>✓ Textos e links</li>
+                                    <li>✓ Compartilhe por WhatsApp</li>
+                                </ul>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/20 text-left ring-2 ring-white/30">
+                                <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: currentTheme.colors.accent }}>Plus · R$ 14,90</p>
+                                <ul className="space-y-2 text-white text-sm font-medium">
+                                    <li>✓ Até 365 dias</li>
+                                    <li>✓ Fotos, vídeos e GIFs</li>
+                                    <li>✓ Temas exclusivos</li>
+                                    <li>✓ Cupons e música</li>
+                                </ul>
+                            </div>
+                        </div>
+
                         <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="py-6 px-12 rounded-full font-bold text-2xl bg-white hover:bg-gray-100 transition-all hover:shadow-2xl hover:scale-105 active:scale-95" style={{ color: currentTheme.colors.primary }}>
-                            Começar Gratuitamente
+                            Criar meu calendário
                         </button>
                     </div>
 
@@ -683,7 +731,7 @@ const LandingPageBrand = () => {
                             <button className="hover:text-white transition-colors" onClick={() => navigate("/privacidade")}>Privacidade</button>
                         </div>
 
-                        <p className="text-white/40 font-medium text-sm">© 2024 Fresta.</p>
+                        <p className="text-white/40 font-medium text-sm">© 2026 Fresta.</p>
                     </div>
                 </div>
             </footer>
