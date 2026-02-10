@@ -39,7 +39,7 @@ export const THEMES: Record<string, ThemeConfig> = {
     carnaval: {
         id: 'carnaval',
         name: 'Carnaval Folia',
-        brandName: 'Fresta Folia',
+        brandName: 'Fresta',
         primaryGradient: 'bg-gradient-to-br from-[#8B5CF6] to-[#D946EF]',
         accentGradient: 'bg-gradient-to-br from-[#F59E0B] to-[#F97316]',
         floatingElement: 'confetti',
@@ -68,7 +68,7 @@ export const THEMES: Record<string, ThemeConfig> = {
     namoro: {
         id: 'namoro',
         name: 'Dia dos Namorados',
-        brandName: 'Fresta Love',
+        brandName: 'Fresta',
         primaryGradient: 'bg-gradient-to-br from-red-500 to-rose-600',
         accentGradient: 'bg-gradient-to-br from-pink-400 to-red-400',
         floatingElement: 'hearts',
@@ -97,7 +97,7 @@ export const THEMES: Record<string, ThemeConfig> = {
     saojoao: {
         id: 'saojoao',
         name: 'Festa Junina',
-        brandName: 'Fresta Junina',
+        brandName: 'Fresta',
         primaryGradient: 'bg-gradient-to-br from-orange-500 to-amber-600',
         accentGradient: 'bg-gradient-to-br from-yellow-400 to-orange-400',
         floatingElement: 'flags',
@@ -126,7 +126,7 @@ export const THEMES: Record<string, ThemeConfig> = {
     casamento: {
         id: 'casamento',
         name: 'Casamento',
-        brandName: 'Fresta Celebra',
+        brandName: 'Fresta',
         primaryGradient: 'bg-gradient-to-br from-[#D4AF37] to-[#B8860B]',
         accentGradient: 'bg-gradient-to-br from-[#F5F0E6] to-[#D4AF37]',
         floatingElement: 'flowers',
