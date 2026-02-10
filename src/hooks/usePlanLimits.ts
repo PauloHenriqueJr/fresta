@@ -10,32 +10,32 @@ import { useAuth } from "@/state/auth/AuthProvider";
 export interface PlanLimits {
   // Is this calendar premium?
   isPremium: boolean;
-  
+
   // Max days allowed
   maxDays: number;
-  
+
   // Feature flags
   canUploadPhotos: boolean;
   canEmbedVideos: boolean;
   canUseAllThemes: boolean;
   canEmbedAudio: boolean;
   canSetPassword: boolean;
-  
+
   // Theme change restrictions (anti-abuse)
   canChangeTheme: boolean;
   themeChangesRemaining: number;
   originalThemeId: string | null;
   lastThemeChange: Date | null;
-  
+
   // UI flags
   showAds: boolean;
   showUpgradePrompt: boolean;
-  
+
   // Expiration
   expiresAt: Date | null;
   daysUntilExpiry: number | null;
   isExpired: boolean;
-  
+
   // Loading state
   isLoading: boolean;
 }
@@ -192,7 +192,7 @@ export function useUserPlanStatus() {
   const [freeCalendarCount, setFreeCalendarCount] = useState(0);
   const [premiumCalendarCount, setPremiumCalendarCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Check admin status from database (user_roles table)
   // SECURITY: Role is fetched from database, not hardcoded
   const isAdmin = useMemo(() => {
@@ -221,7 +221,7 @@ export function useUserPlanStatus() {
 
         const free = data?.filter((c: any) => !c.is_premium).length || 0;
         const premium = data?.filter((c: any) => c.is_premium).length || 0;
-        
+
         setFreeCalendarCount(free);
         setPremiumCalendarCount(premium);
       } catch (error) {
@@ -253,5 +253,5 @@ export function useUserPlanStatus() {
 }
 
 // Plus themes that require payment
-export const PLUS_THEMES = ["casamento", "bodas", "noivado", "reveillon", "viagem", "natal", "pascoa", "carnaval", "saojoao", "independencia"];
+export const PLUS_THEMES = ["casamento", "bodas", "noivado", "reveillon", "viagem", "natal", "pascoa", "saojoao", "independencia"];
 
