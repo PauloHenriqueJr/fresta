@@ -79,7 +79,12 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Calendário atualizado.')),
+        SnackBar(
+          content: const Text('Calendário atualizado com sucesso!'),
+          backgroundColor: const Color(0xFF2D7A5F),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       );
       Navigator.of(context).pop();
     } catch (e) {
@@ -96,108 +101,292 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
     _hydrateIfNeeded();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Editar calendário')),
+      backgroundColor: const Color(0xFFF8F9F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8F9F5),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
+        ),
+        title: const Text(
+          'Editar Calendário',
+          style: TextStyle(
+            color: Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: asyncDetail.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Erro: $error')),
+        loading: () => const Center(
+          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F))),
+        ),
+        error: (error, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFDC2626)),
+                const SizedBox(height: 16),
+                const Text('Erro ao carregar', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF991B1B), fontSize: 18)),
+                const SizedBox(height: 8),
+                Text(error.toString(), textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF5A7470))),
+              ],
+            ),
+          ),
+        ),
         data: (detail) {
           if (detail == null) {
-            return const Center(child: Text('Calendário não encontrado.'));
+            return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
           }
 
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Título'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _themeController,
-                decoration: const InputDecoration(labelText: 'Tema (theme_id)'),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: _privacy,
-                items: const [
-                  DropdownMenuItem(value: 'private', child: Text('Privado')),
-                  DropdownMenuItem(value: 'public', child: Text('Público')),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _privacy = value);
-                },
-                decoration: const InputDecoration(labelText: 'Privacidade'),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: _status,
-                items: const [
-                  DropdownMenuItem(value: 'rascunho', child: Text('Rascunho')),
-                  DropdownMenuItem(value: 'ativo', child: Text('Ativo')),
-                  DropdownMenuItem(value: 'finalizado', child: Text('Finalizado')),
-                  DropdownMenuItem(
-                    value: 'aguardando_pagamento',
-                    child: Text('Aguardando pagamento'),
+          return SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
+                    ],
                   ),
-                  DropdownMenuItem(value: 'inativo', child: Text('Inativo')),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _status = value);
-                },
-                decoration: const InputDecoration(labelText: 'Status'),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Proteção por senha',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                detail.hasPassword
-                    ? 'Este calendário já possui senha. Defina uma nova senha para substituir ou marque para remover.'
-                    : 'Opcional. Defina uma senha para proteger o calendário.',
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                value: _clearPassword,
-                onChanged: (value) => setState(() => _clearPassword = value),
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Remover senha do calendário'),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _passwordController,
-                enabled: !_clearPassword,
-                obscureText: !_showPassword,
-                decoration: InputDecoration(
-                  labelText: detail.hasPassword ? 'Nova senha (opcional)' : 'Senha',
-                  suffixIcon: IconButton(
-                    onPressed: () => setState(() => _showPassword = !_showPassword),
-                    icon: Icon(
-                      _showPassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                    ),
+                  child: Column(
+                    children: [
+                      _StyledTextField(
+                        controller: _titleController,
+                        label: 'Título',
+                        icon: Icons.title_rounded,
+                      ),
+                      const SizedBox(height: 20),
+                      _StyledTextField(
+                        controller: _themeController,
+                        label: 'Tema (Visual)',
+                        icon: Icons.palette_outlined,
+                      ),
+                      const SizedBox(height: 20),
+                      DropdownButtonFormField<String>(
+                        initialValue: _privacy,
+                        icon: const Icon(Icons.unfold_more_rounded, color: Color(0xFF9CA3AF)),
+                        decoration: InputDecoration(
+                          labelText: 'Privacidade',
+                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF2D7A5F)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8F9F5),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'private', child: Text('Privado', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'public', child: Text('Público', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) setState(() => _privacy = value);
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      DropdownButtonFormField<String>(
+                        initialValue: _status,
+                        icon: const Icon(Icons.unfold_more_rounded, color: Color(0xFF9CA3AF)),
+                        decoration: InputDecoration(
+                          labelText: 'Status',
+                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          prefixIcon: const Icon(Icons.info_outline_rounded, color: Color(0xFF2D7A5F)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8F9F5),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'rascunho', child: Text('Rascunho', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'ativo', child: Text('Ativo', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'finalizado', child: Text('Finalizado', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'aguardando_pagamento', child: Text('Aguardando pgto', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'inativo', child: Text('Inativo', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) setState(() => _status = value);
+                        },
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Se deixar o campo de senha vazio, a senha atual é mantida (a menos que "Remover senha" esteja ativo).',
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                Text(_error!, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF7E6),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.password_rounded, color: Color(0xFFF9A03F), size: 24),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Proteção por senha',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF1B4D3E),
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Restrinja o acesso ao seu calendário',
+                                  style: TextStyle(color: Color(0xFF5A7470), fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F9F5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: SwitchListTile(
+                          value: _clearPassword,
+                          onChanged: (value) => setState(() => _clearPassword = value),
+                          activeThumbColor: const Color(0xFF2D7A5F),
+                          title: const Text('Remover senha existente', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF111827))),
+                          subtitle: const Text('Isso deixará o calendário aberto se for público.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _passwordController,
+                        enabled: !_clearPassword,
+                        obscureText: !_showPassword,
+                        style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+                        decoration: InputDecoration(
+                          labelText: detail.hasPassword ? 'Nova senha (opcional)' : 'Senha',
+                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          prefixIcon: const Icon(Icons.lock_rounded, color: Color(0xFF2D7A5F)),
+                          suffixIcon: IconButton(
+                            onPressed: () => setState(() => _showPassword = !_showPassword),
+                            icon: Icon(
+                              _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              color: const Color(0xFF9CA3AF),
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF8F9F5),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Deixe em branco para manter a atual.',
+                        style: TextStyle(color: Color(0xFF6B7280), fontSize: 12, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626)),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(_error!, style: const TextStyle(color: Color(0xFF991B1B), fontWeight: FontWeight.w600, fontSize: 13))),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 32),
+                FilledButton(
+                  onPressed: _saving ? null : _save,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B4D3E),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                    elevation: 0,
+                  ),
+                  child: _saving
+                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                      : const Text('Salvar alterações', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                ),
               ],
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: _saving ? null : _save,
-                child: Text(_saving ? 'Salvando...' : 'Salvar alterações'),
-              ),
-            ],
+            ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _StyledTextField extends StatelessWidget {
+  const _StyledTextField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+        prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
+        filled: true,
+        fillColor: const Color(0xFFF8F9F5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2),
+        ),
       ),
     );
   }

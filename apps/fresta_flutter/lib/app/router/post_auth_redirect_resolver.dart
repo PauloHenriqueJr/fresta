@@ -11,6 +11,6 @@ class PostAuthRedirectResolver {
     final postLogin = controller.consumePostLoginTargetRoute();
     if (postLogin != null && postLogin.isNotEmpty) return postLogin;
 
-    return '/viewer/welcome';
+    return '/creator/home';
   }
 }

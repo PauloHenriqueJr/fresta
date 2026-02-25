@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../auth/application/auth_controller.dart';
 
@@ -17,75 +18,250 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF6F1E8), Color(0xFFEFE6D9)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      backgroundColor: const Color(0xFFF8F9F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8F9F5),
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: IconButton(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
         ),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.go('/account/profile'),
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  ),
-                  const SizedBox(width: 2),
-                  const Text('Configurações', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        title: Text(
+          'Configurações',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: const Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
                 ],
               ),
-              const SizedBox(height: 8),
-              Card(
-                child: Column(
-                  children: [
-                    SwitchListTile(
-                      value: notifications,
-                      onChanged: (value) => setState(() => notifications = value),
-                      title: const Text('Notificações (MVP placeholder)'),
-                      subtitle: const Text('Push nativo entra na Fase 2.'),
+              child: Column(
+                children: [
+                   Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F5E0),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(LucideIcons.bellRing, color: Color(0xFF2D7A5F), size: 24),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Notificações Push',
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Lembretes diários de abertura',
+                                style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch.adaptive(
+                          value: notifications,
+                          onChanged: (value) => setState(() => notifications = value),
+                          activeThumbColor: const Color(0xFF2D7A5F),
+                          activeTrackColor: const Color(0xFFE8F5E0),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.palette_outlined),
-                      title: const Text('Tema'),
-                      subtitle: Text(auth.profile?.themePreference ?? 'system'),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Sessão', style: TextStyle(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 8),
-                      Text(auth.user?.email ?? 'Sem e-mail'),
-                      const SizedBox(height: 14),
-                      FilledButton.tonalIcon(
-                        onPressed: () async {
-                          await ref.read(authControllerProvider.notifier).signOut();
-                          if (!mounted || !context.mounted) return;
-                          context.go('/');
-                        },
-                        icon: const Icon(Icons.logout_rounded),
-                        label: const Text('Sair da conta'),
-                      ),
-                    ],
                   ),
-                ),
+                  Container(
+                    height: 1,
+                    color: const Color(0xFFF3F4F6),
+                    margin: const EdgeInsets.only(left: 76),
+                  ),
+                  Padding(
+                     padding: const EdgeInsets.all(24),
+                     child: InkWell(
+                        onTap: () {},
+                        borderRadius: BorderRadius.circular(12),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF7E6),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(LucideIcons.crown, color: Color(0xFFF9A03F), size: 24),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Plano Fresta',
+                                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Gerenciar assinatura Premium',
+                                    style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(LucideIcons.chevronRight, color: Color(0xFFD1D5DB)),
+                          ],
+                        ),
+                     ),
+                  ),
+                  Container(
+                    height: 1,
+                    color: const Color(0xFFF3F4F6),
+                    margin: const EdgeInsets.only(left: 76),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(LucideIcons.palette, color: Color(0xFF4B5563), size: 24),
+                        ),
+                        const SizedBox(width: 20),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tema do App',
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Atualmente igual ao sistema',
+                                style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                           decoration: BoxDecoration(
+                             color: const Color(0xFFF3F4F6),
+                             borderRadius: BorderRadius.circular(999),
+                           ),
+                           child: Text(
+                            (auth.profile?.themePreference ?? 'Sistema').toUpperCase(),
+                            style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF6B7280), fontSize: 10, letterSpacing: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            
+            const SizedBox(height: 32),
+            const Padding(
+               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+               child: Text(
+                 'SESSÃO AVANÇADA',
+                 style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF9CA3AF),
+                    letterSpacing: 1.2,
+                 ),
+               ),
+            ),
+            
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Sessão Ativa', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Color(0xFF1B4D3E), letterSpacing: -0.5)),
+                  const SizedBox(height: 8),
+                  Text(
+                    auth.user?.email ?? 'Sem e-mail',
+                    style: const TextStyle(color: Color(0xFF5A7470), fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: () async {
+                      await ref.read(authControllerProvider.notifier).signOut();
+                      if (!mounted || !context.mounted) return;
+                      context.go('/');
+                    },
+                    icon: const Icon(LucideIcons.logOut, size: 20),
+                    label: const Text('Sair da conta', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFFEF2F2),
+                      foregroundColor: const Color(0xFFDC2626),
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF9CA3AF),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Excluir conta permanentemente', style: TextStyle(fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

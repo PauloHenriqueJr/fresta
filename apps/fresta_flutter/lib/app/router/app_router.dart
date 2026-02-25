@@ -9,12 +9,15 @@ import '../../features/viewer/presentation/viewer_welcome_screen.dart';
 import '../../features/viewer/presentation/shared_calendar_viewer_screen.dart';
 import '../../features/calendars/presentation/create_calendar_screen.dart';
 import '../../features/calendars/presentation/creator_home_screen.dart';
+import '../../features/calendars/presentation/my_calendars_screen.dart';
 import '../../features/calendars/presentation/calendar_detail_screen.dart';
 import '../../features/calendars/presentation/edit_calendar_screen.dart';
 import '../../features/calendars/presentation/edit_day_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/account_settings_screen.dart';
 import '../../features/navigation/presentation/app_entry_screen.dart';
+import '../../features/navigation/presentation/main_navigation_scaffold.dart';
+import '../../features/explore/presentation/explore_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
@@ -70,40 +73,84 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           calendarId: state.pathParameters['calendarId']!,
         ),
       ),
-      GoRoute(
-        path: '/creator/home',
-        builder: (context, state) => const CreatorHomeScreen(),
-      ),
-      GoRoute(
-        path: '/creator/calendars/new',
-        builder: (context, state) => const CreateCalendarScreen(),
-      ),
-      GoRoute(
-        path: '/creator/calendars/:id',
-        builder: (context, state) => CalendarDetailScreen(
-          calendarId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: '/creator/calendars/:id/edit',
-        builder: (context, state) => EditCalendarScreen(
-          calendarId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: '/creator/calendars/:id/day/:day',
-        builder: (context, state) => EditDayScreen(
-          calendarId: state.pathParameters['id']!,
-          day: int.tryParse(state.pathParameters['day'] ?? '') ?? 1,
-        ),
-      ),
-      GoRoute(
-        path: '/account/profile',
-        builder: (context, state) => const ProfileScreen(),
-      ),
-      GoRoute(
-        path: '/account/settings',
-        builder: (context, state) => const AccountSettingsScreen(),
+      // Main Navigation Shell
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainNavigationScaffold(navigationShell: navigationShell);
+        },
+        branches: [
+          // Branch 0: Início (Home)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/creator/home',
+                builder: (context, state) => const CreatorHomeScreen(),
+              ),
+            ],
+          ),
+          // Branch 1: Calendários
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/creator/calendars',
+                builder: (context, state) => const MyCalendarsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const CreateCalendarScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => CalendarDetailScreen(
+                      calendarId: state.pathParameters['id']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => EditCalendarScreen(
+                          calendarId: state.pathParameters['id']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'day/:day',
+                        builder: (context, state) => EditDayScreen(
+                          calendarId: state.pathParameters['id']!,
+                          day: int.tryParse(state.pathParameters['day'] ?? '') ?? 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Center Button ("+ Criar") is handled in MainNavigationScaffold._onTap
+          
+          // Branch 2: Explorar
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/explore',
+                builder: (context, state) => const ExploreScreen(),
+              ),
+            ],
+          ),
+          // Branch 3: Perfil
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/account/profile',
+                builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'settings',
+                    builder: (context, state) => const AccountSettingsScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );

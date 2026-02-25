@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static ThemeData light() {
-    const background = Color(0xFFF6F1E8);
-    const surface = Color(0xFFFFFBF5);
-    const ink = Color(0xFF1D1B16);
-    const forest = Color(0xFF164A3C);
-    const clay = Color(0xFFD86F45);
-    const gold = Color(0xFFB68A2A);
+    // Fresta Design System Colors 
+    const background = Color(0xFFF8F9F5); // Off-White
+    const surface = Colors.white; 
+    const ink = Color(0xFF1B4D3E); // Deep Green
+    const forest = Color(0xFF2D7A5F); // Forest Green
+    const gold = Color(0xFFF9A03F); // Muted Gold
+    const errorRed = Color(0xFFDC2626); // Accent Red
 
     final scheme = ColorScheme.fromSeed(
       seedColor: forest,
       brightness: Brightness.light,
       primary: forest,
-      secondary: clay,
-      tertiary: gold,
+      secondary: gold,
+      tertiary: ink,
       surface: surface,
+      error: errorRed,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: ink,
     );
 
     return ThemeData(

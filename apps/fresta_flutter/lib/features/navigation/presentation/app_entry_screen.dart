@@ -4,218 +4,327 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/application/auth_controller.dart';
 
-class AppEntryScreen extends ConsumerWidget {
+class AppEntryScreen extends ConsumerStatefulWidget {
   const AppEntryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppEntryScreen> createState() => _AppEntryScreenState();
+}
+
+class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
+  final _linkController = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _linkController.dispose();
+    super.dispose();
+  }
+
+  void _openLink() {
+    final value = _linkController.text.trim();
+    if (value.isEmpty) {
+      setState(() => _error = 'Por favor, insira o link ou ID.');
+      return;
+    }
+
+    Uri? uri = Uri.tryParse(value);
+    if (uri == null) {
+      if (_looksLikeCalendarId(value)) {
+        context.go('/c/$value');
+        return;
+      }
+      setState(() => _error = 'Link inválido. Ex: fresta.app/c/<id>');
+      return;
+    }
+
+    String? id;
+    if (uri.pathSegments.length >= 2 && uri.pathSegments.first == 'c') {
+      id = uri.pathSegments[1];
+    } else if (value.startsWith('/c/')) {
+      id = value.substring(3);
+    } else if (_looksLikeCalendarId(value)) {
+      id = value;
+    }
+
+    if (id != null && id.isNotEmpty && mounted) {
+      setState(() => _error = null);
+      context.go('/c/$id');
+      return;
+    }
+
+    setState(() => _error = 'ID do calendário não encontrado no link.');
+  }
+
+  bool _looksLikeCalendarId(String value) {
+    final v = value.trim();
+    if (v.isEmpty) return false;
+    if (v.contains(' ')) return false;
+    if (v.contains('/')) return false;
+    return v.length >= 8;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
 
     if (auth.isLoading) {
       return Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFF6F1E8), Color(0xFFEDE4D5)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: const Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 12),
-                Text('Abrindo Fresta...'),
-              ],
-            ),
+        backgroundColor: const Color(0xFFF8F9F5),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Abrindo Fresta...',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF1B4D3E),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF6F1E8), Color(0xFFEDE4D5), Color(0xFFF8F4EC)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      backgroundColor: const Color(0xFFF8F9F5),
+      body: Stack(
+        children: [
+            // Cinematic Background with "Fresta" light effect
+          Positioned.fill(
+            child: Container(
+              color: const Color(0xFF13362B), // Very deep green, darker than primary
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Center glowing crack (Fresta)
+                  Container(
+                    width: 4,
+                    height: size.height,
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFF9A03F).withValues(alpha: 0.8), // Muted Gold glow
+                          blurRadius: 120,
+                          spreadRadius: 30,
+                        ),
+                        BoxShadow(
+                          color: const Color(0xFFF9A03F).withValues(alpha: 0.4),
+                          blurRadius: 60,
+                          spreadRadius: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
-            children: [
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF164A3C),
-                  borderRadius: BorderRadius.circular(26),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(999),
+          
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                const SizedBox(height: 48),
+                // Logo section
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.door_sliding_rounded, 
+                        color: Color(0xFFF9A03F),
+                        size: 32,
                       ),
-                      child: const Text(
-                        'Fresta · Calendários compartilháveis',
-                        style: TextStyle(
+                      const SizedBox(width: 12),
+                      Text(
+                        'Fresta',
+                        style: theme.textTheme.headlineLarge?.copyWith(
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 2.0,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Crie momentos\npara abrir no tempo certo.',
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        color: Colors.white,
-                        height: 1.03,
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 48),
+
+                // Viewer Section (Glassmorphic)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(32),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        width: 1,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      auth.isAuthenticated
-                          ? 'Você já está conectado. Entre no modo criador ou abra um calendário compartilhado.'
-                          : 'Receba um link e visualize sem login. Quando quiser, entre para criar o seu e compartilhar também.',
-                      style: const TextStyle(color: Color(0xFFE7E4DB), height: 1.35),
-                    ),
-                    const SizedBox(height: 18),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: const [
-                        _Badge(label: 'Compartilhável'),
-                        _Badge(label: 'Visualização instantânea'),
-                        _Badge(label: 'Criação guiada'),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Ver uma surpresa?',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _linkController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Colar código ou link',
+                            hintStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                            ),
+                            filled: true,
+                            fillColor: Colors.black.withValues(alpha: 0.2),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: _error != null ? const Color(0xFFDC2626) : const Color(0xFFF9A03F),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          onSubmitted: (_) => _openLink(),
+                        ),
+                        if (_error != null) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: Color(0xFFFCA5A5), size: 16),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _error!,
+                                  style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 13),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
-                      ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: _openLink,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFF9A03F), // Muted Gold
+                            foregroundColor: const Color(0xFF1B4D3E), // Deep green text
+                            minimumSize: const Size.fromHeight(56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            'Visualizar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+                
+                // Separator
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2), indent: 48, endIndent: 16)),
+                    Text('ou', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.2), indent: 16, endIndent: 48)),
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              _ActionCard(
-                title: 'Visualizar um calendário',
-                subtitle:
-                    'Recebeu um link? O app abre direto em /c/:id. Você também pode navegar no modo visualização.',
-                accent: const Color(0xFFD86F45),
-                icon: Icons.visibility_outlined,
-                actionLabel: 'Modo visualização',
-                onTap: () => context.go('/viewer/welcome'),
-              ),
-              const SizedBox(height: 12),
-              _ActionCard(
-                title: auth.isAuthenticated ? 'Modo criador' : 'Criar meu calendário',
-                subtitle: auth.isAuthenticated
-                    ? 'Gerencie seus calendários, edite dias e compartilhe o link público.'
-                    : 'Entre com Google ou link mágico para criar e editar seus calendários no app.',
-                accent: const Color(0xFFB68A2A),
-                icon: auth.isAuthenticated ? Icons.grid_view_rounded : Icons.auto_awesome_rounded,
-                actionLabel: auth.isAuthenticated ? 'Abrir criador' : 'Entrar para criar',
-                onTap: () => context.go(auth.isAuthenticated ? '/creator/home' : '/auth/login'),
-              ),
-              if (auth.isAuthenticated) ...[
-                const SizedBox(height: 12),
-                TextButton.icon(
-                  onPressed: () => context.go('/account/profile'),
-                  icon: const Icon(Icons.person_outline_rounded),
-                  label: const Text('Ver perfil e configurações'),
+
+                const SizedBox(height: 32),
+
+                // Creator Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: FilledButton(
+                    onPressed: () {
+                      if (auth.isAuthenticated) {
+                        context.go('/creator/home');
+                      } else {
+                        context.go('/auth/login');
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF1B4D3E),
+                      minimumSize: const Size.fromHeight(60),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      auth.isAuthenticated ? 'Ir para Meus Calendários' : 'Criar minha conta',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ],
-            ],
+                
+                if (!auth.isAuthenticated) ...[
+                  const SizedBox(height: 16),
+                  Center(
+                    child: TextButton(
+                      onPressed: () => context.go('/auth/login'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white.withValues(alpha: 0.8),
+                      ),
+                      child: const Text(
+                        'Já tenho conta — Entrar',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 48),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.accent,
-    required this.icon,
-    required this.actionLabel,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final Color accent;
-  final IconData icon;
-  final String actionLabel;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(icon, color: accent),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(subtitle),
-            const SizedBox(height: 14),
-            FilledButton(
-              onPressed: onTap,
-              style: FilledButton.styleFrom(backgroundColor: accent),
-              child: Text(actionLabel),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  const _Badge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
-      ),
-    );
-  }
-}

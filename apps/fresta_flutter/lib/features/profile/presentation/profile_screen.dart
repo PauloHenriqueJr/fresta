@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../auth/application/auth_controller.dart';
 
@@ -15,92 +16,271 @@ class ProfileScreen extends ConsumerWidget {
     final display = profile?.displayName ?? user?.email ?? 'Usuário';
     final initial = (display.isNotEmpty ? display.characters.first : 'U').toUpperCase();
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF6F1E8), Color(0xFFEFE6D9)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      backgroundColor: const Color(0xFFF8F9F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8F9F5),
+        elevation: 0,
+        title: Text(
+          'Perfil',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: const Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
           ),
         ),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.go('/creator/home'),
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  ),
-                  const SizedBox(width: 2),
-                  const Text('Perfil', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+          children: [
+            // User Card
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1B4D3E), Color(0xFF2D7A5F)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x331B4D3E), blurRadius: 24, offset: Offset(0, 12)),
                 ],
               ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFBF5),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFF0E6D8)),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: const Color(0xFF164A3C),
-                      child: Text(
-                        initial,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 20,
+              child: Stack(
+                children: [
+                   Positioned(
+                    top: -40,
+                    right: -20,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [Color(0x20F9A03F), Colors.transparent],
                         ),
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            display,
-                            style: Theme.of(context).textTheme.titleLarge,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9A03F),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x4DF9A03F),
+                              blurRadius: 16,
+                              offset: Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 32,
                           ),
-                          const SizedBox(height: 4),
-                          Text(user?.email ?? profile?.email ?? 'Sem e-mail'),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              display,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: -0.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              user?.email ?? profile?.email ?? 'Sem e-mail',
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w500),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 32),
+            const Padding(
+               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+               child: Text(
+                 'MENU PRINCIPAL',
+                 style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF9CA3AF),
+                    letterSpacing: 1.2,
+                 ),
+               ),
+            ),
+
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _ProfileMenuItem(
+                    icon: LucideIcons.settings,
+                    iconColor: const Color(0xFF1B4D3E),
+                    iconBgColor: const Color(0xFFF3F4F6),
+                    title: 'Configurações da conta',
+                    subtitle: 'Preferências, plano e sessão',
+                    onTap: () => context.push('/account/settings'),
+                  ),
+                  Container(
+                    height: 1,
+                    color: const Color(0xFFF3F4F6),
+                    margin: const EdgeInsets.only(left: 76),
+                  ),
+                  _ProfileMenuItem(
+                    icon: LucideIcons.bell,
+                    iconColor: const Color(0xFFF9A03F),
+                    iconBgColor: const Color(0xFFFFF7E6),
+                    title: 'Notificações',
+                    subtitle: 'Lembretes dos calendários',
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Comunicação e lembretes estarão disponíveis em breve!'),
+                          backgroundColor: const Color(0xFF1B4D3E),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                      );
+                    },
+                  ),
+                  Container(
+                    height: 1,
+                    color: const Color(0xFFF3F4F6),
+                    margin: const EdgeInsets.only(left: 76),
+                  ),
+                  _ProfileMenuItem(
+                    icon: LucideIcons.handHelping,
+                    iconColor: const Color(0xFF2D7A5F),
+                    iconBgColor: const Color(0xFFE8F5E0),
+                    title: 'Ajuda e Suporte',
+                    subtitle: 'Fale com a equipe Fresta',
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Nossa central de ajuda estará disponível em breve!'),
+                          backgroundColor: const Color(0xFF1B4D3E),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            
+             const SizedBox(height: 32),
+             Center(
+              child: Text(
+                'Fresta v1.0.0',
+                style: TextStyle(
+                  color: const Color(0xFF9CA3AF),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 12),
-              Card(
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileMenuItem extends StatelessWidget {
+  const _ProfileMenuItem({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBgColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBgColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(28),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.settings_outlined),
-                      title: const Text('Configurações da conta'),
-                      subtitle: const Text('Preferências e sessão'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context.go('/account/settings'),
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.calendar_month_outlined),
-                      title: const Text('Meus calendários'),
-                      subtitle: const Text('Abrir área de criação'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => context.go('/creator/home'),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ),
+              const Icon(LucideIcons.chevronRight, color: Color(0xFFD1D5DB)),
             ],
           ),
         ),

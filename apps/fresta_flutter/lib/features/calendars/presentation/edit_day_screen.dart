@@ -90,98 +90,227 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
     _maybeHydrate();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Editar Dia ${widget.day}')),
+      backgroundColor: const Color(0xFFF8F9F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8F9F5),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
+        ),
+        title: Text(
+          'Editar Dia ${widget.day}',
+          style: const TextStyle(
+            color: Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: asyncDetail.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Erro: $error')),
+        loading: () => const Center(
+          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F))),
+        ),
+        error: (error, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFDC2626)),
+                const SizedBox(height: 16),
+                const Text('Erro ao carregar', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF991B1B), fontSize: 18)),
+                const SizedBox(height: 8),
+                Text(error.toString(), textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF5A7470))),
+              ],
+            ),
+          ),
+        ),
         data: (detail) {
-          if (detail == null) return const Center(child: Text('Calendário não encontrado'));
+          if (detail == null) {
+            return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
+          }
 
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFBF5),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF0E6D8)),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Conteúdo do dia', style: TextStyle(fontWeight: FontWeight.w700)),
-                    SizedBox(height: 6),
-                    Text('Você pode salvar texto, link, rótulo e tipo de conteúdo para esse dia.'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String?>(
-                initialValue: _contentType,
-                items: const [
-                  DropdownMenuItem<String?>(value: null, child: Text('Sem tipo')),
-                  DropdownMenuItem<String?>(value: 'text', child: Text('Texto')),
-                  DropdownMenuItem<String?>(value: 'photo', child: Text('Foto')),
-                  DropdownMenuItem<String?>(value: 'gif', child: Text('GIF')),
-                  DropdownMenuItem<String?>(value: 'link', child: Text('Link')),
-                  DropdownMenuItem<String?>(value: 'music', child: Text('Música')),
-                ],
-                onChanged: (value) => setState(() => _contentType = value),
-                decoration: const InputDecoration(
-                  labelText: 'Tipo de conteúdo',
-                  prefixIcon: Icon(Icons.category_outlined),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _messageController,
-                minLines: 3,
-                maxLines: 6,
-                decoration: const InputDecoration(
-                  labelText: 'Mensagem',
-                  prefixIcon: Icon(Icons.notes_rounded),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _urlController,
-                decoration: const InputDecoration(
-                  labelText: 'URL',
-                  prefixIcon: Icon(Icons.link_rounded),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _labelController,
-                decoration: const InputDecoration(
-                  labelText: 'Rótulo (opcional)',
-                  prefixIcon: Icon(Icons.label_outline_rounded),
-                ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
+          return SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
+              children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFECEA),
-                    borderRadius: BorderRadius.circular(14),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
+                    ],
                   ),
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: Color(0xFFB33B2E), fontWeight: FontWeight.w600),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7E6),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.festival_rounded, color: Color(0xFFF9A03F), size: 32),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Conteúdo do dia',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1B4D3E),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Crie uma mensagem especial, adicione fotos, vídeos e links para surpreender neste dia.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, height: 1.4),
+                      ),
+                      const SizedBox(height: 24),
+                      DropdownButtonFormField<String?>(
+                        initialValue: _contentType,
+                        icon: const Icon(Icons.unfold_more_rounded, color: Color(0xFF9CA3AF)),
+                        decoration: InputDecoration(
+                          labelText: 'Tipo de conteúdo',
+                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          prefixIcon: const Icon(Icons.category_outlined, color: Color(0xFF2D7A5F)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8F9F5),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                        ),
+                        items: const [
+                          DropdownMenuItem<String?>(value: null, child: Text('Sem tipo definido', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'text', child: Text('Apenas Texto', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'photo', child: Text('Foto ou Galeria', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'gif', child: Text('Desafio ou GIF', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'link', child: Text('Redirecionamento / Link', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'music', child: Text('Música Spotify', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                        ],
+                        onChanged: (value) => setState(() => _contentType = value),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _messageController,
+                        minLines: 4,
+                        maxLines: 6,
+                        style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w500),
+                        decoration: InputDecoration(
+                          labelText: 'Mensagem do Dia',
+                          alignLabelWithHint: true,
+                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          hintText: 'Digite a surpresa ou recado para esta data...',
+                          hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                          filled: true,
+                          fillColor: const Color(0xFFF8F9F5),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _StyledTextField(
+                        controller: _urlController,
+                        label: 'URL ou Link (Opcional)',
+                        icon: Icons.link_rounded,
+                        hint: 'https://...',
+                      ),
+                      const SizedBox(height: 20),
+                      _StyledTextField(
+                        controller: _labelController,
+                        label: 'Rótulo do Link',
+                        icon: Icons.label_outline_rounded,
+                        hint: 'Ex: Ouvir no Spotify',
+                      ),
+                    ],
+                  ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFCA5A5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626)),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(_error!, style: const TextStyle(color: Color(0xFF991B1B), fontWeight: FontWeight.w600, fontSize: 13))),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 32),
+                FilledButton.icon(
+                  onPressed: _saving ? null : _save,
+                  icon: _saving ? const SizedBox.shrink() : const Icon(Icons.check_rounded, size: 22),
+                  label: _saving
+                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                      : const Text('Salvar Dia', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B4D3E),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                    elevation: 0,
                   ),
                 ),
               ],
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: _saving ? null : _save,
-                icon: const Icon(Icons.check_rounded),
-                label: Text(_saving ? 'Salvando...' : 'Salvar dia'),
-              ),
-            ],
+            ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _StyledTextField extends StatelessWidget {
+  const _StyledTextField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    this.hint,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final String? hint;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500),
+        prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
+        filled: true,
+        fillColor: const Color(0xFFF8F9F5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2),
+        ),
       ),
     );
   }
