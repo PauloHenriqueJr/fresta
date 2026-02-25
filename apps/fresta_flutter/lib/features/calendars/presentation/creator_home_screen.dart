@@ -180,7 +180,7 @@ class CreatorHomeScreen extends ConsumerWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => context.go('/creator/home/themes'),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF2D7A5F),
                     padding: EdgeInsets.zero,

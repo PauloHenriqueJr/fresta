@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../application/calendar_providers.dart';
 
@@ -58,7 +59,7 @@ class MyCalendarsScreen extends ConsumerWidget {
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('Tentar novamente'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1B4D3E), // Deep Green
+                      backgroundColor: const Color(0xFF1B4D3E),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
                   ),
@@ -131,11 +132,19 @@ class MyCalendarsScreen extends ConsumerWidget {
                   for (final item in items) ...[
                     _CalendarCard(
                       title: item.title,
-                      meta: '${item.themeId} • ${item.duration} dias',
+                      meta: '${_getThemeName(item.themeId)} • ${item.duration} dias',
                       status: item.status,
-                      privacy: item.privacy,
-                      premium: item.isPremium,
+                      themeId: item.themeId,
                       onTap: () => context.go('/creator/calendars/${item.id}'),
+                      onShare: () {
+                        // Direct share
+                        SharePlus.instance.share(
+                          ShareParams(
+                            text: '🎉 Tenho uma surpresa para você! Abra minha Fresta:\n\nhttps://fresta.app/c/${item.id}',
+                            subject: 'Minha surpresa no Fresta',
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                   ],
@@ -147,6 +156,29 @@ class MyCalendarsScreen extends ConsumerWidget {
       ),
     );
   }
+
+  String _getThemeName(String themeId) {
+    final mapping = {
+      'namoro': 'Namoro',
+      'casamento': 'Casamento',
+      'aniversario': 'Aniversário',
+      'bodas': 'Bodas',
+      'carnaval': 'Carnaval',
+      'diadascriancas': 'Dia das Crianças',
+      'diadasmaes': 'Dia das Mães',
+      'diadospais': 'Dia dos Pães',
+      'estudo': 'Estudo',
+      'independencia': 'Independência',
+      'metas': 'Metas',
+      'natal': 'Natal',
+      'noivado': 'Noivado',
+      'pascoa': 'Páscoa',
+      'reveillon': 'Réveillon',
+      'saojoao': 'São João',
+      'viagem': 'Viagem',
+    };
+    return mapping[themeId] ?? 'Custom';
+  }
 }
 
 class _CalendarCard extends StatelessWidget {
@@ -154,17 +186,17 @@ class _CalendarCard extends StatelessWidget {
     required this.title,
     required this.meta,
     required this.status,
-    required this.privacy,
-    required this.premium,
+    required this.themeId,
     required this.onTap,
+    required this.onShare,
   });
 
   final String title;
   final String meta;
   final String status;
-  final String privacy;
-  final bool premium;
+  final String themeId;
   final VoidCallback onTap;
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -172,15 +204,15 @@ class _CalendarCard extends StatelessWidget {
     final Color finalStatusColor;
     final String finalStatusLabel;
     
-    // Simplification for the new UI design map
-    
     if (status == 'ativo' || status == 'active') {
-      finalStatusColor = const Color(0xFF2D7A5F); // Forest Green
+      finalStatusColor = const Color(0xFF2D7A5F);
       finalStatusLabel = 'Ativo';
     } else {
-      finalStatusColor = const Color(0xFF6B7280); // Gray
+      finalStatusColor = const Color(0xFF6B7280);
       finalStatusLabel = 'Rascunho';
     }
+
+    final imageAsset = _getThemeImageAsset(themeId);
 
     return Container(
       decoration: BoxDecoration(
@@ -194,25 +226,30 @@ class _CalendarCard extends StatelessWidget {
           ),
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(24),
           onTap: onTap,
-          splashColor: finalStatusColor.withValues(alpha: 0.1),
-          highlightColor: finalStatusColor.withValues(alpha: 0.05),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
+                // Theme Image Preview
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
                     color: finalStatusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(Icons.calendar_month_rounded, color: finalStatusColor, size: 24),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    imageAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => 
+                      Icon(Icons.calendar_month_rounded, color: finalStatusColor, size: 24),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -240,26 +277,18 @@ class _CalendarCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          _SmallTag(label: finalStatusLabel, color: finalStatusColor),
-                        ],
-                      ),
+                      _SmallTag(label: finalStatusLabel, color: finalStatusColor),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.share_rounded, size: 20, color: Color(0xFF9CA3AF)),
-                      onPressed: () {
-                         // TODO share link
-                      },
-                    ),
-                    const Icon(Icons.chevron_right_rounded, color: Color(0xFFD1D5DB)),
-                  ],
+                IconButton(
+                  icon: const Icon(Icons.share_rounded, size: 22, color: Color(0xFF2D7A5F)),
+                  onPressed: onShare,
+                  style: IconButton.styleFrom(
+                    backgroundColor: const Color(0xFFF0FDF4),
+                    padding: const EdgeInsets.all(8),
+                  ),
                 ),
               ],
             ),
@@ -268,7 +297,29 @@ class _CalendarCard extends StatelessWidget {
       ),
     );
   }
+
+  String _getThemeImageAsset(String themeId) {
+    final mapping = {
+      'namoro': 'assets/images/themes/mascot-namoro.jpg',
+      'love': 'assets/images/themes/mascot-love.jpg',
+      'casamento': 'assets/images/themes/mascot-casamento.jpg',
+      'aniversario': 'assets/images/themes/mascot-aniversario.jpg',
+      'bodas': 'assets/images/themes/mascot-bodas.jpg',
+      'viagem': 'assets/images/themes/mascot-viagem.jpg',
+      'natal': 'assets/images/themes/mascot-natal.jpg',
+      'noivado': 'assets/images/themes/mascot-noivado.jpg',
+      'pascoa': 'assets/images/themes/mascot-pascoa.jpg',
+      'reveillon': 'assets/images/themes/mascot-reveillon.jpg',
+      'diadasmaes': 'assets/images/themes/mascot-diadasmaes.jpg',
+      'diadospais': 'assets/images/themes/mascot-diadospais.jpg',
+      'diadascriancas': 'assets/images/themes/mascot-diadascriancas.jpg',
+      'estudo': 'assets/images/themes/mascot-estudo.jpg',
+      'metas': 'assets/images/themes/mascot-metas.jpg',
+    };
+    return mapping[themeId] ?? 'assets/images/themes/mascot-aniversario.jpg';
+  }
 }
+
 
 class _SmallTag extends StatelessWidget {
   const _SmallTag({required this.label, required this.color});

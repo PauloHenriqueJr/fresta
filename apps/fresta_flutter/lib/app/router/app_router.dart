@@ -17,6 +17,7 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/account_settings_screen.dart';
 import '../../features/navigation/presentation/app_entry_screen.dart';
 import '../../features/navigation/presentation/main_navigation_scaffold.dart';
+import '../../features/calendars/presentation/themes_selection_screen.dart';
 import '../../features/explore/presentation/explore_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -39,7 +40,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             .setPendingDeepLinkRoute(location);
       }
 
-      if (isViewerRoute || isAuthRoute) return null;
+      if (isViewerRoute || isAuthRoute) {
+        if (location == '/' && authState.isAuthenticated) {
+          return '/creator/home';
+        }
+        return null;
+      }
 
       if (requiresAuth && !authState.isAuthenticated) {
         ref
@@ -85,6 +91,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/creator/home',
                 builder: (context, state) => const CreatorHomeScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'themes',
+                    builder: (context, state) => const ThemesSelectionScreen(),
+                  ),
+                ],
               ),
             ],
           ),
