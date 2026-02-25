@@ -12,27 +12,28 @@ class MyCalendarsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncCalendars = ref.watch(myCalendarsProvider);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: false,
         title: Text(
           'Meus Calendários',
           style: theme.textTheme.headlineMedium?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
       ),
       body: SafeArea(
         child: asyncCalendars.when(
-          loading: () => const Center(
+          loading: () => Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)),
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             ),
           ),
           error: (error, _) => Center(
@@ -41,17 +42,21 @@ class MyCalendarsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFDC2626)),
+                   Icon(Icons.error_outline_rounded, size: 48, color: colorScheme.error),
                   const SizedBox(height: 16),
                   Text(
                     'Ops! Algo deu errado.',
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, color: const Color(0xFF991B1B)),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800, 
+                      color: colorScheme.error,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     error.toString(),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF5A7470)),
+                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
                   ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
@@ -59,8 +64,7 @@ class MyCalendarsScreen extends ConsumerWidget {
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('Tentar novamente'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1B4D3E),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                   ),
                 ],
@@ -78,13 +82,13 @@ class MyCalendarsScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: const [
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
                         BoxShadow(
-                          color: Color(0x08000000),
-                          blurRadius: 16,
-                          offset: Offset(0, 4),
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
                       ],
                     ),
@@ -94,36 +98,37 @@ class MyCalendarsScreen extends ConsumerWidget {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFF7E6),
+                            color: colorScheme.secondary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          child: const Icon(Icons.redeem_rounded, size: 40, color: Color(0xFFF9A03F)),
+                          child: Icon(Icons.redeem_rounded, size: 40, color: colorScheme.secondary),
                         ),
                         const SizedBox(height: 24),
-                        const Text(
+                        Text(
                           'Sua jornada começa aqui',
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18,
-                            color: Color(0xFF1B4D3E),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 20,
+                            color: colorScheme.onSurface,
+                            letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Crie um calendário inesquecível, personalize as mensagens diárias e emocione quem o receber.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Color(0xFF5A7470), height: 1.5),
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withValues(alpha: 0.6), 
+                            height: 1.5,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         FilledButton.icon(
                           onPressed: () => context.go('/creator/calendars/new'),
                           icon: const Icon(Icons.add_rounded),
-                          label: const Text('Novo calendário', style: TextStyle(fontWeight: FontWeight.w700)),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF1B4D3E),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                          ),
+                          label: const Text('Novo calendário'),
                         ),
                       ],
                     ),
@@ -214,15 +219,18 @@ class _CalendarCard extends StatelessWidget {
 
     final imageAsset = _getThemeImageAsset(themeId);
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 16,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -258,10 +266,11 @@ class _CalendarCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
                           fontSize: 16,
-                          color: Color(0xFF1B4D3E),
+                          color: colorScheme.onSurface,
+                          letterSpacing: -0.3,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -271,9 +280,10 @@ class _CalendarCard extends StatelessWidget {
                         meta, 
                         maxLines: 1, 
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Color(0xFF5A7470),
+                        style: TextStyle(
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -283,10 +293,10 @@ class _CalendarCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.share_rounded, size: 22, color: Color(0xFF2D7A5F)),
+                  icon: Icon(Icons.share_rounded, size: 22, color: colorScheme.primary),
                   onPressed: onShare,
                   style: IconButton.styleFrom(
-                    backgroundColor: const Color(0xFFF0FDF4),
+                    backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                     padding: const EdgeInsets.all(8),
                   ),
                 ),

@@ -18,18 +18,19 @@ class ProfileScreen extends ConsumerWidget {
     final isAvatarUrl = profile?.avatar != null && profile!.avatar!.startsWith('http');
 
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         title: Text(
           'Perfil',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
         centerTitle: true,
@@ -42,14 +43,14 @@ class ProfileScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1B4D3E), Color(0xFF2D7A5F)],
+                gradient: LinearGradient(
+                  colors: [colorScheme.tertiary, colorScheme.primary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(32),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x331B4D3E), blurRadius: 24, offset: Offset(0, 12)),
+                boxShadow: [
+                  BoxShadow(color: colorScheme.tertiary.withValues(alpha: 0.2), blurRadius: 24, offset: const Offset(0, 12)),
                 ],
               ),
               child: Stack(
@@ -74,14 +75,14 @@ class ProfileScreen extends ConsumerWidget {
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF9A03F),
+                          color: colorScheme.secondary,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 4),
-                          boxShadow: const [
+                          boxShadow: [
                             BoxShadow(
-                              color: Color(0x4DF9A03F),
+                              color: colorScheme.secondary.withValues(alpha: 0.3),
                               blurRadius: 16,
-                              offset: Offset(0, 8),
+                              offset: const Offset(0, 8),
                             ),
                           ],
                           image: isAvatarUrl
@@ -151,44 +152,44 @@ class ProfileScreen extends ConsumerWidget {
 
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
                 ],
               ),
               child: Column(
                 children: [
                   _ProfileMenuItem(
                     icon: LucideIcons.settings,
-                    iconColor: const Color(0xFF1B4D3E),
-                    iconBgColor: const Color(0xFFF3F4F6),
+                    iconColor: colorScheme.primary,
+                    iconBgColor: colorScheme.primary.withValues(alpha: 0.1),
                     title: 'Configurações da conta',
                     subtitle: 'Preferências, plano e sessão',
                     onTap: () => context.push('/account/profile/settings'),
                   ),
                   Container(
                     height: 1,
-                    color: const Color(0xFFF3F4F6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.05),
                     margin: const EdgeInsets.only(left: 76),
                   ),
                   _ProfileMenuItem(
                     icon: LucideIcons.bell,
-                    iconColor: const Color(0xFFF9A03F),
-                    iconBgColor: const Color(0xFFFFF7E6),
+                    iconColor: colorScheme.secondary,
+                    iconBgColor: colorScheme.secondary.withValues(alpha: 0.1),
                     title: 'Notificações',
                     subtitle: 'Lembretes dos calendários',
                     onTap: () => context.push('/account/profile/notifications'),
                   ),
                   Container(
                     height: 1,
-                    color: const Color(0xFFF3F4F6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.05),
                     margin: const EdgeInsets.only(left: 76),
                   ),
                   _ProfileMenuItem(
                     icon: LucideIcons.handHelping,
-                    iconColor: const Color(0xFF2D7A5F),
-                    iconBgColor: const Color(0xFFE8F5E0),
+                    iconColor: colorScheme.primary,
+                    iconBgColor: colorScheme.primary.withValues(alpha: 0.1),
                     title: 'Ajuda e Suporte',
                     subtitle: 'Fale com a equipe Fresta',
                     onTap: () => context.push('/account/profile/help'),
@@ -235,6 +236,9 @@ class _ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -261,17 +265,17 @@ class _ProfileMenuItem extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: colorScheme.onSurface, letterSpacing: -0.3),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ),
-              const Icon(LucideIcons.chevronRight, color: Color(0xFFD1D5DB)),
+              Icon(LucideIcons.chevronRight, color: colorScheme.onSurface.withValues(alpha: 0.2)),
             ],
           ),
         ),

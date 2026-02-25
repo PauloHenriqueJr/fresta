@@ -11,34 +11,31 @@ class CreatorHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final displayName = auth.profile?.displayName ?? auth.user?.email ?? 'Criador';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
-        elevation: 0,
         centerTitle: false,
         title: Text(
           'Fresta',
           style: theme.textTheme.headlineMedium?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            color: colorScheme.secondary,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
         actions: [
           IconButton(
             onPressed: () => context.go('/account/profile'),
-            icon: const Icon(Icons.person_outline_rounded, color: Color(0xFF1B4D3E)),
+            icon: Icon(Icons.person_outline_rounded, color: colorScheme.onSurface),
             tooltip: 'Perfil',
           ),
           IconButton(
             onPressed: () async {
               await ref.read(authControllerProvider.notifier).signOut();
-              if (context.mounted) context.go('/viewer/welcome');
             },
-            icon: const Icon(Icons.logout_rounded, color: Color(0xFF1B4D3E)),
+            icon: Icon(Icons.logout_rounded, color: colorScheme.onSurface),
             tooltip: 'Sair',
           ),
           const SizedBox(width: 8),
@@ -48,34 +45,38 @@ class CreatorHomeScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
           children: [
-            // Premium Welcome Header
-            Text(
-              'Olá, ${displayName.split('@').first}',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: const Color(0xFF1B4D3E),
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Qual surpresa vamos preparar hoje?',
-              style: TextStyle(
-                color: Color(0xFF5A7470),
-                fontSize: 16,
-              ),
+            // Premium Welcome Header with Muted Greeting
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Olá, ${displayName.split('@').first}',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Qual surpresa vamos preparar hoje?',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 32),
 
-            // Main Featured Concept Card
+            // Main Featured Concept Card - Premium Gradient & Glassmorphism
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: const [
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
                   BoxShadow(
-                    color: Color(0x331B4D3E),
-                    blurRadius: 32,
-                    offset: Offset(0, 16),
+                    color: colorScheme.primary.withValues(alpha: 0.2),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
                   ),
                 ],
               ),
@@ -84,25 +85,32 @@ class CreatorHomeScreen extends ConsumerWidget {
                 children: [
                   Positioned.fill(
                     child: Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFF1B4D3E), Color(0xFF2D7A5F)],
+                          colors: [
+                            colorScheme.tertiary,
+                            colorScheme.primary,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                       ),
                     ),
                   ),
+                  // Background Pattern/Glow
                   Positioned(
-                    top: -40,
-                    right: -40,
+                    top: -60,
+                    right: -60,
                     child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: const BoxDecoration(
+                      width: 240,
+                      height: 240,
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
-                          colors: [Color(0x30F9A03F), Colors.transparent],
+                          colors: [
+                            colorScheme.secondary.withValues(alpha: 0.4),
+                            Colors.transparent,
+                          ],
                         ),
                       ),
                     ),
@@ -113,17 +121,25 @@ class CreatorHomeScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF9A03F),
+                            color: colorScheme.secondary,
                             borderRadius: BorderRadius.circular(999),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colorScheme.secondary.withValues(alpha: 0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
                           child: const Text(
-                            'Novo Tema Disponível',
+                            'NOVO TEMA',
                             style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 10,
+                              letterSpacing: 1.0,
                             ),
                           ),
                         ),
@@ -132,32 +148,42 @@ class CreatorHomeScreen extends ConsumerWidget {
                           'Aniversário\nInesquecível',
                           style: theme.textTheme.headlineMedium?.copyWith(
                             color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
                             height: 1.1,
-                            letterSpacing: -0.5,
+                            letterSpacing: -1.0,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'Um tema vibrante para celebrar mais um ano de vida com surpresas diárias.',
                           style: TextStyle(
-                            color: Color(0xFFE8F5E0),
-                            height: 1.4,
+                            color: Colors.white.withValues(alpha: 0.8),
+                            height: 1.5,
                             fontSize: 15,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         FilledButton(
                           onPressed: () => context.go('/creator/calendars/new'),
                           style: FilledButton.styleFrom(
                             backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF1B4D3E),
-                            minimumSize: const Size(140, 48),
+                            foregroundColor: colorScheme.tertiary,
+                            minimumSize: const Size(160, 54),
+                            elevation: 8,
+                            shadowColor: Colors.black.withValues(alpha: 0.2),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text('Usar Tema', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Começar agora', style: TextStyle(fontWeight: FontWeight.w800)),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward_rounded, size: 18),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -167,33 +193,30 @@ class CreatorHomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 48),
 
-            // Theme Discovery Section
+            // Theme Discovery Section Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   'Explore Temas',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: const Color(0xFF1B4D3E),
-                    fontWeight: FontWeight.bold,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 20,
                   ),
                 ),
                 TextButton(
                   onPressed: () => context.go('/creator/home/themes'),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF2D7A5F),
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
+                    foregroundColor: colorScheme.primary,
                   ),
-                  child: const Text('Ver todos', style: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('Ver todos', style: TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             
             SizedBox(
-              height: 200,
+              height: 220,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
@@ -202,11 +225,11 @@ class CreatorHomeScreen extends ConsumerWidget {
                     title: 'Namoro\nInesquecível',
                     category: 'Romance',
                     isPremium: false,
-                    gradientColors: const [Color(0xFFE8F5E0), Color(0xFFC8E6C9)],
+                    gradientColors: [colorScheme.primaryContainer, colorScheme.primaryContainer.withValues(alpha: 0.5)],
                     imageAsset: 'assets/images/themes/mascot-namoro.jpg',
                     onTap: () => context.go('/creator/calendars/new'),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   _ThemePreviewCard(
                     title: 'Casamento\nPerfeito',
                     category: 'Amor',
@@ -215,7 +238,7 @@ class CreatorHomeScreen extends ConsumerWidget {
                     imageAsset: 'assets/images/themes/casamento.png',
                     onTap: () => context.go('/creator/calendars/new'),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   _ThemePreviewCard(
                     title: 'Feliz\nAniversário',
                     category: 'Celebração',
@@ -224,130 +247,13 @@ class CreatorHomeScreen extends ConsumerWidget {
                     imageAsset: 'assets/images/themes/mascot-aniversario.jpg',
                     onTap: () => context.go('/creator/calendars/new'),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   _ThemePreviewCard(
                     title: 'Nossas\nBodas',
                     category: 'Romance',
                     isPremium: true,
                     gradientColors: const [Color(0xFFFCE7F3), Color(0xFFFBCFE8)],
                     imageAsset: 'assets/images/themes/mascot-bodas.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Especial\nCarnaval',
-                    category: 'Festa',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFFDF4FF), Color(0xFFF5D0FE)],
-                    imageAsset: 'assets/images/themes/carnaval.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Dia das\nCrianças',
-                    category: 'Família',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFE0F2FE), Color(0xFFBAE6FD)],
-                    imageAsset: 'assets/images/themes/mascot-diadascriancas.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Dia das\nMães',
-                    category: 'Família',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFFFF1F2), Color(0xFFFECDD3)],
-                    imageAsset: 'assets/images/themes/mascot-diadasmaes.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Dia dos\nPais',
-                    category: 'Família',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
-                    imageAsset: 'assets/images/themes/mascot-diadospais.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Foco nos\nEstudos',
-                    category: 'Metas',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFF3F4F6), Color(0xFFE5E7EB)],
-                    imageAsset: 'assets/images/themes/mascot-estudo.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Independência\ndo Brasil',
-                    category: 'Feriado',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFECFCCB), Color(0xFFD9F99D)],
-                    imageAsset: 'assets/images/themes/independencia.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Nossas\nMetas',
-                    category: 'Metas',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFFEF3C7), Color(0xFFFDE68A)],
-                    imageAsset: 'assets/images/themes/mascot-metas.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Feliz\nNatal',
-                    category: 'Feriado',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFFEF2F2), Color(0xFFFECACA)],
-                    imageAsset: 'assets/images/themes/natal.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Nosso\nNoivado',
-                    category: 'Amor',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFFAF5FF), Color(0xFFE9D5FF)],
-                    imageAsset: 'assets/images/themes/mascot-noivado.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Feliz\nPáscoa',
-                    category: 'Feriado',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFFFF7ED), Color(0xFFFFEDD5)],
-                    imageAsset: 'assets/images/themes/pascoa.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Feliz\nRéveillon',
-                    category: 'Festa',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFF8FAFC), Color(0xFFF1F5F9)],
-                    imageAsset: 'assets/images/themes/reveillon.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Viva\nSão João',
-                    category: 'Festa',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFFEF9C3), Color(0xFFFEF08A)],
-                    imageAsset: 'assets/images/themes/saojoao.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 16),
-                  _ThemePreviewCard(
-                    title: 'Viagem dos\nSonhos',
-                    category: 'Lazer',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFF0FDF4), Color(0xFFDCFCE7)],
-                    imageAsset: 'assets/images/themes/mascot-viagem.jpg',
                     onTap: () => context.go('/creator/calendars/new'),
                   ),
                 ],
@@ -379,97 +285,97 @@ class _ThemePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
-      width: 160,
+      width: 170,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
-            blurRadius: 16,
-            offset: Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
-        color: Colors.white,
+        color: colorScheme.surface,
         child: InkWell(
           onTap: onTap,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                flex: 3,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: gradientColors,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                flex: 4,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        imageAsset,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Image.asset(
-                          imageAsset,
-                          fit: BoxFit.cover,
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.2)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
                         ),
                       ),
-                      Positioned.fill(
+                    ),
+                    if (isPremium)
+                      Positioned(
+                        top: 12,
+                        right: 12,
                         child: Container(
+                          padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.1)],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
+                            color: colorScheme.secondary,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: colorScheme.secondary.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
+                          child: const Icon(Icons.star_rounded, color: Colors.white, size: 14),
                         ),
                       ),
-                      if (isPremium)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF9A03F),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.star_rounded, color: Colors.white, size: 12),
-                          ),
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        category,
+                        category.toUpperCase(),
                         style: TextStyle(
-                          color: const Color(0xFF5A7470).withValues(alpha: 0.8),
+                          color: colorScheme.primary,
                           fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.8,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: Color(0xFF1B4D3E),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
                           height: 1.2,
+                          letterSpacing: -0.3,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

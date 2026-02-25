@@ -15,11 +15,12 @@ class CalendarDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncDetail = ref.watch(ownerCalendarDetailProvider(calendarId));
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
@@ -31,9 +32,9 @@ class CalendarDetailScreen extends ConsumerWidget {
                 context.go('/creator/home');
               }
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.onSurface),
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white,
+              backgroundColor: colorScheme.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -41,7 +42,7 @@ class CalendarDetailScreen extends ConsumerWidget {
         title: Text(
           'Detalhes',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF1B4D3E),
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
           ),
@@ -53,14 +54,14 @@ class CalendarDetailScreen extends ConsumerWidget {
             child: IconButton(
               onPressed: () {
                 final url = FrestaUrls.calendarShareUrl(calendarId);
-                SharePlus.instance.share(
+                 SharePlus.instance.share(
                   ShareParams(text: url),
                 );
               },
-              icon: const Icon(Icons.ios_share_rounded, color: Color(0xFF1B4D3E)),
+              icon: Icon(Icons.ios_share_rounded, color: colorScheme.onSurface),
               tooltip: 'Compartilhar',
               style: IconButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: colorScheme.surface,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
@@ -122,8 +123,8 @@ class CalendarDetailScreen extends ConsumerWidget {
                   FilledButton.tonal(
                     onPressed: () => context.go('/creator/home'),
                     style: FilledButton.styleFrom(
-                       backgroundColor: const Color(0xFFE8F5E0),
-                       foregroundColor: const Color(0xFF2D7A5F),
+                       backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                       foregroundColor: colorScheme.primary,
                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                     ),
                     child: const Text('Voltar para o início', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -148,14 +149,14 @@ class CalendarDetailScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF1B4D3E), Color(0xFF2D7A5F)],
+                            gradient: LinearGradient(
+                              colors: [colorScheme.tertiary, colorScheme.primary],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(32),
-                            boxShadow: const [
-                              BoxShadow(color: Color(0x331B4D3E), blurRadius: 24, offset: Offset(0, 12)),
+                            boxShadow: [
+                              BoxShadow(color: colorScheme.tertiary.withValues(alpha: 0.2), blurRadius: 24, offset: const Offset(0, 12)),
                             ],
                           ),
                           child: Stack(
@@ -267,8 +268,8 @@ class CalendarDetailScreen extends ConsumerWidget {
                                 value: openedDays.toString(),
                                 total: detail.calendar.duration.toString(),
                                 icon: Icons.mark_email_read_rounded,
-                                color: const Color(0xFFF9A03F), // Fresta Gold
-                                bgColor: const Color(0xFFFFF7E6),
+                                color: colorScheme.secondary, 
+                                bgColor: colorScheme.secondary.withValues(alpha: 0.1),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -278,8 +279,8 @@ class CalendarDetailScreen extends ConsumerWidget {
                                 value: filledDays.toString(),
                                 total: detail.calendar.duration.toString(),
                                 icon: Icons.create_rounded,
-                                color: const Color(0xFF2D7A5F), // Fresta Forest
-                                bgColor: const Color(0xFFE8F5E0),
+                                color: colorScheme.primary, 
+                                bgColor: colorScheme.primary.withValues(alpha: 0.1),
                               ),
                             ),
                           ],
@@ -294,18 +295,18 @@ class CalendarDetailScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Dias',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1B4D3E),
+                            fontWeight: FontWeight.w900,
+                            color: colorScheme.onSurface,
                             letterSpacing: -0.5,
                           ),
                         ),
                         Text(
                           '$filledDays / ${detail.calendar.duration} preenchidos',
-                          style: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600, fontSize: 13),
+                          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontWeight: FontWeight.w600, fontSize: 13),
                         ),
                       ],
                     ),
@@ -329,10 +330,10 @@ class CalendarDetailScreen extends ConsumerWidget {
                             child: Ink(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(24),
-                                boxShadow: const [
-                                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                                boxShadow: [
+                                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
                                 ],
                               ),
                               child: Row(
@@ -341,15 +342,15 @@ class CalendarDetailScreen extends ConsumerWidget {
                                     width: 48,
                                     height: 48,
                                     decoration: BoxDecoration(
-                                      color: hasContent ? const Color(0xFFE8F5E0) : const Color(0xFFF3F4F6),
+                                      color: hasContent ? colorScheme.primary.withValues(alpha: 0.1) : colorScheme.onSurface.withValues(alpha: 0.05),
                                       shape: BoxShape.circle,
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
                                       '${day.day}',
                                       style: TextStyle(
-                                        color: hasContent ? const Color(0xFF2D7A5F) : const Color(0xFF6B7280),
-                                        fontWeight: FontWeight.w800,
+                                        color: hasContent ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.4),
+                                        fontWeight: FontWeight.w900,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -362,9 +363,10 @@ class CalendarDetailScreen extends ConsumerWidget {
                                         Text(
                                           hasContent ? 'Pronto para abrir' : 'Dia vazio',
                                           style: TextStyle(
-                                            color: hasContent ? const Color(0xFF1B4D3E) : const Color(0xFF6B7280),
-                                            fontWeight: FontWeight.w700,
+                                            color: hasContent ? colorScheme.onSurface : colorScheme.onSurface.withValues(alpha: 0.4),
+                                            fontWeight: FontWeight.w800,
                                             fontSize: 16,
+                                            letterSpacing: -0.3,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -374,7 +376,7 @@ class CalendarDetailScreen extends ConsumerWidget {
                                               : day.message!,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(color: Color(0xFF5A7470), fontSize: 13),
+                                          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13, fontWeight: FontWeight.w500),
                                         ),
                                       ],
                                     ),
@@ -419,16 +421,19 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 16,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -446,8 +451,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF5A7470),
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
@@ -458,11 +463,12 @@ class _StatCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
-                  color: Color(0xFF1B4D3E),
-                  fontWeight: FontWeight.w800,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w900,
                   fontSize: 24,
                   height: 1,
+                  letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(width: 4),
@@ -470,8 +476,8 @@ class _StatCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 2.0),
                 child: Text(
                   '/ $total',
-                  style: const TextStyle(
-                    color: Color(0xFF9CA3AF),
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.3),
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),

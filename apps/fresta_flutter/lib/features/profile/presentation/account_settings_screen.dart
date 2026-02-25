@@ -251,8 +251,6 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                   FilledButton.icon(
                     onPressed: () async {
                       await ref.read(authControllerProvider.notifier).signOut();
-                      if (!mounted || !context.mounted) return;
-                      context.go('/');
                     },
                     icon: const Icon(LucideIcons.logOut, size: 20),
                     label: const Text('Sair da conta', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

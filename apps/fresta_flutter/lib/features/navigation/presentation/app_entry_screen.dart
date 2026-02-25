@@ -83,6 +83,7 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final size = MediaQuery.of(context).size;
 
     // If suddenly authenticated (e.g. from callback), go to home
@@ -94,20 +95,21 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
 
     if (auth.isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFF13362B),
+        backgroundColor: const Color(0xFF0F1A16),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF9A03F)),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.secondary),
               ),
               const SizedBox(height: 24),
               Text(
                 'Abrindo Fresta...',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
                 ),
               ),
             ],
@@ -117,30 +119,30 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF13362B),
+      backgroundColor: const Color(0xFF0F1A16),
       body: Stack(
         children: [
           // Cinematic Background with "Fresta" light effect
           Positioned.fill(
             child: Container(
-              color: const Color(0xFF13362B),
+              color: const Color(0xFF0F1A16),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   Container(
-                    width: 4,
+                    width: 2,
                     height: size.height,
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFF9A03F).withValues(alpha: 0.8),
-                          blurRadius: 120,
-                          spreadRadius: 30,
+                          color: colorScheme.secondary.withValues(alpha: 0.6),
+                          blurRadius: 150,
+                          spreadRadius: 40,
                         ),
                         BoxShadow(
-                          color: const Color(0xFFF9A03F).withValues(alpha: 0.4),
-                          blurRadius: 60,
-                          spreadRadius: 10,
+                          color: colorScheme.secondary.withValues(alpha: 0.3),
+                          blurRadius: 80,
+                          spreadRadius: 20,
                         ),
                       ],
                     ),
@@ -160,27 +162,25 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+                        mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Logo section
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          // Logo section with enhanced typography
+                          Column(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.door_sliding_rounded, 
-                                color: Color(0xFFF9A03F),
-                                size: 36,
+                                color: colorScheme.secondary,
+                                size: 48,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(height: 16),
                               Text(
                                 'FRESTA',
                                 style: theme.textTheme.headlineLarge?.copyWith(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w300,
-                                  letterSpacing: 4.0,
-                                  fontSize: 40,
+                                  fontWeight: FontWeight.w200,
+                                  letterSpacing: 8.0,
+                                  fontSize: 42,
                                 ),
                               ),
                             ],
@@ -188,51 +188,59 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                           
                           const SizedBox(height: 60),
 
-                          // Viewer Section (Glassmorphic)
+                          // Viewer Section (Premium Glassmorphism)
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
+                              color: Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(32),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withValues(alpha: 0.1),
                                 width: 1,
                               ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
                             ),
-                            padding: const EdgeInsets.all(28),
+                            padding: const EdgeInsets.all(32),
                             child: Column(
                               children: [
                                 Text(
                                   'Ver uma surpresa?',
                                   style: theme.textTheme.headlineSmall?.copyWith(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 26,
+                                    letterSpacing: -0.5,
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
                                 Text(
-                                  'Insira o código recebido para abrir sua Fresta',
+                                  'Insira o link ou código da sua Fresta',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.7),
-                                    fontSize: 14,
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 const SizedBox(height: 32),
                                 TextField(
                                   controller: _linkController,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
                                   decoration: InputDecoration(
-                                    hintText: 'Colar código ou link',
+                                    hintText: 'Link ou código',
                                     hintStyle: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.4),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                     ),
-                                    prefixIcon: const Icon(Icons.paste_rounded, color: Colors.transparent), // for alignment
-                                    suffixIcon: const Icon(Icons.content_paste_rounded, color: Color(0xFFF9A03F)),
+                                    suffixIcon: Icon(Icons.qr_code_scanner_rounded, color: colorScheme.secondary),
                                     filled: true,
-                                    fillColor: Colors.black.withValues(alpha: 0.3),
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                                    fillColor: Colors.white.withValues(alpha: 0.05),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20),
                                       borderSide: BorderSide.none,
@@ -244,7 +252,7 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20),
                                       borderSide: BorderSide(
-                                        color: _error != null ? const Color(0xFFDC2626) : const Color(0xFFF9A03F),
+                                        color: _error != null ? colorScheme.error : colorScheme.secondary,
                                         width: 1.5,
                                       ),
                                     ),
@@ -255,73 +263,70 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                                   const SizedBox(height: 12),
                                   Text(
                                     _error!,
-                                    style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 14),
+                                    style: TextStyle(color: colorScheme.error.withValues(alpha: 0.8), fontSize: 13, fontWeight: FontWeight.w600),
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 32),
                                 FilledButton(
                                   onPressed: _openLink,
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: const Color(0xFFF9A03F),
-                                    foregroundColor: const Color(0xFF1B4D3E),
-                                    minimumSize: const Size.fromHeight(60),
+                                    backgroundColor: colorScheme.secondary,
+                                    foregroundColor: Colors.white,
+                                    minimumSize: const Size.fromHeight(64),
+                                    elevation: 10,
+                                    shadowColor: colorScheme.secondary.withValues(alpha: 0.4),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(999),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
                                   ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Visualizar',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      Icon(Icons.arrow_forward_rounded, size: 20),
-                                    ],
+                                  child: const Text(
+                                    'Abrir Fresta',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
 
-                          // Saved Calendars Library (New Section)
+                          // Saved Calendars Library
                           ref.watch(savedCalendarsProvider).when(
                             data: (saved) {
                               if (saved.isEmpty) return const SizedBox.shrink();
                               return Padding(
-                                padding: const EdgeInsets.only(top: 40),
+                                padding: const EdgeInsets.only(top: 48),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            'CALENDÁRIOS SALVOS',
+                                            'RECUPERAR SURPRESA',
                                             style: theme.textTheme.labelSmall?.copyWith(
-                                              color: Colors.white.withValues(alpha: 0.5),
-                                              fontWeight: FontWeight.w800,
+                                              color: Colors.white.withValues(alpha: 0.4),
+                                              fontWeight: FontWeight.w900,
                                               letterSpacing: 1.5,
                                             ),
                                           ),
-                                          const Icon(Icons.library_books_rounded, size: 14, color: Colors.white24),
+                                          Icon(Icons.history_rounded, size: 16, color: Colors.white.withValues(alpha: 0.3)),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(height: 16),
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.05),
-                                        borderRadius: BorderRadius.circular(24),
-                                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                        color: Colors.white.withValues(alpha: 0.03),
+                                        borderRadius: BorderRadius.circular(28),
+                                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                                       ),
+                                      clipBehavior: Clip.antiAlias,
                                       child: Column(
                                         children: [
                                           for (int i = 0; i < saved.length; i++) ...[
@@ -335,7 +340,7 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                                               },
                                             ),
                                             if (i < saved.length - 1)
-                                              Divider(height: 1, color: Colors.white.withValues(alpha: 0.05), indent: 72),
+                                              Divider(height: 1, color: Colors.white.withValues(alpha: 0.05), indent: 76),
                                           ],
                                         ],
                                       ),
@@ -345,66 +350,64 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                               );
                             },
                             loading: () => const SizedBox.shrink(),
-                            error: (_, __) => const SizedBox.shrink(),
+                            error: (e, s) => const SizedBox.shrink(),
                           ),
 
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 64),
                           
-                          // Creator Section
-                          FilledButton(
-                            onPressed: () => context.go('/auth/login'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF1B4D3E),
-                              minimumSize: const Size.fromHeight(64),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(999),
-                              ),
+                          // Creator Area - Visual distinction
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(24),
                             ),
-                            child: const Text(
-                              'Criar minha conta',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            child: FilledButton(
+                              onPressed: () => context.go('/auth/login'),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF0F1A16),
+                                minimumSize: const Size.fromHeight(60),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text(
+                                'Logar como Criador',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                             ),
                           ),
                           
                           const SizedBox(height: 16),
                           Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Já tenho conta - ',
-                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 15),
+                            child: TextButton(
+                              onPressed: () => context.go('/auth/login'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white.withValues(alpha: 0.6),
+                              ),
+                              child: const Text(
+                                'Não tem conta? Comece aqui',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                GestureDetector(
-                                  onTap: () => context.go('/auth/login'),
-                                  child: const Text(
-                                    'Entrar',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 32),
-                          // Paging dots (Visual indicator as seen in user screenshot)
+                          const SizedBox(height: 24),
+                          // Paging dots (Visual indicator)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.white54, shape: BoxShape.circle)),
+                              Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle)),
                               const SizedBox(width: 8),
-                              Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                              Container(width: 8, height: 8, decoration: BoxDecoration(color: colorScheme.secondary, shape: BoxShape.circle)),
                               const SizedBox(width: 8),
-                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.white54, shape: BoxShape.circle)),
+                              Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle)),
                             ],
                           ),
                         ],
@@ -438,23 +441,22 @@ class _SavedCalendarTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9A03F).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF9A03F).withValues(alpha: 0.2)),
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
-                  child: calendar.emoji != null 
-                    ? Text(calendar.emoji!, style: const TextStyle(fontSize: 20))
-                    : const Icon(Icons.calendar_today_rounded, size: 20, color: Color(0xFFF9A03F)),
+                  child: Text(
+                    calendar.emoji ?? '🎁', 
+                    style: const TextStyle(fontSize: 24)
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -466,15 +468,16 @@ class _SavedCalendarTile extends StatelessWidget {
                       calendar.title,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        letterSpacing: -0.3,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Visto em ${DateFormat('dd/MM HH:mm').format(calendar.savedAt)}',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: Colors.white.withValues(alpha: 0.3),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -484,7 +487,7 @@ class _SavedCalendarTile extends StatelessWidget {
               ),
               IconButton(
                 onPressed: onRemove,
-                icon: const Icon(Icons.close_rounded, size: 18, color: Colors.white24),
+                icon: const Icon(Icons.close_rounded, size: 20, color: Colors.white24),
                 tooltip: 'Remover',
               ),
             ],
