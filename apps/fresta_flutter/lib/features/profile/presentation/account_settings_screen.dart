@@ -19,19 +19,20 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.primary),
             style: IconButton.styleFrom(
-              backgroundColor: Colors.white,
+              backgroundColor: colorScheme.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
@@ -39,9 +40,9 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
         title: Text(
           'Configurações',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
         centerTitle: true,
@@ -52,10 +53,10 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
                 ],
               ),
               child: Column(
@@ -68,25 +69,25 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8F5E0),
+                            color: colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(LucideIcons.bellRing, color: Color(0xFF2D7A5F), size: 24),
+                          child: Icon(LucideIcons.bellRing, color: colorScheme.primary, size: 24),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Notificações Push',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: colorScheme.onSurface, letterSpacing: -0.3),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
+                              Text(
                                 'Lembretes diários de abertura',
-                                style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                                style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -94,15 +95,15 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                         Switch.adaptive(
                           value: notifications,
                           onChanged: (value) => setState(() => notifications = value),
-                          activeThumbColor: const Color(0xFF2D7A5F),
-                          activeTrackColor: const Color(0xFFE8F5E0),
+                          activeThumbColor: colorScheme.primary,
+                          activeTrackColor: colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ],
                     ),
                   ),
                   Container(
                     height: 1,
-                    color: const Color(0xFFF3F4F6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                     margin: const EdgeInsets.only(left: 76),
                   ),
                   Padding(
@@ -120,16 +121,16 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                               height: 52,
                               decoration: BoxDecoration(
                                 color: (auth.profile?.role == 'premium' || auth.profile?.role == 'admin')
-                                    ? const Color(0xFFFFF7E6)
-                                    : const Color(0xFFF3F4F6),
+                                    ? colorScheme.secondary.withValues(alpha: 0.1)
+                                    : colorScheme.onSurface.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               alignment: Alignment.center,
                               child: Icon(
                                 LucideIcons.crown,
                                 color: (auth.profile?.role == 'premium' || auth.profile?.role == 'admin')
-                                    ? const Color(0xFFF9A03F)
-                                    : const Color(0xFF9CA3AF),
+                                    ? colorScheme.secondary
+                                    : colorScheme.onSurface.withValues(alpha: 0.4),
                                 size: 24,
                               ),
                             ),
@@ -144,14 +145,14 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                                       : auth.profile?.role == 'admin' 
                                         ? '👑 Administrador'
                                         : 'Fresta Free',
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: colorScheme.onSurface, letterSpacing: -0.3),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     auth.profile?.role == 'premium' || auth.profile?.role == 'admin'
                                       ? 'Recursos ilimitados ativos'
                                       : 'Desbloqueie todos os recursos',
-                                    style: const TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),
@@ -168,44 +169,57 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(24),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F6),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(LucideIcons.palette, color: Color(0xFF4B5563), size: 24),
-                        ),
-                        const SizedBox(width: 20),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tema do App',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E), letterSpacing: -0.3),
+                        Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Atualmente igual ao sistema',
-                                style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, fontWeight: FontWeight.w500),
+                              alignment: Alignment.center,
+                              child: Icon(LucideIcons.palette, color: colorScheme.primary, size: 24),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tema do App',
+                                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: colorScheme.onSurface, letterSpacing: -0.3),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Personalize sua experiência visual',
+                                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w500),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Container(
-                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                           decoration: BoxDecoration(
-                             color: const Color(0xFFF3F4F6),
-                             borderRadius: BorderRadius.circular(999),
-                           ),
-                           child: Text(
-                            (auth.profile?.themePreference ?? 'Sistema').toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF6B7280), fontSize: 10, letterSpacing: 0.5),
+                        const SizedBox(height: 20),
+                        SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment(value: 'light', label: Text('Claro'), icon: Icon(LucideIcons.sun, size: 16)),
+                            ButtonSegment(value: 'dark', label: Text('Escuro'), icon: Icon(LucideIcons.moon, size: 16)),
+                            ButtonSegment(value: 'sistema', label: Text('Sistema'), icon: Icon(LucideIcons.monitor, size: 16)),
+                          ],
+                          selected: {(auth.profile?.themePreference?.toLowerCase() ?? 'sistema')},
+                          onSelectionChanged: (newSelection) {
+                            ref.read(authControllerProvider.notifier).updateThemePreference(newSelection.first);
+                          },
+                          showSelectedIcon: false,
+                          style: SegmentedButton.styleFrom(
+                            backgroundColor: colorScheme.surface,
+                            selectedBackgroundColor: colorScheme.primary,
+                            selectedForegroundColor: colorScheme.onPrimary,
+                            side: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
                           ),
                         ),
                       ],
@@ -216,14 +230,14 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
             ),
             
             const SizedBox(height: 32),
-            const Padding(
-               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            Padding(
+               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                child: Text(
                  'SESSÃO AVANÇADA',
                  style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF9CA3AF),
+                    fontWeight: FontWeight.w900,
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
                     letterSpacing: 1.2,
                  ),
                ),
@@ -232,20 +246,20 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: const [
-                  BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
                 ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Sessão Ativa', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Color(0xFF1B4D3E), letterSpacing: -0.5)),
+                  Text('Sessão Ativa', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: colorScheme.onSurface, letterSpacing: -0.5)),
                   const SizedBox(height: 8),
                   Text(
                     auth.user?.email ?? 'Sem e-mail',
-                    style: const TextStyle(color: Color(0xFF5A7470), fontSize: 15, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
@@ -255,10 +269,10 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                     icon: const Icon(LucideIcons.logOut, size: 20),
                     label: const Text('Sair da conta', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFFEF2F2),
-                      foregroundColor: const Color(0xFFDC2626),
+                      backgroundColor: colorScheme.error.withValues(alpha: 0.1),
+                      foregroundColor: colorScheme.error,
                       minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -267,7 +281,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                     child: TextButton(
                       onPressed: () => _showDeleteConfirmation(context),
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF9CA3AF),
+                        foregroundColor: colorScheme.onSurface.withValues(alpha: 0.3),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: const Text('Excluir conta permanentemente', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -283,15 +297,16 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   }
 
   void _showPlanDetails(BuildContext context, String role) {
+    final colorScheme = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(32),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -300,19 +315,19 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: (role == 'premium' || role == 'admin') ? const Color(0xFFFFF7E6) : const Color(0xFFF3F4F6),
+                color: (role == 'premium' || role == 'admin') ? colorScheme.secondary.withValues(alpha: 0.1) : colorScheme.onSurface.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 LucideIcons.crown, 
-                color: (role == 'premium' || role == 'admin') ? const Color(0xFFF9A03F) : const Color(0xFF9CA3AF), 
+                color: (role == 'premium' || role == 'admin') ? colorScheme.secondary : colorScheme.onSurface.withValues(alpha: 0.4), 
                 size: 32
               ),
             ),
             const SizedBox(height: 24),
             Text(
               role == 'premium' ? 'Você é Plus ⭐' : role == 'admin' ? 'Administrador 👑' : 'Você está no Free',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF1B4D3E), letterSpacing: -0.5),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: colorScheme.onSurface, letterSpacing: -1.0),
             ),
             const SizedBox(height: 12),
             Text(
@@ -320,16 +335,16 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                 ? 'Aproveite todos os temas, fotos ilimitadas e proteção por senha em seus calendários.'
                 : 'Faça o upgrade para o Plus e desbloqueie 365 dias, fotos ilimitadas e temas exclusivos.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF5A7470), fontSize: 16),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 32),
             if (role == 'free')
             FilledButton(
               onPressed: () => context.pop(),
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF1B4D3E),
+                backgroundColor: colorScheme.primary,
                 minimumSize: const Size.fromHeight(60),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               ),
               child: const Text('Ver Planos Plus', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             )
@@ -346,19 +361,21 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Excluir Conta? ⚠️', style: TextStyle(fontWeight: FontWeight.w800)),
-        content: const Text(
+        backgroundColor: colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        title: Text('Excluir Conta? ⚠️', style: TextStyle(fontWeight: FontWeight.w900, color: colorScheme.onSurface)),
+        content: Text(
           'Esta ação não pode ser desfeita. Todos os seus calendários, dados e preferências serão removidos para sempre.',
-          style: TextStyle(color: Color(0xFF5A7470)),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontWeight: FontWeight.w500),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCELAR', style: TextStyle(color: Color(0xFF9CA3AF), fontWeight: FontWeight.bold)),
+            child: Text('CANCELAR', style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4), fontWeight: FontWeight.bold)),
           ),
           FilledButton(
             onPressed: () {
@@ -368,9 +385,9 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
               );
             },
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             child: const Text('EXCLUIR TUDO', style: TextStyle(fontWeight: FontWeight.bold)),
           ),

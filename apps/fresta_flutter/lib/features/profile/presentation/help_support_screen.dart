@@ -14,22 +14,30 @@ class HelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1B4D3E)),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: Icon(LucideIcons.chevronLeft, color: colorScheme.primary),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ),
         title: Text(
           'Ajuda e Suporte',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
         centerTitle: true,
@@ -40,12 +48,15 @@ class HelpSupportScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1B4D3E), Color(0xFF2D7A5F)],
+              gradient: LinearGradient(
+                colors: [colorScheme.primary, colorScheme.tertiary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(color: colorScheme.primary.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8)),
+              ],
             ),
             child: Column(
               children: [
@@ -53,19 +64,20 @@ class HelpSupportScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 const Text(
                   'Como podemos ajudar?',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.5),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Nossa equipe está pronta para tirar suas dúvidas e ouvir sugestões.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 32),
           _buildSupportItem(
+            context,
             icon: LucideIcons.mail,
             title: 'Enviar e-mail',
             subtitle: 'suporte@fresta.app',
@@ -73,6 +85,7 @@ class HelpSupportScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSupportItem(
+            context,
             icon: LucideIcons.externalLink,
             title: 'Central de Ajuda',
             subtitle: 'Tutoriais e perguntas frequentes',
@@ -80,6 +93,7 @@ class HelpSupportScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSupportItem(
+            context,
             icon: LucideIcons.fileText,
             title: 'Termos de Uso',
             subtitle: 'Regras e diretrizes da plataforma',
@@ -87,16 +101,17 @@ class HelpSupportScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSupportItem(
+            context,
             icon: LucideIcons.shieldCheck,
             title: 'Privacidade',
             subtitle: 'Como cuidamos dos seus dados',
             onTap: () => _launchUrl('https://fresta.storyspark.com.br/#/privacidade'),
           ),
           const SizedBox(height: 48),
-          const Center(
+          Center(
             child: Text(
               'Feito com ❤️ pela equipe StorySpark',
-              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.3), fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -104,18 +119,20 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSupportItem({
+  Widget _buildSupportItem(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
         ],
       ),
       child: ListTile(
@@ -124,20 +141,20 @@ class HelpSupportScreen extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
+            color: colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF1B4D3E), size: 20),
+          child: Icon(icon, color: colorScheme.primary, size: 20),
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1B4D3E)),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: colorScheme.onSurface, letterSpacing: -0.3),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF5A7470)),
+          style: TextStyle(fontSize: 13, color: colorScheme.onSurface.withValues(alpha: 0.6), fontWeight: FontWeight.w500),
         ),
-        trailing: const Icon(LucideIcons.chevronRight, color: Color(0xFFD1D5DB), size: 20),
+        trailing: Icon(LucideIcons.chevronRight, color: colorScheme.onSurface.withValues(alpha: 0.2), size: 20),
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),

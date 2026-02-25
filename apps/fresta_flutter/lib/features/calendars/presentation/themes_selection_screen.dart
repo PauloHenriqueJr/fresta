@@ -148,35 +148,46 @@ class ThemesSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1B4D3E)),
-          onPressed: () => context.pop(),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: IconButton(
+            onPressed: () => context.pop(),
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.primary),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ),
         title: Text(
           'Explorar Temas',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
+        centerTitle: true,
       ),
       body: CustomScrollView(
         slivers: [
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
               child: Text(
                 'Escolha o tema perfeito para sua próxima surpresa.',
                 style: TextStyle(
-                  color: Color(0xFF5A7470),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 15,
                   height: 1.4,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -213,15 +224,18 @@ class _ThemeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 16,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -252,8 +266,8 @@ class _ThemeCard extends StatelessWidget {
                         child: Image.asset(
                           themeItem.imageAsset,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Center(
-                            child: Icon(Icons.image_outlined, color: Colors.black26),
+                          errorBuilder: (context, error, stackTrace) => Center(
+                            child: Icon(Icons.image_outlined, color: colorScheme.onSurface.withValues(alpha: 0.1)),
                           ),
                         ),
                       ),
@@ -263,11 +277,14 @@ class _ThemeCard extends StatelessWidget {
                           right: 12,
                           child: Container(
                             padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF1B4D3E),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(color: colorScheme.primary.withValues(alpha: 0.3), blurRadius: 8),
+                              ],
                             ),
-                            child: const Icon(Icons.star_rounded, size: 14, color: Color(0xFFF9A03F)),
+                            child: Icon(Icons.star_rounded, size: 14, color: colorScheme.onPrimary),
                           ),
                         ),
                     ],
@@ -281,21 +298,22 @@ class _ThemeCard extends StatelessWidget {
                   children: [
                     Text(
                       themeItem.category.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFFF9A03F),
-                        letterSpacing: 1,
+                        fontWeight: FontWeight.w900,
+                        color: colorScheme.primary,
+                        letterSpacing: 1.2,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       themeItem.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1B4D3E),
+                        fontWeight: FontWeight.w800,
+                        color: colorScheme.onSurface,
                         height: 1.2,
+                        letterSpacing: -0.3,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

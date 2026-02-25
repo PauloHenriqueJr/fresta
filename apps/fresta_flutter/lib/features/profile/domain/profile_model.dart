@@ -28,4 +28,24 @@ class ProfileModel {
       role: map['role'] as String?,
     );
   }
+
+  ProfileModel copyWith({
+    String? id,
+    String? email,
+    String? displayName,
+    String? avatar,
+    String? themePreference,
+    bool? onboardingCompleted,
+    String? role,
+  }) {
+    return ProfileModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      displayName: displayName ?? this.displayName,
+      avatar: avatar ?? this.avatar,
+      themePreference: themePreference ?? this.themePreference,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      role: role ?? this.role,
+    );
+  }
 }

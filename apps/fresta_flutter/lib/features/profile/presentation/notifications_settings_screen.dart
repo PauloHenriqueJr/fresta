@@ -16,22 +16,30 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1B4D3E)),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: Icon(LucideIcons.chevronLeft, color: colorScheme.primary),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ),
         title: Text(
           'Notificações',
           style: theme.textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1.0,
           ),
         ),
         centerTitle: true,
@@ -40,6 +48,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
         padding: const EdgeInsets.all(24),
         children: [
           _buildToggleSection(
+            context: context,
             title: 'Lembretes Diários',
             subtitle: 'Receba um aviso toda manhã para abrir seu calendário.',
             value: _dailyReminders,
@@ -49,6 +58,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
           ),
           const SizedBox(height: 16),
           _buildToggleSection(
+            context: context,
             title: 'Novas Surpresas',
             subtitle: 'Saiba quando um criador adicionar novo conteúdo.',
             value: _newSurprises,
@@ -58,12 +68,13 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
           ),
           const SizedBox(height: 16),
           _buildToggleSection(
+            context: context,
             title: 'Novidades e Dicas',
             subtitle: 'Dicas de presentes e atualizações do Fresta.',
             value: _marketing,
             onChanged: (val) => setState(() => _marketing = val),
             icon: LucideIcons.megaphone,
-            iconColor: const Color(0xFF1B4D3E),
+            iconColor: colorScheme.primary,
           ),
           const SizedBox(height: 40),
           Padding(
@@ -72,9 +83,10 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
               'As notificações ajudam você a não perder nenhum dia de surpresa. Você pode alterar essas configurações a qualquer momento.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: const Color(0xFF5A7470).withValues(alpha: 0.7),
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
                 fontSize: 13,
                 height: 1.5,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -84,6 +96,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
   }
 
   Widget _buildToggleSection({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required bool value,
@@ -91,13 +104,14 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
     required IconData icon,
     required Color iconColor,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -118,18 +132,20 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
                     fontSize: 16,
-                    color: Color(0xFF1B4D3E),
+                    color: colorScheme.onSurface,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF5A7470),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -138,8 +154,8 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
-            activeTrackColor: const Color(0xFF2D7A5F).withValues(alpha: 0.5),
-            activeThumbColor: const Color(0xFF2D7A5F),
+            activeTrackColor: colorScheme.primary.withValues(alpha: 0.3),
+            activeColor: colorScheme.primary,
           ),
         ],
       ),

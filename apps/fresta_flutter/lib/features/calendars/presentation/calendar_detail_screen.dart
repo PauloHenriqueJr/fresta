@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/utils/fresta_urls.dart';
+import '../../auth/application/auth_controller.dart';
 import '../application/calendar_providers.dart';
+import '../../../app/theme/dating_theme.dart';
 
 class CalendarDetailScreen extends ConsumerWidget {
   const CalendarDetailScreen({super.key, required this.calendarId});
@@ -137,261 +139,282 @@ class CalendarDetailScreen extends ConsumerWidget {
           final openedDays = 0; // detail.days.where((d) => d.isOpened == true).length;
           final filledDays = detail.days.where((d) => (d.message ?? '').trim().isNotEmpty).length;
 
+          final isDating = detail.calendar.themeId == 'namoro';
+
           return SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-                    child: Column(
-                      children: [
-                        // Main Header Card
-                        Container(
-                          padding: const EdgeInsets.all(32),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [colorScheme.tertiary, colorScheme.primary],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(color: colorScheme.tertiary.withValues(alpha: 0.2), blurRadius: 24, offset: const Offset(0, 12)),
-                            ],
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                top: -60,
-                                right: -40,
-                                child: Container(
-                                  width: 150,
-                                  height: 150,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: RadialGradient(
-                                      colors: [Color(0x30F9A03F), Colors.transparent],
+            child: Stack(
+              children: [
+                if (isDating) const FloatingHearts(),
+                CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                        child: Column(
+                          children: [
+                            // Main Header Card
+                            Container(
+                              padding: const EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                gradient: isDating 
+                                  ? const LinearGradient(colors: DatingTheme.blushGradient)
+                                  : LinearGradient(
+                                      colors: [colorScheme.tertiary, colorScheme.primary],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
+                                borderRadius: BorderRadius.circular(32),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (isDating ? DatingTheme.loveRed : colorScheme.tertiary).withValues(alpha: 0.2), 
+                                    blurRadius: 24, 
+                                    offset: const Offset(0, 12)
                                   ),
-                                ),
+                                ],
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              child: Stack(
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                     Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(999),
-                                        ),
-                                        child: Text(
-                                          detail.calendar.status == 'ativo' ? 'Ativo' : 'Rascunho',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                          ),
+                                  Positioned(
+                                    top: -60,
+                                    right: -40,
+                                    child: Container(
+                                      width: 150,
+                                      height: 150,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: RadialGradient(
+                                          colors: [Color(0x30F9A03F), Colors.transparent],
                                         ),
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                         Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(alpha: 0.2),
+                                              borderRadius: BorderRadius.circular(999),
+                                            ),
+                                            child: Text(
+                                              detail.calendar.status == 'ativo' ? 'Ativo' : 'Rascunho',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(alpha: 0.15),
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: IconButton(
+                                              onPressed: () => context.go('/creator/calendars/$calendarId/edit'),
+                                              icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+                                              tooltip: 'Editar Calendário',
+                                              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        detail.calendar.title,
+                                        textAlign: TextAlign.center,
+                                        style: isDating 
+                                          ? DatingTheme.display.copyWith(color: Colors.white, fontSize: 32)
+                                          : const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: -0.5,
+                                              height: 1.1,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        '${detail.calendar.duration} dias • Tema ${detail.calendar.themeId}',
+                                         style: TextStyle(
+                                          color: Colors.white.withValues(alpha: 0.8),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        child: IconButton(
-                                          onPressed: () => context.go('/creator/calendars/$calendarId/edit'),
-                                          icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
-                                          tooltip: 'Editar Calendário',
-                                          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                                          padding: EdgeInsets.zero,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      FilledButton(
+                                        onPressed: () {
+                                          final url = FrestaUrls.calendarShareUrl(calendarId);
+                                          SharePlus.instance.share(
+                                            ShareParams(text: url),
+                                          );
+                                        },
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: const Color(0xFF1B4D3E),
+                                          minimumSize: const Size.fromHeight(48),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(24),
+                                          ),
                                         ),
+                                        child: const Text('Enviar Presente', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    detail.calendar.title,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.5,
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${detail.calendar.duration} dias • Tema ${detail.calendar.themeId}',
-                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  FilledButton(
-                                    onPressed: () {
-                                      final url = FrestaUrls.calendarShareUrl(calendarId);
-                                      SharePlus.instance.share(
-                                        ShareParams(text: url),
-                                      );
-                                    },
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: const Color(0xFF1B4D3E),
-                                      minimumSize: const Size.fromHeight(48),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                    ),
-                                    child: const Text('Enviar Presente', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 24),
-
-                        // Stats Grid
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _StatCard(
-                                title: 'Dias Abertos',
-                                value: openedDays.toString(),
-                                total: detail.calendar.duration.toString(),
-                                icon: Icons.mark_email_read_rounded,
-                                color: colorScheme.secondary, 
-                                bgColor: colorScheme.secondary.withValues(alpha: 0.1),
-                              ),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _StatCard(
-                                title: 'Conteúdo',
-                                value: filledDays.toString(),
-                                total: detail.calendar.duration.toString(),
-                                icon: Icons.create_rounded,
-                                color: colorScheme.primary, 
-                                bgColor: colorScheme.primary.withValues(alpha: 0.1),
-                              ),
+                            
+                            const SizedBox(height: 24),
+
+                            // Stats Grid
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _StatCard(
+                                    title: 'Dias Abertos',
+                                    value: openedDays.toString(),
+                                    total: detail.calendar.duration.toString(),
+                                    icon: Icons.mark_email_read_rounded,
+                                    color: colorScheme.secondary, 
+                                    bgColor: colorScheme.secondary.withValues(alpha: 0.1),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _StatCard(
+                                    title: 'Conteúdo',
+                                    value: filledDays.toString(),
+                                    total: detail.calendar.duration.toString(),
+                                    icon: Icons.create_rounded,
+                                    color: colorScheme.primary, 
+                                    bgColor: colorScheme.primary.withValues(alpha: 0.1),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Dias',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: colorScheme.onSurface,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        Text(
-                          '$filledDays / ${detail.calendar.duration} preenchidos',
-                          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontWeight: FontWeight.w600, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final day = detail.days[index];
-                        final hasContent = (day.message ?? '').trim().isNotEmpty;
-                        
-                        // we don't have isOpened in this model yet, assume open logic exists in Viewer
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(24),
-                            onTap: () => context.go('/creator/calendars/$calendarId/day/${day.day}'),
-                            child: Ink(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: colorScheme.surface,
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: hasContent ? colorScheme.primary.withValues(alpha: 0.1) : colorScheme.onSurface.withValues(alpha: 0.05),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      '${day.day}',
-                                      style: TextStyle(
-                                        color: hasContent ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.4),
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          hasContent ? 'Pronto para abrir' : 'Dia vazio',
-                                          style: TextStyle(
-                                            color: hasContent ? colorScheme.onSurface : colorScheme.onSurface.withValues(alpha: 0.4),
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 16,
-                                            letterSpacing: -0.3,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          (day.message ?? '').trim().isEmpty
-                                              ? 'Toque para personalizar'
-                                              : day.message!,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13, fontWeight: FontWeight.w500),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.chevron_right_rounded, color: Color(0xFFD1D5DB)),
-                                ],
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Dias',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: colorScheme.onSurface,
+                                letterSpacing: -0.5,
                               ),
                             ),
-                          ),
-                        );
-                      },
-                      childCount: detail.days.length,
+                            Text(
+                              '$filledDays / ${detail.calendar.duration} preenchidos',
+                              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontWeight: FontWeight.w600, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final day = detail.days[index];
+                            final hasContent = (day.message ?? '').trim().isNotEmpty;
+                            
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(24),
+                                onTap: () => context.go('/creator/calendars/$calendarId/day/${day.day}'),
+                                child: Ink(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surface,
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 16, offset: const Offset(0, 4)),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      if (isDating)
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 12),
+                                          child: Icon(Icons.favorite, 
+                                            color: hasContent ? DatingTheme.loveRed : DatingTheme.loveRed.withValues(alpha: 0.2), 
+                                            size: 20
+                                          ),
+                                        ),
+                                      Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          color: hasContent ? colorScheme.primary.withValues(alpha: 0.1) : colorScheme.onSurface.withValues(alpha: 0.05),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '${day.day}',
+                                          style: TextStyle(
+                                            color: hasContent ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.4),
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              hasContent ? 'Pronto para abrir' : 'Dia vazio',
+                                              style: TextStyle(
+                                                color: hasContent ? colorScheme.onSurface : colorScheme.onSurface.withValues(alpha: 0.4),
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 16,
+                                                letterSpacing: -0.3,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              (day.message ?? '').trim().isEmpty
+                                                  ? 'Toque para personalizar'
+                                                  : day.message!,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13, fontWeight: FontWeight.w500),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.chevron_right_rounded, color: Color(0xFFD1D5DB)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: detail.days.length,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -427,15 +450,8 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: bgColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,7 +459,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: bgColor,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -452,9 +468,9 @@ class _StatCard extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: colorScheme.onSurface.withValues(alpha: 0.6),
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+              color: color.withValues(alpha: 0.8),
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 4),
@@ -464,22 +480,19 @@ class _StatCard extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w900,
+                  color: color,
                   fontSize: 24,
-                  height: 1,
-                  letterSpacing: -0.5,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(width: 4),
               Padding(
-                padding: const EdgeInsets.only(bottom: 2.0),
+                padding: const EdgeInsets.only(bottom: 4, left: 4),
                 child: Text(
                   '/ $total',
                   style: TextStyle(
-                    color: colorScheme.onSurface.withValues(alpha: 0.3),
-                    fontWeight: FontWeight.w600,
+                    color: color.withValues(alpha: 0.5),
                     fontSize: 14,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -490,4 +503,3 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-

@@ -179,6 +179,15 @@ class AuthController extends Notifier<AuthSessionState> implements Listenable {
     await ref.read(authRepositoryProvider).signOut();
   }
 
+  Future<void> updateThemePreference(String theme) async {
+    final profile = state.profile;
+    if (profile == null) return;
+
+    final updatedProfile = profile.copyWith(themePreference: theme);
+    await ref.read(profileRepositoryProvider).updateProfile(updatedProfile);
+    state = state.copyWith(profile: updatedProfile);
+  }
+
 }
 
 final authControllerProvider = NotifierProvider<AuthController, AuthSessionState>(

@@ -87,16 +87,25 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final isPremiumRequired = _duration > 7;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(
-          onPressed: _prevStep,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: IconButton(
+            onPressed: _prevStep,
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.primary),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
         ),
         title: Column(
           children: [
@@ -106,10 +115,11 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
                   : _currentStep == 1
                       ? 'Configurações'
                       : 'Resumo e Plano',
-              style: const TextStyle(
-                color: Color(0xFF1B4D3E),
-                fontWeight: FontWeight.w700,
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w900,
                 fontSize: 18,
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 4),
@@ -122,8 +132,8 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     color: index <= _currentStep
-                        ? const Color(0xFF2D7A5F)
-                        : const Color(0xFFE5E7EB),
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 );
@@ -164,24 +174,24 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
           child: FilledButton(
             onPressed: _saving ? null : _nextStep,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1B4D3E),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               elevation: 0,
             ),
             child: _saving
-                ? const SizedBox(
+                ? SizedBox(
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
                     ),
                   )
                 : Text(
                     _currentStep < 2 ? 'Continuar' : 'Criar Calendário',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5),
                   ),
           ),
         ),
@@ -207,6 +217,7 @@ class _ThemeSelectionStep extends StatelessWidget {
       ('natal', 'Natal', 'assets/images/themes/mascot-natal.jpg'),
     ];
 
+    final colorScheme = Theme.of(context).colorScheme;
     return GridView.builder(
       padding: const EdgeInsets.all(24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -223,10 +234,10 @@ class _ThemeSelectionStep extends StatelessWidget {
           onTap: () => onSelected(t.$1),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? const Color(0xFF2D7A5F) : Colors.transparent,
+                color: isSelected ? colorScheme.primary : Colors.transparent,
                 width: 2,
               ),
               boxShadow: [
@@ -250,8 +261,8 @@ class _ThemeSelectionStep extends StatelessWidget {
                   child: Text(
                     t.$2,
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? const Color(0xFF2D7A5F) : const Color(0xFF1B4D3E),
+                      fontWeight: FontWeight.w800,
+                      color: isSelected ? colorScheme.primary : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -281,22 +292,23 @@ class _ConfigStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        const Text(
+        Text(
           'Dê um nome e defina o tempo',
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w900,
+            color: colorScheme.onSurface,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Escolha por quanto tempo a surpresa vai durar. Lembre-se: Calendários gratuitos são limitados a 7 dias.',
-          style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, height: 1.5),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14, height: 1.5, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 32),
         _StyledTextField(
@@ -306,9 +318,9 @@ class _ConfigStep extends StatelessWidget {
           hint: 'Ex: 24 Dias com Você',
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Duração do Calendário',
-          style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF1B4D3E), fontSize: 15),
+          style: TextStyle(fontWeight: FontWeight.w900, color: colorScheme.onSurface, fontSize: 15, letterSpacing: -0.3),
         ),
         const SizedBox(height: 12),
         Row(
@@ -322,10 +334,10 @@ class _ConfigStep extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF2D7A5F) : Colors.white,
+                    color: isSelected ? colorScheme.primary : colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF2D7A5F) : const Color(0xFFE5E7EB),
+                      color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Column(
@@ -334,15 +346,15 @@ class _ConfigStep extends StatelessWidget {
                         '$d',
                         style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.white : const Color(0xFF1B4D3E),
+                          fontWeight: FontWeight.w900,
+                          color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         'dias',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isSelected ? Colors.white.withValues(alpha: 0.8) : const Color(0xFF5A7470),
+                          color: isSelected ? colorScheme.onPrimary.withValues(alpha: 0.8) : colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       if (isPremium)
@@ -351,7 +363,7 @@ class _ConfigStep extends StatelessWidget {
                           child: Icon(
                             Icons.star_rounded,
                             size: 14,
-                            color: isSelected ? Colors.white : const Color(0xFFF9A03F),
+                            color: isSelected ? colorScheme.onPrimary : const Color(0xFFF9A03F),
                           ),
                         ),
                     ],
@@ -362,9 +374,9 @@ class _ConfigStep extends StatelessWidget {
           }).toList(),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Privacidade',
-          style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF1B4D3E), fontSize: 15),
+          style: TextStyle(fontWeight: FontWeight.w900, color: colorScheme.onSurface, fontSize: 15, letterSpacing: -0.3),
         ),
         const SizedBox(height: 12),
         Row(
@@ -403,28 +415,30 @@ class _PrivacyOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2D7A5F) : Colors.white,
+            color: isSelected ? colorScheme.primary : colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? const Color(0xFF2D7A5F) : const Color(0xFFE5E7EB),
+              color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.1),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: isSelected ? Colors.white : const Color(0xFF2D7A5F)),
+              Icon(icon, size: 18, color: isSelected ? colorScheme.onPrimary : colorScheme.primary),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.white : const Color(0xFF1B4D3E),
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                  letterSpacing: -0.3,
                 ),
               ),
             ],
@@ -454,15 +468,16 @@ class _ReviewStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        const Text(
+        Text(
           'Confira os detalhes',
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w900,
+            color: colorScheme.onSurface,
             letterSpacing: -0.5,
           ),
         ),
@@ -470,7 +485,7 @@ class _ReviewStep extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
@@ -479,15 +494,15 @@ class _ReviewStep extends StatelessWidget {
           child: Column(
             children: [
               _ReviewRow(label: 'Título', value: title.isEmpty ? 'Meu Calendário' : title),
-              const Divider(height: 32),
+              Divider(height: 32, color: colorScheme.onSurface.withValues(alpha: 0.05)),
               _ReviewRow(label: 'Tema', value: themeId.toUpperCase()),
-              const Divider(height: 32),
+              Divider(height: 32, color: colorScheme.onSurface.withValues(alpha: 0.05)),
               _ReviewRow(label: 'Duração', value: '$duration dias'),
-              const Divider(height: 32),
+              Divider(height: 32, color: colorScheme.onSurface.withValues(alpha: 0.05)),
               _ReviewRow(
                 label: 'Plano',
                 value: isPremium ? 'Plus' : 'Gratuito',
-                valueColor: isPremium ? const Color(0xFFF9A03F) : const Color(0xFF2D7A5F),
+                valueColor: isPremium ? const Color(0xFFF9A03F) : colorScheme.primary,
               ),
             ],
           ),
@@ -497,18 +512,18 @@ class _ReviewStep extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF7E6),
+              color: colorScheme.secondary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFFFE0B2)),
+              border: Border.all(color: colorScheme.secondary.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.stars_rounded, color: Color(0xFFF9A03F)),
+                Icon(Icons.stars_rounded, color: colorScheme.secondary),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Este é um calendário Plus. Você poderá criá-lo agora e o pagamento será solicitado para ativá-lo.',
-                    style: TextStyle(color: Color(0xFFB45309), fontSize: 13, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: colorScheme.secondary, fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -531,16 +546,18 @@ class _ReviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontWeight: FontWeight.w700)),
         Text(
           value,
           style: TextStyle(
-            color: valueColor ?? const Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w800,
+            color: valueColor ?? colorScheme.onSurface,
+            fontWeight: FontWeight.w900,
             fontSize: 16,
+            letterSpacing: -0.3,
           ),
         ),
       ],
@@ -563,28 +580,30 @@ class _StyledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+      style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w800),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500),
-        prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
+        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4), fontWeight: FontWeight.w700),
+        hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.2), fontWeight: FontWeight.w600),
+        prefixIcon: Icon(icon, color: colorScheme.primary),
         filled: true,
-        fillColor: const Color(0xFFF8F9F5),
+        fillColor: colorScheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
       ),
     );
