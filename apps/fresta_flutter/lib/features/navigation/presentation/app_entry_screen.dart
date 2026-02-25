@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/application/auth_controller.dart';
+import '../../calendars/data/saved_calendars_repository.dart';
+import '../../../core/services/notification_service.dart';
+import 'package:intl/intl.dart';
 
 class AppEntryScreen extends ConsumerStatefulWidget {
   const AppEntryScreen({super.key});
@@ -286,7 +289,66 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 80),
+                          // Saved Calendars Library (New Section)
+                          ref.watch(savedCalendarsProvider).when(
+                            data: (saved) {
+                              if (saved.isEmpty) return const SizedBox.shrink();
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 40),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'CALENDÁRIOS SALVOS',
+                                            style: theme.textTheme.labelSmall?.copyWith(
+                                              color: Colors.white.withValues(alpha: 0.5),
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 1.5,
+                                            ),
+                                          ),
+                                          const Icon(Icons.library_books_rounded, size: 14, color: Colors.white24),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.05),
+                                        borderRadius: BorderRadius.circular(24),
+                                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          for (int i = 0; i < saved.length; i++) ...[
+                                            _SavedCalendarTile(
+                                              calendar: saved[i],
+                                              onTap: () => context.go('/c/${saved[i].id}'),
+                                              onRemove: () {
+                                                ref.read(notificationServiceProvider).cancelCalendarReminder(saved[i].id);
+                                                ref.read(savedCalendarsRepositoryProvider).removeCalendar(saved[i].id);
+                                                ref.invalidate(savedCalendarsProvider);
+                                              },
+                                            ),
+                                            if (i < saved.length - 1)
+                                              Divider(height: 1, color: Colors.white.withValues(alpha: 0.05), indent: 72),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            loading: () => const SizedBox.shrink(),
+                            error: (_, __) => const SizedBox.shrink(),
+                          ),
+
+                          const SizedBox(height: 60),
                           
                           // Creator Section
                           FilledButton(
@@ -354,6 +416,80 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SavedCalendarTile extends StatelessWidget {
+  const _SavedCalendarTile({
+    required this.calendar,
+    required this.onTap,
+    required this.onRemove,
+  });
+
+  final SavedCalendar calendar;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9A03F).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFF9A03F).withValues(alpha: 0.2)),
+                ),
+                child: Center(
+                  child: calendar.emoji != null 
+                    ? Text(calendar.emoji!, style: const TextStyle(fontSize: 20))
+                    : const Icon(Icons.calendar_today_rounded, size: 20, color: Color(0xFFF9A03F)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      calendar.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Visto em ${DateFormat('dd/MM HH:mm').format(calendar.savedAt)}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: onRemove,
+                icon: const Icon(Icons.close_rounded, size: 18, color: Colors.white24),
+                tooltip: 'Remover',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

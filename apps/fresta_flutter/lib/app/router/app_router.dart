@@ -15,18 +15,24 @@ import '../../features/calendars/presentation/edit_calendar_screen.dart';
 import '../../features/calendars/presentation/edit_day_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/account_settings_screen.dart';
+import '../../features/profile/presentation/notifications_settings_screen.dart';
+import '../../features/profile/presentation/help_support_screen.dart';
 import '../../features/navigation/presentation/app_entry_screen.dart';
 import '../../features/navigation/presentation/main_navigation_scaffold.dart';
 import '../../features/calendars/presentation/themes_selection_screen.dart';
 import '../../features/explore/presentation/explore_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authControllerProvider);
-
-  final router = GoRouter(
+  // Use a listenable to trigger redirects without re-creating the whole router
+  final authNotifier = ref.watch(authControllerProvider.notifier);
+  
+  return GoRouter(
     initialLocation: '/',
+    refreshListenable: authNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authControllerProvider);
       final location = state.uri.path;
+      
       final isViewerRoute = location.startsWith('/c/') ||
           location == '/viewer/welcome' ||
           location == '/';
@@ -40,9 +46,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             .setPendingDeepLinkRoute(location);
       }
 
+      // If we are still loading the initial auth state, don't redirect yet
+      if (authState.isLoading && location == '/') {
+        return null;
+      }
+
       if (isViewerRoute || isAuthRoute) {
-        if (location == '/' && authState.isAuthenticated) {
-          return '/creator/home';
+        if (authState.isAuthenticated) {
+          // If authenticated and on a public/auth route, go to home
+          // Except if specifically viewing a shared calendar
+          if (!location.startsWith('/c/')) {
+            return '/creator/home';
+          }
         }
         return null;
       }
@@ -158,6 +173,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'settings',
                     builder: (context, state) => const AccountSettingsScreen(),
                   ),
+                  GoRoute(
+                    path: 'notifications',
+                    builder: (context, state) => const NotificationsSettingsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'help',
+                    builder: (context, state) => const HelpSupportScreen(),
+                  ),
                 ],
               ),
             ],
@@ -166,7 +189,4 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
-
-  ref.onDispose(router.dispose);
-  return router;
 });

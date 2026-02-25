@@ -4,10 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app.dart';
 import 'core/env/app_env.dart';
+import 'core/services/notification_service.dart';
 import 'data/supabase/supabase_bootstrap.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize notifications
+  final notificationService = NotificationService();
+  await notificationService.init();
+
   await dotenv.load(fileName: '.env').catchError((_) {});
 
   Object? bootstrapError;

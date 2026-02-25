@@ -15,6 +15,7 @@ class ProfileScreen extends ConsumerWidget {
     final user = auth.user;
     final display = profile?.displayName ?? user?.email ?? 'Usuário';
     final initial = (display.isNotEmpty ? display.characters.first : 'U').toUpperCase();
+    final isAvatarUrl = profile?.avatar != null && profile!.avatar!.startsWith('http');
 
     final theme = Theme.of(context);
 
@@ -83,16 +84,24 @@ class ProfileScreen extends ConsumerWidget {
                               offset: Offset(0, 8),
                             ),
                           ],
+                          image: isAvatarUrl
+                              ? DecorationImage(
+                                  image: NetworkImage(profile.avatar!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
                         alignment: Alignment.center,
-                        child: Text(
-                          initial,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 32,
-                          ),
-                        ),
+                        child: isAvatarUrl
+                            ? null
+                            : Text(
+                                initial,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 32,
+                                ),
+                              ),
                       ),
                       const SizedBox(width: 20),
                       Expanded(
@@ -156,7 +165,7 @@ class ProfileScreen extends ConsumerWidget {
                     iconBgColor: const Color(0xFFF3F4F6),
                     title: 'Configurações da conta',
                     subtitle: 'Preferências, plano e sessão',
-                    onTap: () => context.push('/account/settings'),
+                    onTap: () => context.push('/account/profile/settings'),
                   ),
                   Container(
                     height: 1,
@@ -169,16 +178,7 @@ class ProfileScreen extends ConsumerWidget {
                     iconBgColor: const Color(0xFFFFF7E6),
                     title: 'Notificações',
                     subtitle: 'Lembretes dos calendários',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Comunicação e lembretes estarão disponíveis em breve!'),
-                          backgroundColor: const Color(0xFF1B4D3E),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                      );
-                    },
+                    onTap: () => context.push('/account/profile/notifications'),
                   ),
                   Container(
                     height: 1,
@@ -191,16 +191,7 @@ class ProfileScreen extends ConsumerWidget {
                     iconBgColor: const Color(0xFFE8F5E0),
                     title: 'Ajuda e Suporte',
                     subtitle: 'Fale com a equipe Fresta',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Nossa central de ajuda estará disponível em breve!'),
-                          backgroundColor: const Color(0xFF1B4D3E),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                      );
-                    },
+                    onTap: () => context.push('/account/profile/help'),
                   ),
                 ],
               ),

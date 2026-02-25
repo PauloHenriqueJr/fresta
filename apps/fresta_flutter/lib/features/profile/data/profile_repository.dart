@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract class ProfileRepository {
   Future<ProfileModel?> getProfile(String userId);
+  Future<void> updateProfile(ProfileModel profile);
 }
 
 class SupabaseProfileRepository implements ProfileRepository {
@@ -22,6 +23,17 @@ class SupabaseProfileRepository implements ProfileRepository {
         .maybeSingle();
     if (result == null) return null;
     return ProfileModel.fromMap(Map<String, dynamic>.from(result));
+  }
+
+  @override
+  Future<void> updateProfile(ProfileModel profile) async {
+    await _client.from('profiles').update({
+      if (profile.displayName != null) 'display_name': profile.displayName,
+      if (profile.avatar != null) 'avatar': profile.avatar,
+      if (profile.themePreference != null) 'theme_preference': profile.themePreference,
+      'onboarding_completed': profile.onboardingCompleted,
+      if (profile.role != null) 'role': profile.role,
+    }).eq('id', profile.id);
   }
 }
 

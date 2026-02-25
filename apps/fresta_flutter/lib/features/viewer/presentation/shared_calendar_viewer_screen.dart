@@ -6,6 +6,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/utils/fresta_urls.dart';
+import '../../../core/services/notification_service.dart';
+import '../../calendars/data/saved_calendars_repository.dart';
 import '../application/viewer_providers.dart';
 import '../../../data/repositories/viewer_repository.dart';
 
@@ -114,6 +116,24 @@ class _SharedCalendarViewerScreenState
               ),
             );
           }
+
+          // Auto-save this calendar to local library
+          Future.microtask(() {
+            ref.read(savedCalendarsRepositoryProvider).saveCalendar(
+                  SavedCalendar(
+                    id: meta.calendar.id,
+                    title: meta.calendar.title,
+                    emoji: null, // We could extract an emoji from themes if we want
+                    savedAt: DateTime.now(),
+                  ),
+                );
+            
+            // Also schedule a daily reminder for this calendar
+            ref.read(notificationServiceProvider).scheduleCalendarReminder(
+                  calendarId: meta.calendar.id,
+                  title: meta.calendar.title,
+                );
+          });
 
           final needsPassword = meta.hasPassword && !_authorized;
           final asyncDays =
