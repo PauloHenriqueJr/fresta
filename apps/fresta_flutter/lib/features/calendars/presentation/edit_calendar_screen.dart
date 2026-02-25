@@ -15,6 +15,8 @@ class EditCalendarScreen extends ConsumerStatefulWidget {
 
 class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
   late final TextEditingController _titleController;
+  late final TextEditingController _headerMessageController;
+  late final TextEditingController _footerMessageController;
   late final TextEditingController _themeController;
   late final TextEditingController _passwordController;
 
@@ -30,6 +32,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController();
+    _headerMessageController = TextEditingController();
+    _footerMessageController = TextEditingController();
     _themeController = TextEditingController();
     _passwordController = TextEditingController();
   }
@@ -37,6 +41,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
   @override
   void dispose() {
     _titleController.dispose();
+    _headerMessageController.dispose();
+    _footerMessageController.dispose();
     _themeController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -49,6 +55,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
     if (detail == null) return;
 
     _titleController.text = detail.calendar.title;
+    _headerMessageController.text = detail.calendar.headerMessage ?? '';
+    _footerMessageController.text = detail.calendar.footerMessage ?? '';
     _themeController.text = detail.calendar.themeId;
     _privacy = detail.calendar.privacy;
     _status = detail.calendar.status;
@@ -67,6 +75,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       await ref.read(calendarsRepositoryProvider).updateCalendar(
             calendarId: widget.calendarId,
             title: _titleController.text.trim(),
+            headerMessage: _headerMessageController.text.trim().isEmpty ? null : _headerMessageController.text.trim(),
+            footerMessage: _footerMessageController.text.trim().isEmpty ? null : _footerMessageController.text.trim(),
             themeId: _themeController.text.trim(),
             privacy: _privacy,
             status: _status,
@@ -165,9 +175,21 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                       ),
                       const SizedBox(height: 20),
                       _StyledTextField(
+                        controller: _headerMessageController,
+                        label: 'Subtítulo (Opcional)',
+                        icon: Icons.subtitles_rounded,
+                      ),
+                      const SizedBox(height: 20),
+                      _StyledTextField(
                         controller: _themeController,
                         label: 'Tema (Visual)',
                         icon: Icons.palette_outlined,
+                      ),
+                      const SizedBox(height: 20),
+                      _StyledTextField(
+                        controller: _footerMessageController,
+                        label: 'Mensagem de Rodapé (Opcional)',
+                        icon: Icons.text_snippet_rounded,
                       ),
                       const SizedBox(height: 20),
                       DropdownButtonFormField<String>(

@@ -151,3 +151,81 @@ class NotebookModalContent extends StatelessWidget {
     );
   }
 }
+
+class HangingHeartsHeader extends StatelessWidget {
+  const HangingHeartsHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 120,
+      width: double.infinity,
+      child: Stack(
+        children: [
+          ...List.generate(6, (index) {
+            final double left = 30.0 + (index * 60.0);
+            final double height = 40.0 + (index % 3 * 20.0);
+            return Positioned(
+              left: left,
+              top: 0,
+              child: Column(
+                children: [
+                  Container(
+                    width: 1,
+                    height: height,
+                    color: DatingTheme.loveRed.withValues(alpha: 0.3),
+                  ),
+                  Icon(
+                    Icons.favorite,
+                    size: 16,
+                    color: DatingTheme.loveRed.withValues(alpha: index % 2 == 0 ? 0.6 : 0.4),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class DatingBackground extends StatelessWidget {
+  final Widget child;
+  const DatingBackground({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: CustomPaint(
+            painter: _PatternPainter(),
+          ),
+        ),
+        child,
+      ],
+    );
+  }
+}
+
+class _PatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = DatingTheme.loveRed.withValues(alpha: 0.03)
+      ..strokeWidth = 1;
+
+    const spacing = 40.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        // Draw a small '+'
+        canvas.drawLine(Offset(x - 3, y), Offset(x + 3, y), paint);
+        canvas.drawLine(Offset(x, y - 3), Offset(x, y + 3), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

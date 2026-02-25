@@ -68,7 +68,6 @@ class _SharedCalendarViewerScreenState
 
   bool _isDayLocked(DateTime? createdAt, int day) {
     if (createdAt == null) return false;
-    // Normalize to midnight to avoid hour/minute issues
     final startDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
     final availableDate = startDate.add(Duration(days: day - 1));
     final now = DateTime.now();
@@ -176,112 +175,120 @@ class _SharedCalendarViewerScreenState
           final asyncDays =
               needsPassword ? null : ref.watch(sharedCalendarDaysProvider(widget.calendarId));
 
-          return Container(
-            decoration: BoxDecoration(
-              gradient: isDating
-                  ? const LinearGradient(
-                      colors: [Color(0xFFFFF0F5), Color(0xFFFDF2F8)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    )
-                  : null,
-            ),
-            child: Stack(
-              children: [
-                if (isDating) const FloatingHearts(),
-                CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
-                      elevation: 0,
-                      pinned: true,
-                      centerTitle: true,
-                      leading: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: IconButton(
-                          onPressed: () {
-                            if (context.canPop()) {
-                              context.pop();
-                            } else {
-                              context.go('/');
-                            }
-                          },
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
+          Widget mainContent = Stack(
+            children: [
+              if (isDating) const FloatingHearts(),
+              CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+                    elevation: 0,
+                    pinned: true,
+                    centerTitle: true,
+                    expandedHeight: isDating ? 120 : null,
+                    flexibleSpace: isDating ? const HangingHeartsHeader() : null,
+                    leading: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: IconButton(
+                        onPressed: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/');
+                          }
+                        },
+                        icon: const Icon(Icons.arrow_back, color: DatingTheme.loveRed),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: const CircleBorder(),
                         ),
                       ),
-                      title: const Text(
-                        'Fresta.',
-                        style: TextStyle(
-                          color: Color(0xFF1B4D3E),
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      actions: [
-                        IconButton(
-                          onPressed: () => SharePlus.instance.share(
-                            ShareParams(text: FrestaUrls.calendarShareUrl(widget.calendarId)),
-                          ),
-                          icon: const Icon(LucideIcons.share, color: Color(0xFF1B4D3E)),
-                          tooltip: 'Compartilhar',
-                        ),
-                        IconButton(
-                          onPressed: _openInBrowser,
-                          icon: const Icon(LucideIcons.globe, color: Color(0xFF1B4D3E)),
-                          tooltip: 'Abrir no navegador',
-                        ),
-                        const SizedBox(width: 8),
-                      ],
                     ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-                        child: Column(
-                          children: [
-                            Center(
-                              child: Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  gradient: isDating
-                                      ? const LinearGradient(colors: DatingTheme.blushGradient)
-                                      : const LinearGradient(
-                                          colors: [Color(0xFFFFF7E6), Color(0xFFFDE6B5)],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: (isDating ? DatingTheme.loveRed : const Color(0xFFF9A03F)).withValues(alpha: 0.2), 
-                                        blurRadius: 20, 
-                                        offset: const Offset(0, 8)),
-                                  ]
-                                ),
-                                child: Icon(
-                                  isDating ? Icons.favorite : LucideIcons.gift,
-                                  size: 40,
-                                  color: Colors.white,
-                                ),
+                    actions: [
+                      IconButton(
+                        onPressed: () {}, // Favorite logic
+                        icon: const Icon(Icons.favorite_outline, color: DatingTheme.loveRed),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: const CircleBorder(),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => SharePlus.instance.share(
+                          ShareParams(text: FrestaUrls.calendarShareUrl(widget.calendarId)),
+                        ),
+                        icon: const Icon(LucideIcons.share, color: DatingTheme.loveRed),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: const CircleBorder(),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                      child: Column(
+                        children: [
+                          if (isDating) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(colors: DatingTheme.blushGradient),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: const Text(
+                                'Amor e Romance',
+                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                            Text(
-                              meta.calendar.title,
-                              textAlign: TextAlign.center,
-                              style: isDating
-                                  ? DatingTheme.display.copyWith(color: DatingTheme.wineBerry, fontSize: 32)
-                                  : theme.textTheme.headlineMedium?.copyWith(
-                                      color: const Color(0xFF1A3E3A),
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.5,
-                                    ),
-                            ),
                             const SizedBox(height: 16),
+                          ],
+                          Text(
+                            meta.calendar.title,
+                            textAlign: TextAlign.center,
+                            style: isDating
+                                ? DatingTheme.display.copyWith(color: DatingTheme.wineBerry, fontSize: 36)
+                                : theme.textTheme.headlineMedium?.copyWith(
+                                    color: const Color(0xFF1A3E3A),
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.5,
+                                  ),
+                          ),
+                          if (isDating) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              meta.calendar.headerMessage?.isNotEmpty == true
+                                  ? meta.calendar.headerMessage!
+                                  : 'Uma jornada de amor para nós dois',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.redAccent, fontSize: 20, fontWeight: FontWeight.w400),
+                            ),
+                            const SizedBox(height: 32),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '0% de puro amor',
+                                  style: TextStyle(color: DatingTheme.loveRed, fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                                const SizedBox(height: 8),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(999),
+                                  child: LinearProgressIndicator(
+                                    value: 0.1,
+                                    backgroundColor: DatingTheme.loveRed.withValues(alpha: 0.1),
+                                    valueColor: const AlwaysStoppedAnimation<Color>(DatingTheme.loveRed),
+                                    minHeight: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          const SizedBox(height: 24),
+                          if (!isDating)
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
@@ -292,348 +299,271 @@ class _SharedCalendarViewerScreenState
                                   const _InfoChip(icon: LucideIcons.lock, label: 'Protegido', isAlert: true),
                               ],
                             ),
-                            if (isDating) ...[
-                              const SizedBox(height: 16),
-                              Text(
-                                'Clique em cada dia para abrir uma surpresa',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: DatingTheme.wineBerry.withValues(alpha: 0.6),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    if (needsPassword)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Container(
-                            padding: const EdgeInsets.all(32),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(32),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x0C000000),
-                                  blurRadius: 32,
-                                  offset: Offset(0, 12),
+                  if (needsPassword)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Container(
+                          padding: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: const [
+                              BoxShadow(color: Color(0x0C000000), blurRadius: 32, offset: Offset(0, 12)),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF8F9F5),
+                                  shape: BoxShape.circle,
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
+                                child: const Icon(LucideIcons.lockKeyhole, size: 40, color: Color(0xFF2D7A5F)),
+                              ),
+                              const SizedBox(height: 24),
+                              const Text(
+                                'Acesso Restrito',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Color(0xFF1B4D3E), fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Este calendário está protegido. Digite a senha para abri-lo.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Color(0xFF5A7470), fontSize: 15, fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(height: 32),
+                              TextField(
+                                controller: _passwordController,
+                                obscureText: !_showPassword,
+                                onSubmitted: (_) {
+                                  if (!_verifying) _verifyPassword();
+                                },
+                                style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1B4D3E)),
+                                decoration: InputDecoration(
+                                  labelText: 'Senha do calendário',
+                                  labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w500),
+                                  prefixIcon: const Icon(LucideIcons.key, color: Color(0xFF9CA3AF)),
+                                  filled: true,
+                                  fillColor: const Color(0xFFF8F9F5),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 1.5)),
+                                  suffixIcon: IconButton(
+                                    onPressed: () => setState(() => _showPassword = !_showPassword),
+                                    icon: Icon(_showPassword ? LucideIcons.eyeOff : LucideIcons.eye, color: const Color(0xFF9CA3AF)),
+                                  ),
+                                ),
+                              ),
+                              if (_passwordError != null) ...[
+                                const SizedBox(height: 16),
                                 Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFF8F9F5),
-                                    shape: BoxShape.circle,
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFFCA5A5))),
+                                  child: Row(
+                                    children: [
+                                      const Icon(LucideIcons.circleAlert, size: 20, color: Color(0xFFDC2626)),
+                                      const SizedBox(width: 8),
+                                      Text(_passwordError!, style: const TextStyle(color: Color(0xFF991B1B), fontSize: 13, fontWeight: FontWeight.w600)),
+                                    ],
                                   ),
-                                  child: const Icon(LucideIcons.lockKeyhole, size: 40, color: Color(0xFF2D7A5F)),
-                                ),
-                                const SizedBox(height: 24),
-                                const Text(
-                                  'Acesso Restrito',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Color(0xFF1B4D3E),
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 20,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Este calendário está protegido. Digite a senha para abri-lo.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Color(0xFF5A7470), fontSize: 15, fontWeight: FontWeight.w500),
-                                ),
-                                const SizedBox(height: 32),
-                                TextField(
-                                  controller: _passwordController,
-                                  obscureText: !_showPassword,
-                                  onSubmitted: (_) {
-                                    if (!_verifying) _verifyPassword();
-                                  },
-                                  style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1B4D3E)),
-                                  decoration: InputDecoration(
-                                    labelText: 'Senha do calendário',
-                                    labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w500),
-                                    prefixIcon: const Icon(LucideIcons.key, color: Color(0xFF9CA3AF)),
-                                    filled: true,
-                                    fillColor: const Color(0xFFF8F9F5),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 1.5),
-                                    ),
-                                    suffixIcon: IconButton(
-                                      onPressed: () =>
-                                          setState(() => _showPassword = !_showPassword),
-                                      icon: Icon(
-                                        _showPassword
-                                            ? LucideIcons.eyeOff
-                                            : LucideIcons.eye,
-                                        color: const Color(0xFF9CA3AF),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (_passwordError != null) ...[
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFEF2F2),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFFFCA5A5)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(LucideIcons.circleAlert, size: 20, color: Color(0xFFDC2626)),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _passwordError!,
-                                          style: const TextStyle(color: Color(0xFF991B1B), fontSize: 13, fontWeight: FontWeight.w600),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 32),
-                                FilledButton(
-                                  onPressed: _verifying ? null : _verifyPassword,
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1B4D3E),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  ),
-                                  child: _verifying
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                        )
-                                      : const Text('Desbloquear Calendário', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                 ),
                               ],
-                            ),
+                              const SizedBox(height: 32),
+                              FilledButton(
+                                onPressed: _verifying ? null : _verifyPassword,
+                                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1B4D3E), padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                                child: _verifying
+                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                    : const Text('Desbloquear Calendário', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              ),
+                            ],
                           ),
                         ),
-                      )
-                    else if (asyncDays != null)
-                      ...asyncDays.when(
-                        data: (days) {
-                          if (days.isEmpty) {
-                            return [
-                              SliverToBoxAdapter(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(40),
+                      ),
+                    )
+                  else if (asyncDays != null)
+                    ...asyncDays.when(
+                      data: (days) {
+                        return [
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
+                            sliver: SliverGrid(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 0.75,
+                              ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final day = days[index];
+                                  final locked = _isDayLocked(meta.calendar.createdAt, day.day);
+                                  
+                                  return Container(
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius: BorderRadius.circular(32),
-                                      boxShadow: const [
-                                         BoxShadow(color: Color(0x06000000), blurRadius: 16, offset: Offset(0, 4)),
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: isDating && !locked 
+                                          ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.2), width: 2)
+                                          : null,
+                                      boxShadow: [
+                                        BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4)),
                                       ],
                                     ),
-                                    child: Column(
-                                      children: const [
-                                        Icon(LucideIcons.inbox, size: 56, color: Color(0xFFD1D5DB)),
-                                        SizedBox(height: 24),
-                                        Text(
-                                          'Calendário vazio',
-                                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Color(0xFF1B4D3E), letterSpacing: -0.5),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          'Nenhum dia foi adicionado ainda.',
-                                          style: TextStyle(color: Color(0xFF6B7280), fontWeight: FontWeight.w500),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ];
-                          }
-
-                          return [
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
-                              sliver: SliverGrid(
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.9,
-                                ),
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final day = days[index];
-                                    final locked = _isDayLocked(meta.calendar.createdAt, day.day);
-                                    
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
                                         borderRadius: BorderRadius.circular(24),
-                                        border: isDating && !locked 
-                                            ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.2), width: 2)
-                                            : null,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.04),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(24),
-                                          onTap: () {
-                                            if (locked) {
-                                              _showLockedMessage(_getAvailableDate(meta.calendar.createdAt, day.day));
-                                              return;
+                                        onTap: () {
+                                          if (locked) {
+                                            _showLockedMessage(_getAvailableDate(meta.calendar.createdAt, day.day));
+                                            return;
+                                          }
+                                          if (isDating) {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              backgroundColor: Colors.transparent,
+                                              isScrollControlled: true,
+                                              builder: (context) => NotebookModalContent(
+                                                title: 'Dia ${day.day}',
+                                                content: (day.message ?? '').trim().isEmpty 
+                                                    ? 'Espere por esse momento especial...' 
+                                                    : day.message!,
+                                              ),
+                                            );
+                                          } else {
+                                            final url = (day.url ?? '').trim();
+                                            if (url.isNotEmpty) {
+                                              final uri = Uri.tryParse(url);
+                                              if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
                                             }
-                                            
-                                            // Handle opening content
-                                            if (isDating) {
-                                              showModalBottomSheet(
-                                                context: context,
-                                                backgroundColor: Colors.transparent,
-                                                isScrollControlled: true,
-                                                builder: (context) => NotebookModalContent(
-                                                  title: 'Dia ${day.day}',
-                                                  content: (day.message ?? '').trim().isEmpty 
-                                                      ? 'Espere por esse momento especial...' 
-                                                      : day.message!,
-                                                ),
-                                              );
-                                            } else {
-                                              final url = (day.url ?? '').trim();
-                                              if (url.isNotEmpty) {
-                                                final uri = Uri.tryParse(url);
-                                                if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
-                                              }
-                                            }
-                                          },
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12),
                                           child: Stack(
                                             children: [
                                               if (locked)
-                                                const Positioned(
-                                                  top: 12,
-                                                  right: 12,
-                                                  child: Icon(LucideIcons.lock, size: 16, color: Color(0xFFD1D5DB)),
-                                                ),
-                                              Center(
-                                                child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      width: 48,
-                                                      height: 48,
-                                                      decoration: BoxDecoration(
-                                                        gradient: isDating && !locked
-                                                            ? const LinearGradient(colors: DatingTheme.blushGradient)
-                                                            : LinearGradient(
-                                                                colors: locked 
-                                                                    ? [const Color(0xFFE5E7EB), const Color(0xFFF3F4F6)]
-                                                                    : [const Color(0xFFF9A03F), const Color(0xFFFDE6B5)],
-                                                              ),
-                                                        borderRadius: BorderRadius.circular(16),
-                                                      ),
-                                                      child: Center(
-                                                        child: Icon(
-                                                          locked ? LucideIcons.lock : (isDating ? Icons.favorite : LucideIcons.gift),
-                                                          color: Colors.white,
-                                                          size: 24,
-                                                        ),
-                                                      ),
+                                                const Positioned(top: 0, right: 0, child: Icon(LucideIcons.lock, size: 16, color: Color(0xFFD1D5DB))),
+                                              Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'Dia ${day.day}',
+                                                    style: DatingTheme.display.copyWith(fontSize: 24, color: DatingTheme.loveRed),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey.shade50,
+                                                      borderRadius: BorderRadius.circular(999),
+                                                      border: Border.all(color: Colors.grey.shade200),
                                                     ),
-                                                    const SizedBox(height: 12),
-                                                    Text(
-                                                      'GIFT ${day.day}',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.w900,
-                                                        color: locked ? const Color(0xFF9CA3AF) : const Color(0xFF1B4D3E),
-                                                        fontSize: 16,
-                                                        letterSpacing: 1,
-                                                      ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.visibility_outlined, size: 14, color: Colors.grey.shade600),
+                                                        const SizedBox(width: 4),
+                                                        Text('Já aberto', style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  FilledButton(
+                                                    onPressed: null,
+                                                    style: FilledButton.styleFrom(
+                                                      backgroundColor: DatingTheme.loveRed,
+                                                      disabledBackgroundColor: DatingTheme.loveRed,
+                                                      minimumSize: const Size.fromHeight(36),
+                                                      padding: EdgeInsets.zero,
+                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                    ),
+                                                    child: const Text('VER NOVAMENTE', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
                                         ),
                                       ),
-                                    );
-                                  },
-                                  childCount: days.length,
-                                ),
-                              ),
-                            )
-                          ];
-                        },
-                        loading: () => const [
-                          SliverFillRemaining(
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)),
-                              ),
-                            ),
-                          ),
-                        ],
-                        error: (error, _) => [
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFEF2F2),
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: const Color(0xFFFCA5A5)),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Icon(LucideIcons.triangleAlert, size: 32, color: Color(0xFFDC2626)),
-                                    const SizedBox(height: 16),
-                                    const Text('Erro ao carregar os dias', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF991B1B), fontSize: 16)),
-                                    const SizedBox(height: 16),
-                                    FilledButton.icon(
-                                      onPressed: () => ref.invalidate(sharedCalendarDaysProvider(widget.calendarId)),
-                                      icon: const Icon(LucideIcons.refreshCw, size: 18),
-                                      label: const Text('Tentar novamente', style: TextStyle(fontWeight: FontWeight.bold)),
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: const Color(0xFFDC2626),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      ),
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
+                                childCount: days.length,
                               ),
                             ),
                           ),
-                        ],
+                        ];
+                      },
+                      loading: () => const [SliverFillRemaining(child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)))))] ,
+                      error: (error, _) => [SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFCA5A5))), child: Column(children: [const Icon(LucideIcons.triangleAlert, size: 32, color: Color(0xFFDC2626)), const SizedBox(height: 16), const Text('Erro ao carregar os dias', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF991B1B), fontSize: 16)), const SizedBox(height: 16), FilledButton.icon(onPressed: () => ref.invalidate(sharedCalendarDaysProvider(widget.calendarId)), icon: const Icon(LucideIcons.refreshCw, size: 18), label: const Text('Tentar novamente', style: TextStyle(fontWeight: FontWeight.bold)), style: FilledButton.styleFrom(backgroundColor: const Color(0xFFDC2626), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))]))))],
+                    ),
+                  
+                  if (isDating)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)),
+                                boxShadow: [
+                                  BoxShadow(color: DatingTheme.loveRed.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(LucideIcons.quote, size: 40, color: DatingTheme.loveRed),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'MENSAGENS DE AMOR',
+                                    style: TextStyle(color: DatingTheme.loveRed, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    meta.calendar.footerMessage?.isNotEmpty == true
+                                        ? meta.calendar.footerMessage!
+                                        : '"CADA DIA AO SEU LADO É UM NOVO CAPÍTULO DA NOSSA HISTÓRIA DE AMOR. ❤️"',
+                                    textAlign: TextAlign.center,
+                                    style: DatingTheme.display.copyWith(fontSize: 20, color: DatingTheme.loveRed),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            FilledButton.icon(
+                              onPressed: () => context.go('/'),
+                              icon: const Icon(Icons.auto_awesome),
+                              label: const Text('Criar meu calendário', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: DatingTheme.loveRed,
+                                minimumSize: const Size.fromHeight(56),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                  ],
-                ),
-              ],
-            ),
+                    ),
+                ],
+              ),
+            ],
           );
+
+          return isDating ? DatingBackground(child: mainContent) : mainContent;
         },
         loading: () => const Center(
           child: CircularProgressIndicator(
@@ -722,4 +652,3 @@ class _InfoChip extends StatelessWidget {
     );
   }
 }
-

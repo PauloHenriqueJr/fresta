@@ -2,6 +2,8 @@ class CalendarSummary {
   const CalendarSummary({
     required this.id,
     required this.title,
+    this.headerMessage,
+    this.footerMessage,
     required this.themeId,
     required this.status,
     required this.privacy,
@@ -12,6 +14,8 @@ class CalendarSummary {
 
   final String id;
   final String title;
+  final String? headerMessage;
+  final String? footerMessage;
   final String themeId;
   final String status;
   final String privacy;
@@ -23,6 +27,8 @@ class CalendarSummary {
     return CalendarSummary(
       id: map['id'] as String,
       title: (map['title'] as String?) ?? 'Calendário',
+      headerMessage: map['header_message'] as String?,
+      footerMessage: map['footer_message'] as String?,
       themeId: (map['theme_id'] as String?) ?? 'aniversario',
       status: (map['status'] as String?) ?? 'rascunho',
       privacy: (map['privacy'] as String?) ?? 'private',

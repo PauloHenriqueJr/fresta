@@ -32,6 +32,8 @@ abstract class CalendarsRepository {
   Future<void> updateCalendar({
     required String calendarId,
     String? title,
+    String? headerMessage,
+    String? footerMessage,
     String? themeId,
     String? privacy,
     String? status,
@@ -49,7 +51,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
   Future<List<CalendarSummary>> listOwnedCalendars(String ownerId) async {
     final data = await _client
         .from('calendars')
-        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium')
+        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium,header_message,footer_message')
         .eq('owner_id', ownerId)
         .order('created_at', ascending: false);
 
@@ -63,7 +65,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final calendar = await _client
         .from('calendars')
         .select(
-          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password',
+          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message',
         )
         .eq('id', calendarId)
         .maybeSingle();
@@ -93,7 +95,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final rows = await _client
         .from('calendars')
         .select(
-          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password',
+          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message',
         )
         .eq('id', calendarId)
         .limit(1);
@@ -227,6 +229,8 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
   Future<void> updateCalendar({
     required String calendarId,
     String? title,
+    String? headerMessage,
+    String? footerMessage,
     String? themeId,
     String? privacy,
     String? status,
@@ -235,6 +239,8 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
   }) async {
     final payload = <String, dynamic>{
       ...?title?.let((value) => {'title': value}),
+      ...?headerMessage?.let((value) => {'header_message': value}),
+      ...?footerMessage?.let((value) => {'footer_message': value}),
       ...?themeId?.let((value) => {'theme_id': value}),
       ...?privacy?.let((value) => {'privacy': value}),
       ...?status?.let((value) => {'status': value}),
