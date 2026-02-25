@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../data/repositories/calendars_repository.dart';
 import '../../auth/application/auth_controller.dart';
 import '../application/calendar_providers.dart';
+import '../../../app/theme/dating_theme.dart';
 
 class CreateCalendarScreen extends ConsumerStatefulWidget {
   const CreateCalendarScreen({super.key});
@@ -207,17 +208,16 @@ class _ThemeSelectionStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // List of themes matching ThemesSelectionScreen but focused for selection
+    final colorScheme = Theme.of(context).colorScheme;
     final themes = [
-      ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg'),
-      ('namoro', 'Namoro', 'assets/images/themes/mascot-namoro.jpg'),
-      ('love', 'Amor & Paixão', 'assets/images/themes/mascot-love.jpg'),
-      ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg'),
-      ('casamento', 'Casamento', 'assets/images/themes/mascot-casamento.jpg'),
-      ('natal', 'Natal', 'assets/images/themes/mascot-natal.jpg'),
+      ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg', colorScheme.primary),
+      ('namoro', 'Namoro', 'assets/images/themes/mascot-namoro.jpg', DatingTheme.loveRed),
+      ('love', 'Amor & Paixão', 'assets/images/themes/mascot-love.jpg', const Color(0xFFF43F5E)),
+      ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg', const Color(0xFF0EA5E9)),
+      ('casamento', 'Casamento', 'assets/images/themes/mascot-casamento.jpg', const Color(0xFF8B5CF6)),
+      ('natal', 'Natal', 'assets/images/themes/mascot-natal.jpg', const Color(0xFF059669)),
     ];
 
-    final colorScheme = Theme.of(context).colorScheme;
     return GridView.builder(
       padding: const EdgeInsets.all(24),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -237,8 +237,8 @@ class _ThemeSelectionStep extends StatelessWidget {
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? colorScheme.primary : Colors.transparent,
-                width: 2,
+                color: isSelected ? t.$4 : Colors.transparent,
+                width: 3,
               ),
               boxShadow: [
                 BoxShadow(
@@ -261,8 +261,8 @@ class _ThemeSelectionStep extends StatelessWidget {
                   child: Text(
                     t.$2,
                     style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                      fontWeight: FontWeight.w900,
+                      color: isSelected ? t.$4 : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -495,14 +495,18 @@ class _ReviewStep extends StatelessWidget {
             children: [
               _ReviewRow(label: 'Título', value: title.isEmpty ? 'Meu Calendário' : title),
               Divider(height: 32, color: colorScheme.onSurface.withValues(alpha: 0.05)),
-              _ReviewRow(label: 'Tema', value: themeId.toUpperCase()),
+              _ReviewRow(
+                label: 'Tema', 
+                value: themeId == 'namoro' ? 'Namoro ❤️' : themeId.toUpperCase(),
+                valueColor: themeId == 'namoro' ? DatingTheme.loveRed : null,
+              ),
               Divider(height: 32, color: colorScheme.onSurface.withValues(alpha: 0.05)),
               _ReviewRow(label: 'Duração', value: '$duration dias'),
               Divider(height: 32, color: colorScheme.onSurface.withValues(alpha: 0.05)),
               _ReviewRow(
                 label: 'Plano',
                 value: isPremium ? 'Plus' : 'Gratuito',
-                valueColor: isPremium ? const Color(0xFFF9A03F) : colorScheme.primary,
+                valueColor: isPremium ? const Color(0xFFF9A03F) : (themeId == 'namoro' ? DatingTheme.loveRed : colorScheme.primary),
               ),
             ],
           ),

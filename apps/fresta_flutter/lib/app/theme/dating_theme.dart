@@ -20,7 +20,7 @@ class DatingTheme {
 
   static TextStyle get body {
     return GoogleFonts.plusJakartaSans(
-      color: wineBerry.withOpacity(0.8),
+      color: wineBerry.withValues(alpha: 0.8),
       fontSize: 16,
       fontWeight: FontWeight.w500,
     );
@@ -30,10 +30,10 @@ class DatingTheme {
     return BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: loveRed.withOpacity(0.2), width: 2),
+      border: Border.all(color: loveRed.withValues(alpha: 0.2), width: 2),
       boxShadow: [
         BoxShadow(
-          color: loveRed.withOpacity(0.05),
+          color: loveRed.withValues(alpha: 0.05),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),
@@ -119,7 +119,7 @@ class NotebookModalContent extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (_, __) => const SizedBox(height: 30),
               separatorBuilder: (_, __) => Divider(
-                color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
                 thickness: 1,
                 height: 0,
               ),
@@ -133,7 +133,7 @@ class NotebookModalContent extends StatelessWidget {
             bottom: 0,
             child: Container(
               width: 1,
-              color: DatingTheme.loveRed.withOpacity(0.3),
+              color: DatingTheme.loveRed.withValues(alpha: 0.3),
             ),
           ),
           Column(
