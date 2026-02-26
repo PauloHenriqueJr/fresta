@@ -13,6 +13,7 @@ import '../application/viewer_providers.dart';
 import '../../../data/repositories/viewer_repository.dart';
 import '../../../app/theme/dating_theme.dart';
 import '../../../app/theme/theme_manager.dart';
+import '../../../shared/widgets/fresta_ad_banner.dart';
 
 class SharedCalendarViewerScreen extends ConsumerStatefulWidget {
   const SharedCalendarViewerScreen({super.key, required this.calendarId, this.isPreview = false});
@@ -242,6 +243,13 @@ class _SharedCalendarViewerScreenState
                       const SizedBox(width: 8),
                     ],
                   ),
+                  
+                  // ---- Fresta Ad Banner for free calendars (Header) ----
+                  if (!meta.calendar.isPremium)
+                    const SliverToBoxAdapter(
+                      child: FrestaAdBanner(position: FrestaAdPosition.header),
+                    ),
+
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
@@ -508,10 +516,16 @@ class _SharedCalendarViewerScreenState
                               ),
                             ),
                           ),
-                        ];
-                      },
-                      loading: () => const [SliverFillRemaining(child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)))))] ,
-                      error: (error, _) => [SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFCA5A5))), child: Column(children: [const Icon(LucideIcons.triangleAlert, size: 32, color: Color(0xFFDC2626)), const SizedBox(height: 16), const Text('Erro ao carregar os dias', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF991B1B), fontSize: 16)), const SizedBox(height: 16), FilledButton.icon(onPressed: () => ref.invalidate(sharedCalendarDaysProvider(widget.calendarId)), icon: const Icon(LucideIcons.refreshCw, size: 18), label: const Text('Tentar novamente', style: TextStyle(fontWeight: FontWeight.bold)), style: FilledButton.styleFrom(backgroundColor: const Color(0xFFDC2626), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))]))))],
+                         ];
+                       },
+                       loading: () => const [SliverFillRemaining(child: Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)))))] ,
+                       error: (error, _) => [SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFCA5A5))), child: Column(children: [const Icon(LucideIcons.triangleAlert, size: 32, color: Color(0xFFDC2626)), const SizedBox(height: 16), const Text('Erro ao carregar os dias', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF991B1B), fontSize: 16)), const SizedBox(height: 16), FilledButton.icon(onPressed: () => ref.invalidate(sharedCalendarDaysProvider(widget.calendarId)), icon: const Icon(LucideIcons.refreshCw, size: 18), label: const Text('Tentar novamente', style: TextStyle(fontWeight: FontWeight.bold)), style: FilledButton.styleFrom(backgroundColor: const Color(0xFFDC2626), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))]))))],
+                     ),
+
+                  // ---- Fresta Watermark for free calendars ----
+                  if (!meta.calendar.isPremium)
+                    const SliverToBoxAdapter(
+                      child: FrestaWatermark(),
                     ),
                   
                   if (meta.calendar.footerMessage?.isNotEmpty == true || themeConfig.id == 'namoro')

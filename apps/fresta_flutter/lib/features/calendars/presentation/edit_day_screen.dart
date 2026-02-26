@@ -9,6 +9,7 @@ import '../application/calendar_providers.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../../app/theme/theme_manager.dart';
 import '../../../app/theme/calendar_theme_config.dart';
+import '../../../shared/widgets/fresta_ad_banner.dart';
 
 class EditDayScreen extends ConsumerStatefulWidget {
   const EditDayScreen({super.key, required this.calendarId, required this.day});
@@ -225,11 +226,17 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
           );
         }
 
+        final isPremium = detail.calendar.isPremium;
+
         return SafeArea(
           bottom: false,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
             children: [
+              // ---- Ad Banner for free calendars (header) ----
+              if (!isPremium)
+                const FrestaAdBanner(position: FrestaAdPosition.header),
+
               // ---- Header Card ----
               Container(
                 padding: const EdgeInsets.all(24),
@@ -296,7 +303,10 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
                     // ---- Photo Picker (shown when contentType == 'photo') ----
                     if (_contentType == 'photo') ...[
                       const SizedBox(height: 20),
-                      _buildPhotoSection(themeConfig),
+                      if (isPremium)
+                        _buildPhotoSection(themeConfig)
+                      else
+                        _buildUpgradePrompt(themeConfig, 'Foto'),
                     ],
 
                     // ---- GIF URL Input ----
@@ -562,6 +572,69 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  // ---- Upgrade Prompt (replaces photo picker for free users) ----
+  Widget _buildUpgradePrompt(CalendarThemeConfig themeConfig, String feature) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: themeConfig.primaryColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: themeConfig.primaryColor.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: themeConfig.primaryColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.lock_rounded, color: themeConfig.primaryColor, size: 28),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '$feature é exclusivo do Plus',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+              color: themeConfig.primaryColor,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Faça upgrade para o Fresta Plus e desbloqueie upload de fotos, mais dias e recursos premium.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () {
+              // TODO: Navigate to paywall screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Paywall em breve!')),
+              );
+            },
+            icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+            label: const Text('Upgrade para Plus', style: TextStyle(fontWeight: FontWeight.w800)),
+            style: FilledButton.styleFrom(
+              backgroundColor: themeConfig.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -16,6 +16,7 @@ abstract class CalendarsRepository {
     required String themeId,
     required int duration,
     required String privacy,
+    bool isPremium = false,
   });
   Future<void> updateDay({
     required String calendarId,
@@ -145,6 +146,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     required String themeId,
     required int duration,
     required String privacy,
+    bool isPremium = false,
   }) async {
     final calendar = await _client
         .from('calendars')
@@ -155,6 +157,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
           'duration': duration,
           'privacy': privacy,
           'status': 'rascunho',
+          'is_premium': isPremium,
         })
         .select('id')
         .single();

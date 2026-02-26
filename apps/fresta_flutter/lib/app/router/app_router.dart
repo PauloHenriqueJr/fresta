@@ -124,7 +124,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) => const CreateCalendarScreen(),
+                    builder: (context, state) {
+                      final themeId = state.uri.queryParameters['theme'];
+                      final isPremium = state.uri.queryParameters['premium'] == 'true';
+                      return CreateCalendarScreen(
+                        initialThemeId: themeId,
+                        isPremium: isPremium,
+                      );
+                    },
                   ),
                   GoRoute(
                     path: ':id',
@@ -166,6 +173,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/explore',
                 builder: (context, state) => const ExploreScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'preview/:themeId',
+                    builder: (context, state) => SharedCalendarViewerScreen(
+                      calendarId: 'preview_${state.pathParameters['themeId']}',
+                      isPreview: true,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

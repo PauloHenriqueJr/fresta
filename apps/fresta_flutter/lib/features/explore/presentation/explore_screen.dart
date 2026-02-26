@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/theme_manager.dart';
+import '../../calendars/application/plan_limits_provider.dart';
+import 'widgets/premium_theme_choice_modal.dart';
 
 /// All themes catalog — the user's go-to place to discover and choose a theme
 class ExploreScreen extends ConsumerStatefulWidget {
@@ -109,7 +111,30 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
                 childAspectRatio: 0.72,
-                children: filtered.map((t) => _ThemeCard(entry: t, onTap: () => context.go('/creator/calendars/new'))).toList(),
+                children: filtered.map((t) {
+                  final isPlus = plusThemes.contains(t.id);
+                  return _ThemeCard(
+                    entry: t,
+                    isPlus: isPlus,
+                    onTap: () {
+                      if (isPlus) {
+                        final themeConfig = ThemeManager.getTheme(t.id);
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => PremiumThemeChoiceModal(
+                            themeId: t.id,
+                            themeName: t.name,
+                            themeConfig: themeConfig,
+                          ),
+                        );
+                      } else {
+                        context.go('/creator/calendars/new?theme=${t.id}');
+                      }
+                    },
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -129,8 +154,9 @@ class _ThemeEntry {
 }
 
 class _ThemeCard extends StatelessWidget {
-  const _ThemeCard({required this.entry, required this.onTap});
+  const _ThemeCard({required this.entry, required this.isPlus, required this.onTap});
   final _ThemeEntry entry;
+  final bool isPlus;
   final VoidCallback onTap;
 
   @override
@@ -180,6 +206,30 @@ class _ThemeCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // Plus Badge
+                    if (isPlus)
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2)),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.workspace_premium_rounded, color: Color(0xFFF9A826), size: 14),
+                              const SizedBox(width: 4),
+                              const Text('Plus', style: TextStyle(color: Color(0xFFF9A826), fontSize: 10, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),

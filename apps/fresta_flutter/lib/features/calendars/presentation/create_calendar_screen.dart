@@ -8,22 +8,37 @@ import '../application/calendar_providers.dart';
 import '../../../app/theme/dating_theme.dart';
 
 class CreateCalendarScreen extends ConsumerStatefulWidget {
-  const CreateCalendarScreen({super.key});
+  const CreateCalendarScreen({
+    super.key,
+    this.initialThemeId,
+    this.isPremium = false,
+  });
+
+  final String? initialThemeId;
+  final bool isPremium;
 
   @override
   ConsumerState<CreateCalendarScreen> createState() => _CreateCalendarScreenState();
 }
 
 class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
-  final PageController _pageController = PageController();
-  int _currentStep = 0;
+  late final PageController _pageController;
+  late int _currentStep;
 
   final _titleController = TextEditingController();
-  String _selectedThemeId = 'aniversario';
+  late String _selectedThemeId;
   int _duration = 7; // Start with 7 (free)
   String _privacy = 'private';
   bool _saving = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedThemeId = widget.initialThemeId ?? 'aniversario';
+    _currentStep = widget.initialThemeId != null ? 1 : 0;
+    _pageController = PageController(initialPage: _currentStep);
+  }
 
   @override
   void dispose() {
@@ -45,7 +60,8 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
   }
 
   void _prevStep() {
-    if (_currentStep > 0) {
+    final int minStep = widget.initialThemeId != null ? 1 : 0;
+    if (_currentStep > minStep) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -74,6 +90,7 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
             themeId: _selectedThemeId,
             duration: _duration,
             privacy: _privacy,
+            isPremium: widget.isPremium,
           );
       ref.invalidate(myCalendarsProvider);
       if (!mounted) return;
