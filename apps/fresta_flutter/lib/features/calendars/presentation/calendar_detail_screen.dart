@@ -7,6 +7,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/utils/fresta_urls.dart';
 import '../../auth/application/auth_controller.dart';
 import '../application/calendar_providers.dart';
+import '../../calendars/application/calendar_providers.dart'; // Ensure correct access
+import '../../../data/repositories/calendars_repository.dart';
 import '../../../app/theme/theme_manager.dart';
 
 class CalendarDetailScreen extends ConsumerWidget {

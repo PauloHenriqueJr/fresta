@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/calendars_repository.dart';
 import '../application/calendar_providers.dart';
+import '../application/plan_limits_provider.dart';
 import '../../../app/theme/theme_manager.dart';
+import 'themes_selection_screen.dart';
 
 class EditCalendarScreen extends ConsumerStatefulWidget {
   const EditCalendarScreen({super.key, required this.calendarId});
@@ -26,7 +28,9 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
   bool _clearPassword = false;
   bool _showPassword = false;
   String _privacy = 'private';
+  bool _isLoadingDefaults = false;
   String? _error;
+  int _themeDropdownKeyCounter = 0;
 
   @override
   void initState() {
@@ -56,21 +60,65 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
 
     _titleController.text = detail.calendar.title;
 
-    final isDating = detail.calendar.themeId == 'namoro';
-    final defaultSubtitle = isDating ? 'Uma jornada de amor para nós dois' : '';
-    final defaultFooter = isDating ? '"CADA DIA AO SEU LADO É UM NOVO CAPÍTULO DA NOSSA HISTÓRIA DE AMOR. ❤️"' : '';
-
-    _headerMessageController.text = (detail.calendar.headerMessage?.isNotEmpty == true) 
-        ? detail.calendar.headerMessage! 
-        : defaultSubtitle;
-    _footerMessageController.text = (detail.calendar.footerMessage?.isNotEmpty == true) 
-        ? detail.calendar.footerMessage! 
-        : defaultFooter;
+    final header = detail.calendar.headerMessage ?? '';
+    final footer = detail.calendar.footerMessage ?? '';
+    
+    _headerMessageController.text = header;
+    _footerMessageController.text = footer;
 
     _themeController.text = detail.calendar.themeId;
     _privacy = detail.calendar.privacy;
     _clearPassword = false;
     _hydrated = true;
+
+    // Se campos estiverem vazios, tenta buscar defaults do banco automaticamente
+    if (header.isEmpty || footer.isEmpty) {
+      _loadThemeDefaults(detail.calendar.themeId, onlyIfEmpty: true);
+    }
+  }
+
+  Future<void> _loadThemeDefaults(String themeId, {bool onlyIfEmpty = false}) async {
+    if (_isLoadingDefaults) return;
+    setState(() => _isLoadingDefaults = true);
+    try {
+      final defaults = await ref.read(calendarsRepositoryProvider).getThemeDefaults(themeId);
+      if (mounted && defaults != null) {
+        if (onlyIfEmpty) {
+          setState(() {
+            if (_headerMessageController.text.trim().isEmpty) {
+              _headerMessageController.text = defaults.defaultHeaderMessage ?? '';
+            }
+            if (_footerMessageController.text.trim().isEmpty) {
+              _footerMessageController.text = defaults.defaultFooterMessage ?? '';
+            }
+          });
+        } else {
+          // Manual theme change - ask to overwrite
+          final shouldOverwrite = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Carregar Padrões?'),
+              content: const Text('Deseja carregar as mensagens padrão deste tema? Isso irá substituir seus textos atuais.'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Não')),
+                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Sim')),
+              ],
+            ),
+          );
+
+          if (shouldOverwrite == true && mounted) {
+            setState(() {
+              _titleController.text = defaults.defaultTitle;
+              _headerMessageController.text = defaults.defaultHeaderMessage ?? '';
+              _footerMessageController.text = defaults.defaultFooterMessage ?? '';
+            });
+          }
+        }
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _isLoadingDefaults = false);
+    }
   }
 
   Future<void> _save() async {
@@ -147,8 +195,15 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
           return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
         }
 
-        final availableThemes = ['namoro', 'casamento', 'bodas', 'noivado', 'carnaval', 'saojoao', 'reveillon', 'natal', 'pascoa', 'aniversario', 'diadascriancas', 'diadasmaes', 'diadospais', 'viagem', 'estudo', 'independencia', 'metas'];
-        final currentThemeOrDefault = availableThemes.contains(_themeController.text) ? _themeController.text : 'aniversario';
+        final availableThemes = ThemesSelectionScreen.themes;
+        final currentThemeId = _themeController.text;
+        
+        // Verificamos se o tema atual existe na lista oficial
+        final currentThemeItem = availableThemes.any((t) => t.id == currentThemeId) 
+            ? availableThemes.firstWhere((t) => t.id == currentThemeId)
+            : availableThemes.firstWhere((t) => t.id == 'aniversario');
+
+        final currentThemeOrDefault = currentThemeItem.id;
 
         return SafeArea(
           bottom: false,
@@ -160,6 +215,11 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                 decoration: themeConfig.cardDecoration(context),
                 child: Column(
                   children: [
+                    if (_isLoadingDefaults)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 16),
+                        child: LinearProgressIndicator(minHeight: 2),
+                      ),
                     _ThemedTextField(
                       controller: _titleController,
                       label: 'Título',
@@ -174,36 +234,13 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                       themeConfig: themeConfig,
                     ),
                     const SizedBox(height: 20),
-                    DropdownButtonFormField<String>(
-                      value: currentThemeOrDefault,
-                      icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
-                      decoration: _themedInputDecoration(context, 'Tema (Visual)', Icons.palette_rounded),
-                      items: [
-                        DropdownMenuItem(value: 'namoro', child: Text('Amor & Romance', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'casamento', child: Text('Nossa União', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'bodas', child: Text('Bodas', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'noivado', child: Text('Eternamente Juntos', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'carnaval', child: Text('Carnaval', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'saojoao', child: Text('São João', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'reveillon', child: Text('Réveillon', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'natal', child: Text('Natal', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'pascoa', child: Text('Páscoa', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'aniversario', child: Text('Aniversário', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'diadascriancas', child: Text('Dia das Crianças', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'diadasmaes', child: Text('Dia das Mães', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'diadospais', child: Text('Dia dos Pais', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'viagem', child: Text('Viagem', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'estudo', child: Text('Estudos', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'independencia', child: Text('Independência', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'metas', child: Text('Metas', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _themeController.text = value;
-                          });
-                        }
-                      },
+                    const SizedBox(height: 20),
+                    _ThemedTextField(
+                      controller: TextEditingController(text: currentThemeItem.title),
+                      label: 'Tema Atual (Apenas Visualização)',
+                      icon: Icons.palette_rounded,
+                      themeConfig: themeConfig,
+                      readOnly: true,
                     ),
                     const SizedBox(height: 20),
                     _ThemedTextField(
@@ -212,19 +249,11 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                       icon: Icons.text_snippet_rounded,
                       themeConfig: themeConfig,
                     ),
-                    const SizedBox(height: 20),
-                    DropdownButtonFormField<String>(
-                      initialValue: _privacy,
-                        icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
-                        decoration: _themedInputDecoration(context, 'Privacidade', Icons.lock_outline_rounded),
-                        items: [
-                          DropdownMenuItem(value: 'private', child: Text('Privado', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'public', child: Text('Público', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) setState(() => _privacy = value);
-                        },
-                      ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Este calendário é privado. Apenas pessoas com o link (e senha, se definida) podem acessá-lo.',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13, fontStyle: FontStyle.italic),
+                    ),
                     ],
                   ),
                 ),
@@ -281,7 +310,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                           activeThumbColor: themeConfig.primaryColor,
                           activeTrackColor: themeConfig.primaryColor.withValues(alpha: 0.3),
                           title: Text('Remover senha existente', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-                          subtitle: Text('Isso deixará o calendário aberto se for público.', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          subtitle: Text('Remove a proteção por senha deste calendário.', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -410,25 +439,36 @@ class _ThemedTextField extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.themeConfig,
+    this.maxLines = 1,
+    this.readOnly = false,
   });
 
   final TextEditingController controller;
   final String label;
   final IconData icon;
   final dynamic themeConfig;
+  final int maxLines;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return TextField(
+    return TextFormField(
       controller: controller,
-      style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
+      maxLines: maxLines,
+      readOnly: readOnly,
+      style: TextStyle(
+        fontSize: 16,
+        color: readOnly ? colorScheme.onSurface.withValues(alpha: 0.6) : colorScheme.onSurface,
+        fontWeight: FontWeight.w500,
+      ),
+      cursorColor: themeConfig.primaryColor,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
         prefixIcon: Icon(icon, color: themeConfig.primaryColor),
         filled: true,
-        fillColor: colorScheme.surface,
+        fillColor: readOnly ? colorScheme.onSurface.withValues(alpha: 0.05) : colorScheme.surface,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1))),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),

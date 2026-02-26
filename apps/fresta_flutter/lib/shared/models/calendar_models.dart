@@ -111,3 +111,38 @@ class CalendarDetailModel {
   final List<CalendarDayModel> days;
   final bool hasPassword;
 }
+
+class ThemeDefaults {
+  final String themeId;
+  final String defaultTitle;
+  final String? defaultHeaderMessage;
+  final String? defaultFooterMessage;
+  final String? defaultCapsuleTitle;
+  final String? defaultCapsuleMessage;
+  final String? defaultLockedTitle;
+  final String? defaultLockedMessage;
+
+  ThemeDefaults({
+    required this.themeId,
+    required this.defaultTitle,
+    this.defaultHeaderMessage,
+    this.defaultFooterMessage,
+    this.defaultCapsuleTitle,
+    this.defaultCapsuleMessage,
+    this.defaultLockedTitle,
+    this.defaultLockedMessage,
+  });
+
+  factory ThemeDefaults.fromMap(Map<String, dynamic> map) {
+    return ThemeDefaults(
+      themeId: map['theme_id'] as String,
+      defaultTitle: map['default_title'] as String,
+      defaultHeaderMessage: map['default_header_message'] as String?,
+      defaultFooterMessage: map['default_footer_message'] as String?,
+      defaultCapsuleTitle: map['default_capsule_title'] as String?,
+      defaultCapsuleMessage: map['default_capsule_message'] as String?,
+      defaultLockedTitle: map['default_locked_title'] as String?,
+      defaultLockedMessage: map['default_locked_message'] as String?,
+    );
+  }
+}

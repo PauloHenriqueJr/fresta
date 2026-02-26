@@ -57,14 +57,18 @@ class PlanLimits {
 
 /// Plus-only themes that require payment to access.
 const plusThemes = [
-  'namoro', // Adicionado como Plus conforme solicitado
-  'casamento',
-  'bodas',
+  'love',
   'noivado',
-  'reveillon',
-  'viagem',
+  'casamento',
+  'aniversario',
+  'bodas',
   'natal',
+  'reveillon',
   'pascoa',
+  'diadasmaes',
+  'diadospais',
+  'diadascriancas',
+  'carnaval',
   'saojoao',
   'independencia',
 ];

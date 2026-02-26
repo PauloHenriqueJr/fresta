@@ -17,6 +17,8 @@ abstract class CalendarsRepository {
     required int duration,
     required String privacy,
     bool isPremium = false,
+    String? headerMessage,
+    String? footerMessage,
   });
   Future<void> updateDay({
     required String calendarId,
@@ -40,6 +42,8 @@ abstract class CalendarsRepository {
     String? password,
     bool clearPassword = false,
   });
+
+  Future<ThemeDefaults?> getThemeDefaults(String themeId);
   
   Future<void> activatePremiumCalendar({
     required String calendarId,
@@ -158,6 +162,8 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     required int duration,
     required String privacy,
     bool isPremium = false,
+    String? headerMessage,
+    String? footerMessage,
   }) async {
     final calendar = await _client
         .from('calendars')
@@ -169,6 +175,8 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
           'privacy': privacy,
           'status': 'rascunho',
           'is_premium': isPremium,
+          'header_message': headerMessage,
+          'footer_message': footerMessage,
         })
         .select('id')
         .single();
@@ -348,6 +356,32 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
         .eq('user_id', userId)
         .maybeSingle();
     return existing != null;
+  }
+
+  @override
+  Future<ThemeDefaults?> getThemeDefaults(String themeId) async {
+    try {
+      // 1. Try specific theme
+      var res = await _client
+          .from('theme_defaults')
+          .select()
+          .eq('theme_id', themeId)
+          .maybeSingle();
+
+      // 2. Fallback to default
+      if (res == null) {
+        res = await _client
+            .from('theme_defaults')
+            .select()
+            .eq('theme_id', 'default')
+            .maybeSingle();
+      }
+
+      if (res == null) return null;
+      return ThemeDefaults.fromMap(res);
+    } catch (_) {
+      return null;
+    }
   }
 }
 

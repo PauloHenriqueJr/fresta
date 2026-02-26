@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../data/repositories/calendars_repository.dart';
+import '../../../shared/models/calendar_models.dart';
 import '../../auth/application/auth_controller.dart';
 import '../application/calendar_providers.dart';
 import '../application/plan_limits_provider.dart';
@@ -27,11 +28,16 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
   late int _currentStep;
 
   final _titleController = TextEditingController();
+  final _headerController = TextEditingController();
+  final _footerController = TextEditingController();
   late String _selectedThemeId;
   int _duration = 7; // Start with 7 (free)
   String _privacy = 'private';
   bool _saving = false;
   String? _error;
+  
+  ThemeDefaults? _currentThemeDefaults;
+  bool _isLoadingDefaults = false;
 
   @override
   void initState() {
@@ -39,12 +45,50 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
     _selectedThemeId = widget.initialThemeId ?? 'aniversario';
     _currentStep = widget.initialThemeId != null ? 1 : 0;
     _pageController = PageController(initialPage: _currentStep);
+    
+    // Initial default title if needed
+    if (widget.initialThemeId == null) {
+      _titleController.text = 'Meu Calendário';
+    }
+
+    // Load defaults for initial theme
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadThemeDefaults(_selectedThemeId);
+    });
+  }
+
+  Future<void> _loadThemeDefaults(String themeId) async {
+    setState(() => _isLoadingDefaults = true);
+    try {
+      final defaults = await ref.read(calendarsRepositoryProvider).getThemeDefaults(themeId);
+      if (mounted && defaults != null) {
+        setState(() {
+          _currentThemeDefaults = defaults;
+          
+          // Only overwrite if it matches the previous default or is empty
+          final currentTitle = _titleController.text.trim();
+          if (currentTitle.isEmpty || 
+              currentTitle == 'Meu Calendário' || 
+              (_currentThemeDefaults != null && currentTitle == _currentThemeDefaults?.defaultTitle)) {
+             _titleController.text = defaults.defaultTitle;
+          }
+          
+          _headerController.text = defaults.defaultHeaderMessage ?? '';
+          _footerController.text = defaults.defaultFooterMessage ?? '';
+        });
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _isLoadingDefaults = false);
+    }
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     _titleController.dispose();
+    _headerController.dispose();
+    _footerController.dispose();
     super.dispose();
   }
 
@@ -89,12 +133,14 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
       final id = await ref.read(calendarsRepositoryProvider).createCalendar(
             ownerId: user.id,
             title: _titleController.text.trim().isEmpty
-                ? 'Meu Calendário'
+                ? (_currentThemeDefaults?.defaultTitle ?? 'Meu Calendário')
                 : _titleController.text.trim(),
             themeId: _selectedThemeId,
             duration: _duration,
             privacy: _privacy,
             isPremium: isPremiumRequired,
+            headerMessage: _headerController.text.trim().isEmpty ? null : _headerController.text.trim(),
+            footerMessage: _footerController.text.trim().isEmpty ? null : _footerController.text.trim(),
           );
       ref.invalidate(myCalendarsProvider);
       if (!mounted) return;
@@ -177,15 +223,19 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
         children: [
           _ThemeSelectionStep(
             selectedId: _selectedThemeId,
-            onSelected: (id) => setState(() => _selectedThemeId = id),
+            onSelected: (id) {
+              setState(() => _selectedThemeId = id);
+              _loadThemeDefaults(id);
+            },
           ),
           _ConfigStep(
             titleController: _titleController,
+            headerController: _headerController,
+            footerController: _footerController,
             duration: _duration,
-            privacy: _privacy,
             isPlusTheme: isPlusTheme,
+            isLoadingDefaults: _isLoadingDefaults,
             onDurationChanged: (val) => setState(() => _duration = val),
-            onPrivacyChanged: (val) => setState(() => _privacy = val),
           ),
           _ReviewStep(
             themeId: _selectedThemeId,
@@ -245,9 +295,9 @@ class _ThemeSelectionStep extends StatelessWidget {
         'icon': '💕',
         'items': [
           ('namoro', 'Amor & Romance', 'assets/images/themes/mascot-namoro.jpg', false),
-          ('casamento', 'Nossa União', 'assets/images/themes/mascot-casamento.jpg', true),
-          ('bodas', 'Bodas', 'assets/images/themes/mascot-bodas.jpg', true),
+          ('love', 'Amor & Paixão', 'assets/images/themes/mascot-love.jpg', true),
           ('noivado', 'Eternamente Juntos', 'assets/images/themes/mascot-noivado.jpg', true),
+          ('casamento', 'Nossa União', 'assets/images/themes/mascot-casamento.jpg', true),
         ],
       },
       {
@@ -271,23 +321,24 @@ class _ThemeSelectionStep extends StatelessWidget {
         'title': 'Comemorações',
         'icon': '🎂',
         'items': [
-          ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg', false),
-          ('diadascriancas', 'Dia das Crianças', 'assets/images/themes/mascot-diadascriancas.jpg', false),
+          ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg', true),
+          ('bodas', 'Bodas de Amor', 'assets/images/themes/mascot-bodas.jpg', true),
+          ('diadascriancas', 'Dia das Crianças', 'assets/images/themes/mascot-diadascriancas.jpg', true),
         ],
       },
       {
         'title': 'Família',
         'icon': '👥',
         'items': [
-          ('diadasmaes', 'Dia das Mães', 'assets/images/themes/mascot-diadasmaes.jpg', false),
-          ('diadospais', 'Dia dos Pais', 'assets/images/themes/mascot-diadospais.jpg', false),
+          ('diadasmaes', 'Dia das Mães', 'assets/images/themes/mascot-diadasmaes.jpg', true),
+          ('diadospais', 'Dia dos Pais', 'assets/images/themes/mascot-diadospais.jpg', true),
         ],
       },
       {
         'title': 'Outros',
         'icon': '🌟',
         'items': [
-          ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg', true),
+          ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg', false),
           ('estudo', 'Estudos', 'assets/images/themes/mascot-estudo.jpg', false),
           ('independencia', 'Independência', 'assets/images/themes/mascot-independencia.jpg', true),
           ('metas', 'Metas', 'assets/images/themes/mascot-metas.jpg', false),
@@ -461,19 +512,21 @@ class _ThemeSelectionStep extends StatelessWidget {
 class _ConfigStep extends StatelessWidget {
   const _ConfigStep({
     required this.titleController,
+    required this.headerController,
+    required this.footerController,
     required this.duration,
-    required this.privacy,
     required this.isPlusTheme,
+    this.isLoadingDefaults = false,
     required this.onDurationChanged,
-    required this.onPrivacyChanged,
   });
 
   final TextEditingController titleController;
+  final TextEditingController headerController;
+  final TextEditingController footerController;
   final int duration;
-  final String privacy;
   final bool isPlusTheme;
+  final bool isLoadingDefaults;
   final ValueChanged<int> onDurationChanged;
-  final ValueChanged<String> onPrivacyChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -481,6 +534,11 @@ class _ConfigStep extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
+        if (isLoadingDefaults)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: LinearProgressIndicator(minHeight: 2),
+          ),
         Text(
           'Dê um nome e defina o tempo',
           style: TextStyle(
@@ -503,6 +561,20 @@ class _ConfigStep extends StatelessWidget {
           label: 'Título da Fresta',
           icon: Icons.edit_rounded,
           hint: 'Ex: 24 Dias com Você',
+        ),
+        const SizedBox(height: 16),
+        _StyledTextField(
+          controller: headerController,
+          label: 'Mensagem de Boas-vindas',
+          icon: Icons.auto_awesome_rounded,
+          hint: 'Aparece ao abrir o calendário',
+        ),
+        const SizedBox(height: 16),
+        _StyledTextField(
+          controller: footerController,
+          label: 'Mensagem de Encerramento',
+          icon: Icons.favorite_rounded,
+          hint: 'Aparece no final do calendário',
         ),
         const SizedBox(height: 24),
         Text(
@@ -559,29 +631,6 @@ class _ConfigStep extends StatelessWidget {
               ),
             );
           }).toList(),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Privacidade',
-          style: TextStyle(fontWeight: FontWeight.w900, color: colorScheme.onSurface, fontSize: 15, letterSpacing: -0.3),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _PrivacyOption(
-              label: 'Privado',
-              icon: Icons.lock_outline_rounded,
-              isSelected: privacy == 'private',
-              onTap: () => onPrivacyChanged('private'),
-            ),
-            const SizedBox(width: 12),
-            _PrivacyOption(
-              label: 'Público',
-              icon: Icons.public_rounded,
-              isSelected: privacy == 'public',
-              onTap: () => onPrivacyChanged('public'),
-            ),
-          ],
         ),
       ],
     );
