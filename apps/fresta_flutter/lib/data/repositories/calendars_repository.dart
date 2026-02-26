@@ -37,7 +37,6 @@ abstract class CalendarsRepository {
     String? footerMessage,
     String? themeId,
     String? privacy,
-    String? status,
     String? password,
     bool clearPassword = false,
   });
@@ -47,6 +46,8 @@ abstract class CalendarsRepository {
     required String transactionId,
     required String productId,
   });
+
+  Future<void> publishCalendar(String calendarId);
 
   Future<void> deleteCalendar(String calendarId);
 
@@ -247,7 +248,6 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     String? footerMessage,
     String? themeId,
     String? privacy,
-    String? status,
     String? password,
     bool clearPassword = false,
   }) async {
@@ -257,7 +257,6 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
       ...?footerMessage?.let((value) => {'footer_message': value}),
       ...?themeId?.let((value) => {'theme_id': value}),
       ...?privacy?.let((value) => {'privacy': value}),
-      ...?status?.let((value) => {'status': value}),
       ...?password?.let((value) => {'password': value}),
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     };
@@ -293,6 +292,14 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     } catch (e) {
       throw Exception('Erro ao processar ativação premium: $e');
     }
+  }
+
+  @override
+  Future<void> publishCalendar(String calendarId) async {
+    await _client
+        .from('calendars')
+        .update({'status': 'ativo', 'updated_at': DateTime.now().toUtc().toIso8601String()})
+        .eq('id', calendarId);
   }
 
   @override

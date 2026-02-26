@@ -26,7 +26,6 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
   bool _clearPassword = false;
   bool _showPassword = false;
   String _privacy = 'private';
-  String _status = 'rascunho';
   String? _error;
 
   @override
@@ -70,7 +69,6 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
 
     _themeController.text = detail.calendar.themeId;
     _privacy = detail.calendar.privacy;
-    _status = detail.calendar.status;
     _clearPassword = false;
     _hydrated = true;
   }
@@ -90,7 +88,6 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
             footerMessage: _footerMessageController.text.trim().isEmpty ? null : _footerMessageController.text.trim(),
             themeId: _themeController.text.trim(),
             privacy: _privacy,
-            status: _status,
             password: _clearPassword ? null : (passwordInput.isEmpty ? null : passwordInput),
             clearPassword: _clearPassword,
           );
@@ -226,22 +223,6 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                         ],
                         onChanged: (value) {
                           if (value != null) setState(() => _privacy = value);
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      DropdownButtonFormField<String>(
-                        initialValue: _status,
-                        icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
-                        decoration: _themedInputDecoration(context, 'Status', Icons.info_outline_rounded),
-                        items: [
-                          DropdownMenuItem(value: 'rascunho', child: Text('Rascunho', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'ativo', child: Text('Ativo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'finalizado', child: Text('Finalizado', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'aguardando_pagamento', child: Text('Aguardando pgto', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'inativo', child: Text('Inativo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) setState(() => _status = value);
                         },
                       ),
                     ],
