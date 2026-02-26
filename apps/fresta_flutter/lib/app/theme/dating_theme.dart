@@ -105,11 +105,17 @@ class NotebookModalContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : DatingTheme.romancePink;
+    final titleColor = isDark ? Colors.white : DatingTheme.wineBerry;
+    final textColor = isDark ? Colors.white70 : DatingTheme.wineBerry.withValues(alpha: 0.8);
+    final lineColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.blue.withValues(alpha: 0.1);
+
     return Container(
       padding: const EdgeInsets.all(32),
-      decoration: const BoxDecoration(
-        color: DatingTheme.romancePink,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Stack(
         children: [
@@ -119,7 +125,7 @@ class NotebookModalContent extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (_, __) => const SizedBox(height: 30),
               separatorBuilder: (_, __) => Divider(
-              color: Colors.blue.withValues(alpha: 0.1),
+                color: lineColor,
                 thickness: 1,
                 height: 0,
               ),
@@ -140,9 +146,9 @@ class NotebookModalContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: DatingTheme.display.copyWith(fontSize: 24)),
+              Text(title, style: DatingTheme.display.copyWith(fontSize: 24, color: titleColor)),
               const SizedBox(height: 24),
-              Text(content, style: DatingTheme.body),
+              Text(content, style: DatingTheme.body.copyWith(color: textColor)),
               const SizedBox(height: 40),
             ],
           ),

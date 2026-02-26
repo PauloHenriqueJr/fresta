@@ -212,9 +212,8 @@ class _ThemeSelectionStep extends StatelessWidget {
     final themes = [
       ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg', colorScheme.primary),
       ('namoro', 'Namoro', 'assets/images/themes/mascot-namoro.jpg', DatingTheme.loveRed),
-      ('love', 'Amor & Paixão', 'assets/images/themes/mascot-love.jpg', const Color(0xFFF43F5E)),
       ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg', const Color(0xFF0EA5E9)),
-      ('casamento', 'Casamento', 'assets/images/themes/mascot-casamento.jpg', const Color(0xFF8B5CF6)),
+      ('casamento', 'Casamento', 'assets/images/themes/casamento.png', const Color(0xFF8B5CF6)),
       ('natal', 'Natal', 'assets/images/themes/mascot-natal.jpg', const Color(0xFF059669)),
     ];
 

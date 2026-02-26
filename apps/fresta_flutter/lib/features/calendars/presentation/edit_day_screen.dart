@@ -51,7 +51,15 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
     if (day == null) return;
 
     _messageController.text = day.message ?? '';
-    _urlController.text = day.url ?? '';
+    
+    // Do not show Supabase internal URLs (used for photos/videos) in the URL field
+    final url = day.url ?? '';
+    if (day.contentType == 'link' || !url.contains('supabase.co')) {
+      _urlController.text = url;
+    } else {
+      _urlController.text = '';
+    }
+    
     _labelController.text = day.label ?? '';
     _contentType = day.contentType;
     _initialized = true;
@@ -87,6 +95,7 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final asyncDetail = ref.watch(ownerCalendarDetailProvider(widget.calendarId));
     _maybeHydrate();
 
@@ -125,9 +134,11 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDating ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                  color: isDating 
+                      ? (isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white.withOpacity(0.95))
+                      : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(24),
-                  border: isDating ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)) : null,
+                  border: isDating ? Border.all(color: DatingTheme.loveRed.withOpacity(0.1)) : null,
                   boxShadow: const [
                     BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
                   ],
@@ -172,13 +183,13 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
                           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                         ),
-                        items: const [
-                          DropdownMenuItem<String?>(value: null, child: Text('Sem tipo definido', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem<String?>(value: 'text', child: Text('Apenas Texto', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem<String?>(value: 'photo', child: Text('Foto ou Galeria', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem<String?>(value: 'gif', child: Text('Desafio ou GIF', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem<String?>(value: 'link', child: Text('Redirecionamento / Link', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem<String?>(value: 'music', child: Text('Música Spotify', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                        items: [
+                          DropdownMenuItem<String?>(value: null, child: Text('Sem tipo definido', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'text', child: Text('Apenas Texto', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'photo', child: Text('Foto ou Galeria', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'gif', child: Text('Desafio ou GIF', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'link', child: Text('Redirecionamento / Link', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem<String?>(value: 'music', child: Text('Música Spotify', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                         ],
                         onChanged: (value) => setState(() => _contentType = value),
                       ),
@@ -187,17 +198,17 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
                         controller: _messageController,
                         minLines: 4,
                         maxLines: 6,
-                        style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w500),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w500),
                         decoration: InputDecoration(
                           labelText: 'Mensagem do Dia',
                           alignLabelWithHint: true,
-                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          labelStyle: TextStyle(color: const Color(0xFF5A7470), fontWeight: FontWeight.w600),
                           hintText: 'Digite a surpresa ou recado para esta data...',
                           hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                           filled: true,
-                          fillColor: const Color(0xFFF8F9F5),
+                          fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                         ),
                       ),
@@ -258,19 +269,19 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
       );
 
     Widget scaffoldContent = Scaffold(
-      backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+      backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
       extendBodyBehindAppBar: isDating,
       appBar: AppBar(
-        backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+        backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : const Color(0xFF1B4D3E)),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : Theme.of(context).colorScheme.onSurface),
         ),
         title: Text(
           'Editar Dia ${widget.day}',
           style: TextStyle(
-            color: isDating ? DatingTheme.wineBerry : const Color(0xFF1B4D3E),
+            color: isDating ? (isDark ? Colors.white : DatingTheme.wineBerry) : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -304,9 +315,10 @@ class _StyledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+      style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
@@ -314,14 +326,14 @@ class _StyledTextField extends StatelessWidget {
         hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500),
         prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
         filled: true,
-        fillColor: const Color(0xFFF8F9F5),
+        fillColor: colorScheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

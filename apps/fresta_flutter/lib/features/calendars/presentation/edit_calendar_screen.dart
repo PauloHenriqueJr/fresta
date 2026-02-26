@@ -122,6 +122,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
     _hydrateIfNeeded();
 
     final isDating = _hydrated && _themeController.text == 'namoro';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
     Widget mainContent = asyncDetail.when(
       loading: () => const Center(
@@ -147,7 +148,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
           return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
         }
 
-        final availableThemes = ['aniversario', 'namoro', 'love', 'viagem', 'casamento', 'natal'];
+        final availableThemes = ['aniversario', 'namoro', 'viagem', 'casamento', 'natal'];
         final currentThemeOrDefault = availableThemes.contains(_themeController.text) ? _themeController.text : 'aniversario';
 
         return SafeArea(
@@ -158,7 +159,9 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDating ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                  color: isDating 
+                      ? (Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white.withValues(alpha: 0.95))
+                      : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(24),
                   border: isDating ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)) : null,
                   boxShadow: const [
@@ -187,18 +190,17 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                         labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
                         prefixIcon: const Icon(Icons.palette_rounded, color: Color(0xFF2D7A5F)),
                         filled: true,
-                        fillColor: const Color(0xFFF8F9F5),
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
                         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: 'aniversario', child: Text('Aniversário', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'namoro', child: Text('Namoro', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'love', child: Text('Amor & Paixão', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'viagem', child: Text('Viagem', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'casamento', child: Text('Casamento', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'natal', child: Text('Natal', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                      items: [
+                        DropdownMenuItem(value: 'aniversario', child: Text('Aniversário', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'namoro', child: Text('Namoro', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'viagem', child: Text('Viagem', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'casamento', child: Text('Casamento', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'natal', child: Text('Natal', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                       ],
                       onChanged: (value) {
                         if (value != null) {
@@ -223,14 +225,14 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                           labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
                           prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF2D7A5F)),
                           filled: true,
-                          fillColor: const Color(0xFFF8F9F5),
+                          fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                         ),
-                        items: const [
-                          DropdownMenuItem(value: 'private', child: Text('Privado', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'public', child: Text('Público', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                        items: [
+                          DropdownMenuItem(value: 'private', child: Text('Privado', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'public', child: Text('Público', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                         ],
                         onChanged: (value) {
                           if (value != null) setState(() => _privacy = value);
@@ -245,17 +247,17 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                           labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
                           prefixIcon: const Icon(Icons.info_outline_rounded, color: Color(0xFF2D7A5F)),
                           filled: true,
-                          fillColor: const Color(0xFFF8F9F5),
+                          fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                         ),
-                        items: const [
-                          DropdownMenuItem(value: 'rascunho', child: Text('Rascunho', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'ativo', child: Text('Ativo', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'finalizado', child: Text('Finalizado', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'aguardando_pagamento', child: Text('Aguardando pgto', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
-                          DropdownMenuItem(value: 'inativo', child: Text('Inativo', style: TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600))),
+                        items: [
+                          DropdownMenuItem(value: 'rascunho', child: Text('Rascunho', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'ativo', child: Text('Ativo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'finalizado', child: Text('Finalizado', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'aguardando_pagamento', child: Text('Aguardando pgto', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                          DropdownMenuItem(value: 'inativo', child: Text('Inativo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                         ],
                         onChanged: (value) {
                           if (value != null) setState(() => _status = value);
@@ -268,7 +270,9 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: isDating ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                    color: isDating 
+                        ? (Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white.withValues(alpha: 0.95))
+                        : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
                     border: isDating ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)) : null,
                     boxShadow: const [
@@ -283,13 +287,13 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF7E6),
+                              color: isDark ? const Color(0xFF452B11) : const Color(0xFFFFF7E6),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(Icons.password_rounded, color: Color(0xFFF9A03F), size: 24),
                           ),
                           const SizedBox(width: 16),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -298,13 +302,13 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF1B4D3E),
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   'Restrinja o acesso ao seu calendário',
-                                  style: TextStyle(color: Color(0xFF5A7470), fontSize: 13),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
                                 ),
                               ],
                             ),
@@ -314,16 +318,16 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                       const SizedBox(height: 24),
                       Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8F9F5),
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
                         ),
                         child: SwitchListTile(
                           value: _clearPassword,
                           onChanged: (value) => setState(() => _clearPassword = value),
                           activeThumbColor: const Color(0xFF2D7A5F),
-                          title: const Text('Remover senha existente', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF111827))),
-                          subtitle: const Text('Isso deixará o calendário aberto se for público.', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                          title: Text('Remover senha existente', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
+                          subtitle: Text('Isso deixará o calendário aberto se for público.', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -331,7 +335,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                         controller: _passwordController,
                         enabled: !_clearPassword,
                         obscureText: !_showPassword,
-                        style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
                           labelText: detail.hasPassword ? 'Nova senha (opcional)' : 'Senha',
                           labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
@@ -344,9 +348,9 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                             ),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFFF8F9F5),
+                          fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
                           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                         ),
                       ),
@@ -397,19 +401,19 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       );
 
     Widget scaffoldContent = Scaffold(
-      backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+      backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
       extendBodyBehindAppBar: isDating,
       appBar: AppBar(
-        backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+        backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : const Color(0xFF1B4D3E)),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : Theme.of(context).colorScheme.onSurface),
         ),
         title: Text(
           'Editar Calendário',
           style: TextStyle(
-            color: isDating ? DatingTheme.wineBerry : const Color(0xFF1B4D3E),
+            color: isDating ? (isDark ? Colors.white : DatingTheme.wineBerry) : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -441,22 +445,23 @@ class _StyledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Color(0xFF111827), fontWeight: FontWeight.w600),
+      style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
+        labelStyle: TextStyle(color: const Color(0xFF5A7470), fontWeight: FontWeight.w600),
         prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
         filled: true,
-        fillColor: const Color(0xFFF8F9F5),
+        fillColor: colorScheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),

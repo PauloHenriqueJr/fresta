@@ -28,12 +28,10 @@ class _FrestaAppState extends ConsumerState<FrestaApp> {
     final auth = ref.watch(authControllerProvider);
     
     // Determine theme mode from profile preference
-    ThemeMode themeMode = ThemeMode.system;
+    ThemeMode themeMode = ThemeMode.dark;
     final pref = auth.profile?.themePreference?.toLowerCase();
     if (pref == 'light') {
       themeMode = ThemeMode.light;
-    } else if (pref == 'dark') {
-      themeMode = ThemeMode.dark;
     }
 
     return MaterialApp.router(
