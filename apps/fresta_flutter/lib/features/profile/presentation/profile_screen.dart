@@ -15,7 +15,11 @@ class ProfileScreen extends ConsumerWidget {
     final user = auth.user;
     final display = profile?.displayName ?? user?.email ?? 'Usuário';
     final initial = (display.isNotEmpty ? display.characters.first : 'U').toUpperCase();
-    final isAvatarUrl = profile?.avatar != null && profile!.avatar!.startsWith('http');
+    // Try multiple avatar sources
+    final profileAvatar = profile?.avatar;
+    final googleAvatar = user?.userMetadata?['avatar_url'] as String? ?? user?.userMetadata?['picture'] as String?;
+    final avatarUrl = (profileAvatar != null && profileAvatar.startsWith('http')) ? profileAvatar : googleAvatar;
+    final hasAvatar = avatarUrl != null && avatarUrl.startsWith('http');
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -85,16 +89,20 @@ class ProfileScreen extends ConsumerWidget {
                               offset: const Offset(0, 8),
                             ),
                           ],
-                          image: isAvatarUrl
-                              ? DecorationImage(
-                                  image: NetworkImage(profile.avatar!),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
                         ),
+                        clipBehavior: Clip.antiAlias,
                         alignment: Alignment.center,
-                        child: isAvatarUrl
-                            ? null
+                        child: hasAvatar
+                            ? Image.network(
+                                avatarUrl,
+                                fit: BoxFit.cover,
+                                width: 72,
+                                height: 72,
+                                errorBuilder: (_, __, ___) => Text(
+                                  initial,
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 32),
+                                ),
+                              )
                             : Text(
                                 initial,
                                 style: const TextStyle(

@@ -111,13 +111,7 @@ class _MyCalendarsScreenState extends ConsumerState<MyCalendarsScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/creator/calendars/new'),
-        icon: const Icon(Icons.add_rounded, size: 22),
-        label: const Text('Criar Novo', style: TextStyle(fontWeight: FontWeight.w800)),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-      ),
+      // No FAB needed — navbar already has + button
     );
   }
 

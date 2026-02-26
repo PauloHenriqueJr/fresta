@@ -1,96 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-class ExploreScreen extends ConsumerWidget {
+import '../../../app/theme/theme_manager.dart';
+
+/// All themes catalog — the user's go-to place to discover and choose a theme
+class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends ConsumerState<ExploreScreen> {
+  String _filter = 'all';
+
+  static const _themes = <_ThemeEntry>[
+    _ThemeEntry(id: 'aniversario', name: 'Aniversário', emoji: '🎂', category: 'celebration', desc: 'Torne o aniversário inesquecível com surpresas diárias'),
+    _ThemeEntry(id: 'namoro', name: 'Amor & Romance', emoji: '❤️', category: 'romance', desc: 'Surpreenda quem você ama com mensagens de carinho'),
+    _ThemeEntry(id: 'casamento', name: 'Nossa União', emoji: '💍', category: 'romance', desc: 'Celebre sua história de amor com elegância'),
+    _ThemeEntry(id: 'noivado', name: 'Eternamente Juntos', emoji: '💎', category: 'romance', desc: 'Conte os dias até o grande momento'),
+    _ThemeEntry(id: 'bodas', name: 'Bodas', emoji: '🥂', category: 'romance', desc: 'Reviva suas memórias mais preciosas'),
+    _ThemeEntry(id: 'natal', name: 'Natal', emoji: '🎄', category: 'seasonal', desc: 'Um advento mágico de surpresas natalinas'),
+    _ThemeEntry(id: 'reveillon', name: 'Réveillon', emoji: '🎆', category: 'seasonal', desc: 'Contagem regressiva para o ano novo'),
+    _ThemeEntry(id: 'pascoa', name: 'Páscoa', emoji: '🐰', category: 'seasonal', desc: 'Caça aos ovos com carinho e criatividade'),
+    _ThemeEntry(id: 'carnaval', name: 'Carnaval', emoji: '🎭', category: 'seasonal', desc: 'Folia e alegria em cada dia'),
+    _ThemeEntry(id: 'saojoao', name: 'São João', emoji: '🔥', category: 'seasonal', desc: 'Festas juninas com quentão e amor'),
+    _ThemeEntry(id: 'diadasmaes', name: 'Dia das Mães', emoji: '💐', category: 'celebration', desc: 'Homenageie a mulher mais especial'),
+    _ThemeEntry(id: 'diadospais', name: 'Dia dos Pais', emoji: '👔', category: 'celebration', desc: 'Presente único para o herói da família'),
+    _ThemeEntry(id: 'diadascriancas', name: 'Dia das Crianças', emoji: '🎮', category: 'celebration', desc: 'Diversão e magia para os pequenos'),
+    _ThemeEntry(id: 'independencia', name: 'Independência', emoji: '🇧🇷', category: 'celebration', desc: 'Celebre o Brasil com orgulho'),
+    _ThemeEntry(id: 'viagem', name: 'Viagem', emoji: '✈️', category: 'lifestyle', desc: 'Destinos e lembranças de aventuras'),
+    _ThemeEntry(id: 'estudos', name: 'Estudos', emoji: '📚', category: 'lifestyle', desc: 'Rotina de estudos com motivação diária'),
+    _ThemeEntry(id: 'metas', name: 'Metas', emoji: '🎯', category: 'lifestyle', desc: 'Conquiste seus objetivos passo a passo'),
+  ];
+
+  static const _categories = <String, String>{
+    'all': 'Todos',
+    'romance': 'Romance',
+    'celebration': 'Celebrações',
+    'seasonal': 'Sazonais',
+    'lifestyle': 'Estilo de vida',
+  };
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final filtered = _filter == 'all' ? _themes : _themes.where((t) => t.category == _filter).toList();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Explorar Temas'),
-        centerTitle: false,
-      ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
-          children: [
-            // Search Bar Placeholder
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.search_rounded, color: colorScheme.onSurface.withValues(alpha: 0.4)),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Buscar temas para surpreender...',
-                    style: TextStyle(
-                      color: colorScheme.onSurface.withValues(alpha: 0.4),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+        child: CustomScrollView(
+          slivers: [
+            // ── Header ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Explorar Temas', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -1, color: colorScheme.onSurface)),
+                    const SizedBox(height: 4),
+                    Text('Escolha um tema e crie uma experiência única', style: TextStyle(fontSize: 14, color: colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 32),
 
-            // Categories Section
-            const _SectionHeader(title: 'Categorias'),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _CategoryChip(label: '🎉 Aniversário', color: colorScheme.primary),
-                _CategoryChip(label: '❤️ Romance', color: colorScheme.secondary),
-                _CategoryChip(label: '💍 Casamento', color: Colors.blue),
-                _CategoryChip(label: '✈️ Viagem', color: Colors.purple),
-                _CategoryChip(label: '👶 Bebê', color: Colors.pink),
-              ],
+            // ── Category Filters ──
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  children: _categories.entries.map((e) {
+                    final isSelected = _filter == e.key;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(e.value, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: isSelected ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.7))),
+                        selected: isSelected,
+                        onSelected: (_) => setState(() => _filter = e.key),
+                        selectedColor: colorScheme.primary,
+                        backgroundColor: colorScheme.surface,
+                        side: BorderSide(color: isSelected ? Colors.transparent : colorScheme.onSurface.withValues(alpha: 0.1)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
+                        showCheckmark: false,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
-            const SizedBox(height: 40),
 
-            // Featured List Section
-            const _SectionHeader(title: 'Mais Populares'),
-            const SizedBox(height: 16),
-            _ExploreCard(
-              title: 'Aniversário Gamer',
-              description: 'O presente perfeito para quem não vive sem controle na mão.',
-              category: 'GAMES',
-              color: const Color(0xFF6366F1),
-              onTap: () => context.go('/creator/calendars/new'),
-            ),
-            const SizedBox(height: 16),
-            _ExploreCard(
-              title: 'Cozinha com Amor',
-              description: '30 dias de receitas e mimos gastronômicos.',
-              category: 'FOOD',
-              color: const Color(0xFFF43F5E),
-              onTap: () => context.go('/creator/calendars/new'),
-            ),
-            const SizedBox(height: 16),
-            _ExploreCard(
-              title: 'Jornada Zen',
-              description: 'Mensagens de paz e autocuidado diário.',
-              category: 'WELLNESS',
-              color: const Color(0xFF10B981),
-              onTap: () => context.go('/creator/calendars/new'),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+            // ── Theme Grid ──
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+              sliver: SliverGrid.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.72,
+                children: filtered.map((t) => _ThemeCard(entry: t, onTap: () => context.go('/creator/calendars/new'))).toList(),
+              ),
             ),
           ],
         ),
@@ -99,136 +119,86 @@ class ExploreScreen extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-        fontWeight: FontWeight.w900,
-        fontSize: 20,
-        letterSpacing: -0.5,
-      ),
-    );
-  }
-}
-
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _CategoryChip({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-      ),
-    );
-  }
-}
-
-class _ExploreCard extends StatelessWidget {
-  final String title;
-  final String description;
+class _ThemeEntry {
+  const _ThemeEntry({required this.id, required this.name, required this.emoji, required this.category, required this.desc});
+  final String id;
+  final String name;
+  final String emoji;
   final String category;
-  final Color color;
+  final String desc;
+}
+
+class _ThemeCard extends StatelessWidget {
+  const _ThemeCard({required this.entry, required this.onTap});
+  final _ThemeEntry entry;
   final VoidCallback onTap;
 
-  const _ExploreCard({
-    required this.title,
-    required this.description,
-    required this.category,
-    required this.color,
-    required this.onTap,
-  });
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final mascot = ThemeManager.getMascotAssetPath(entry.id);
+    final themeConfig = ThemeManager.getTheme(entry.id);
 
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Center(
-                    child: Icon(Icons.star_rounded, color: color, size: 40),
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── Image ──
+              Expanded(
+                flex: 5,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Container(color: themeConfig.primaryColor.withValues(alpha: 0.1)),
+                    if (mascot != null)
+                      Image.asset(
+                        mascot,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Center(child: Text(entry.emoji, style: const TextStyle(fontSize: 40))),
+                      )
+                    else
+                      Center(child: Text(entry.emoji, style: const TextStyle(fontSize: 40))),
+                    // Gradient overlay
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.2)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 20),
-                Expanded(
+              ),
+              // ── Info ──
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        category,
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 10,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
+                      Text(entry.name, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: colorScheme.onSurface, letterSpacing: -0.2), maxLines: 1, overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 4),
-                      Text(
-                        description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      Text(entry.desc, style: TextStyle(fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.5), height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,189 +1,93 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../app/theme/theme_manager.dart';
 import '../../auth/application/auth_controller.dart';
+import '../application/calendar_providers.dart';
 
+/// Início — Personal dashboard: greeting, recent calendars, tips
 class CreatorHomeScreen extends ConsumerWidget {
   const CreatorHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
+    final asyncCalendars = ref.watch(myCalendarsProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final displayName = auth.profile?.displayName ?? auth.user?.email ?? 'Criador';
+    final displayName = auth.profile?.displayName ?? auth.user?.email?.split('@').first ?? 'Criador';
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text(
-          'Fresta',
-          style: theme.textTheme.headlineMedium?.copyWith(
-            color: colorScheme.secondary,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -1.0,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.go('/account/profile'),
-            icon: Icon(Icons.person_outline_rounded, color: colorScheme.onSurface),
-            tooltip: 'Perfil',
-          ),
-          IconButton(
-            onPressed: () async {
-              await ref.read(authControllerProvider.notifier).signOut();
-            },
-            icon: Icon(Icons.logout_rounded, color: colorScheme.onSurface),
-            tooltip: 'Sair',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
           children: [
-            // Premium Welcome Header with Muted Greeting
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // ── Header ──
+            Row(
               children: [
-                Text(
-                  'Olá, ${displayName.split('@').first}',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'fresta',
+                        style: TextStyle(
+                          fontFamily: 'Fredoka',
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -1.5,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Olá, $displayName 👋',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Qual surpresa vamos preparar hoje?',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                _AvatarButton(auth: auth, onTap: () => context.go('/account/profile')),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
 
-            // Main Featured Concept Card - Premium Gradient & Glassmorphism
+            // ── Quick Tip Card ──
             Container(
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.2),
-                    blurRadius: 40,
-                    offset: const Offset(0, 20),
-                  ),
-                ],
+                gradient: LinearGradient(
+                  colors: [colorScheme.primary, colorScheme.tertiary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 8))],
               ),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
+              child: Row(
                 children: [
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            colorScheme.tertiary,
-                            colorScheme.primary,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                    ),
+                  Container(
+                    width: 52, height: 52,
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(16)),
+                    child: const Icon(LucideIcons.lightbulb, color: Colors.white, size: 24),
                   ),
-                  // Background Pattern/Glow
-                  Positioned(
-                    top: -60,
-                    right: -60,
-                    child: Container(
-                      width: 240,
-                      height: 240,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            colorScheme.secondary.withValues(alpha: 0.4),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(32),
+                  const SizedBox(width: 16),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                          decoration: BoxDecoration(
-                            color: colorScheme.secondary,
-                            borderRadius: BorderRadius.circular(999),
-                            boxShadow: [
-                              BoxShadow(
-                                color: colorScheme.secondary.withValues(alpha: 0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Text(
-                            'NOVO TEMA',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 10,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
+                        const Text('Dica rápida', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14)),
+                        const SizedBox(height: 4),
                         Text(
-                          'Aniversário\nInesquecível',
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            height: 1.1,
-                            letterSpacing: -1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Um tema vibrante para celebrar mais um ano de vida com surpresas diárias.',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            height: 1.5,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        FilledButton(
-                          onPressed: () => context.go('/creator/calendars/new'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: colorScheme.tertiary,
-                            minimumSize: const Size(160, 54),
-                            elevation: 8,
-                            shadowColor: Colors.black.withValues(alpha: 0.2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Começar agora', style: TextStyle(fontWeight: FontWeight.w800)),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward_rounded, size: 18),
-                            ],
-                          ),
+                          'Adicione uma mensagem de carinho em cada dia do calendário para tornar a surpresa inesquecível!',
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13, height: 1.4),
                         ),
                       ],
                     ),
@@ -191,204 +95,243 @@ class CreatorHomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 32),
 
-            // Theme Discovery Section Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Explore Temas',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 20,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => context.go('/creator/home/themes'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.primary,
-                  ),
-                  child: const Text('Ver todos', style: TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              ],
+            // ── Recent Calendars ──
+            asyncCalendars.when(
+              loading: () => const SizedBox(),
+              error: (_, __) => const SizedBox(),
+              data: (items) {
+                if (items.isEmpty) return _EmptyDashboard(onCreateTap: () => context.go('/creator/calendars/new'));
+                final recent = items.take(3).toList();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Recentes', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to Calendários tab (index 1 in the shell)
+                            final shell = StatefulNavigationShell.maybeOf(context);
+                            if (shell != null) {
+                              shell.goBranch(1);
+                            }
+                          },
+                          child: Text('Ver todos', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.w700)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ...recent.map((cal) {
+                      final themeConfig = ThemeManager.getTheme(cal.themeId);
+                      final mascot = ThemeManager.getMascotAssetPath(cal.themeId);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () => context.go('/creator/calendars/${cal.id}'),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 52, height: 52,
+                                      decoration: BoxDecoration(
+                                        color: themeConfig.primaryColor.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: mascot != null
+                                          ? Image.asset(mascot, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(themeConfig.defaultIcon, color: themeConfig.primaryColor, size: 22))
+                                          : Icon(themeConfig.defaultIcon, color: themeConfig.primaryColor, size: 22),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(cal.title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                          const SizedBox(height: 3),
+                                          Text('${cal.duration} dias • ${_statusLabel(cal.status)}', style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w500)),
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(LucideIcons.chevronRight, size: 18, color: colorScheme.onSurface.withValues(alpha: 0.2)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                );
+              },
             ),
-            const SizedBox(height: 16),
-            
-            SizedBox(
-              height: 220,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                children: [
-                  _ThemePreviewCard(
-                    title: 'Namoro\nInesquecível',
-                    category: 'Romance',
-                    isPremium: false,
-                    gradientColors: [colorScheme.primaryContainer, colorScheme.primaryContainer.withValues(alpha: 0.5)],
-                    imageAsset: 'assets/images/themes/mascot-namoro.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 20),
-                  _ThemePreviewCard(
-                    title: 'Casamento\nPerfeito',
-                    category: 'Amor',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFFFF3E0), Color(0xFFFFE0B2)],
-                    imageAsset: 'assets/images/themes/casamento.png',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 20),
-                  _ThemePreviewCard(
-                    title: 'Feliz\nAniversário',
-                    category: 'Celebração',
-                    isPremium: false,
-                    gradientColors: const [Color(0xFFE0E7FF), Color(0xFFC7D2FE)],
-                    imageAsset: 'assets/images/themes/mascot-aniversario.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                  const SizedBox(width: 20),
-                  _ThemePreviewCard(
-                    title: 'Nossas\nBodas',
-                    category: 'Romance',
-                    isPremium: true,
-                    gradientColors: const [Color(0xFFFCE7F3), Color(0xFFFBCFE8)],
-                    imageAsset: 'assets/images/themes/mascot-bodas.jpg',
-                    onTap: () => context.go('/creator/calendars/new'),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 32),
+
+            // ── Quick Actions ──
+            Text('Ações rápidas', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _QuickActionCard(
+                  icon: LucideIcons.plus, label: 'Criar novo', color: colorScheme.primary,
+                  onTap: () => context.go('/creator/calendars/new'),
+                )),
+                const SizedBox(width: 12),
+                Expanded(child: _QuickActionCard(
+                  icon: LucideIcons.compass, label: 'Explorar temas', color: colorScheme.secondary,
+                  onTap: () {
+                    final shell = StatefulNavigationShell.maybeOf(context);
+                    if (shell != null) shell.goBranch(2); // Explorar tab
+                  },
+                )),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+
+  static String _statusLabel(String status) {
+    return switch (status) {
+      'ativo' || 'active' => 'Ativo',
+      'rascunho' => 'Rascunho',
+      'inativo' => 'Inativo',
+      'finalizado' => 'Finalizado',
+      _ => status,
+    };
+  }
 }
 
-class _ThemePreviewCard extends StatelessWidget {
-  final String title;
-  final String category;
-  final bool isPremium;
-  final List<Color> gradientColors;
-  final String imageAsset;
+// ── Avatar Button ──
+class _AvatarButton extends StatelessWidget {
+  const _AvatarButton({required this.auth, required this.onTap});
+  final dynamic auth;
   final VoidCallback onTap;
-
-  const _ThemePreviewCard({
-    required this.title,
-    required this.category,
-    required this.isPremium,
-    required this.gradientColors,
-    required this.imageAsset,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final profile = auth.profile;
+    final user = auth.user;
+    final avatarUrl = profile?.avatar;
+    final isUrl = avatarUrl != null && avatarUrl.toString().startsWith('http');
+    final initial = (profile?.displayName ?? user?.email ?? 'U').toString().characters.first.toUpperCase();
 
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44, height: 44,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+          border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), width: 2),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: isUrl
+            ? Image.network(
+                avatarUrl.toString(),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Theme.of(context).colorScheme.primary))),
+              )
+            : Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Theme.of(context).colorScheme.primary))),
+      ),
+    );
+  }
+}
+
+// ── Empty Dashboard ──
+class _EmptyDashboard extends StatelessWidget {
+  const _EmptyDashboard({required this.onCreateTap});
+  final VoidCallback onCreateTap;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: 170,
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 8))],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 72, height: 72,
+            decoration: BoxDecoration(color: const Color(0xFF2D7A5F).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+            child: const Icon(LucideIcons.gift, size: 32, color: Color(0xFF2D7A5F)),
+          ),
+          const SizedBox(height: 20),
+          const Text('Crie sua primeira surpresa', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
+          const SizedBox(height: 6),
+          Text('Escolha um tema, personalize cada dia e encante quem receber.',
+              textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontSize: 14, height: 1.5)),
+          const SizedBox(height: 24),
+          FilledButton.icon(
+            onPressed: onCreateTap,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('Criar calendário', style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
+    );
+  }
+}
+
+// ── Quick Action Card ──
+class _QuickActionCard extends StatelessWidget {
+  const _QuickActionCard({required this.icon, required this.label, required this.color, required this.onTap});
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.12)),
+      ),
       child: Material(
-        color: colorScheme.surface,
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
         child: InkWell(
+          borderRadius: BorderRadius.circular(20),
           onTap: onTap,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 4,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.asset(
-                        imageAsset,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.2)],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (isPremium)
-                      Positioned(
-                        top: 12,
-                        right: 12,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: colorScheme.secondary,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: colorScheme.secondary.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                          child: const Icon(Icons.star_rounded, color: Colors.white, size: 14),
-                        ),
-                      ),
-                  ],
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(icon, color: color, size: 20),
                 ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        category.toUpperCase(),
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
-                          letterSpacing: -0.3,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+                const SizedBox(height: 14),
+                Text(label, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-
