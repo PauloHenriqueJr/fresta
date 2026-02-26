@@ -12,6 +12,7 @@ import '../../calendars/data/saved_calendars_repository.dart';
 import '../application/viewer_providers.dart';
 import '../../../data/repositories/viewer_repository.dart';
 import '../../../app/theme/dating_theme.dart';
+import '../../../app/theme/theme_manager.dart';
 
 class SharedCalendarViewerScreen extends ConsumerStatefulWidget {
   const SharedCalendarViewerScreen({super.key, required this.calendarId});
@@ -152,8 +153,6 @@ class _SharedCalendarViewerScreenState
             );
           }
 
-          final isDating = meta.calendar.themeId == 'namoro';
-
           // Auto-save this calendar to local library
           Future.microtask(() {
             ref.read(savedCalendarsRepositoryProvider).saveCalendar(
@@ -175,18 +174,21 @@ class _SharedCalendarViewerScreenState
           final asyncDays =
               needsPassword ? null : ref.watch(sharedCalendarDaysProvider(widget.calendarId));
 
+          final themeConfig = ThemeManager.getTheme(meta.calendar.themeId);
+
           Widget mainContent = Stack(
             children: [
-              if (isDating) const FloatingHearts(),
+              if (themeConfig.buildFloatingComponent(context) != null)
+                Positioned.fill(child: themeConfig.buildFloatingComponent(context)!),
               CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+                    backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : themeConfig.scaffoldBackgroundColor(context),
                     elevation: 0,
                     pinned: true,
                     centerTitle: true,
-                    expandedHeight: isDating ? 120 : null,
-                    flexibleSpace: isDating ? const HangingHeartsHeader() : null,
+                    expandedHeight: themeConfig.buildHeaderComponent(context) != null ? 120 : null,
+                    flexibleSpace: themeConfig.buildHeaderComponent(context),
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: IconButton(
@@ -197,7 +199,7 @@ class _SharedCalendarViewerScreenState
                             context.go('/');
                           }
                         },
-                        icon: const Icon(Icons.arrow_back, color: DatingTheme.loveRed),
+                        icon: Icon(Icons.arrow_back, color: themeConfig.primaryColor),
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.white,
                           shape: const CircleBorder(),
@@ -207,7 +209,7 @@ class _SharedCalendarViewerScreenState
                     actions: [
                       IconButton(
                         onPressed: () {}, // Favorite logic
-                        icon: const Icon(Icons.favorite_outline, color: DatingTheme.loveRed),
+                        icon: Icon(Icons.favorite_outline, color: themeConfig.primaryColor),
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.white,
                           shape: const CircleBorder(),
@@ -218,7 +220,7 @@ class _SharedCalendarViewerScreenState
                         onPressed: () => SharePlus.instance.share(
                           ShareParams(text: FrestaUrls.calendarShareUrl(widget.calendarId)),
                         ),
-                        icon: const Icon(LucideIcons.share, color: DatingTheme.loveRed),
+                        icon: Icon(LucideIcons.share, color: themeConfig.primaryColor),
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.white,
                           shape: const CircleBorder(),
@@ -232,11 +234,11 @@ class _SharedCalendarViewerScreenState
                       padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                       child: Column(
                         children: [
-                          if (isDating) ...[
+                          if (themeConfig.id == 'namoro') ...[
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: DatingTheme.blushGradient),
+                                gradient: LinearGradient(colors: themeConfig.headerGradient),
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: const Text(
@@ -249,46 +251,44 @@ class _SharedCalendarViewerScreenState
                           Text(
                             meta.calendar.title,
                             textAlign: TextAlign.center,
-                            style: isDating
-                                ? DatingTheme.display.copyWith(color: DatingTheme.wineBerry, fontSize: 36)
-                                : theme.textTheme.headlineMedium?.copyWith(
-                                    color: const Color(0xFF1A3E3A),
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.5,
-                                  ),
+                            style: themeConfig.titleStyle.copyWith(
+                              color: themeConfig.titleColor(context),
+                              fontSize: 36,
+                            ),
                           ),
-                          if (isDating) ...[
+                          if (meta.calendar.headerMessage?.isNotEmpty == true || themeConfig.id == 'namoro') ...[
                             const SizedBox(height: 8),
                             Text(
                               meta.calendar.headerMessage?.isNotEmpty == true
                                   ? meta.calendar.headerMessage!
                                   : 'Uma jornada de amor para nós dois',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.redAccent, fontSize: 20, fontWeight: FontWeight.w400),
+                              style: TextStyle(color: themeConfig.textColor(context), fontSize: 20, fontWeight: FontWeight.w400),
                             ),
                             const SizedBox(height: 32),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  '0% de puro amor',
-                                  style: TextStyle(color: DatingTheme.loveRed, fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                                const SizedBox(height: 8),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(999),
-                                  child: LinearProgressIndicator(
-                                    value: 0.1,
-                                    backgroundColor: DatingTheme.loveRed.withValues(alpha: 0.1),
-                                    valueColor: const AlwaysStoppedAnimation<Color>(DatingTheme.loveRed),
-                                    minHeight: 12,
+                            if (themeConfig.id == 'namoro')
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '0% de puro amor',
+                                    style: TextStyle(color: themeConfig.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(height: 8),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(999),
+                                    child: LinearProgressIndicator(
+                                      value: 0.1,
+                                      backgroundColor: themeConfig.primaryColor.withValues(alpha: 0.1),
+                                      valueColor: AlwaysStoppedAnimation<Color>(themeConfig.primaryColor),
+                                      minHeight: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                           const SizedBox(height: 24),
-                          if (!isDating)
+                          if (themeConfig.id != 'namoro')
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
@@ -408,16 +408,7 @@ class _SharedCalendarViewerScreenState
                                   final locked = _isDayLocked(meta.calendar.createdAt, day.day);
                                   
                                   return Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(24),
-                                      border: isDating && !locked 
-                                          ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.2), width: 2)
-                                          : null,
-                                      boxShadow: [
-                                        BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4)),
-                                      ],
-                                    ),
+                                    decoration: themeConfig.cardDecoration(context),
                                     child: Material(
                                       color: Colors.transparent,
                                       child: InkWell(
@@ -427,19 +418,21 @@ class _SharedCalendarViewerScreenState
                                             _showLockedMessage(_getAvailableDate(meta.calendar.createdAt, day.day));
                                             return;
                                           }
-                                          if (isDating) {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              backgroundColor: Colors.transparent,
-                                              isScrollControlled: true,
-                                              builder: (context) => NotebookModalContent(
-                                                title: 'Dia ${day.day}',
-                                                content: (day.message ?? '').trim().isEmpty 
-                                                    ? 'Espere por esse momento especial...' 
-                                                    : day.message!,
-                                              ),
-                                            );
-                                          } else {
+                                          if (themeConfig.id == 'namoro' || themeConfig.id == 'casamento' || themeConfig.id == 'bodas' || themeConfig.id == 'noivado' || themeConfig.id == 'aniversario' || themeConfig.id == 'natal' || themeConfig.id == 'viagem') {
+                                              // Currently using NotebookModalContent for all themes that have specific UI, until a generic one is built or they are unified.
+                                              // The generic modal can use themeConfig properties.
+                                              showModalBottomSheet(
+                                                context: context,
+                                                backgroundColor: Colors.transparent,
+                                                isScrollControlled: true,
+                                                builder: (context) => NotebookModalContent(
+                                                  title: 'Dia ${day.day}',
+                                                  content: (day.message ?? '').trim().isEmpty 
+                                                      ? 'Espere por esse momento especial...' 
+                                                      : day.message!,
+                                                ),
+                                              );
+                                            } else {
                                             final url = (day.url ?? '').trim();
                                             if (url.isNotEmpty) {
                                               final uri = Uri.tryParse(url);
@@ -458,7 +451,7 @@ class _SharedCalendarViewerScreenState
                                                 children: [
                                                   Text(
                                                     'Dia ${day.day}',
-                                                    style: DatingTheme.display.copyWith(fontSize: 24, color: DatingTheme.loveRed),
+                                                    style: themeConfig.titleStyle.copyWith(fontSize: 24, color: themeConfig.primaryColor),
                                                   ),
                                                   const SizedBox(height: 16),
                                                   Container(
@@ -481,8 +474,8 @@ class _SharedCalendarViewerScreenState
                                                   FilledButton(
                                                     onPressed: null,
                                                     style: FilledButton.styleFrom(
-                                                      backgroundColor: DatingTheme.loveRed,
-                                                      disabledBackgroundColor: DatingTheme.loveRed,
+                                                      backgroundColor: themeConfig.primaryColor,
+                                                      disabledBackgroundColor: themeConfig.primaryColor,
                                                       minimumSize: const Size.fromHeight(36),
                                                       padding: EdgeInsets.zero,
                                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -508,7 +501,7 @@ class _SharedCalendarViewerScreenState
                       error: (error, _) => [SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.all(24), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFCA5A5))), child: Column(children: [const Icon(LucideIcons.triangleAlert, size: 32, color: Color(0xFFDC2626)), const SizedBox(height: 16), const Text('Erro ao carregar os dias', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF991B1B), fontSize: 16)), const SizedBox(height: 16), FilledButton.icon(onPressed: () => ref.invalidate(sharedCalendarDaysProvider(widget.calendarId)), icon: const Icon(LucideIcons.refreshCw, size: 18), label: const Text('Tentar novamente', style: TextStyle(fontWeight: FontWeight.bold)), style: FilledButton.styleFrom(backgroundColor: const Color(0xFFDC2626), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))]))))],
                     ),
                   
-                  if (isDating)
+                  if (meta.calendar.footerMessage?.isNotEmpty == true || themeConfig.id == 'namoro')
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(24),
@@ -517,20 +510,22 @@ class _SharedCalendarViewerScreenState
                             Container(
                               padding: const EdgeInsets.all(32),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Theme.of(context).brightness == Brightness.dark 
+                                    ? Theme.of(context).colorScheme.surface 
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)),
+                                border: Border.all(color: themeConfig.primaryColor.withValues(alpha: 0.1)),
                                 boxShadow: [
-                                  BoxShadow(color: DatingTheme.loveRed.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
+                                  BoxShadow(color: themeConfig.primaryColor.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
                                 ],
                               ),
                               child: Column(
                                 children: [
-                                  const Icon(LucideIcons.quote, size: 40, color: DatingTheme.loveRed),
+                                  Icon(LucideIcons.quote, size: 40, color: themeConfig.primaryColor),
                                   const SizedBox(height: 16),
-                                  const Text(
-                                    'MENSAGENS DE AMOR',
-                                    style: TextStyle(color: DatingTheme.loveRed, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                                  Text(
+                                    'MENSAGEM DE ENCERRAMENTO',
+                                    style: TextStyle(color: themeConfig.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -538,7 +533,7 @@ class _SharedCalendarViewerScreenState
                                         ? meta.calendar.footerMessage!
                                         : '"CADA DIA AO SEU LADO É UM NOVO CAPÍTULO DA NOSSA HISTÓRIA DE AMOR. ❤️"',
                                     textAlign: TextAlign.center,
-                                    style: DatingTheme.display.copyWith(fontSize: 20, color: DatingTheme.loveRed),
+                                    style: themeConfig.titleStyle.copyWith(fontSize: 20, color: themeConfig.primaryColor),
                                   ),
                                 ],
                               ),
@@ -549,7 +544,7 @@ class _SharedCalendarViewerScreenState
                               icon: const Icon(Icons.auto_awesome),
                               label: const Text('Criar meu calendário', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                               style: FilledButton.styleFrom(
-                                backgroundColor: DatingTheme.loveRed,
+                                backgroundColor: themeConfig.primaryColor,
                                 minimumSize: const Size.fromHeight(56),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               ),
@@ -563,7 +558,7 @@ class _SharedCalendarViewerScreenState
             ],
           );
 
-          return isDating ? DatingBackground(child: mainContent) : mainContent;
+          return themeConfig.buildBackground(context, mainContent);
         },
         loading: () => const Center(
           child: CircularProgressIndicator(

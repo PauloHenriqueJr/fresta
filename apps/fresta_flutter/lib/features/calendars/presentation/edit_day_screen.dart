@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/calendars_repository.dart';
 import '../application/calendar_providers.dart';
-import '../../../app/theme/dating_theme.dart';
+import '../../../app/theme/theme_manager.dart';
 
 class EditDayScreen extends ConsumerStatefulWidget {
   const EditDayScreen({super.key, required this.calendarId, required this.day});
@@ -99,8 +99,10 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
     final asyncDetail = ref.watch(ownerCalendarDetailProvider(widget.calendarId));
     _maybeHydrate();
 
-    final isDating = _initialized &&
-        (asyncDetail.maybeWhen(data: (d) => d?.calendar.themeId == 'namoro', orElse: () => false));
+    final themeId = _initialized
+        ? (asyncDetail.maybeWhen(data: (d) => d?.calendar.themeId, orElse: () => 'default') ?? 'default')
+        : 'default';
+    final themeConfig = ThemeManager.getTheme(themeId);
 
     Widget mainContent = asyncDetail.when(
       loading: () => const Center(
@@ -133,16 +135,7 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: isDating 
-                      ? (isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white.withOpacity(0.95))
-                      : Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(24),
-                  border: isDating ? Border.all(color: DatingTheme.loveRed.withOpacity(0.1)) : null,
-                  boxShadow: const [
-                    BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
-                  ],
-                ),
+                decoration: themeConfig.cardDecoration(context),
                 child: Column(
                     children: [
                       Container(
@@ -269,19 +262,19 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
       );
 
     Widget scaffoldContent = Scaffold(
-      backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: isDating,
+      backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
+      extendBodyBehindAppBar: themeConfig.buildHeaderComponent(context) != null,
       appBar: AppBar(
-        backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: themeConfig.buildHeaderComponent(context) != null ? themeConfig.primaryColor : Theme.of(context).colorScheme.onSurface),
         ),
         title: Text(
           'Editar Dia ${widget.day}',
           style: TextStyle(
-            color: isDating ? (isDark ? Colors.white : DatingTheme.wineBerry) : Theme.of(context).colorScheme.onSurface,
+            color: themeConfig.buildHeaderComponent(context) != null ? (isDark ? Colors.white : themeConfig.titleColor(context)) : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -290,13 +283,13 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
       ),
       body: Stack(
         children: [
-          if (isDating) const HangingHeartsHeader(),
+          if (themeConfig.buildHeaderComponent(context) != null) themeConfig.buildHeaderComponent(context)!,
           mainContent,
         ],
       ),
     );
 
-    return isDating ? DatingBackground(child: scaffoldContent) : scaffoldContent;
+    return themeConfig.buildBackground(context, scaffoldContent);
   }
 }
 

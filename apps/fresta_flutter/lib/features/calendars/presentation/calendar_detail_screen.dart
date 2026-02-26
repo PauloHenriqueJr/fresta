@@ -7,7 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/utils/fresta_urls.dart';
 import '../../auth/application/auth_controller.dart';
 import '../application/calendar_providers.dart';
-import '../../../app/theme/dating_theme.dart';
+import '../../../app/theme/theme_manager.dart';
 
 class CalendarDetailScreen extends ConsumerWidget {
   const CalendarDetailScreen({super.key, required this.calendarId});
@@ -140,20 +140,21 @@ class CalendarDetailScreen extends ConsumerWidget {
           final openedDays = 0; // detail.days.where((d) => d.isOpened == true).length;
           final filledDays = detail.days.where((d) => (d.message ?? '').trim().isNotEmpty).length;
 
-          final isDating = detail.calendar.themeId == 'namoro';
+          final themeConfig = ThemeManager.getTheme(detail.calendar.themeId);
 
           Widget mainContent = Stack(
             children: [
-              if (isDating) const FloatingHearts(),
+              if (themeConfig.buildFloatingComponent(context) != null)
+                Positioned.fill(child: themeConfig.buildFloatingComponent(context)!),
               CustomScrollView(
                 slivers: [
-                  if (isDating)
+                  if (themeConfig.buildHeaderComponent(context) != null)
                     SliverAppBar(
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                       pinned: true,
                       expandedHeight: 120,
-                      flexibleSpace: const HangingHeartsHeader(),
+                      flexibleSpace: themeConfig.buildHeaderComponent(context)!,
                       leading: const SizedBox.shrink(), // App bar has its own leading
                       actions: const [SizedBox.shrink()],
                     ),
@@ -166,17 +167,15 @@ class CalendarDetailScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
-                              gradient: isDating 
-                                ? const LinearGradient(colors: DatingTheme.blushGradient)
-                                : LinearGradient(
-                                    colors: [colorScheme.tertiary, colorScheme.primary],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
+                              gradient: LinearGradient(
+                                colors: themeConfig.headerGradient,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               borderRadius: BorderRadius.circular(32),
                               boxShadow: [
                                 BoxShadow(
-                                  color: (isDating ? DatingTheme.loveRed : colorScheme.tertiary).withValues(alpha: 0.2), 
+                                  color: themeConfig.primaryColor.withValues(alpha: 0.2), 
                                   blurRadius: 24, 
                                   offset: const Offset(0, 12)
                                 ),
@@ -239,17 +238,13 @@ class CalendarDetailScreen extends ConsumerWidget {
                                     Text(
                                       detail.calendar.title,
                                       textAlign: TextAlign.center,
-                                      style: isDating 
-                                        ? DatingTheme.display.copyWith(color: Colors.white, fontSize: 32)
-                                        : const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w800,
-                                            letterSpacing: -0.5,
-                                            height: 1.1,
-                                          ),
+                                      style: themeConfig.titleStyle.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 32,
+                                        height: 1.1,
+                                      ),
                                     ),
-                                    if (isDating) ...[
+                                    if (detail.calendar.headerMessage?.isNotEmpty == true || themeConfig.id == 'namoro') ...[
                                       const SizedBox(height: 8),
                                       Text(
                                         detail.calendar.headerMessage?.isNotEmpty == true
@@ -366,24 +361,11 @@ class CalendarDetailScreen extends ConsumerWidget {
                           final hasContent = (day.message ?? '').trim().isNotEmpty || (day.url ?? '').trim().isNotEmpty;
                           
                           return Container(
-                            decoration: BoxDecoration(
-                              color: isDating ? DatingTheme.lightRose : Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              border: isDating
-                                  ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1), width: 1.5)
-                                  : null,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04), 
-                                  blurRadius: 12, 
-                                  offset: const Offset(0, 4)
-                                ),
-                              ],
-                            ),
+                            decoration: themeConfig.cardDecoration(context),
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(16),
                                 onTap: () => context.go('/creator/calendars/$calendarId/day/${day.day}'),
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
@@ -402,7 +384,7 @@ class CalendarDetailScreen extends ConsumerWidget {
                                           child: Icon(
                                             Icons.edit_rounded, 
                                             size: 14, 
-                                            color: isDating ? DatingTheme.loveRed : Colors.grey.shade600
+                                            color: themeConfig.primaryColor
                                           ),
                                         ),
                                       ),
@@ -411,28 +393,31 @@ class CalendarDetailScreen extends ConsumerWidget {
                                         children: [
                                           Text(
                                             'Dia ${day.day}',
-                                            style: isDating 
-                                                ? DatingTheme.display.copyWith(fontSize: 24, color: DatingTheme.loveRed)
-                                                : TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: colorScheme.onSurface),
+                                            style: themeConfig.titleStyle.copyWith(
+                                              fontSize: 24, 
+                                              color: themeConfig.primaryColor
+                                            ),
                                           ),
-                                          if (isDating && !hasContent)
+                                          if (!hasContent)
                                             Expanded(
                                               child: Center(
                                                 child: Opacity(
-                                                  opacity: 0.05,
-                                                  child: Icon(Icons.favorite, size: 64, color: DatingTheme.loveRed),
+                                                  opacity: themeConfig.id == 'namoro' ? 0.05 : 0.2,
+                                                  child: Icon(
+                                                    themeConfig.defaultIcon, 
+                                                    size: themeConfig.id == 'namoro' ? 64 : 40, 
+                                                    color: themeConfig.primaryColor
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          if (!isDating && !hasContent)
-                                            Expanded(child: Center(child: Icon(Icons.image_not_supported_rounded, color: Colors.grey.shade300, size: 40))),
                                           const Spacer(),
                                           FilledButton.icon(
                                             onPressed: () => context.go('/creator/calendars/$calendarId/day/${day.day}'),
                                             icon: const Icon(Icons.edit, size: 14),
                                             label: const Text('EDITAR', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                                             style: FilledButton.styleFrom(
-                                              backgroundColor: isDating ? DatingTheme.loveRed : colorScheme.primary,
+                                              backgroundColor: themeConfig.primaryColor,
                                               minimumSize: const Size.fromHeight(36),
                                               padding: EdgeInsets.zero,
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -451,7 +436,7 @@ class CalendarDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  if (isDating)
+                  if (detail.calendar.footerMessage?.isNotEmpty == true || themeConfig.id == 'namoro')
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(24),
@@ -460,20 +445,22 @@ class CalendarDetailScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(32),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Theme.of(context).brightness == Brightness.dark 
+                                    ? Theme.of(context).colorScheme.surface 
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(24),
-                                border: Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)),
+                                border: Border.all(color: themeConfig.primaryColor.withValues(alpha: 0.1)),
                                 boxShadow: [
-                                  BoxShadow(color: DatingTheme.loveRed.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
+                                  BoxShadow(color: themeConfig.primaryColor.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
                                 ],
                               ),
                               child: Column(
                                 children: [
-                                  Icon(LucideIcons.quote, size: 40, color: DatingTheme.loveRed),
+                                  Icon(LucideIcons.quote, size: 40, color: themeConfig.primaryColor),
                                   const SizedBox(height: 16),
-                                  const Text(
-                                    'MENSAGENS DE AMOR',
-                                    style: TextStyle(color: DatingTheme.loveRed, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                                  Text(
+                                    'MENSAGEM DE ENCERRAMENTO',
+                                    style: TextStyle(color: themeConfig.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -481,7 +468,7 @@ class CalendarDetailScreen extends ConsumerWidget {
                                         ? detail.calendar.footerMessage!
                                         : '"CADA DIA AO SEU LADO É UM NOVO CAPÍTULO DA NOSSA HISTÓRIA DE AMOR. ❤️"',
                                     textAlign: TextAlign.center,
-                                    style: DatingTheme.display.copyWith(fontSize: 20, color: DatingTheme.loveRed),
+                                    style: themeConfig.titleStyle.copyWith(fontSize: 20, color: themeConfig.primaryColor),
                                   ),
                                 ],
                               ),
@@ -497,7 +484,7 @@ class CalendarDetailScreen extends ConsumerWidget {
 
           return SafeArea(
             bottom: false,
-            child: isDating ? DatingBackground(child: mainContent) : mainContent,
+            child: themeConfig.buildBackground(context, mainContent),
           );
         },
       ),

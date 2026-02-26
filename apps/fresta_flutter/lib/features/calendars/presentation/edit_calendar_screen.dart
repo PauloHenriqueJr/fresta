@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/calendars_repository.dart';
 import '../application/calendar_providers.dart';
-import '../../../app/theme/dating_theme.dart';
+import '../../../app/theme/theme_manager.dart';
 
 class EditCalendarScreen extends ConsumerStatefulWidget {
   const EditCalendarScreen({super.key, required this.calendarId});
@@ -121,7 +121,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
     final asyncDetail = ref.watch(ownerCalendarDetailProvider(widget.calendarId));
     _hydrateIfNeeded();
 
-    final isDating = _hydrated && _themeController.text == 'namoro';
+    final themeConfig = ThemeManager.getTheme(_hydrated ? _themeController.text : 'default');
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     Widget mainContent = asyncDetail.when(
@@ -148,7 +148,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
           return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
         }
 
-        final availableThemes = ['aniversario', 'namoro', 'viagem', 'casamento', 'natal'];
+        final availableThemes = ['namoro', 'casamento', 'bodas', 'noivado', 'carnaval', 'saojoao', 'reveillon', 'natal', 'pascoa', 'aniversario', 'diadascriancas', 'diadasmaes', 'diadospais', 'viagem', 'estudo', 'independencia', 'metas'];
         final currentThemeOrDefault = availableThemes.contains(_themeController.text) ? _themeController.text : 'aniversario';
 
         return SafeArea(
@@ -158,16 +158,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: isDating 
-                      ? (Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white.withValues(alpha: 0.95))
-                      : Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(24),
-                  border: isDating ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)) : null,
-                  boxShadow: const [
-                    BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
-                  ],
-                ),
+                decoration: themeConfig.cardDecoration(context),
                 child: Column(
                   children: [
                     _StyledTextField(
@@ -196,11 +187,23 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
                       ),
                       items: [
-                        DropdownMenuItem(value: 'aniversario', child: Text('Aniversário', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'namoro', child: Text('Namoro', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'viagem', child: Text('Viagem', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
-                        DropdownMenuItem(value: 'casamento', child: Text('Casamento', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'namoro', child: Text('Amor & Romance', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'casamento', child: Text('Nossa União', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'bodas', child: Text('Bodas', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'noivado', child: Text('Eternamente Juntos', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'carnaval', child: Text('Carnaval', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'saojoao', child: Text('São João', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'reveillon', child: Text('Réveillon', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                         DropdownMenuItem(value: 'natal', child: Text('Natal', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'pascoa', child: Text('Páscoa', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'aniversario', child: Text('Aniversário', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'diadascriancas', child: Text('Dia das Crianças', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'diadasmaes', child: Text('Dia das Mães', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'diadospais', child: Text('Dia dos Pais', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'viagem', child: Text('Viagem', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'estudo', child: Text('Estudos', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'independencia', child: Text('Independência', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
+                        DropdownMenuItem(value: 'metas', child: Text('Metas', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                       ],
                       onChanged: (value) {
                         if (value != null) {
@@ -269,16 +272,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: isDating 
-                        ? (Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white.withValues(alpha: 0.95))
-                        : Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(24),
-                    border: isDating ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)) : null,
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
-                    ],
-                  ),
+                  decoration: themeConfig.cardDecoration(context),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -401,19 +395,19 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       );
 
     Widget scaffoldContent = Scaffold(
-      backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: isDating,
+      backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
+      extendBodyBehindAppBar: themeConfig.buildHeaderComponent(context) != null,
       appBar: AppBar(
-        backgroundColor: isDating ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: themeConfig.buildHeaderComponent(context) != null ? themeConfig.primaryColor : Theme.of(context).colorScheme.onSurface),
         ),
         title: Text(
           'Editar Calendário',
           style: TextStyle(
-            color: isDating ? (isDark ? Colors.white : DatingTheme.wineBerry) : Theme.of(context).colorScheme.onSurface,
+            color: themeConfig.buildHeaderComponent(context) != null ? (isDark ? Colors.white : themeConfig.titleColor(context)) : Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -422,13 +416,14 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       ),
       body: Stack(
         children: [
-          if (isDating) const HangingHeartsHeader(),
+          if (themeConfig.buildHeaderComponent(context) != null)
+             themeConfig.buildHeaderComponent(context)!,
           mainContent,
         ],
       ),
     );
 
-    return isDating ? DatingBackground(child: scaffoldContent) : scaffoldContent;
+    return themeConfig.buildBackground(context, scaffoldContent);
   }
 }
 

@@ -208,9 +208,8 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                           segments: const [
                             ButtonSegment(value: 'light', label: Text('Claro'), icon: Icon(LucideIcons.sun, size: 16)),
                             ButtonSegment(value: 'dark', label: Text('Escuro'), icon: Icon(LucideIcons.moon, size: 16)),
-                            ButtonSegment(value: 'sistema', label: Text('Sistema'), icon: Icon(LucideIcons.monitor, size: 16)),
                           ],
-                          selected: {(auth.profile?.themePreference?.toLowerCase() ?? 'sistema')},
+                          selected: {(auth.profile?.themePreference?.toLowerCase() ?? 'dark')},
                           onSelectionChanged: (newSelection) {
                             ref.read(authControllerProvider.notifier).updateThemePreference(newSelection.first);
                           },

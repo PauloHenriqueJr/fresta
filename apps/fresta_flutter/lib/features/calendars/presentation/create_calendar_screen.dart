@@ -209,65 +209,221 @@ class _ThemeSelectionStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final themes = [
-      ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg', colorScheme.primary),
-      ('namoro', 'Namoro', 'assets/images/themes/mascot-namoro.jpg', DatingTheme.loveRed),
-      ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg', const Color(0xFF0EA5E9)),
-      ('casamento', 'Casamento', 'assets/images/themes/casamento.png', const Color(0xFF8B5CF6)),
-      ('natal', 'Natal', 'assets/images/themes/mascot-natal.jpg', const Color(0xFF059669)),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final List<Map<String, dynamic>> categories = [
+      {
+        'title': 'Românticos',
+        'icon': '💕',
+        'items': [
+          ('namoro', 'Amor & Romance', 'assets/images/themes/mascot-namoro.jpg', false),
+          ('casamento', 'Nossa União', 'assets/images/themes/casamento.png', true),
+          ('bodas', 'Bodas', 'assets/images/themes/mascot-bodas.jpg', true),
+          ('noivado', 'Eternamente Juntos', 'assets/images/themes/mascot-noivado.jpg', true),
+        ],
+      },
+      {
+        'title': 'Festivos',
+        'icon': '🎉',
+        'items': [
+          ('carnaval', 'Carnaval', 'assets/images/themes/mascot-carnaval.jpg', true),
+          ('saojoao', 'São João', 'assets/images/themes/mascot-saojoao.png', true),
+          ('reveillon', 'Réveillon', 'assets/images/themes/mascot-reveillon.jpg', true),
+        ],
+      },
+      {
+        'title': 'Religiosos',
+        'icon': '✨',
+        'items': [
+          ('natal', 'Natal', 'assets/images/themes/mascot-natal.jpg', true),
+          ('pascoa', 'Páscoa', 'assets/images/themes/mascot-pascoa.jpg', true),
+        ],
+      },
+      {
+        'title': 'Comemorações',
+        'icon': '🎂',
+        'items': [
+          ('aniversario', 'Aniversário', 'assets/images/themes/mascot-aniversario.jpg', false),
+          ('diadascriancas', 'Dia das Crianças', 'assets/images/themes/mascot-diadascriancas.jpg', false),
+        ],
+      },
+      {
+        'title': 'Família',
+        'icon': '👥',
+        'items': [
+          ('diadasmaes', 'Dia das Mães', 'assets/images/themes/mascot-diadasmaes.jpg', false),
+          ('diadospais', 'Dia dos Pais', 'assets/images/themes/mascot-diadospais.jpg', false),
+        ],
+      },
+      {
+        'title': 'Outros',
+        'icon': '🌟',
+        'items': [
+          ('viagem', 'Viagem', 'assets/images/themes/mascot-viagem.jpg', true),
+          ('estudo', 'Estudos', 'assets/images/themes/mascot-estudo.jpg', false),
+          ('independencia', 'Independência', 'assets/images/themes/mascot-independencia.jpg', true),
+          ('metas', 'Metas', 'assets/images/themes/mascot-metas.jpg', false),
+        ],
+      },
     ];
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(24),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.85,
-      ),
-      itemCount: themes.length,
-      itemBuilder: (context, index) {
-        final t = themes[index];
-        final isSelected = selectedId == t.$1;
-        return GestureDetector(
-          onTap: () => onSelected(t.$1),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected ? t.$4 : Colors.transparent,
-                width: 3,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                    child: Image.asset(t.$3, fit: BoxFit.cover, width: double.infinity),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(
-                    t.$2,
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      itemCount: categories.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 32),
+      itemBuilder: (context, categoryIndex) {
+        final category = categories[categoryIndex];
+        final String title = category['title'];
+        final String icon = category['icon'];
+        final List<(String, String, String, bool)> items = category['items'] as List<(String, String, String, bool)>;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                children: [
+                  Text(icon, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
                     style: TextStyle(
+                      fontSize: 22,
                       fontWeight: FontWeight.w900,
-                      color: isSelected ? t.$4 : colorScheme.onSurface,
+                      color: isDark ? Colors.white : const Color(0xFF1B4D3E),
+                      letterSpacing: -0.5,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 220,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                scrollDirection: Axis.horizontal,
+                itemCount: items.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 16),
+                itemBuilder: (context, itemIndex) {
+                  final t = items[itemIndex];
+                  final isSelected = selectedId == t.$1;
+                  
+                  return GestureDetector(
+                    onTap: () => onSelected(t.$1),
+                    child: SizedBox(
+                      width: 160,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFFF9A03F) : Colors.transparent,
+                            width: 3,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                                    child: Image.asset(
+                                      t.$3,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surface,
+                                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(17)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          t.$2,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 14,
+                                            color: colorScheme.onSurface,
+                                            height: 1.1,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      if (isSelected)
+                                        Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF9A03F),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(Icons.check_rounded, color: Colors.white, size: 14),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (t.$4)
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF9A03F),
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 12),
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        'PLUS',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
