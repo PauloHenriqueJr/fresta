@@ -49,6 +49,9 @@ abstract class CalendarsRepository {
   });
 
   Future<void> deleteCalendar(String calendarId);
+
+  Future<bool> toggleLike({required String calendarId, required String userId});
+  Future<bool> isLikedByUser({required String calendarId, required String userId});
 }
 
 class SupabaseCalendarsRepository implements CalendarsRepository {
@@ -60,7 +63,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
   Future<List<CalendarSummary>> listOwnedCalendars(String ownerId) async {
     final data = await _client
         .from('calendars')
-        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium,header_message,footer_message,views')
+        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium,header_message,footer_message,views,likes')
         .eq('owner_id', ownerId)
         .order('created_at', ascending: false);
 
@@ -74,7 +77,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final calendar = await _client
         .from('calendars')
         .select(
-          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message',
+          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message,views,likes',
         )
         .eq('id', calendarId)
         .maybeSingle();
@@ -104,7 +107,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final rows = await _client
         .from('calendars')
         .select(
-          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message',
+          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message,views,likes',
         )
         .eq('id', calendarId)
         .limit(1);
@@ -297,6 +300,47 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     // Delete days first (cascade), then the calendar
     await _client.from('calendar_days').delete().eq('calendar_id', calendarId);
     await _client.from('calendars').delete().eq('id', calendarId);
+  }
+
+  @override
+  Future<bool> toggleLike({required String calendarId, required String userId}) async {
+    // Check if liked
+    final existing = await _client
+        .from('calendar_likes')
+        .select()
+        .eq('calendar_id', calendarId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (existing != null) {
+      // Unlike
+      await _client
+          .from('calendar_likes')
+          .delete()
+          .eq('calendar_id', calendarId)
+          .eq('user_id', userId);
+      return false;
+    } else {
+      // Like
+      await _client
+          .from('calendar_likes')
+          .insert({
+            'calendar_id': calendarId,
+            'user_id': userId,
+          });
+      return true;
+    }
+  }
+
+  @override
+  Future<bool> isLikedByUser({required String calendarId, required String userId}) async {
+    final existing = await _client
+        .from('calendar_likes')
+        .select()
+        .eq('calendar_id', calendarId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    return existing != null;
   }
 }
 

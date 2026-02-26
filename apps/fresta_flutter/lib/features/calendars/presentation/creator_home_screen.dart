@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/theme_manager.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_session_state.dart';
 import '../application/calendar_providers.dart';
 
 /// Início — Personal dashboard: greeting, recent calendars, tips
@@ -222,16 +223,22 @@ class CreatorHomeScreen extends ConsumerWidget {
 // ── Avatar Button ──
 class _AvatarButton extends StatelessWidget {
   const _AvatarButton({required this.auth, required this.onTap});
-  final dynamic auth;
+  final AuthSessionState auth;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final profile = auth.profile;
     final user = auth.user;
-    final avatarUrl = profile?.avatar;
-    final isUrl = avatarUrl != null && avatarUrl.toString().startsWith('http');
-    final initial = (profile?.displayName ?? user?.email ?? 'U').toString().characters.first.toUpperCase();
+    
+    // Fallback logic for avatar
+    final profileAvatar = profile?.avatar;
+    final googleAvatar = user?.userMetadata?['avatar_url'] as String? ?? user?.userMetadata?['picture'] as String?;
+    final avatarUrl = (profileAvatar != null && profileAvatar.startsWith('http')) ? profileAvatar : googleAvatar;
+    final hasAvatar = avatarUrl != null && avatarUrl.startsWith('http');
+    
+    final display = profile?.displayName ?? user?.email ?? 'Usuário';
+    final initial = (display.isNotEmpty ? display.characters.first : 'U').toUpperCase();
 
     return GestureDetector(
       onTap: onTap,
@@ -243,13 +250,23 @@ class _AvatarButton extends StatelessWidget {
           border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), width: 2),
         ),
         clipBehavior: Clip.antiAlias,
-        child: isUrl
+        child: hasAvatar
             ? Image.network(
-                avatarUrl.toString(),
+                avatarUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Theme.of(context).colorScheme.primary))),
+                errorBuilder: (_, __, ___) => Center(
+                  child: Text(
+                    initial, 
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
               )
-            : Center(child: Text(initial, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Theme.of(context).colorScheme.primary))),
+            : Center(
+                child: Text(
+                  initial, 
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Theme.of(context).colorScheme.primary),
+                ),
+              ),
       ),
     );
   }

@@ -14,6 +14,7 @@ import '../../../data/repositories/viewer_repository.dart';
 import '../../../app/theme/dating_theme.dart';
 import '../../../app/theme/theme_manager.dart';
 import '../../../shared/widgets/fresta_ad_banner.dart';
+import '../../auth/application/auth_controller.dart';
 
 class SharedCalendarViewerScreen extends ConsumerStatefulWidget {
   const SharedCalendarViewerScreen({super.key, required this.calendarId, this.isPreview = false});
@@ -221,13 +222,40 @@ class _SharedCalendarViewerScreenState
                       ),
                     ),
                     actions: [
-                      IconButton(
-                        onPressed: () {}, // Favorite logic
-                        icon: Icon(Icons.favorite_outline, color: themeConfig.primaryColor),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: const CircleBorder(),
-                        ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final isLikedAsync = ref.watch(isLikedProvider(widget.calendarId));
+                          return IconButton(
+                            onPressed: () async {
+                              final auth = ref.read(authControllerProvider);
+                              final userId = auth.user?.id;
+                              if (userId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Faça login para curtir este calendário!')),
+                                );
+                                return;
+                              }
+                              try {
+                                await ref.read(viewerRepositoryProvider).toggleLike(widget.calendarId, userId);
+                                ref.invalidate(isLikedProvider(widget.calendarId));
+                                ref.invalidate(sharedCalendarMetadataProvider(widget.calendarId));
+                              } catch (e) {
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Erro ao registrar curtida.')),
+                                );
+                              }
+                            },
+                            icon: Icon(
+                              isLikedAsync.maybeWhen(data: (liked) => liked ? Icons.favorite : Icons.favorite_outline, orElse: () => Icons.favorite_outline),
+                              color: isLikedAsync.maybeWhen(data: (liked) => liked ? Colors.red : themeConfig.primaryColor, orElse: () => themeConfig.primaryColor),
+                            ),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: const CircleBorder(),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(width: 8),
                       IconButton(

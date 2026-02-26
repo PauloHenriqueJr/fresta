@@ -8,6 +8,8 @@ abstract class ViewerRepository {
   Future<List<CalendarDayModel>> getSharedCalendarDays(String calendarId);
   Future<CalendarDetailModel?> getSharedCalendar(String calendarId);
   Future<bool> verifyPassword(String calendarId, String password);
+  Future<bool> toggleLike(String calendarId, String userId);
+  Future<bool> isLikedByUser(String calendarId, String userId);
 }
 
 class DefaultViewerRepository implements ViewerRepository {
@@ -34,6 +36,14 @@ class DefaultViewerRepository implements ViewerRepository {
       password: password,
     );
   }
+
+  @override
+  Future<bool> toggleLike(String calendarId, String userId) =>
+      _calendarsRepository.toggleLike(calendarId: calendarId, userId: userId);
+
+  @override
+  Future<bool> isLikedByUser(String calendarId, String userId) =>
+      _calendarsRepository.isLikedByUser(calendarId: calendarId, userId: userId);
 }
 
 final viewerRepositoryProvider = Provider<ViewerRepository>((ref) {

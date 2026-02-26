@@ -311,8 +311,8 @@ class CalendarDetailScreen extends ConsumerWidget {
                               Expanded(
                                 child: _StatCard(
                                   title: 'Visualizações',
-                                  value: openedDays.toString(),
-                                  total: '', // total removed as per design
+                                  value: detail.calendar.views.toString(),
+                                  total: '',
                                   icon: Icons.visibility_rounded,
                                   color: colorScheme.secondary, 
                                   bgColor: colorScheme.secondary.withValues(alpha: 0.1),
@@ -323,7 +323,7 @@ class CalendarDetailScreen extends ConsumerWidget {
                                 child: _StatCard(
                                   title: 'Concluído',
                                   value: '${((filledDays / detail.calendar.duration) * 100).toInt()}%',
-                                  total: '', // total removed as per design
+                                  total: '',
                                   icon: Icons.check_circle_rounded,
                                   color: colorScheme.primary, 
                                   bgColor: colorScheme.primary.withValues(alpha: 0.1),

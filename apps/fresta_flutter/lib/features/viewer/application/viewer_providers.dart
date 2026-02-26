@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/viewer_repository.dart';
 import '../../../shared/models/calendar_models.dart';
+import '../../auth/application/auth_controller.dart';
 import '../../calendars/application/plan_limits_provider.dart';
 
 final sharedCalendarMetadataProvider = FutureProvider.family<CalendarDetailModel?, String>(
@@ -48,5 +49,14 @@ final sharedCalendarDaysProvider = FutureProvider.family<List<CalendarDayModel>,
       );
     }
     return ref.watch(viewerRepositoryProvider).getSharedCalendarDays(calendarId);
+  },
+);
+
+final isLikedProvider = FutureProvider.family<bool, String>(
+  (ref, calendarId) async {
+    final auth = ref.watch(authControllerProvider);
+    final userId = auth.user?.id;
+    if (userId == null) return false;
+    return ref.watch(viewerRepositoryProvider).isLikedByUser(calendarId, userId);
   },
 );
