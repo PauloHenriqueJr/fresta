@@ -280,23 +280,52 @@ class CalendarDetailScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 24),
-                                    FilledButton(
-                                      onPressed: () {
-                                        final url = FrestaUrls.calendarShareUrl(calendarId);
-                                        SharePlus.instance.share(
-                                          ShareParams(text: url),
-                                        );
-                                      },
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        foregroundColor: const Color(0xFF1B4D3E),
-                                        minimumSize: const Size.fromHeight(48),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(24),
+                                    if (detail.calendar.status == 'rascunho') ...[
+                                      FilledButton.icon(
+                                        onPressed: () async {
+                                          try {
+                                            // TODO: If Plus, trigger checkout instead of direct publish.
+                                            await ref.read(calendarsRepositoryProvider).publishCalendar(calendarId);
+                                            ref.invalidate(ownerCalendarDetailProvider(calendarId));
+                                            if (!context.mounted) return;
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Calendário publicado com sucesso!')),
+                                            );
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Erro ao publicar: $e')),
+                                            );
+                                          }
+                                        },
+                                        icon: const Icon(Icons.rocket_launch_rounded),
+                                        label: const Text('Publicar Calendário', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: const Color(0xFFF9A03F), // Destacar o publicar
+                                          foregroundColor: Colors.white,
+                                          minimumSize: const Size.fromHeight(54),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                                         ),
                                       ),
-                                      child: const Text('Enviar Presente', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                    ),
+                                    ] else ...[
+                                      FilledButton(
+                                        onPressed: () {
+                                          final url = FrestaUrls.calendarShareUrl(calendarId);
+                                          SharePlus.instance.share(
+                                            ShareParams(text: url),
+                                          );
+                                        },
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: const Color(0xFF1B4D3E),
+                                          minimumSize: const Size.fromHeight(48),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(24),
+                                          ),
+                                        ),
+                                        child: const Text('Enviar Presente', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ],

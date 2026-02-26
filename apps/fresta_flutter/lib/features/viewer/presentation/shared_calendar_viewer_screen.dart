@@ -168,6 +168,58 @@ class _SharedCalendarViewerScreenState
             );
           }
 
+          // Se for rascunho e não for preview, bloqueamos o acesso público
+          if (meta.calendar.status == 'rascunho' && !widget.isPreview) {
+            return Scaffold(
+              backgroundColor: const Color(0xFFF8F9F5),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: const [
+                            BoxShadow(color: Color(0x0A000000), blurRadius: 20, offset: Offset(0, 8)),
+                          ],
+                        ),
+                        child: const Icon(LucideIcons.rocket, size: 48, color: Color(0xFFF9A03F)),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Em construção!',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: const Color(0xFF1B4D3E),
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Este presente ainda está sendo preparado e será publicado em breve. Fique atento!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Color(0xFF5A7470), fontSize: 16),
+                      ),
+                      const SizedBox(height: 32),
+                      OutlinedButton(
+                        onPressed: () => context.go('/'),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF1B4D3E)),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Voltar ao início', style: TextStyle(color: Color(0xFF1B4D3E))),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
           // Auto-save this calendar to local library
           Future.microtask(() {
             ref.read(savedCalendarsRepositoryProvider).saveCalendar(
