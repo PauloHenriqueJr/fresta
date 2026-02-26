@@ -139,6 +139,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         ),
                       ),
                       GoRoute(
+                        path: 'preview',
+                        builder: (context, state) => SharedCalendarViewerScreen(
+                          calendarId: state.pathParameters['id']!,
+                          isPreview: true,
+                        ),
+                      ),
+                      GoRoute(
                         path: 'day/:day',
                         builder: (context, state) => EditDayScreen(
                           calendarId: state.pathParameters['id']!,

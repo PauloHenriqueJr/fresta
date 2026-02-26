@@ -15,9 +15,10 @@ import '../../../app/theme/dating_theme.dart';
 import '../../../app/theme/theme_manager.dart';
 
 class SharedCalendarViewerScreen extends ConsumerStatefulWidget {
-  const SharedCalendarViewerScreen({super.key, required this.calendarId});
+  const SharedCalendarViewerScreen({super.key, required this.calendarId, this.isPreview = false});
 
   final String calendarId;
+  final bool isPreview;
 
   @override
   ConsumerState<SharedCalendarViewerScreen> createState() =>
@@ -170,7 +171,7 @@ class _SharedCalendarViewerScreenState
                 );
           });
 
-          final needsPassword = meta.hasPassword && !_authorized;
+          final needsPassword = !widget.isPreview && meta.hasPassword && !_authorized;
           final asyncDays =
               needsPassword ? null : ref.watch(sharedCalendarDaysProvider(widget.calendarId));
 
@@ -555,6 +556,52 @@ class _SharedCalendarViewerScreenState
                     ),
                 ],
               ),
+              // Preview Mode Banner
+              if (widget.isPreview)
+                Positioned(
+                  bottom: 24,
+                  left: 24,
+                  right: 24,
+                  child: SafeArea(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(LucideIcons.eye, color: Colors.white, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Modo Visualização',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.pop(),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white.withValues(alpha: 0.15),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('Voltar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
             ],
           );
 

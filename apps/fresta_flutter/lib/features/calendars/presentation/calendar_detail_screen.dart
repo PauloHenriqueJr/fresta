@@ -53,6 +53,18 @@ class CalendarDetailScreen extends ConsumerWidget {
         centerTitle: true,
         actions: [
           Padding(
+            padding: const EdgeInsets.only(right: 4.0),
+            child: IconButton(
+              onPressed: () => context.push('/creator/calendars/$calendarId/preview'),
+              icon: Icon(LucideIcons.eye, color: colorScheme.onSurface),
+              tooltip: 'Visualizar como visitante',
+              style: IconButton.styleFrom(
+                backgroundColor: colorScheme.surface,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(
               onPressed: () {

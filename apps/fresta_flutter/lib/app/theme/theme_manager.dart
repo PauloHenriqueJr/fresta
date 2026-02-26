@@ -1,8 +1,14 @@
 import 'calendar_theme_config.dart';
 import 'themes/birthday_theme_config.dart';
+import 'themes/carnaval_theme_config.dart';
 import 'themes/christmas_theme_config.dart';
 import 'themes/dating_theme_config.dart';
 import 'themes/default_theme_config.dart';
+import 'themes/diadasmaes_theme_config.dart';
+import 'themes/diadospais_theme_config.dart';
+import 'themes/pascoa_theme_config.dart';
+import 'themes/reveillon_theme_config.dart';
+import 'themes/saojoao_theme_config.dart';
 import 'themes/travel_theme_config.dart';
 import 'themes/wedding_theme_config.dart';
 
@@ -13,9 +19,12 @@ class ThemeManager {
     'aniversario': BirthdayThemeConfig(),
     'natal': ChristmasThemeConfig(),
     'viagem': TravelThemeConfig(),
-
-
-    // Add other themes here mapped by their ID
+    'carnaval': CarnavalThemeConfig(),
+    'saojoao': SaojoaoThemeConfig(),
+    'reveillon': ReveillonThemeConfig(),
+    'pascoa': PascoaThemeConfig(),
+    'diadasmaes': DiadasmaesThemeConfig(),
+    'diadospais': DiadospaisThemeConfig(),
   };
 
   static final CalendarThemeConfig _defaultTheme = DefaultThemeConfig();
