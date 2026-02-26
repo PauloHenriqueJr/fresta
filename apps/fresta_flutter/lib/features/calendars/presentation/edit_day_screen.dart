@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/repositories/calendars_repository.dart';
 import '../application/calendar_providers.dart';
+import '../../../app/theme/dating_theme.dart';
 
 class EditDayScreen extends ConsumerStatefulWidget {
   const EditDayScreen({super.key, required this.calendarId, required this.day});
@@ -89,63 +90,49 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
     final asyncDetail = ref.watch(ownerCalendarDetailProvider(widget.calendarId));
     _maybeHydrate();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F5),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9F5),
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1B4D3E)),
-        ),
-        title: Text(
-          'Editar Dia ${widget.day}',
-          style: const TextStyle(
-            color: Color(0xFF1B4D3E),
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: asyncDetail.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F))),
-        ),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFDC2626)),
-                const SizedBox(height: 16),
-                const Text('Erro ao carregar', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF991B1B), fontSize: 18)),
-                const SizedBox(height: 8),
-                Text(error.toString(), textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF5A7470))),
-              ],
-            ),
-          ),
-        ),
-        data: (detail) {
-          if (detail == null) {
-            return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
-          }
+    final isDating = _initialized &&
+        (asyncDetail.maybeWhen(data: (d) => d?.calendar.themeId == 'namoro', orElse: () => false));
 
-          return SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
-                    ],
-                  ),
-                  child: Column(
+    Widget mainContent = asyncDetail.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F))),
+      ),
+      error: (error, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFDC2626)),
+              const SizedBox(height: 16),
+              const Text('Erro ao carregar', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF991B1B), fontSize: 18)),
+              const SizedBox(height: 8),
+              Text(error.toString(), textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF5A7470))),
+            ],
+          ),
+        ),
+      ),
+      data: (detail) {
+        if (detail == null) {
+          return const Center(child: Text('Calendário não encontrado.', style: TextStyle(color: Color(0xFF6B7280))));
+        }
+
+        return SafeArea(
+          bottom: false,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: isDating ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: isDating ? Border.all(color: DatingTheme.loveRed.withValues(alpha: 0.1)) : null,
+                  boxShadow: const [
+                    BoxShadow(color: Color(0x04000000), blurRadius: 16, offset: Offset(0, 4)),
+                  ],
+                ),
+                child: Column(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -268,8 +255,37 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
             ),
           );
         },
+      );
+
+    Widget scaffoldContent = Scaffold(
+      backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+      extendBodyBehindAppBar: isDating,
+      appBar: AppBar(
+        backgroundColor: isDating ? Colors.transparent : const Color(0xFFF8F9F5),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDating ? DatingTheme.loveRed : const Color(0xFF1B4D3E)),
+        ),
+        title: Text(
+          'Editar Dia ${widget.day}',
+          style: TextStyle(
+            color: isDating ? DatingTheme.wineBerry : const Color(0xFF1B4D3E),
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Stack(
+        children: [
+          if (isDating) const HangingHeartsHeader(),
+          mainContent,
+        ],
       ),
     );
+
+    return isDating ? DatingBackground(child: scaffoldContent) : scaffoldContent;
   }
 }
 

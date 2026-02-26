@@ -56,8 +56,18 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
     if (detail == null) return;
 
     _titleController.text = detail.calendar.title;
-    _headerMessageController.text = detail.calendar.headerMessage ?? '';
-    _footerMessageController.text = detail.calendar.footerMessage ?? '';
+
+    final isDating = detail.calendar.themeId == 'namoro';
+    final defaultSubtitle = isDating ? 'Uma jornada de amor para nós dois' : '';
+    final defaultFooter = isDating ? '"CADA DIA AO SEU LADO É UM NOVO CAPÍTULO DA NOSSA HISTÓRIA DE AMOR. ❤️"' : '';
+
+    _headerMessageController.text = (detail.calendar.headerMessage?.isNotEmpty == true) 
+        ? detail.calendar.headerMessage! 
+        : defaultSubtitle;
+    _footerMessageController.text = (detail.calendar.footerMessage?.isNotEmpty == true) 
+        ? detail.calendar.footerMessage! 
+        : defaultFooter;
+
     _themeController.text = detail.calendar.themeId;
     _privacy = detail.calendar.privacy;
     _status = detail.calendar.status;
