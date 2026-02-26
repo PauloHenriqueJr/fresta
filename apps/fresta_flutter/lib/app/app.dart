@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/auth/application/auth_controller.dart';
 import '../features/viewer/application/deep_link_service.dart';
+import '../features/paywall/application/purchases_service.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
@@ -19,6 +20,7 @@ class _FrestaAppState extends ConsumerState<FrestaApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(deepLinkServiceProvider).start(ref);
+      ref.read(purchasesServiceProvider).init();
     });
   }
 

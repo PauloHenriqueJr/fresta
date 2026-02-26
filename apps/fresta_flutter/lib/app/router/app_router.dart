@@ -21,6 +21,7 @@ import '../../features/navigation/presentation/app_entry_screen.dart';
 import '../../features/navigation/presentation/main_navigation_scaffold.dart';
 import '../../features/calendars/presentation/themes_selection_screen.dart';
 import '../../features/explore/presentation/explore_screen.dart';
+import '../../features/paywall/presentation/paywall_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   // Use a listenable to trigger redirects without re-creating the whole router
@@ -139,6 +140,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       calendarId: state.pathParameters['id']!,
                     ),
                     routes: [
+                      GoRoute(
+                        path: 'paywall/:themeId',
+                        builder: (context, state) => FrestaPaywallScreen(
+                          calendarId: state.pathParameters['id']!,
+                          themeId: state.pathParameters['themeId']!,
+                        ),
+                      ),
                       GoRoute(
                         path: 'edit',
                         builder: (context, state) => EditCalendarScreen(

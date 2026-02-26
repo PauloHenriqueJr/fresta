@@ -90,11 +90,16 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
             themeId: _selectedThemeId,
             duration: _duration,
             privacy: _privacy,
-            isPremium: widget.isPremium,
+            isPremium: widget.isPremium || _duration > 7,
           );
       ref.invalidate(myCalendarsProvider);
       if (!mounted) return;
-      context.go('/creator/calendars/$id');
+      
+      if (widget.isPremium || _duration > 7) {
+        context.go('/creator/calendars/$id/paywall/$_selectedThemeId');
+      } else {
+        context.go('/creator/calendars/$id');
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString());
