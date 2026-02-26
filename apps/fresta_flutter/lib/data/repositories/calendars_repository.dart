@@ -41,6 +41,13 @@ abstract class CalendarsRepository {
     String? password,
     bool clearPassword = false,
   });
+  
+  Future<void> activatePremiumCalendar({
+    required String calendarId,
+    required String transactionId,
+    required String productId,
+  });
+
   Future<void> deleteCalendar(String calendarId);
 }
 
@@ -248,14 +255,41 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
       ...?themeId?.let((value) => {'theme_id': value}),
       ...?privacy?.let((value) => {'privacy': value}),
       ...?status?.let((value) => {'status': value}),
-      if (clearPassword) 'password': null,
       ...?password?.let((value) => {'password': value}),
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     };
 
+    if (clearPassword) {
+      payload['password'] = null;
+    }
+
     if (payload.length == 1 && payload.containsKey('updated_at')) return;
 
     await _client.from('calendars').update(payload).eq('id', calendarId);
+  }
+
+  @override
+  Future<void> activatePremiumCalendar({
+    required String calendarId,
+    required String transactionId,
+    required String productId,
+  }) async {
+    try {
+      final success = await _client.rpc(
+        'activate_calendar_with_revenuecat',
+        params: {
+          'p_calendar_id': calendarId,
+          'p_transaction_id': transactionId,
+          'p_product_id': productId,
+        },
+      );
+      
+      if (success != true) {
+        throw Exception('Falha ao ativar calendário premium via RPC.');
+      }
+    } catch (e) {
+      throw Exception('Erro ao processar ativação premium: $e');
+    }
   }
 
   @override

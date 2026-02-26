@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../auth/application/auth_controller.dart';
+import '../../calendars/application/calendar_providers.dart';
+import '../../../data/repositories/calendars_repository.dart';
 
 final purchasesServiceProvider = Provider<PurchasesService>((ref) {
   return PurchasesService(ref);
@@ -75,36 +77,74 @@ class PurchasesService {
     }
   }
 
-  Future<bool> purchasePackage(Package package) async {
+  Future<bool> purchasePackage(Package package, String calendarId) async {
     if (!_isConfigured) return false;
     try {
       final purchaseResult = await Purchases.purchasePackage(package);
-      final isPremium = purchaseResult.customerInfo.entitlements.all['premium']?.isActive ?? false;
-      return isPremium;
+      final transaction = purchaseResult.customerInfo.nonSubscriptionTransactions.isNotEmpty 
+          ? purchaseResult.customerInfo.nonSubscriptionTransactions.last
+          : null;
+
+      String transactionId = transaction?.transactionIdentifier ?? DateTime.now().millisecondsSinceEpoch.toString();
+      String productId = package.storeProduct.identifier;
+
+      // Link payment to the calendar in Supabase
+      await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
+        calendarId: calendarId,
+        transactionId: transactionId,
+        productId: productId,
+      );
+
+      return true;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
         // Log error
       }
       return false;
+    } catch (e) {
+      // Catch any Supabase errors
+      return false;
     }
   }
 
-  Future<bool> checkPremiumEntitlement() async {
+  Future<bool> checkPremiumEntitlement(String calendarId) async {
     if (!_isConfigured) return false;
     try {
+      // In this new per-calendar model, the "source of truth" is Supabase.
+      // But we can check if there's any non-subscription transaction that might not have been synced.
       final customerInfo = await Purchases.getCustomerInfo();
-      return customerInfo.entitlements.all['premium']?.isActive ?? false;
+      // If we wanted to be exhaustive, we'd check if any transaction matches this calendar.
+      // But without a backend mapping of transactionId -> calendarId readily available here,
+      // it's best to rely on the backend's 'is_premium' flag before even showing the paywall.
+      // We return false here to let the Paywall screen rely on its own logic or to force a sync if needed.
+      return false; 
     } catch (e) {
       return false;
     }
   }
 
-  Future<bool> restorePurchases() async {
+  Future<bool> restorePurchases(String calendarId) async {
     if (!_isConfigured) return false;
     try {
       final customerInfo = await Purchases.restorePurchases();
-      return customerInfo.entitlements.all['premium']?.isActive ?? false;
+      // Look for any non-subscription transactions
+      if (customerInfo.nonSubscriptionTransactions.isNotEmpty) {
+        // If we have transactions, we try to link the latest one to this calendar
+        // (In a perfect world, we'd know exactly which transaction belongs to which calendar,
+        // but for a rescue operation, linking the latest valid purchase to the current calendar can save a dropped connection).
+        final transaction = customerInfo.nonSubscriptionTransactions.last;
+        String transactionId = transaction.transactionIdentifier;
+        String productId = transaction.productIdentifier;
+
+        await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
+          calendarId: calendarId,
+          transactionId: transactionId,
+          productId: productId,
+        );
+        return true;
+      }
+      return false;
     } catch (e) {
       return false;
     }

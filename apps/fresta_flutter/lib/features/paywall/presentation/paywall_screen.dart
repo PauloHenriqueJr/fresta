@@ -37,7 +37,7 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
     final purchases = ref.read(purchasesServiceProvider);
     
     // Check if somehow already has entitlement
-    final hasPremium = await purchases.checkPremiumEntitlement();
+    final hasPremium = await purchases.checkPremiumEntitlement(widget.calendarId);
     if (hasPremium && mounted) {
       context.go('/creator/calendars/${widget.calendarId}');
       return;
@@ -55,7 +55,7 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
   Future<void> _makePurchase(Package package) async {
     setState(() => _isPurchasing = true);
     
-    final success = await ref.read(purchasesServiceProvider).purchasePackage(package);
+    final success = await ref.read(purchasesServiceProvider).purchasePackage(package, widget.calendarId);
     
     if (mounted) {
       setState(() => _isPurchasing = false);
@@ -76,7 +76,7 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
       _error = null;
     });
     
-    final success = await ref.read(purchasesServiceProvider).restorePurchases();
+    final success = await ref.read(purchasesServiceProvider).restorePurchases(widget.calendarId);
     
     if (mounted) {
       setState(() => _isPurchasing = false);

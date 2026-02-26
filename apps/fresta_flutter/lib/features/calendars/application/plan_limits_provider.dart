@@ -57,6 +57,7 @@ class PlanLimits {
 
 /// Plus-only themes that require payment to access.
 const plusThemes = [
+  'namoro', // Adicionado como Plus conforme solicitado
   'casamento',
   'bodas',
   'noivado',

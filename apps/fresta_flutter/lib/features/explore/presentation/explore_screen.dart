@@ -117,21 +117,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     entry: t,
                     isPlus: isPlus,
                     onTap: () {
-                      if (isPlus) {
-                        final themeConfig = ThemeManager.getTheme(t.id);
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) => PremiumThemeChoiceModal(
-                            themeId: t.id,
-                            themeName: t.name,
-                            themeConfig: themeConfig,
-                          ),
-                        );
-                      } else {
-                        context.go('/creator/calendars/new?theme=${t.id}');
-                      }
+                      final themeConfig = ThemeManager.getTheme(t.id);
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => PremiumThemeChoiceModal(
+                          themeId: t.id,
+                          themeName: t.name,
+                          themeConfig: themeConfig,
+                          isPlus: isPlus,
+                        ),
+                      );
                     },
                   );
                 }).toList(),

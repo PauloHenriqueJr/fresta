@@ -10,11 +10,13 @@ class PremiumThemeChoiceModal extends StatelessWidget {
     required this.themeId,
     required this.themeName,
     required this.themeConfig,
+    this.isPlus = false,
   });
 
   final String themeId;
   final String themeName;
   final CalendarThemeConfig themeConfig;
+  final bool isPlus;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class PremiumThemeChoiceModal extends StatelessWidget {
 
           // Title
           Text(
-            'Tema Plus Selecionado',
+            isPlus ? 'Tema Plus Selecionado' : 'Tema Selecionado',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24,
@@ -68,8 +70,10 @@ class PremiumThemeChoiceModal extends StatelessWidget {
                   text: '"$themeName"',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
                 ),
-                const TextSpan(
-                  text: ' é exclusivo do Plano Plus. Deseja ver um exemplo ou começar a criação agora?',
+                TextSpan(
+                  text: isPlus 
+                    ? ' é exclusivo do Plano Plus. Deseja ver um exemplo ou começar a criação agora?'
+                    : ' está pronto para ser sua próxima surpresa. Deseja ver um exemplo ou começar agora?',
                 ),
               ],
             ),
@@ -86,13 +90,14 @@ class PremiumThemeChoiceModal extends StatelessWidget {
           FilledButton.icon(
             onPressed: () {
               Navigator.pop(context);
-              // Navigate to creation passing themeId, meaning they intend to create a premium calendar
-              context.push('/creator/calendars/new?theme=$themeId&premium=true');
+              // Navigate to creation passing themeId
+              final premiumParam = isPlus ? '&premium=true' : '';
+              context.push('/creator/calendars/new?theme=$themeId$premiumParam');
             },
             icon: const Icon(LucideIcons.layoutTemplate, size: 20),
             label: const Text('CRIAR COM ESTE TEMA', style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.5)),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFF9A826), // Orange vibrant matched with web
+              backgroundColor: isPlus ? const Color(0xFFF9A826) : const Color(0xFF1B4D3E),
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(56),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

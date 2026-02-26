@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../data/repositories/calendars_repository.dart';
 import '../../auth/application/auth_controller.dart';
 import '../application/calendar_providers.dart';
+import '../application/plan_limits_provider.dart';
 import '../../../app/theme/dating_theme.dart';
 
 class CreateCalendarScreen extends ConsumerStatefulWidget {
@@ -81,6 +82,9 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
       _error = null;
     });
 
+    final isPlusTheme = plusThemes.contains(_selectedThemeId);
+    final isPremiumRequired = widget.isPremium || _duration > 7 || isPlusTheme;
+
     try {
       final id = await ref.read(calendarsRepositoryProvider).createCalendar(
             ownerId: user.id,
@@ -90,12 +94,12 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
             themeId: _selectedThemeId,
             duration: _duration,
             privacy: _privacy,
-            isPremium: widget.isPremium || _duration > 7,
+            isPremium: isPremiumRequired,
           );
       ref.invalidate(myCalendarsProvider);
       if (!mounted) return;
       
-      if (widget.isPremium || _duration > 7) {
+      if (isPremiumRequired) {
         context.go('/creator/calendars/$id/paywall/$_selectedThemeId');
       } else {
         context.go('/creator/calendars/$id');
@@ -112,7 +116,8 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isPremiumRequired = _duration > 7;
+    final isPlusTheme = plusThemes.contains(_selectedThemeId);
+    final isPremiumRequired = _duration > 7 || isPlusTheme;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -178,6 +183,7 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
             titleController: _titleController,
             duration: _duration,
             privacy: _privacy,
+            isPlusTheme: isPlusTheme,
             onDurationChanged: (val) => setState(() => _duration = val),
             onPrivacyChanged: (val) => setState(() => _privacy = val),
           ),
@@ -457,6 +463,7 @@ class _ConfigStep extends StatelessWidget {
     required this.titleController,
     required this.duration,
     required this.privacy,
+    required this.isPlusTheme,
     required this.onDurationChanged,
     required this.onPrivacyChanged,
   });
@@ -464,6 +471,7 @@ class _ConfigStep extends StatelessWidget {
   final TextEditingController titleController;
   final int duration;
   final String privacy;
+  final bool isPlusTheme;
   final ValueChanged<int> onDurationChanged;
   final ValueChanged<String> onPrivacyChanged;
 
@@ -484,7 +492,9 @@ class _ConfigStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Escolha por quanto tempo a surpresa vai durar. Lembre-se: Calendários gratuitos são limitados a 7 dias.',
+          isPlusTheme 
+            ? 'Defina o título e a duração da sua experiência premium.'
+            : 'Escolha por quanto tempo a surpresa vai durar. Lembre-se: Calendários gratuitos são limitados a 7 dias.',
           style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14, height: 1.5, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 32),
@@ -501,9 +511,9 @@ class _ConfigStep extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Row(
-          children: [7, 12, 24, 30].map((d) {
+          children: [7, 14, 24, 30].map((d) {
             final isSelected = duration == d;
-            final isPremium = d > 7;
+            final isPremium = d > 7 || isPlusTheme;
             return Expanded(
               child: GestureDetector(
                 onTap: () => onDurationChanged(d),
