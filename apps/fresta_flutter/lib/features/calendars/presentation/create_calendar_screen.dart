@@ -217,7 +217,7 @@ class _ThemeSelectionStep extends StatelessWidget {
         'icon': '💕',
         'items': [
           ('namoro', 'Amor & Romance', 'assets/images/themes/mascot-namoro.jpg', false),
-          ('casamento', 'Nossa União', 'assets/images/themes/casamento.png', true),
+          ('casamento', 'Nossa União', 'assets/images/themes/mascot-casamento.jpg', true),
           ('bodas', 'Bodas', 'assets/images/themes/mascot-bodas.jpg', true),
           ('noivado', 'Eternamente Juntos', 'assets/images/themes/mascot-noivado.jpg', true),
         ],

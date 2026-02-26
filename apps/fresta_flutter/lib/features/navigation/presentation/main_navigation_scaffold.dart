@@ -46,7 +46,6 @@ class MainNavigationScaffold extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Container(
-        constraints: const BoxConstraints(minHeight: 80),
         decoration: BoxDecoration(
           color: colorScheme.surface,
           boxShadow: [
@@ -57,43 +56,55 @@ class MainNavigationScaffold extends StatelessWidget {
             ),
           ],
         ),
+        // Wrap with SafeArea so it only expands bottom padding for iPhones/Androids with home indicators
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: SizedBox(
+            height: 64, // Explicit fixed height for the navbar content
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _NavBarItem(
-                  icon: LucideIcons.house,
-                  label: 'Início',
-                  isSelected: selectedIndex == 0,
-                  onTap: () => _onTap(context, 0),
-                  colorScheme: colorScheme,
+                Expanded(
+                  child: _NavBarItem(
+                    icon: LucideIcons.house,
+                    label: 'Início',
+                    isSelected: selectedIndex == 0,
+                    onTap: () => _onTap(context, 0),
+                    colorScheme: colorScheme,
+                  ),
                 ),
-                _NavBarItem(
-                  icon: LucideIcons.calendar,
-                  label: 'Calendários',
-                  isSelected: selectedIndex == 1,
-                  onTap: () => _onTap(context, 1),
-                  colorScheme: colorScheme,
+                Expanded(
+                  child: _NavBarItem(
+                    icon: LucideIcons.calendar,
+                    label: 'Calendários',
+                    isSelected: selectedIndex == 1,
+                    onTap: () => _onTap(context, 1),
+                    colorScheme: colorScheme,
+                  ),
                 ),
-                _CreateButton(
-                  onTap: () => _onTap(context, 2),
-                  colorScheme: colorScheme,
+                Expanded(
+                  child: Center(
+                    child: _CreateButton(
+                      onTap: () => _onTap(context, 2),
+                      colorScheme: colorScheme,
+                    ),
+                  ),
                 ),
-                _NavBarItem(
-                  icon: LucideIcons.compass,
-                  label: 'Explorar',
-                  isSelected: selectedIndex == 3,
-                  onTap: () => _onTap(context, 3),
-                  colorScheme: colorScheme,
+                Expanded(
+                  child: _NavBarItem(
+                    icon: LucideIcons.compass,
+                    label: 'Explorar',
+                    isSelected: selectedIndex == 3,
+                    onTap: () => _onTap(context, 3),
+                    colorScheme: colorScheme,
+                  ),
                 ),
-                _NavBarItem(
-                  icon: LucideIcons.user,
-                  label: 'Perfil',
-                  isSelected: selectedIndex == 4,
-                  onTap: () => _onTap(context, 4),
-                  colorScheme: colorScheme,
+                Expanded(
+                  child: _NavBarItem(
+                    icon: LucideIcons.user,
+                    label: 'Perfil',
+                    isSelected: selectedIndex == 4,
+                    onTap: () => _onTap(context, 4),
+                    colorScheme: colorScheme,
+                  ),
                 ),
               ],
             ),
@@ -126,18 +137,22 @@ class _NavBarItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center, // Center icon and text
+          mainAxisSize: MainAxisSize.min, // Keep tight inside the 64px height
           children: [
-            Icon(icon, color: color, size: 24),
+            Icon(icon, color: color, size: 22), // Slightly smaller icon
             const SizedBox(height: 4),
             Text(
               label,
+              maxLines: 1, // DO NOT WRAP
+              overflow: TextOverflow.visible,
               style: TextStyle(
                 color: color,
                 fontSize: 10,
+                letterSpacing: -0.3,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
