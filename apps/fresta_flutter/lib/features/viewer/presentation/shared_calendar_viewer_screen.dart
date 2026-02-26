@@ -34,6 +34,18 @@ class _SharedCalendarViewerScreenState
   String? _passwordError;
 
   @override
+  void initState() {
+    super.initState();
+    // Invalidate cached data so preview always shows fresh theme
+    if (widget.isPreview) {
+      Future.microtask(() {
+        ref.invalidate(sharedCalendarMetadataProvider(widget.calendarId));
+        ref.invalidate(sharedCalendarDaysProvider(widget.calendarId));
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _passwordController.dispose();
     super.dispose();

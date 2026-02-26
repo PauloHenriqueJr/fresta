@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -9,25 +10,25 @@ class CarnavalThemeConfig implements CalendarThemeConfig {
   String get id => 'carnaval';
 
   @override
-  Color get primaryColor => const Color(0xFF9333EA); // purple-600
+  Color get primaryColor => const Color(0xFF9333EA);
 
   @override
-  Color get secondaryColor => const Color(0xFFEC4899); // pink-500
+  Color get secondaryColor => const Color(0xFFEC4899);
 
   @override
-  Color get surfaceColor => const Color(0xFFFDF4FF); // fuchsia-50
+  Color get surfaceColor => const Color(0xFFFDF4FF);
 
   @override
   List<Color> get headerGradient => [const Color(0xFF9333EA), const Color(0xFFEC4899)];
 
   @override
   Color titleColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF7E22CE); // purple-700
+    return Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF7E22CE);
   }
 
   @override
   Color textColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFFA855F7); // purple-400
+    return Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFFA855F7);
   }
 
   @override
@@ -44,7 +45,7 @@ class CarnavalThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
-  Widget? buildFloatingComponent(BuildContext context) => null;
+  Widget? buildFloatingComponent(BuildContext context) => const _CarnavalConfetti();
 
   @override
   Widget? buildHeaderComponent(BuildContext context) => null;
@@ -64,10 +65,9 @@ class CarnavalThemeConfig implements CalendarThemeConfig {
 
   @override
   Widget buildBackground(BuildContext context, Widget child) {
-    return Container(
-      decoration: BoxDecoration(color: scaffoldBackgroundColor(context)),
-      child: child,
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) return Container(color: Theme.of(context).scaffoldBackgroundColor, child: child);
+    return _CarnavalBackground(child: child);
   }
 
   @override
@@ -75,4 +75,97 @@ class CarnavalThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+}
+
+class _CarnavalBackground extends StatelessWidget {
+  final Widget child;
+  const _CarnavalBackground({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: CustomPaint(painter: _CarnavalPatternPainter()),
+        ),
+        child,
+      ],
+    );
+  }
+}
+
+class _CarnavalPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final colors = [
+      const Color(0xFF9333EA).withValues(alpha: 0.04),
+      const Color(0xFFEC4899).withValues(alpha: 0.04),
+      const Color(0xFFFBBF24).withValues(alpha: 0.04),
+    ];
+    const spacing = 50.0;
+    int colorIdx = 0;
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        final paint = Paint()..color = colors[colorIdx % colors.length];
+        canvas.drawCircle(Offset(x, y), 4, paint);
+        colorIdx++;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _CarnavalConfetti extends StatefulWidget {
+  const _CarnavalConfetti();
+
+  @override
+  State<_CarnavalConfetti> createState() => _CarnavalConfettiState();
+}
+
+class _CarnavalConfettiState extends State<_CarnavalConfetti> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = [const Color(0xFF9333EA), const Color(0xFFEC4899), const Color(0xFFFBBF24), const Color(0xFF06B6D4)];
+    final rng = Random(42);
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          children: List.generate(20, (i) {
+            final yOff = _controller.value * 4 * (i % 2 == 0 ? 1 : -1);
+            return Positioned(
+              left: rng.nextDouble() * (MediaQuery.of(context).size.width - 10),
+              top: rng.nextDouble() * (MediaQuery.of(context).size.height - 10),
+              child: Opacity(
+                opacity: 0.12,
+                child: Transform.translate(
+                  offset: Offset(0, yOff),
+                  child: Transform.rotate(
+                    angle: rng.nextDouble() * pi,
+                    child: Container(width: 6, height: 10, color: colors[i % colors.length]),
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
 }

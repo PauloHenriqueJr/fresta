@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -9,25 +10,25 @@ class PascoaThemeConfig implements CalendarThemeConfig {
   String get id => 'pascoa';
 
   @override
-  Color get primaryColor => const Color(0xFFC084FC); // purple-400
+  Color get primaryColor => const Color(0xFFC084FC);
 
   @override
-  Color get secondaryColor => const Color(0xFFF472B6); // pink-400
+  Color get secondaryColor => const Color(0xFFF472B6);
 
   @override
-  Color get surfaceColor => const Color(0xFFFDF4FF); // fuchsia-50
+  Color get surfaceColor => const Color(0xFFFDF4FF);
 
   @override
   List<Color> get headerGradient => [const Color(0xFFC084FC), const Color(0xFFF472B6)];
 
   @override
   Color titleColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF9333EA); // purple-600
+    return Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF9333EA);
   }
 
   @override
   Color textColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFFA855F7); // purple-400
+    return Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFFA855F7);
   }
 
   @override
@@ -44,7 +45,7 @@ class PascoaThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
-  Widget? buildFloatingComponent(BuildContext context) => null;
+  Widget? buildFloatingComponent(BuildContext context) => const _PascoaEggs();
 
   @override
   Widget? buildHeaderComponent(BuildContext context) => null;
@@ -64,10 +65,9 @@ class PascoaThemeConfig implements CalendarThemeConfig {
 
   @override
   Widget buildBackground(BuildContext context, Widget child) {
-    return Container(
-      decoration: BoxDecoration(color: scaffoldBackgroundColor(context)),
-      child: child,
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) return Container(color: Theme.of(context).scaffoldBackgroundColor, child: child);
+    return _PascoaBackground(child: child);
   }
 
   @override
@@ -75,4 +75,101 @@ class PascoaThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+}
+
+class _PascoaBackground extends StatelessWidget {
+  final Widget child;
+  const _PascoaBackground({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Container(color: const Color(0xFFFDF4FF)),
+        ),
+        Positioned.fill(
+          child: CustomPaint(painter: _EggPatternPainter()),
+        ),
+        child,
+      ],
+    );
+  }
+}
+
+class _EggPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFC084FC).withValues(alpha: 0.04)
+      ..style = PaintingStyle.fill;
+
+    const spacingX = 60.0;
+    const spacingY = 70.0;
+    for (double x = 0; x < size.width; x += spacingX) {
+      for (double y = 0; y < size.height; y += spacingY) {
+        canvas.drawOval(Rect.fromCenter(center: Offset(x, y), width: 10, height: 14), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _PascoaEggs extends StatefulWidget {
+  const _PascoaEggs();
+
+  @override
+  State<_PascoaEggs> createState() => _PascoaEggsState();
+}
+
+class _PascoaEggsState extends State<_PascoaEggs> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = [const Color(0xFFC084FC), const Color(0xFFF472B6), const Color(0xFF34D399), const Color(0xFFFBBF24)];
+    final rng = Random(33);
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          children: List.generate(12, (i) {
+            final yOff = _controller.value * 3 * (i % 2 == 0 ? 1 : -1);
+            return Positioned(
+              left: rng.nextDouble() * (MediaQuery.of(context).size.width - 16),
+              top: rng.nextDouble() * (MediaQuery.of(context).size.height - 16),
+              child: Opacity(
+                opacity: 0.1,
+                child: Transform.translate(
+                  offset: Offset(0, yOff),
+                  child: Container(
+                    width: 10,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: colors[i % colors.length],
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
 }
