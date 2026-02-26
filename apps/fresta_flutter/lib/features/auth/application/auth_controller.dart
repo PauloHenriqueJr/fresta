@@ -177,6 +177,10 @@ class AuthController extends Notifier<AuthSessionState> implements Listenable {
 
   Future<void> signOut() async {
     await ref.read(authRepositoryProvider).signOut();
+    // Explicitly clear state so GoRouter redirect sees unauthenticated immediately.
+    // Without this, context.go('/auth/login') races against the auth stream listener
+    // and GoRouter's redirect bounces the user back to /creator/home.
+    state = const AuthSessionState(isLoading: false);
   }
 
   Future<void> updateThemePreference(String theme) async {
