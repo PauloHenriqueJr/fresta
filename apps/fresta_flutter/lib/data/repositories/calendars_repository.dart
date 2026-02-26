@@ -40,6 +40,7 @@ abstract class CalendarsRepository {
     String? password,
     bool clearPassword = false,
   });
+  Future<void> deleteCalendar(String calendarId);
 }
 
 class SupabaseCalendarsRepository implements CalendarsRepository {
@@ -51,7 +52,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
   Future<List<CalendarSummary>> listOwnedCalendars(String ownerId) async {
     final data = await _client
         .from('calendars')
-        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium,header_message,footer_message')
+        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium,header_message,footer_message,views')
         .eq('owner_id', ownerId)
         .order('created_at', ascending: false);
 
@@ -252,6 +253,13 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     if (payload.length == 1 && payload.containsKey('updated_at')) return;
 
     await _client.from('calendars').update(payload).eq('id', calendarId);
+  }
+
+  @override
+  Future<void> deleteCalendar(String calendarId) async {
+    // Delete days first (cascade), then the calendar
+    await _client.from('calendar_days').delete().eq('calendar_id', calendarId);
+    await _client.from('calendars').delete().eq('id', calendarId);
   }
 }
 

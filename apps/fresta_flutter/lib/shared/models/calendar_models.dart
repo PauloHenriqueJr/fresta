@@ -10,6 +10,7 @@ class CalendarSummary {
     required this.duration,
     required this.createdAt,
     required this.isPremium,
+    this.views = 0,
   });
 
   final String id;
@@ -22,6 +23,7 @@ class CalendarSummary {
   final int duration;
   final DateTime? createdAt;
   final bool isPremium;
+  final int views;
 
   factory CalendarSummary.fromMap(Map<String, dynamic> map) {
     return CalendarSummary(
@@ -37,6 +39,7 @@ class CalendarSummary {
           ? DateTime.tryParse(map['created_at'] as String)
           : null,
       isPremium: (map['is_premium'] as bool?) ?? false,
+      views: (map['views'] as int?) ?? 0,
     );
   }
 }
