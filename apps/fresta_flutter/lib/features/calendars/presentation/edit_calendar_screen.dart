@@ -102,7 +102,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Calendário atualizado com sucesso!'),
-          backgroundColor: const Color(0xFF2D7A5F),
+          backgroundColor: themeConfig.primaryColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -116,17 +116,19 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
     }
   }
 
+  late var themeConfig = ThemeManager.getTheme('default');
+
   @override
   Widget build(BuildContext context) {
     final asyncDetail = ref.watch(ownerCalendarDetailProvider(widget.calendarId));
     _hydrateIfNeeded();
 
-    final themeConfig = ThemeManager.getTheme(_hydrated ? _themeController.text : 'default');
+    themeConfig = ThemeManager.getTheme(_hydrated ? _themeController.text : 'default');
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     Widget mainContent = asyncDetail.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F))),
+      loading: () => Center(
+        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeConfig.primaryColor)),
       ),
       error: (error, _) => Center(
         child: Padding(
@@ -161,31 +163,24 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                 decoration: themeConfig.cardDecoration(context),
                 child: Column(
                   children: [
-                    _StyledTextField(
+                    _ThemedTextField(
                       controller: _titleController,
                       label: 'Título',
                       icon: Icons.title_rounded,
+                      themeConfig: themeConfig,
                     ),
                     const SizedBox(height: 20),
-                    _StyledTextField(
+                    _ThemedTextField(
                       controller: _headerMessageController,
                       label: 'Subtítulo (Opcional)',
                       icon: Icons.subtitles_rounded,
+                      themeConfig: themeConfig,
                     ),
                     const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
                       value: currentThemeOrDefault,
-                      icon: const Icon(Icons.palette_outlined, color: Color(0xFF9CA3AF)),
-                      decoration: InputDecoration(
-                        labelText: 'Tema (Visual)',
-                        labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-                        prefixIcon: const Icon(Icons.palette_rounded, color: Color(0xFF2D7A5F)),
-                        filled: true,
-                        fillColor: Theme.of(context).colorScheme.surface,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
-                      ),
+                      icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
+                      decoration: _themedInputDecoration(context, 'Tema (Visual)', Icons.palette_rounded),
                       items: [
                         DropdownMenuItem(value: 'namoro', child: Text('Amor & Romance', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                         DropdownMenuItem(value: 'casamento', child: Text('Nossa União', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
@@ -214,25 +209,17 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    _StyledTextField(
+                    _ThemedTextField(
                       controller: _footerMessageController,
                       label: 'Mensagem de Rodapé (Opcional)',
                       icon: Icons.text_snippet_rounded,
+                      themeConfig: themeConfig,
                     ),
                     const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
                       initialValue: _privacy,
-                        icon: const Icon(Icons.unfold_more_rounded, color: Color(0xFF9CA3AF)),
-                        decoration: InputDecoration(
-                          labelText: 'Privacidade',
-                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF2D7A5F)),
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.surface,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
-                        ),
+                        icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
+                        decoration: _themedInputDecoration(context, 'Privacidade', Icons.lock_outline_rounded),
                         items: [
                           DropdownMenuItem(value: 'private', child: Text('Privado', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                           DropdownMenuItem(value: 'public', child: Text('Público', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
@@ -244,17 +231,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                       const SizedBox(height: 20),
                       DropdownButtonFormField<String>(
                         initialValue: _status,
-                        icon: const Icon(Icons.unfold_more_rounded, color: Color(0xFF9CA3AF)),
-                        decoration: InputDecoration(
-                          labelText: 'Status',
-                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-                          prefixIcon: const Icon(Icons.info_outline_rounded, color: Color(0xFF2D7A5F)),
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.surface,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
-                        ),
+                        icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
+                        decoration: _themedInputDecoration(context, 'Status', Icons.info_outline_rounded),
                         items: [
                           DropdownMenuItem(value: 'rascunho', child: Text('Rascunho', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                           DropdownMenuItem(value: 'ativo', child: Text('Ativo', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
@@ -281,10 +259,10 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF452B11) : const Color(0xFFFFF7E6),
+                              color: themeConfig.primaryColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.password_rounded, color: Color(0xFFF9A03F), size: 24),
+                            child: Icon(Icons.password_rounded, color: themeConfig.primaryColor, size: 24),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -319,7 +297,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                         child: SwitchListTile(
                           value: _clearPassword,
                           onChanged: (value) => setState(() => _clearPassword = value),
-                          activeThumbColor: const Color(0xFF2D7A5F),
+                          activeThumbColor: themeConfig.primaryColor,
+                          activeTrackColor: themeConfig.primaryColor.withValues(alpha: 0.3),
                           title: Text('Remover senha existente', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                           subtitle: Text('Isso deixará o calendário aberto se for público.', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ),
@@ -332,26 +311,26 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
                           labelText: detail.hasPassword ? 'Nova senha (opcional)' : 'Senha',
-                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-                          prefixIcon: const Icon(Icons.lock_rounded, color: Color(0xFF2D7A5F)),
+                          labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
+                          prefixIcon: Icon(Icons.lock_rounded, color: themeConfig.primaryColor),
                           suffixIcon: IconButton(
                             onPressed: () => setState(() => _showPassword = !_showPassword),
                             icon: Icon(
                               _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: themeConfig.primaryColor.withValues(alpha: 0.5),
                             ),
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         'Deixe em branco para manter a atual.',
-                        style: TextStyle(color: Color(0xFF6B7280), fontSize: 12, fontStyle: FontStyle.italic),
+                        style: TextStyle(color: themeConfig.textColor(context), fontSize: 12, fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
@@ -378,7 +357,7 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
                 FilledButton(
                   onPressed: _saving ? null : _save,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF1B4D3E),
+                    backgroundColor: themeConfig.primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
@@ -395,19 +374,23 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       );
 
     Widget scaffoldContent = Scaffold(
-      backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: themeConfig.buildHeaderComponent(context) != null,
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: themeConfig.buildHeaderComponent(context) != null ? themeConfig.primaryColor : Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : themeConfig.primaryColor),
+          style: IconButton.styleFrom(
+            backgroundColor: (isDark ? Colors.white : themeConfig.primaryColor).withValues(alpha: 0.1),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         ),
         title: Text(
           'Editar Calendário',
-          style: TextStyle(
-            color: themeConfig.buildHeaderComponent(context) != null ? (isDark ? Colors.white : themeConfig.titleColor(context)) : Theme.of(context).colorScheme.onSurface,
+          style: themeConfig.titleStyle.copyWith(
+            color: isDark ? Colors.white : themeConfig.titleColor(context),
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -416,8 +399,8 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
       ),
       body: Stack(
         children: [
-          if (themeConfig.buildHeaderComponent(context) != null)
-             themeConfig.buildHeaderComponent(context)!,
+          if (themeConfig.buildFloatingComponent(context) != null)
+            Positioned.fill(child: themeConfig.buildFloatingComponent(context)!),
           mainContent,
         ],
       ),
@@ -425,18 +408,33 @@ class _EditCalendarScreenState extends ConsumerState<EditCalendarScreen> {
 
     return themeConfig.buildBackground(context, scaffoldContent);
   }
+
+  InputDecoration _themedInputDecoration(BuildContext context, String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
+      prefixIcon: Icon(icon, color: themeConfig.primaryColor),
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surface,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),
+    );
+  }
 }
 
-class _StyledTextField extends StatelessWidget {
-  const _StyledTextField({
+class _ThemedTextField extends StatelessWidget {
+  const _ThemedTextField({
     required this.controller,
     required this.label,
     required this.icon,
+    required this.themeConfig,
   });
 
   final TextEditingController controller;
   final String label;
   final IconData icon;
+  final dynamic themeConfig;
 
   @override
   Widget build(BuildContext context) {
@@ -446,22 +444,13 @@ class _StyledTextField extends StatelessWidget {
       style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: const Color(0xFF5A7470), fontWeight: FontWeight.w600),
-        prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
+        labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
+        prefixIcon: Icon(icon, color: themeConfig.primaryColor),
         filled: true,
         fillColor: colorScheme.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),
       ),
     );
   }

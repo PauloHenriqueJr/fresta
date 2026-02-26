@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/repositories/calendars_repository.dart';
 import '../application/calendar_providers.dart';
 import '../../../app/theme/theme_manager.dart';
+import '../../../app/theme/calendar_theme_config.dart';
 
 class EditDayScreen extends ConsumerStatefulWidget {
   const EditDayScreen({super.key, required this.calendarId, required this.day});
@@ -52,7 +53,6 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
 
     _messageController.text = day.message ?? '';
     
-    // Do not show Supabase internal URLs (used for photos/videos) in the URL field
     final url = day.url ?? '';
     if (day.contentType == 'link' || !url.contains('supabase.co')) {
       _urlController.text = url;
@@ -105,8 +105,8 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
     final themeConfig = ThemeManager.getTheme(themeId);
 
     Widget mainContent = asyncDetail.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F))),
+      loading: () => Center(
+        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(themeConfig.primaryColor)),
       ),
       error: (error, _) => Center(
         child: Padding(
@@ -141,41 +141,32 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7E6),
+                          color: themeConfig.primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.festival_rounded, color: Color(0xFFF9A03F), size: 32),
+                        child: Icon(themeConfig.defaultIcon, color: themeConfig.primaryColor, size: 32),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'Conteúdo do dia',
-                        style: TextStyle(
+                        style: themeConfig.titleStyle.copyWith(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF1B4D3E),
+                          color: themeConfig.titleColor(context),
                           letterSpacing: -0.5,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Crie uma mensagem especial, adicione fotos, vídeos e links para surpreender neste dia.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Color(0xFF5A7470), fontSize: 14, height: 1.4),
+                        style: TextStyle(color: themeConfig.textColor(context), fontSize: 14, height: 1.4),
                       ),
                       const SizedBox(height: 24),
                       DropdownButtonFormField<String?>(
                         initialValue: _contentType,
-                        icon: const Icon(Icons.unfold_more_rounded, color: Color(0xFF9CA3AF)),
-                        decoration: InputDecoration(
-                          labelText: 'Tipo de conteúdo',
-                          labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-                          prefixIcon: const Icon(Icons.category_outlined, color: Color(0xFF2D7A5F)),
-                          filled: true,
-                          fillColor: const Color(0xFFF8F9F5),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
-                        ),
+                        icon: Icon(Icons.unfold_more_rounded, color: themeConfig.primaryColor.withValues(alpha: 0.5)),
+                        decoration: _themedInputDecoration(context, themeConfig, 'Tipo de conteúdo', Icons.category_outlined),
                         items: [
                           DropdownMenuItem<String?>(value: null, child: Text('Sem tipo definido', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
                           DropdownMenuItem<String?>(value: 'text', child: Text('Apenas Texto', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600))),
@@ -195,30 +186,20 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
                         decoration: InputDecoration(
                           labelText: 'Mensagem do Dia',
                           alignLabelWithHint: true,
-                          labelStyle: TextStyle(color: const Color(0xFF5A7470), fontWeight: FontWeight.w600),
+                          labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
                           hintText: 'Digite a surpresa ou recado para esta data...',
-                          hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                          hintStyle: TextStyle(color: themeConfig.textColor(context).withValues(alpha: 0.5)),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _StyledTextField(
-                        controller: _urlController,
-                        label: 'URL ou Link (Opcional)',
-                        icon: Icons.link_rounded,
-                        hint: 'https://...',
-                      ),
+                      _ThemedTextField(controller: _urlController, label: 'URL ou Link (Opcional)', icon: Icons.link_rounded, hint: 'https://...', themeConfig: themeConfig),
                       const SizedBox(height: 20),
-                      _StyledTextField(
-                        controller: _labelController,
-                        label: 'Rótulo do Link',
-                        icon: Icons.label_outline_rounded,
-                        hint: 'Ex: Ouvir no Spotify',
-                      ),
+                      _ThemedTextField(controller: _labelController, label: 'Rótulo do Link', icon: Icons.label_outline_rounded, hint: 'Ex: Ouvir no Spotify', themeConfig: themeConfig),
                     ],
                   ),
                 ),
@@ -248,7 +229,7 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
                       : const Text('Salvar Dia', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF1B4D3E),
+                    backgroundColor: themeConfig.primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
@@ -262,19 +243,23 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
       );
 
     Widget scaffoldContent = Scaffold(
-      backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: themeConfig.buildHeaderComponent(context) != null,
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: themeConfig.buildHeaderComponent(context) != null ? themeConfig.primaryColor : Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : themeConfig.primaryColor),
+          style: IconButton.styleFrom(
+            backgroundColor: (isDark ? Colors.white : themeConfig.primaryColor).withValues(alpha: 0.1),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         ),
         title: Text(
           'Editar Dia ${widget.day}',
-          style: TextStyle(
-            color: themeConfig.buildHeaderComponent(context) != null ? (isDark ? Colors.white : themeConfig.titleColor(context)) : Theme.of(context).colorScheme.onSurface,
+          style: themeConfig.titleStyle.copyWith(
+            color: isDark ? Colors.white : themeConfig.titleColor(context),
             fontWeight: FontWeight.w700,
             fontSize: 18,
           ),
@@ -283,7 +268,8 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
       ),
       body: Stack(
         children: [
-          if (themeConfig.buildHeaderComponent(context) != null) themeConfig.buildHeaderComponent(context)!,
+          if (themeConfig.buildFloatingComponent(context) != null)
+            Positioned.fill(child: themeConfig.buildFloatingComponent(context)!),
           mainContent,
         ],
       ),
@@ -293,17 +279,32 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
   }
 }
 
-class _StyledTextField extends StatelessWidget {
-  const _StyledTextField({
+InputDecoration _themedInputDecoration(BuildContext context, CalendarThemeConfig themeConfig, String label, IconData icon) {
+  return InputDecoration(
+    labelText: label,
+    labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
+    prefixIcon: Icon(icon, color: themeConfig.primaryColor),
+    filled: true,
+    fillColor: Theme.of(context).colorScheme.surface,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),
+  );
+}
+
+class _ThemedTextField extends StatelessWidget {
+  const _ThemedTextField({
     required this.controller,
     required this.label,
     required this.icon,
+    required this.themeConfig,
     this.hint,
   });
 
   final TextEditingController controller;
   final String label;
   final IconData icon;
+  final CalendarThemeConfig themeConfig;
   final String? hint;
 
   @override
@@ -315,23 +316,14 @@ class _StyledTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: Color(0xFF5A7470), fontWeight: FontWeight.w600),
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500),
-        prefixIcon: Icon(icon, color: const Color(0xFF2D7A5F)),
+        labelStyle: TextStyle(color: themeConfig.textColor(context), fontWeight: FontWeight.w600),
+        hintStyle: TextStyle(color: themeConfig.textColor(context).withValues(alpha: 0.5), fontWeight: FontWeight.w500),
+        prefixIcon: Icon(icon, color: themeConfig.primaryColor),
         filled: true,
         fillColor: colorScheme.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF2D7A5F), width: 2),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.onSurface.withValues(alpha: 0.1))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: themeConfig.primaryColor, width: 2)),
       ),
     );
   }
