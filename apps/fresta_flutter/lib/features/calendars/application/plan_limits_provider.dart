@@ -76,6 +76,11 @@ const plusThemes = [
 /// Returns PlanLimits for a specific calendar by its ID.
 final calendarPlanLimitsProvider =
     FutureProvider.family<PlanLimits, String>((ref, calendarId) async {
+  final auth = ref.watch(authControllerProvider);
+  final isAdmin = auth.profile?.role == 'admin';
+  
+  if (isAdmin) return PlanLimits.admin;
+
   final detail = await ref.watch(
     calendarsRepositoryProvider
         .select((repo) => repo.getOwnerCalendarDetail(calendarId)),

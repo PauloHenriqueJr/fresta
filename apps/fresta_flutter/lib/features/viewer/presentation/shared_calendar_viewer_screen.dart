@@ -357,17 +357,16 @@ class _SharedCalendarViewerScreenState
                               fontSize: 36,
                             ),
                           ),
-                          if (meta.calendar.headerMessage?.isNotEmpty == true || themeConfig.id == 'namoro') ...[
+                          if (meta.calendar.headerMessage?.isNotEmpty == true) ...[
                             const SizedBox(height: 8),
                             Text(
-                              meta.calendar.headerMessage?.isNotEmpty == true
-                                  ? meta.calendar.headerMessage!
-                                  : 'Uma jornada de amor para nós dois',
+                              meta.calendar.headerMessage!,
                               textAlign: TextAlign.center,
                               style: TextStyle(color: themeConfig.textColor(context), fontSize: 20, fontWeight: FontWeight.w400),
                             ),
                             const SizedBox(height: 32),
-                            if (themeConfig.id == 'namoro')
+                          ],
+                          if (themeConfig.id == 'namoro')
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -387,7 +386,6 @@ class _SharedCalendarViewerScreenState
                                   ),
                                 ],
                               ),
-                          ],
                           const SizedBox(height: 24),
                           if (themeConfig.id != 'namoro')
                             Wrap(
@@ -514,33 +512,22 @@ class _SharedCalendarViewerScreenState
                                       color: Colors.transparent,
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(24),
-                                        onTap: () {
-                                          if (locked) {
-                                            _showLockedMessage(_getAvailableDate(meta.calendar.createdAt, day.day));
-                                            return;
-                                          }
-                                          if (themeConfig.id == 'namoro' || themeConfig.id == 'casamento' || themeConfig.id == 'bodas' || themeConfig.id == 'noivado' || themeConfig.id == 'aniversario' || themeConfig.id == 'natal' || themeConfig.id == 'viagem') {
-                                              // Currently using NotebookModalContent for all themes that have specific UI, until a generic one is built or they are unified.
-                                              // The generic modal can use themeConfig properties.
-                                              showModalBottomSheet(
-                                                context: context,
-                                                backgroundColor: Colors.transparent,
-                                                isScrollControlled: true,
-                                                builder: (context) => NotebookModalContent(
-                                                  title: 'Dia ${day.day}',
-                                                  content: (day.message ?? '').trim().isEmpty 
-                                                      ? 'Espere por esse momento especial...' 
-                                                      : day.message!,
-                                                ),
-                                              );
-                                            } else {
-                                            final url = (day.url ?? '').trim();
-                                            if (url.isNotEmpty) {
-                                              final uri = Uri.tryParse(url);
-                                              if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
+                                          onTap: () {
+                                            if (locked) {
+                                              _showLockedMessage(_getAvailableDate(meta.calendar.createdAt, day.day));
+                                              return;
                                             }
-                                          }
-                                        },
+                                            
+                                            showModalBottomSheet(
+                                              context: context,
+                                              backgroundColor: Colors.transparent,
+                                              isScrollControlled: true,
+                                              builder: (context) => DayContentModal(
+                                                day: day,
+                                                themeConfig: themeConfig,
+                                              ),
+                                            );
+                                          },
                                         child: Padding(
                                           padding: const EdgeInsets.all(12),
                                           child: Stack(
@@ -608,7 +595,7 @@ class _SharedCalendarViewerScreenState
                       child: FrestaWatermark(),
                     ),
                   
-                  if (meta.calendar.footerMessage?.isNotEmpty == true || themeConfig.id == 'namoro')
+                  if (meta.calendar.footerMessage?.isNotEmpty == true)
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(24),
@@ -626,24 +613,22 @@ class _SharedCalendarViewerScreenState
                                   BoxShadow(color: themeConfig.primaryColor.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 10)),
                                 ],
                               ),
-                              child: Column(
-                                children: [
-                                  Icon(LucideIcons.quote, size: 40, color: themeConfig.primaryColor),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'MENSAGEM DE ENCERRAMENTO',
-                                    style: TextStyle(color: themeConfig.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    meta.calendar.footerMessage?.isNotEmpty == true
-                                        ? meta.calendar.footerMessage!
-                                        : '"CADA DIA AO SEU LADO É UM NOVO CAPÍTULO DA NOSSA HISTÓRIA DE AMOR. ❤️"',
-                                    textAlign: TextAlign.center,
-                                    style: themeConfig.titleStyle.copyWith(fontSize: 20, color: themeConfig.primaryColor),
-                                  ),
-                                ],
-                              ),
+                             child: Column(
+                              children: [
+                                Icon(LucideIcons.quote, size: 40, color: themeConfig.primaryColor),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'MENSAGEM DE ENCERRAMENTO',
+                                  style: TextStyle(color: themeConfig.primaryColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  meta.calendar.footerMessage ?? 'Muito obrigado por fazer parte desta história!',
+                                  textAlign: TextAlign.center,
+                                  style: themeConfig.titleStyle.copyWith(fontSize: 20, color: themeConfig.primaryColor),
+                                ),
+                              ],
+                            ),
                             ),
                             const SizedBox(height: 32),
                             FilledButton.icon(

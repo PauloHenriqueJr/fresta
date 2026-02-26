@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../shared/models/calendar_models.dart';
+import 'calendar_theme_config.dart';
 
 class DatingTheme {
   // Cores Web Mapeadas
@@ -96,11 +101,17 @@ class _FloatingHeartsState extends State<FloatingHearts> with SingleTickerProvid
 class NotebookModalContent extends StatelessWidget {
   final String content;
   final String title;
+  final String? url;
+  final String? label;
+  final String? contentType;
 
   const NotebookModalContent({
     super.key,
     required this.content,
     required this.title,
+    this.url,
+    this.label,
+    this.contentType,
   });
 
   @override
@@ -149,10 +160,133 @@ class NotebookModalContent extends StatelessWidget {
               Text(title, style: DatingTheme.display.copyWith(fontSize: 24, color: titleColor)),
               const SizedBox(height: 24),
               Text(content, style: DatingTheme.body.copyWith(color: textColor)),
-              const SizedBox(height: 40),
+              const SizedBox(height: 24),
+              if (contentType == 'photo' && url?.isNotEmpty == true) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    url!,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+              if (url?.isNotEmpty == true && contentType != 'photo') ...[
+                const SizedBox(height: 8),
+                _ActionLink(url: url!, label: label, isMusic: contentType == 'music'),
+                const SizedBox(height: 16),
+              ],
+              const SizedBox(height: 24),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DayContentModal extends StatelessWidget {
+  const DayContentModal({
+    super.key,
+    required this.day,
+    required this.themeConfig,
+  });
+
+  final CalendarDayModel day;
+  final CalendarThemeConfig themeConfig;
+
+  @override
+  Widget build(BuildContext context) {
+    // Unificando a visualização para todos os temas usando o NotebookModalContent como base
+    // mas com as cores e estilos do tema atual.
+    return NotebookModalContent(
+      title: 'Dia ${day.day}',
+      content: (day.message ?? '').trim().isEmpty 
+          ? 'Muitas surpresas esperam por você...' 
+          : day.message!,
+      url: day.url,
+      label: day.label,
+      contentType: day.contentType,
+    );
+  }
+}
+
+class _ActionLink extends StatelessWidget {
+  const _ActionLink({required this.url, this.label, this.isMusic = false});
+
+  final String url;
+  final String? label;
+  final bool isMusic;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        final uri = Uri.tryParse(url.trim());
+        if (uri != null) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: isMusic ? const Color(0xFF1DB954).withValues(alpha: 0.1) : DatingTheme.loveRed.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isMusic ? const Color(0xFF1DB954).withValues(alpha: 0.3) : DatingTheme.loveRed.withValues(alpha: 0.1),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isMusic ? const Color(0xFF1DB954) : DatingTheme.loveRed,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isMusic ? Icons.music_note_rounded : Icons.link_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isMusic ? 'OUVIR NO SPOTIFY' : 'ABRIR LINK',
+                    style: TextStyle(
+                      color: isMusic ? const Color(0xFF1DB954) : DatingTheme.loveRed,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label ?? (isMusic ? 'Minha Música' : 'Clique para abrir'),
+                    style: TextStyle(
+                      color: DatingTheme.wineBerry,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 14,
+              color: DatingTheme.wineBerry.withValues(alpha: 0.3),
+            ),
+          ],
+        ),
       ),
     );
   }
