@@ -1,0 +1,24 @@
+{
+  "version": 3,
+  "skills": {
+    "flutter-expert": {
+      "source": "xfstudio/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/xfstudio/skills.git",
+      "skillPath": "flutter-expert/SKILL.md",
+      "skillFolderHash": "6a0c3cd23c7b848e7e4d791aad1478d3917cd991",
+      "installedAt": "2026-02-25T13:16:43.100Z",
+      "updatedAt": "2026-02-25T13:16:43.100Z"
+    },
+    "clean-code": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/sickn33/antigravity-awesome-skills.git",
+      "skillPath": "skills/clean-code/SKILL.md",
+      "skillFolderHash": "616922ba1de73b2e5823b08aae8ae35f3fd4cae9",
+      "installedAt": "2026-02-25T13:23:50.169Z",
+      "updatedAt": "2026-02-25T13:23:50.169Z"
+    }
+  },
+  "dismissed": {}
+}
