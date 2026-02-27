@@ -35,14 +35,13 @@
                 <data android:scheme="fresta" android:host="c" />
             </intent-filter>
 
-            <!-- App Links (MVP placeholders). Update host(s) before release. -->
-            <intent-filter android:autoVerify="false">
+            <!-- App Links — verified deep links for fresta.storyspark.com.br -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="fresta.com" android:pathPrefix="/c/" />
-                <data android:scheme="https" android:host="www.fresta.com" android:pathPrefix="/c/" />
-                <data android:scheme="https" android:host="fresta.com" android:pathPrefix="/auth/callback" />
+                <data android:scheme="https" android:host="fresta.storyspark.com.br" android:pathPrefix="/c/" />
+                <data android:scheme="https" android:host="fresta.storyspark.com.br" android:path="/auth/callback" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

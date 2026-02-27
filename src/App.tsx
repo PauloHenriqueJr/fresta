@@ -38,6 +38,7 @@ import Ajuda from "./pages/Ajuda";
 import ContaConfiguracoes from "./pages/ContaConfiguracoes";
 import Explorar from "./pages/Explorar";
 import NotFound from "./pages/NotFound";
+import DownloadApp from "./pages/DownloadApp";
 import Entrar from "./pages/Entrar";
 import CalendarioDetalhe from "./pages/CalendarioDetalhe";
 import Checkout from "./pages/Checkout";
@@ -453,6 +454,8 @@ const AppContent = () => {
           }
         />
         {/* /conta/configuracoes agora está dentro do B2CLayout */}
+        {/* Página de download do app (para redirecionamento futuro das rotas B2C) */}
+        <Route path="/baixar-app" element={<DownloadApp />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

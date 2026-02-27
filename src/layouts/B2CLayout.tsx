@@ -6,6 +6,7 @@ import { Plus, Search, Calendar, Home, Moon, Sun, Sparkles, Briefcase, Shield } 
 import { motion } from "framer-motion";
 import UserAvatar from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
+import DownloadAppBanner from "@/components/common/DownloadAppBanner";
 
 export default function B2CLayout() {
   const { user, profile, logout, themePreference, updateThemePreference, role } = useAuth();
@@ -98,6 +99,7 @@ export default function B2CLayout() {
             </header>
 
             <main className="p-8 lg:p-12 xl:p-16 max-w-[1600px] mx-auto w-full">
+              <DownloadAppBanner />
               <Outlet />
             </main>
           </div>
@@ -105,6 +107,7 @@ export default function B2CLayout() {
 
         {/* Mobile/Tablet: mantém exatamente como está (sem shell) */}
         <div className={`lg:hidden flex-1 flex flex-col relative ${isCreationFlow ? "" : "pb-24"}`}>
+          <DownloadAppBanner />
           <main className="flex-1 overflow-x-hidden">
             <Outlet />
           </main>
