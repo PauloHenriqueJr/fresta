@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/services/notification_service.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/viewer/application/deep_link_service.dart';
 import '../features/paywall/application/purchases_service.dart';
@@ -21,6 +22,16 @@ class _FrestaAppState extends ConsumerState<FrestaApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(deepLinkServiceProvider).start(ref);
       ref.read(purchasesServiceProvider).init();
+
+      // Wire notification tap → GoRouter navigation
+      final router = ref.read(appRouterProvider);
+      final notifService = ref.read(notificationServiceProvider);
+      notifService.onNotificationTap = (route) {
+        router.go(route);
+      };
+
+      // Request notification permission on first launch
+      notifService.requestPermission();
     });
   }
 

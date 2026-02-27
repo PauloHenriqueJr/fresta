@@ -1,17 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-class NotificationsSettingsScreen extends StatefulWidget {
+import '../../../core/services/notification_service.dart';
+
+class NotificationsSettingsScreen extends ConsumerStatefulWidget {
   const NotificationsSettingsScreen({super.key});
 
   @override
-  State<NotificationsSettingsScreen> createState() => _NotificationsSettingsScreenState();
+  ConsumerState<NotificationsSettingsScreen> createState() => _NotificationsSettingsScreenState();
 }
 
-class _NotificationsSettingsScreenState extends State<NotificationsSettingsScreen> {
+class _NotificationsSettingsScreenState extends ConsumerState<NotificationsSettingsScreen> {
   bool _dailyReminders = true;
   bool _newSurprises = true;
   bool _marketing = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final service = ref.read(notificationServiceProvider);
+    final daily = await service.getDailyRemindersEnabled();
+    final surprises = await service.getNewSurprisesEnabled();
+    final marketing = await service.getMarketingEnabled();
+    if (mounted) {
+      setState(() {
+        _dailyReminders = daily;
+        _newSurprises = surprises;
+        _marketing = marketing;
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _onDailyRemindersChanged(bool val) async {
+    setState(() => _dailyReminders = val);
+    final service = ref.read(notificationServiceProvider);
+    await service.setDailyRemindersEnabled(val);
+    if (!val) {
+      await service.cancelAll();
+    }
+  }
+
+  Future<void> _onNewSurprisesChanged(bool val) async {
+    setState(() => _newSurprises = val);
+    await ref.read(notificationServiceProvider).setNewSurprisesEnabled(val);
+  }
+
+  Future<void> _onMarketingChanged(bool val) async {
+    setState(() => _marketing = val);
+    await ref.read(notificationServiceProvider).setMarketingEnabled(val);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +88,9 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
         ),
         centerTitle: true,
       ),
-      body: ListView(
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
         padding: const EdgeInsets.all(24),
         children: [
           _buildToggleSection(
@@ -52,7 +98,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
             title: 'Lembretes Diários',
             subtitle: 'Receba um aviso toda manhã para abrir seu calendário.',
             value: _dailyReminders,
-            onChanged: (val) => setState(() => _dailyReminders = val),
+            onChanged: _onDailyRemindersChanged,
             icon: LucideIcons.bellRing,
             iconColor: const Color(0xFFF9A03F),
           ),
@@ -62,7 +108,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
             title: 'Novas Surpresas',
             subtitle: 'Saiba quando um criador adicionar novo conteúdo.',
             value: _newSurprises,
-            onChanged: (val) => setState(() => _newSurprises = val),
+            onChanged: _onNewSurprisesChanged,
             icon: LucideIcons.sparkles,
             iconColor: const Color(0xFF2D7A5F),
           ),
@@ -72,7 +118,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
             title: 'Novidades e Dicas',
             subtitle: 'Dicas de presentes e atualizações do Fresta.',
             value: _marketing,
-            onChanged: (val) => setState(() => _marketing = val),
+            onChanged: _onMarketingChanged,
             icon: LucideIcons.megaphone,
             iconColor: colorScheme.primary,
           ),
@@ -155,7 +201,7 @@ class _NotificationsSettingsScreenState extends State<NotificationsSettingsScree
             value: value,
             onChanged: onChanged,
             activeTrackColor: colorScheme.primary.withValues(alpha: 0.3),
-            activeColor: colorScheme.primary,
+            activeThumbColor: colorScheme.primary,
           ),
         ],
       ),

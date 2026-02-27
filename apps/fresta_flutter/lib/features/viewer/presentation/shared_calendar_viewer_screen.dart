@@ -16,6 +16,7 @@ import '../../../shared/widgets/themed_day_modal.dart';
 import '../../../shared/widgets/universal_cards.dart';
 import '../../../shared/widgets/universal_progress_bar.dart';
 import '../../../shared/widgets/future_calendar_banner.dart';
+import '../../../shared/widgets/door_opening_animation.dart';
 import '../../../shared/services/opened_days_service.dart';
 import '../../auth/application/auth_controller.dart';
 
@@ -642,12 +643,30 @@ class _SharedCalendarViewerScreenState
                                     isOpened: isOpened,
                                     themeConfig: themeConfig,
                                     onTap: () {
-                                      _markDayOpened(day.day, dayId: day.id);
-                                      ThemedDayModal.show(
-                                        context,
-                                        content: DayContent.fromModel(day),
-                                        themeConfig: themeConfig,
-                                      );
+                                      if (!isOpened) {
+                                        // First time opening — play door animation before modal
+                                        DoorOpeningAnimation.show(
+                                          context,
+                                          dayNumber: day.day,
+                                          primaryColor: themeConfig.primaryColor,
+                                          secondaryColor: themeConfig.secondaryColor,
+                                          onComplete: () {
+                                            _markDayOpened(day.day, dayId: day.id);
+                                            ThemedDayModal.show(
+                                              context,
+                                              content: DayContent.fromModel(day),
+                                              themeConfig: themeConfig,
+                                            );
+                                          },
+                                        );
+                                      } else {
+                                        // Already opened — go straight to modal
+                                        ThemedDayModal.show(
+                                          context,
+                                          content: DayContent.fromModel(day),
+                                          themeConfig: themeConfig,
+                                        );
+                                      }
                                     },
                                   );
                                 },

@@ -1,41 +1,114 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Global navigation callback set by the app router.
+/// Called when user taps a notification with a route payload.
+typedef NotificationTapCallback = void Function(String route);
+
 class NotificationService {
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal();
+
+  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  NotificationTapCallback? onNotificationTap;
+
+  // SharedPreferences keys
+  static const _keyDailyReminders = 'notif_daily_reminders';
+  static const _keyNewSurprises = 'notif_new_surprises';
+  static const _keyMarketing = 'notif_marketing';
+
+  bool _initialized = false;
 
   Future<void> init() async {
+    if (_initialized) return;
     tz.initializeTimeZones();
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const DarwinInitializationSettings initializationSettingsDarwin =
-        DarwinInitializationSettings(
-      requestAlertPermission: true,
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: false, // We'll request explicitly
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
-      macOS: initializationSettingsDarwin,
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
     );
 
-    await _notificationsPlugin.initialize(
-      settings: initializationSettings,
-      onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
+    await _plugin.initialize(
+      settings: settings,
+      onDidReceiveNotificationResponse: _onNotificationResponse,
     );
+
+    _initialized = true;
   }
 
-  void _onDidReceiveNotificationResponse(NotificationResponse details) {
-    // Handle notification click
-    print('Notification clicked: ${details.payload}');
+  /// Request notification permission (Android 13+ and iOS).
+  /// Returns true if granted.
+  Future<bool> requestPermission() async {
+    if (Platform.isAndroid) {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      final granted = await android?.requestNotificationsPermission();
+      return granted ?? false;
+    } else if (Platform.isIOS) {
+      final ios = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final granted = await ios?.requestPermissions(alert: true, badge: true, sound: true);
+      return granted ?? false;
+    }
+    return true;
   }
+
+  void _onNotificationResponse(NotificationResponse details) {
+    final payload = details.payload;
+    if (payload != null && payload.isNotEmpty) {
+      debugPrint('[Notification] Tapped with payload: $payload');
+      onNotificationTap?.call(payload);
+    }
+  }
+
+  // ---- Preferences ----
+
+  Future<bool> getDailyRemindersEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyDailyReminders) ?? true;
+  }
+
+  Future<void> setDailyRemindersEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyDailyReminders, enabled);
+  }
+
+  Future<bool> getNewSurprisesEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyNewSurprises) ?? true;
+  }
+
+  Future<void> setNewSurprisesEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyNewSurprises, enabled);
+  }
+
+  Future<bool> getMarketingEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyMarketing) ?? false;
+  }
+
+  Future<void> setMarketingEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyMarketing, enabled);
+  }
+
+  // ---- Scheduling ----
 
   Future<void> scheduleDailyReminder({
     required int id,
@@ -45,7 +118,10 @@ class NotificationService {
     required int minute,
     String? payload,
   }) async {
-    await _notificationsPlugin.zonedSchedule(
+    final enabled = await getDailyRemindersEnabled();
+    if (!enabled) return;
+
+    await _plugin.zonedSchedule(
       id: id,
       title: title,
       body: body,
@@ -53,12 +129,17 @@ class NotificationService {
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_reminders',
-          'Daily Reminders',
-          channelDescription: 'Daily reminders to open your surprise.',
+          'Lembretes Diários',
+          channelDescription: 'Lembretes para abrir sua surpresa do dia.',
           importance: Importance.max,
           priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -70,14 +151,13 @@ class NotificationService {
     required String calendarId,
     required String title,
   }) async {
-    // Generate a unique numeric ID for the notification based on calendarId string hash
     final int notificationId = calendarId.hashCode.abs() % 100000;
-    
+
     await scheduleDailyReminder(
       id: notificationId,
       title: 'Fresta: Hora da surpresa! 🎁',
       body: 'Abra seu calendário "$title" para ver o dia de hoje.',
-      hour: 9, // 9 AM
+      hour: 9,
       minute: 0,
       payload: '/c/$calendarId',
     );
@@ -85,7 +165,7 @@ class NotificationService {
 
   Future<void> cancelCalendarReminder(String calendarId) async {
     final int notificationId = calendarId.hashCode.abs() % 100000;
-    await _notificationsPlugin.cancel(id: notificationId);
+    await _plugin.cancel(id: notificationId);
   }
 
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
@@ -99,10 +179,10 @@ class NotificationService {
   }
 
   Future<void> cancelAll() async {
-    await _notificationsPlugin.cancelAll();
+    await _plugin.cancelAll();
   }
 }
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService();
+  return NotificationService(); // Singleton via factory
 });

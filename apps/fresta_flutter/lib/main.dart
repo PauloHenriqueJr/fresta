@@ -12,9 +12,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('pt_BR', null);
   
-  // Initialize notifications
-  final notificationService = NotificationService();
-  await notificationService.init();
+  // Initialize notifications (singleton — same instance used by provider)
+  await NotificationService().init();
 
   await dotenv.load(fileName: '.env').catchError((_) {});
 
