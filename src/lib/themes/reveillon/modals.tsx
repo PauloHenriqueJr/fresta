@@ -1,9 +1,10 @@
 // Reveillon (New Year's Eve) Theme - Fireworks Modal
 import { motion } from "framer-motion";
-import { Sparkles, Star, Play, Share2 } from "lucide-react";
+import { Sparkles, Star, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const ReveillonFireworksModal = ({ isOpen, onClose, content }: BaseModalProps) => {
     const { toast } = useToast();
@@ -46,9 +47,7 @@ export const ReveillonFireworksModal = ({ isOpen, onClose, content }: BaseModalP
                     {content.mediaUrl && (
                         <div className="w-full aspect-square rounded-2xl overflow-hidden border-4 border-amber-400/50 shadow-lg mb-6 relative shrink-0">
                             {content.type === 'video' ? (
-                                <div className="w-full h-full bg-black flex items-center justify-center">
-                                    <Play className="w-12 h-12 text-amber-400" />
-                                </div>
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
                             ) : (
                                 <img src={content.mediaUrl} alt="Ano Novo" className="w-full h-full object-cover" />
                             )}

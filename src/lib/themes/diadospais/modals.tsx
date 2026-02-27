@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { X, Star, Crown } from "lucide-react";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const DiadospaisModal = ({ isOpen, onClose, content }: BaseModalProps) => {
     if (!isOpen) return null;
@@ -41,7 +42,11 @@ export const DiadospaisModal = ({ isOpen, onClose, content }: BaseModalProps) =>
                     {/* Media */}
                     {content.mediaUrl && (
                         <div className="w-full aspect-square rounded-2xl overflow-hidden border-4 border-slate-200 shadow-lg mb-6 relative shrink-0">
-                            <img src={content.mediaUrl} alt="Presente" className="w-full h-full object-cover" />
+                            {content.type === 'video' ? (
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
+                            ) : (
+                                <img src={content.mediaUrl} alt="Presente" className="w-full h-full object-cover" />
+                            )}
                         </div>
                     )}
 

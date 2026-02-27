@@ -344,12 +344,7 @@ const LandingPageBrand = () => {
                         >
                             {isDark ? <Sun className="w-5 h-5 text-yellow-500 fill-yellow-500/20" /> : <Moon className="w-5 h-5" style={{ color: currentTheme.colors.primary }} />}
                         </button>
-                        <button onClick={() => navigate(isAuthenticated ? "/portal" : "/entrar")} className="font-bold hover:opacity-70 transition-opacity" style={{ color: currentTheme.colors.primary }}>
-                            Entrar
-                        </button>
-                        <button
-                            onClick={() => navigate("/baixar-app")}
-                            className="px-6 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg"
+                        <button onClick={() => navigate("/baixar-app")} className="px-6 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg"
                             style={{ backgroundColor: currentTheme.colors.accent }}
                         >
                             <Smartphone className="w-4 h-4" /> Baixar App
@@ -475,9 +470,6 @@ const LandingPageBrand = () => {
                                 <div className="flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
                                     <button onClick={() => navigate("/baixar-app")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
                                         <Smartphone className="w-6 h-6" /> Baixar o App
-                                    </button>
-                                    <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
-                                        <Sparkles className="w-5 h-5" /> Criar no Web
                                     </button>
                                 </div>
                             </motion.div>
@@ -653,7 +645,7 @@ const LandingPageBrand = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
                         {themeDisplay.map((item, index) => (
-                            <motion.div key={index} className={`relative overflow-hidden rounded-[3rem] p-10 ${item.gradientClass} text-white group cursor-pointer shadow-xl`} whileHover={{ y: -10 }} onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")}>
+                            <motion.div key={index} className={`relative overflow-hidden rounded-[3rem] p-10 ${item.gradientClass} text-white group cursor-pointer shadow-xl`} whileHover={{ y: -10 }} onClick={() => navigate("/baixar-app")}>
                                 <div className="relative z-10 flex flex-col h-full justify-between min-h-[220px]">
                                     <div>
                                         <span className="text-4xl mb-4 block">{item.emoji}</span>
@@ -751,9 +743,6 @@ const LandingPageBrand = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <button onClick={() => navigate("/baixar-app")} className="py-6 px-12 rounded-full font-bold text-2xl bg-white hover:bg-gray-100 transition-all hover:shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-3" style={{ color: currentTheme.colors.primary }}>
                                 <Smartphone className="w-7 h-7" /> Baixar o App
-                            </button>
-                            <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="py-6 px-10 rounded-full font-bold text-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 transition-all hover:scale-105 active:scale-95">
-                                Criar no Web
                             </button>
                         </div>
                     </div>

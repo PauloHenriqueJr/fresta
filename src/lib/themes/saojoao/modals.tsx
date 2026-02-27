@@ -1,9 +1,10 @@
 // São João Theme - Barraca Modal
 import { motion } from "framer-motion";
-import { Ticket, Sparkles, Play, Share2, Flame } from "lucide-react";
+import { Ticket, Sparkles, Share2, Flame } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const SaoJoaoBarracaModal = ({ isOpen, onClose, content }: BaseModalProps) => {
     const { toast } = useToast();
@@ -67,9 +68,7 @@ export const SaoJoaoBarracaModal = ({ isOpen, onClose, content }: BaseModalProps
                     {content.mediaUrl && (
                         <div className="w-full aspect-video rounded-2xl overflow-hidden border-4 border-white shadow-xl -rotate-1 mb-6">
                             {content.type === 'video' ? (
-                                <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-                                    <Play className="w-12 h-12 text-white" />
-                                </div>
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
                             ) : (
                                 <img src={content.mediaUrl} alt="Surpresa" className="w-full h-full object-cover" />
                             )}

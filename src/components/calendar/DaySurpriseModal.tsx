@@ -45,7 +45,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Porta ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -60,7 +60,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Janela ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -75,7 +75,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Ovo ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -90,7 +90,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Janela ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -105,7 +105,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Porta ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -120,7 +120,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Dia ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -135,7 +135,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Meta ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -150,7 +150,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Dia ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -165,7 +165,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Dia ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -297,10 +297,10 @@ const DaySurpriseModal = ({
 
                   <div className="pt-2">
                     <button
-                      onClick={() => window.location.href = '#/criar'}
+                      onClick={() => window.location.href = '#/baixar-app'}
                       className={`w-full font-black py-4 rounded-2xl shadow-glow hover:scale-[1.02] transition-all ${getButtonClass()}`}
                     >
-                      CRIAR MEU CALENDÁRIO
+                      BAIXAR O APP
                     </button>
                     <button
                       onClick={onClose}
@@ -325,7 +325,7 @@ const DaySurpriseModal = ({
         onClose={onClose}
         theme={theme}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Porta ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,
@@ -340,7 +340,7 @@ const DaySurpriseModal = ({
         isOpen={isOpen}
         onClose={onClose}
         content={{
-          type: content?.type === "text" ? "text" : "image",
+          type: content?.type === "video" ? "video" : content?.type === "text" ? "text" : "image",
           title: `Porta ${day}`,
           message: content?.message || "",
           mediaUrl: content?.url,

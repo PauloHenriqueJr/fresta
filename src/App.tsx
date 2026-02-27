@@ -129,10 +129,15 @@ const AuthHandler = () => {
         // Aguardar o carregamento do perfil para decidir o redirecionamento
         if (!profile) return;
 
-        // Decidir para onde ir baseado no onboarding
+        // Decidir para onde ir baseado no role
         const hasSeenOnboarding = profile.onboarding_completed || localStorage.getItem("hasSeenOnboarding") === "true";
 
-        if (!hasSeenOnboarding) {
+        // Web = admin-only. Usuários normais redirecionam para download do app.
+        const userRole = (profile as any)?.role || 'user';
+        if (userRole !== 'admin') {
+          console.log("App: Usuário não-admin na web, redirecionando para /baixar-app");
+          navigate("/baixar-app", { replace: true });
+        } else if (!hasSeenOnboarding) {
           console.log("App: Novo usuário detectado, indo para onboarding");
           navigate("/onboarding", { replace: true });
         } else {
@@ -400,10 +405,10 @@ const AppContent = () => {
         {/* Checkout Interno - Precisa de ID (Venda de plano para calendário existente) */}
         <Route path="/checkout/:calendarId" element={<Checkout />} />
 
-        {/* B2C (app shell apenas no desktop; mobile/tablet inalterado) */}
+        {/* B2C (admin-only na web — usuários criam via app) */}
         <Route
           element={
-            <ProtectedRoute allowedRoles={["user", "admin"]}>
+            <ProtectedRoute allowedRoles={["admin"]} redirectTo="/baixar-app">
               <B2CLayout />
             </ProtectedRoute>
           }

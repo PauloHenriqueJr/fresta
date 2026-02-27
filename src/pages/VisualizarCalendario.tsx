@@ -80,8 +80,8 @@ const VisualizarCalendario = () => {
   const ownerIsPremiumFromRPC = (calendar as any)?.profiles?.is_premium || false;
   const ownerRole = (calendar as any)?.profiles?.role || 'user';
 
-  // Show watermark only if NOT premium (any of the conditions)
-  const isOwnerPlusOrAdmin = calendarIsPremium || ownerIsPremiumFromRPC || ownerRole === 'admin';
+  // Hide ads/watermark if: calendar is premium, owner is premium/admin, OR current viewer is admin/owner
+  const isOwnerPlusOrAdmin = calendarIsPremium || ownerIsPremiumFromRPC || ownerRole === 'admin' || role === 'admin' || isOwner;
 
 
   const getRedactedContent = (day: CalendarDay) => {

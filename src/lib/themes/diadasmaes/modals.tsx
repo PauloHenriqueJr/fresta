@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { X, Heart, Flower } from "lucide-react";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const DiadasmaesModal = ({ isOpen, onClose, content }: BaseModalProps) => {
     if (!isOpen) return null;
@@ -46,10 +47,16 @@ export const DiadasmaesModal = ({ isOpen, onClose, content }: BaseModalProps) =>
                     {/* Media (Photo frame style) */}
                     {content.mediaUrl && (
                         <div className="w-full aspect-square rounded-2xl overflow-hidden border-8 border-white shadow-xl mb-6 relative shrink-0 rotate-1">
-                            <img src={content.mediaUrl} alt="Presente" className="w-full h-full object-cover" />
-                            <div className="absolute bottom-2 right-2 bg-white/80 px-2 py-1 rounded-full">
-                                <Heart className="w-4 h-4 text-rose-500 fill-current" />
-                            </div>
+                            {content.type === 'video' ? (
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
+                            ) : (
+                                <img src={content.mediaUrl} alt="Presente" className="w-full h-full object-cover" />
+                            )}
+                            {content.type !== 'video' && (
+                                <div className="absolute bottom-2 right-2 bg-white/80 px-2 py-1 rounded-full">
+                                    <Heart className="w-4 h-4 text-rose-500 fill-current" />
+                                </div>
+                            )}
                         </div>
                     )}
 

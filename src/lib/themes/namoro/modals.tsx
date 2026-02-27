@@ -1,11 +1,12 @@
 // Namoro (Dating) Theme - Love Letter Modal
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, ImageOff, Play, Share2 } from "lucide-react";
+import { Heart, ImageOff, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import { cn } from "@/lib/utils";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const LoveLetterModal = ({ isOpen, onClose, content, config }: BaseModalProps & { config?: any }) => {
     const { toast } = useToast();
@@ -69,9 +70,7 @@ export const LoveLetterModal = ({ isOpen, onClose, content, config }: BaseModalP
                     {content.mediaUrl && (
                         <div className="w-full aspect-square rounded-2xl overflow-hidden border-8 border-white shadow-lg rotate-1 mb-6 relative shrink-0">
                             {content.type === 'video' ? (
-                                <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-                                    <Play className="w-12 h-12 text-white" />
-                                </div>
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
                             ) : imgError ? (
                                 <div className="w-full h-full bg-rose-50 flex flex-col items-center justify-center gap-2">
                                     <ImageOff className="w-10 h-10 text-rose-300" />
