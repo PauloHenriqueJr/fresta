@@ -95,15 +95,7 @@ class _MyCalendarsScreenState extends ConsumerState<MyCalendarsScreen> {
                           return _CalendarCard(
                             calendar: item,
                             onTap: () => context.go('/creator/calendars/${item.id}'),
-                            onShare: () {
-                              final url = FrestaUrls.calendarShareUrl(item.id);
-                              SharePlus.instance.share(
-                                ShareParams(
-                                  text: '🎉 Tenho uma surpresa para você! Abra minha Fresta:\n\n$url',
-                                  subject: 'Minha surpresa no Fresta',
-                                ),
-                              );
-                            },
+                            onShare: () => _handleShare(context, ref, item),
                             onDelete: () => _confirmDelete(context, ref, item),
                           );
                         },
@@ -116,6 +108,69 @@ class _MyCalendarsScreenState extends ConsumerState<MyCalendarsScreen> {
         ),
       ),
       // No FAB needed — navbar already has + button
+    );
+  }
+
+  Future<void> _handleShare(BuildContext context, WidgetRef ref, CalendarSummary calendar) async {
+    if (calendar.status == 'rascunho') {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(LucideIcons.rocket, color: Color(0xFFF9A03F), size: 24),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(child: Text('Publicar antes de compartilhar?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16))),
+          ]),
+          content: const Text(
+            'Este calendário ainda é um rascunho. Para compartilhar, ele precisa ser publicado primeiro.',
+            style: TextStyle(height: 1.5, fontSize: 15),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+            FilledButton.icon(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFFF9A03F)),
+              icon: const Icon(LucideIcons.rocket, size: 16),
+              label: const Text('Publicar e Compartilhar', style: TextStyle(fontWeight: FontWeight.w800)),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) return;
+
+      try {
+        await ref.read(calendarsRepositoryProvider).publishCalendar(calendar.id);
+        ref.invalidate(myCalendarsProvider);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao publicar: $e'),
+            backgroundColor: const Color(0xFFDC2626),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+        return;
+      }
+    }
+
+    if (!mounted) return;
+    final url = FrestaUrls.calendarShareUrl(calendar.id);
+    SharePlus.instance.share(
+      ShareParams(
+        text: '🎉 Tenho uma surpresa para você! Abra minha Fresta:\n\n$url',
+        subject: 'Minha surpresa no Fresta',
+      ),
     );
   }
 

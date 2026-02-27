@@ -70,10 +70,18 @@ class CalendarDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(
               onPressed: () {
+                final status = asyncDetail.value?.calendar.status;
+                if (status == 'rascunho' || status == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Publique o calendário antes de compartilhar.'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
                 final url = FrestaUrls.calendarShareUrl(calendarId);
-                 SharePlus.instance.share(
-                  ShareParams(text: url),
-                );
+                SharePlus.instance.share(ShareParams(text: url));
               },
               icon: Icon(Icons.ios_share_rounded, color: colorScheme.onSurface),
               tooltip: 'Compartilhar',
