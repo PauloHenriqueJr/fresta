@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -232,18 +233,14 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
           'p_password': password,
         },
       );
-      if (result is bool) return result;
-      if (result is List && result.isNotEmpty) {
-        final row = result.first;
-        if (row is Map && row['is_valid'] is bool) return row['is_valid'] as bool;
-        if (row is bool) return row;
-      }
+      // RPC returns jsonb: {"success": true, "authorized": true/false}
       if (result is Map) {
-        if (result['authorized'] is bool) return result['authorized'] as bool;
-        if (result['is_valid'] is bool) return result['is_valid'] as bool;
+        return result['authorized'] == true;
       }
-    } catch (_) {
-      // Fallback below.
+      // Supabase may decode as a different type
+      if (result is bool) return result;
+    } catch (e) {
+      debugPrint('Password verification error: $e');
     }
     return false;
   }
