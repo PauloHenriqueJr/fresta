@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class DiadospaisThemeConfig implements CalendarThemeConfig {
+class DiadospaisThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'diadospais';
 
@@ -81,6 +81,34 @@ class DiadospaisThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF1F5F9),
+    envelopeBorder: Color(0x33475569),
+    envelopeSealStart: Color(0xFF475569),
+    envelopeSealEnd: Color(0xFF2563EB),
+    envelopeButtonBg: Color(0xFF475569),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFE2E8F0),
+    lockedBorder: Color(0xFFCBD5E1),
+    lockedNumberColor: Color(0xFF94A3B8),
+    unlockedBorder: Color(0xFFCBD5E1),
+    unlockedBadgeBg: Color(0xFF475569),
+    glowColor: Color(0x4D475569),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF475569),
+    iconColor: Color(0xFF2563EB),
+    bgColor: Color(0xFFF1F5F9),
+    borderColor: Color(0x33475569),
+    textColor: Color(0xFF334155),
+    icon: Icons.shield_outlined,
+    title: 'Calma, pai! 👔',
+    message: 'Essa homenagem está sendo preparada com carinho.',
+  );
 }
 
 class _DiadospaisBackground extends StatelessWidget {

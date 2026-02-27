@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 
 /// Independência (Independence Day / Brazil) — Green & yellow patriotic theme
-class IndependenciaThemeConfig implements CalendarThemeConfig {
+class IndependenciaThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'independencia';
 
@@ -83,6 +83,34 @@ class IndependenciaThemeConfig implements CalendarThemeConfig {
   IconData get defaultIcon => LucideIcons.flag;
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF0FDF4),
+    envelopeBorder: Color(0x3316A34A),
+    envelopeSealStart: Color(0xFF16A34A),
+    envelopeSealEnd: Color(0xFFEAB308),
+    envelopeButtonBg: Color(0xFF16A34A),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFDCFCE7),
+    lockedBorder: Color(0xFFBBF7D0),
+    lockedNumberColor: Color(0xFF86EFAC),
+    unlockedBorder: Color(0xFFBBF7D0),
+    unlockedBadgeBg: Color(0xFF16A34A),
+    glowColor: Color(0x4D16A34A),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF16A34A),
+    iconColor: Color(0xFFEAB308),
+    bgColor: Color(0xFFF0FDF4),
+    borderColor: Color(0x3316A34A),
+    textColor: Color(0xFF166534),
+    icon: Icons.flag_outlined,
+    title: 'Independência é conquista! 🇧🇷',
+    message: 'Essa surpresa vem no tempo certo.',
+  );
 }
 
 class _IndependenciaPatternPainter extends CustomPainter {

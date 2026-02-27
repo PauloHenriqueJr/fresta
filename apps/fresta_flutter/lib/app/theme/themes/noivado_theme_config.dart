@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 
 /// Noivado (Engagement) — Rose gold / sparkly romantic theme
-class NoivadoThemeConfig implements CalendarThemeConfig {
+class NoivadoThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'noivado';
 
@@ -83,6 +83,34 @@ class NoivadoThemeConfig implements CalendarThemeConfig {
   IconData get defaultIcon => LucideIcons.sparkles;
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFDF2F8),
+    envelopeBorder: Color(0x33F472B6),
+    envelopeSealStart: Color(0xFFF472B6),
+    envelopeSealEnd: Color(0xFFE879F9),
+    envelopeButtonBg: Color(0xFFF472B6),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFFCE7F3),
+    lockedBorder: Color(0xFFFBCFE8),
+    lockedNumberColor: Color(0xFFF9A8D4),
+    unlockedBorder: Color(0xFFFBCFE8),
+    unlockedBadgeBg: Color(0xFFF472B6),
+    glowColor: Color(0x4DF472B6),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFF472B6),
+    iconColor: Color(0xFFE879F9),
+    bgColor: Color(0xFFFDF2F8),
+    borderColor: Color(0x33F472B6),
+    textColor: Color(0xFFBE185D),
+    icon: Icons.diamond_outlined,
+    title: 'Ainda não é hora... 💍',
+    message: 'Essa surpresa está guardada com carinho.',
+  );
 }
 
 class _NoivadoPatternPainter extends CustomPainter {

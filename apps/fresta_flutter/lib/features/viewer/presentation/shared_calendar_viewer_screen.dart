@@ -3,17 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/utils/fresta_urls.dart';
 import '../../../core/services/notification_service.dart';
 import '../../calendars/data/saved_calendars_repository.dart';
 import '../application/viewer_providers.dart';
 import '../../../data/repositories/viewer_repository.dart';
-import '../../../app/theme/dating_theme.dart';
 import '../../../app/theme/theme_manager.dart';
 import '../../../shared/widgets/fresta_ad_banner.dart';
+import '../../../shared/widgets/locked_day_bottom_sheet.dart';
+import '../../../shared/widgets/themed_day_modal.dart';
+import '../../../shared/widgets/universal_cards.dart';
+import '../../../shared/widgets/universal_progress_bar.dart';
+import '../../../shared/widgets/future_calendar_banner.dart';
+import '../../../shared/services/opened_days_service.dart';
 import '../../auth/application/auth_controller.dart';
 
 class SharedCalendarViewerScreen extends ConsumerStatefulWidget {
@@ -34,6 +37,8 @@ class _SharedCalendarViewerScreenState
   bool _verifying = false;
   bool _showPassword = false;
   String? _passwordError;
+  Set<int> _openedDays = {};
+  bool _viewTracked = false;
 
   @override
   void initState() {
@@ -77,11 +82,6 @@ class _SharedCalendarViewerScreenState
     }
   }
 
-  Future<void> _openInBrowser() async {
-    final url = Uri.parse(FrestaUrls.calendarShareUrl(widget.calendarId));
-    await launchUrl(url, mode: LaunchMode.externalApplication);
-  }
-
   bool _isDayLocked(DateTime? createdAt, int day) {
     if (createdAt == null) return false;
     final startDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
@@ -97,22 +97,33 @@ class _SharedCalendarViewerScreenState
     return startDate.add(Duration(days: day - 1));
   }
 
-  void _showLockedMessage(DateTime availableDate) {
-    final dateStr = DateFormat('dd/MM').format(availableDate);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(LucideIcons.lock, color: Colors.white, size: 18),
-            const SizedBox(width: 8),
-            Text('Este presente só estará disponível em $dateStr'),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1B4D3E),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+  void _showLockedMessage(DateTime availableDate, {required dynamic themeConfig, int dayNumber = 0}) {
+    LockedDayBottomSheet.show(
+      context,
+      dayNumber: dayNumber,
+      unlockDate: availableDate,
+      themeConfig: themeConfig,
     );
+  }
+
+  Future<void> _loadOpenedDays() async {
+    final opened = await ref.read(openedDaysServiceProvider).getOpenedDays(widget.calendarId);
+    if (mounted) setState(() => _openedDays = opened);
+  }
+
+  Future<void> _markDayOpened(int dayNumber, {String? dayId}) async {
+    await ref.read(openedDaysServiceProvider).markDayOpened(
+      calendarId: widget.calendarId,
+      dayNumber: dayNumber,
+      dayId: dayId,
+    );
+    if (mounted) setState(() => _openedDays.add(dayNumber));
+  }
+
+  Future<void> _trackView() async {
+    if (_viewTracked) return;
+    _viewTracked = true;
+    await ref.read(openedDaysServiceProvider).incrementViews(widget.calendarId);
   }
 
   @override
@@ -235,6 +246,9 @@ class _SharedCalendarViewerScreenState
                   calendarId: meta.calendar.id,
                   title: meta.calendar.title,
                 );
+
+            _trackView();
+            _loadOpenedDays();
           });
 
           final needsPassword = !widget.isPreview && meta.hasPassword && !_authorized;
@@ -243,12 +257,21 @@ class _SharedCalendarViewerScreenState
 
           final themeConfig = ThemeManager.getTheme(meta.calendar.themeId);
 
-          Widget mainContent = Stack(
-            children: [
-              if (themeConfig.buildFloatingComponent(context) != null)
-                Positioned.fill(child: themeConfig.buildFloatingComponent(context)!),
-              CustomScrollView(
-                slivers: [
+          final now = DateTime.now();
+          final createdAt = meta.calendar.createdAt ?? DateTime.now();
+          final startDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
+          final daysPassed = now.difference(startDate).inDays + 1;
+          final progress = (daysPassed / meta.calendar.duration).clamp(0.0, 1.0);
+          final progressPercent = (progress * 100).toInt();
+
+          Widget mainContent = themeConfig.buildBackground(
+            context,
+            Stack(
+              children: [
+                if (themeConfig.buildFloatingComponent(context) != null)
+                  Positioned.fill(child: themeConfig.buildFloatingComponent(context)!),
+                CustomScrollView(
+                  slivers: [
                   SliverAppBar(
                     backgroundColor: themeConfig.buildHeaderComponent(context) != null ? Colors.transparent : themeConfig.scaffoldBackgroundColor(context),
                     elevation: 0,
@@ -332,73 +355,106 @@ class _SharedCalendarViewerScreenState
 
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
                       child: Column(
                         children: [
-                          if (themeConfig.id == 'namoro') ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: themeConfig.headerGradient),
-                                borderRadius: BorderRadius.circular(999),
+                          // ---- Premium Header Card (Matched with Creator View) ----
+                          Container(
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: themeConfig.headerGradient,
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              child: const Text(
-                                'Amor e Romance',
-                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                              ),
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: themeConfig.primaryColor.withValues(alpha: 0.2), 
+                                  blurRadius: 24, 
+                                  offset: const Offset(0, 12)
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 16),
-                          ],
-                          Text(
-                            meta.calendar.title,
-                            textAlign: TextAlign.center,
-                            style: themeConfig.titleStyle.copyWith(
-                              color: themeConfig.titleColor(context),
-                              fontSize: 36,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            (meta.calendar.headerMessage ?? '').trim().isEmpty 
-                                ? themeConfig.defaultHeaderMessage 
-                                : meta.calendar.headerMessage!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: themeConfig.textColor(context), 
-                              fontSize: 18, 
-                              fontWeight: FontWeight.w500,
-                              height: 1.3,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                              if (themeConfig.id == 'namoro')
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: const Text(
+                                      'Amor e Romance',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  meta.calendar.title,
+                                  textAlign: TextAlign.center,
+                                  style: themeConfig.titleStyle.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 32,
+                                    height: 1.1,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  (meta.calendar.headerMessage ?? '').trim().isEmpty 
+                                      ? themeConfig.defaultHeaderMessage 
+                                      : meta.calendar.headerMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.9), 
+                                    fontSize: 18, 
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.3,
+                                  ),
+                                ),
+                                if (themeConfig.id == 'namoro') ...[
+                                  const SizedBox(height: 24),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '$progressPercent% de puro amor',
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(999),
+                                        child: LinearProgressIndicator(
+                                          value: progress,
+                                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                          minHeight: 8,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                           const SizedBox(height: 32),
-                          if (themeConfig.id == 'namoro')
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '0% de puro amor',
-                                    style: TextStyle(color: themeConfig.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(999),
-                                    child: LinearProgressIndicator(
-                                      value: 0.1,
-                                      backgroundColor: themeConfig.primaryColor.withValues(alpha: 0.1),
-                                      valueColor: AlwaysStoppedAnimation<Color>(themeConfig.primaryColor),
-                                      minHeight: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          const SizedBox(height: 24),
                           if (themeConfig.id != 'namoro')
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               alignment: WrapAlignment.center,
                               children: [
-                                _InfoChip(icon: LucideIcons.calendarDays, label: '${meta.calendar.duration} dias'),
+                                _InfoChip(
+                                  icon: LucideIcons.calendarDays, 
+                                  label: '${meta.calendar.duration} dias',
+                                  color: themeConfig.primaryColor,
+                                ),
                                 if (meta.hasPassword)
                                   const _InfoChip(icon: LucideIcons.lock, label: 'Protegido', isAlert: true),
                               ],
@@ -407,6 +463,31 @@ class _SharedCalendarViewerScreenState
                       ),
                     ),
                   ),
+
+                  // ---- Future calendar banner ----
+                  if (startDate.isAfter(DateTime.now()))
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: FutureCalendarBanner(
+                          startDate: startDate,
+                          themeConfig: themeConfig,
+                        ),
+                      ),
+                    ),
+
+                  // ---- Universal progress bar (all themes) ----
+                  if (!needsPassword && _openedDays.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                        child: UniversalProgressBar(
+                          openedDays: _openedDays.length,
+                          totalDays: meta.calendar.duration,
+                          themeConfig: themeConfig,
+                        ),
+                      ),
+                    ),
 
                   if (needsPassword)
                     SliverToBoxAdapter(
@@ -510,78 +591,58 @@ class _SharedCalendarViewerScreenState
                                 (context, index) {
                                   final day = days[index];
                                   final locked = _isDayLocked(meta.calendar.createdAt, day.day);
-                                  
-                                  return Container(
-                                    decoration: themeConfig.cardDecoration(context),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(24),
-                                          onTap: () {
-                                            if (locked) {
-                                              _showLockedMessage(_getAvailableDate(meta.calendar.createdAt, day.day));
-                                              return;
-                                            }
-                                            
-                                            showModalBottomSheet(
-                                              context: context,
-                                              backgroundColor: Colors.transparent,
-                                              isScrollControlled: true,
-                                              builder: (context) => DayContentModal(
-                                                day: day,
-                                                themeConfig: themeConfig,
-                                              ),
-                                            );
-                                          },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(12),
-                                          child: Stack(
-                                            children: [
-                                              if (locked)
-                                                const Positioned(top: 0, right: 0, child: Icon(LucideIcons.lock, size: 16, color: Color(0xFFD1D5DB))),
-                                              Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    'Dia ${day.day}',
-                                                    style: themeConfig.titleStyle.copyWith(fontSize: 24, color: themeConfig.primaryColor),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey.shade50,
-                                                      borderRadius: BorderRadius.circular(999),
-                                                      border: Border.all(color: Colors.grey.shade200),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Icon(Icons.visibility_outlined, size: 14, color: Colors.grey.shade600),
-                                                        const SizedBox(width: 4),
-                                                        Text('Já aberto', style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  FilledButton(
-                                                    onPressed: null,
-                                                    style: FilledButton.styleFrom(
-                                                      backgroundColor: themeConfig.primaryColor,
-                                                      disabledBackgroundColor: themeConfig.primaryColor,
-                                                      minimumSize: const Size.fromHeight(36),
-                                                      padding: EdgeInsets.zero,
-                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                                    ),
-                                                    child: const Text('VER NOVAMENTE', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                                  final isOpened = _openedDays.contains(day.day);
+                                  final hasMedia = day.contentType == 'photo' || day.contentType == 'gif' || 
+                                    (day.url?.contains('youtube.com') == true) || (day.url?.contains('youtu.be') == true) || 
+                                    (day.url?.contains('tiktok.com') == true) || (day.url?.contains('instagram.com') == true) ||
+                                    (day.url?.contains('spotify.com') == true);
+                                  final availableDate = _getAvailableDate(meta.calendar.createdAt, day.day);
+                                  final daysUntil = availableDate.difference(DateTime.now()).inDays;
+
+                                  // Determine card state
+                                  if (locked) {
+                                    return UniversalLockedCard(
+                                      dayNumber: day.day,
+                                      themeConfig: themeConfig,
+                                      daysUntilUnlock: daysUntil.clamp(0, 9999),
+                                      onTap: () => _showLockedMessage(
+                                        availableDate,
+                                        themeConfig: themeConfig,
+                                        dayNumber: day.day,
                                       ),
-                                    ),
+                                    );
+                                  }
+
+                                  if (hasMedia && isOpened) {
+                                    return UniversalUnlockedCard(
+                                      dayNumber: day.day,
+                                      themeConfig: themeConfig,
+                                      contentType: day.contentType,
+                                      mediaUrl: day.url,
+                                      onTap: () {
+                                        _markDayOpened(day.day, dayId: day.id);
+                                        ThemedDayModal.show(
+                                          context,
+                                          content: DayContent.fromModel(day),
+                                          themeConfig: themeConfig,
+                                        );
+                                      },
+                                    );
+                                  }
+
+                                  // Default: envelope card (text/link content or not yet opened media)
+                                  return UniversalEnvelopeCard(
+                                    dayNumber: day.day,
+                                    isOpened: isOpened,
+                                    themeConfig: themeConfig,
+                                    onTap: () {
+                                      _markDayOpened(day.day, dayId: day.id);
+                                      ThemedDayModal.show(
+                                        context,
+                                        content: DayContent.fromModel(day),
+                                        themeConfig: themeConfig,
+                                      );
+                                    },
                                   );
                                 },
                                 childCount: days.length,
@@ -701,10 +762,11 @@ class _SharedCalendarViewerScreenState
                   ),
                 ),
             ],
-          );
+          ),
+        );
 
-          return themeConfig.buildBackground(context, mainContent);
-        },
+        return mainContent;
+      },
         loading: () => const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D7A5F)),
@@ -756,20 +818,27 @@ class _SharedCalendarViewerScreenState
 }
 
 class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.icon, required this.label, this.isAlert = false});
+  const _InfoChip({
+    required this.icon, 
+    required this.label, 
+    this.isAlert = false,
+    this.color,
+  });
 
   final IconData icon;
   final String label;
   final bool isAlert;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = color ?? const Color(0xFF6B7280);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: isAlert ? const Color(0xFFFEF2F2) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isAlert ? const Color(0xFFFCA5A5) : const Color(0xFFE5E7EB)),
+        border: Border.all(color: isAlert ? const Color(0xFFFCA5A5) : effectiveColor.withValues(alpha: 0.1)),
         boxShadow: const [
           BoxShadow(color: Color(0x06000000), blurRadius: 4, offset: Offset(0, 2)),
         ],
@@ -777,14 +846,14 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: isAlert ? const Color(0xFFDC2626) : const Color(0xFF6B7280)),
+          Icon(icon, size: 16, color: isAlert ? const Color(0xFFDC2626) : effectiveColor),
           const SizedBox(width: 8),
           Text(
             label,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: isAlert ? const Color(0xFF991B1B) : const Color(0xFF4B5563),
+              color: isAlert ? const Color(0xFF991B1B) : effectiveColor,
             ),
           ),
         ],

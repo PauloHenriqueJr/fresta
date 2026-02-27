@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class TravelThemeConfig implements CalendarThemeConfig {
+class TravelThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'viagem';
 
@@ -80,6 +80,34 @@ class TravelThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF0F9FF),
+    envelopeBorder: Color(0x330EA5E9),
+    envelopeSealStart: Color(0xFF38BDF8),
+    envelopeSealEnd: Color(0xFF0284C7),
+    envelopeButtonBg: Color(0xFF0EA5E9),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFE0F2FE),
+    lockedBorder: Color(0xFFBAE6FD),
+    lockedNumberColor: Color(0xFF7DD3FC),
+    unlockedBorder: Color(0xFFBAE6FD),
+    unlockedBadgeBg: Color(0xFF0EA5E9),
+    glowColor: Color(0x4D0EA5E9),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF0EA5E9),
+    iconColor: Color(0xFFF59E0B),
+    bgColor: Color(0xFFF0F9FF),
+    borderColor: Color(0x330EA5E9),
+    textColor: Color(0xFF0369A1),
+    icon: Icons.flight_takeoff,
+    title: 'Destino bloqueado! ✈️',
+    message: 'Essa descoberta vem no dia certo.',
+  );
 }
 
 class _TravelBackground extends StatelessWidget {

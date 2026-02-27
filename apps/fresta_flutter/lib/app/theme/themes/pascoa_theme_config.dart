@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class PascoaThemeConfig implements CalendarThemeConfig {
+class PascoaThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'pascoa';
 
@@ -81,6 +81,34 @@ class PascoaThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFDF4FF),
+    envelopeBorder: Color(0x33C084FC),
+    envelopeSealStart: Color(0xFFFBBF24),
+    envelopeSealEnd: Color(0xFFFB923C),
+    envelopeButtonBg: Color(0xFFFBBF24),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFF3E8FF),
+    lockedBorder: Color(0xFFE9D5FF),
+    lockedNumberColor: Color(0xFFC084FC),
+    unlockedBorder: Color(0xFF86EFAC),
+    unlockedBadgeBg: Color(0xFFC084FC),
+    glowColor: Color(0x40C084FC),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFC084FC),
+    iconColor: Color(0xFFF472B6),
+    bgColor: Color(0xFFFDF4FF),
+    borderColor: Color(0x33C084FC),
+    textColor: Color(0xFF7E22CE),
+    icon: Icons.egg_alt_outlined,
+    title: 'O ovo ainda não quebrou! 🥚',
+    message: 'Essa surpresa está escondida no jardim.',
+  );
 }
 
 class _PascoaBackground extends StatelessWidget {

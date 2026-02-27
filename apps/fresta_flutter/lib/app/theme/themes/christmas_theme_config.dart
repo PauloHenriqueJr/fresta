@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class ChristmasThemeConfig implements CalendarThemeConfig {
+class ChristmasThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'natal';
 
@@ -80,6 +80,34 @@ class ChristmasThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFEF2F2),
+    envelopeBorder: Color(0x33DC2626),
+    envelopeSealStart: Color(0xFFDC2626),
+    envelopeSealEnd: Color(0xFF16A34A),
+    envelopeButtonBg: Color(0xFFDC2626),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFF0FDF4),
+    lockedBorder: Color(0xFFDCFCE7),
+    lockedNumberColor: Color(0xFF86EFAC),
+    unlockedBorder: Color(0xFFDCFCE7),
+    unlockedBadgeBg: Color(0xFFDC2626),
+    glowColor: Color(0x4DDC2626),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFDC2626),
+    iconColor: Color(0xFF16A34A),
+    bgColor: Color(0xFFFDF5E6),
+    borderColor: Color(0x33DC2626),
+    textColor: Color(0xFFB91C1C),
+    icon: Icons.card_giftcard,
+    title: 'Ho ho ho! 🎅',
+    message: 'Esse presente ainda está sendo embrulhado!',
+  );
 }
 
 class _ChristmasBackground extends StatelessWidget {

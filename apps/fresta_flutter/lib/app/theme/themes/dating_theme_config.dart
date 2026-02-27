@@ -4,7 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 import '../dating_theme.dart';
 
-class DatingThemeConfig implements CalendarThemeConfig {
+class DatingThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'namoro';
 
@@ -89,4 +89,32 @@ class DatingThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFDF2F8),
+    envelopeBorder: Color(0x33E11D48),
+    envelopeSealStart: Color(0xFFF43F5E),
+    envelopeSealEnd: Color(0xFFBE123C),
+    envelopeButtonBg: Color(0xFFE11D48),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFFFE4E6),
+    lockedBorder: Color(0xFFFECDD3),
+    lockedNumberColor: Color(0xFFFDA4AF),
+    unlockedBorder: Color(0xFFFECDD3),
+    unlockedBadgeBg: Color(0xFFE11D48),
+    glowColor: Color(0x4DE11D48),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFE11D48),
+    iconColor: Color(0xFFF43F5E),
+    bgColor: Color(0xFFFDF2F8),
+    borderColor: Color(0x33E11D48),
+    textColor: Color(0xFFBE123C),
+    icon: Icons.favorite_outline,
+    title: 'Ainda não é hora...',
+    message: 'Essa surpresa está guardada com carinho pra o dia certo.',
+  );
 }

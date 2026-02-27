@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 
 /// Dia das Crianças — Playful, colorful kids theme
-class DiadascriancasThemeConfig implements CalendarThemeConfig {
+class DiadascriancasThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'diadascriancas';
 
@@ -83,6 +83,34 @@ class DiadascriancasThemeConfig implements CalendarThemeConfig {
   IconData get defaultIcon => LucideIcons.gamepad2;
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF5F3FF),
+    envelopeBorder: Color(0x338B5CF6),
+    envelopeSealStart: Color(0xFF8B5CF6),
+    envelopeSealEnd: Color(0xFF06B6D4),
+    envelopeButtonBg: Color(0xFF8B5CF6),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFEDE9FE),
+    lockedBorder: Color(0xFFDDD6FE),
+    lockedNumberColor: Color(0xFFC4B5FD),
+    unlockedBorder: Color(0xFFDDD6FE),
+    unlockedBadgeBg: Color(0xFF8B5CF6),
+    glowColor: Color(0x4D8B5CF6),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF8B5CF6),
+    iconColor: Color(0xFF06B6D4),
+    bgColor: Color(0xFFF5F3FF),
+    borderColor: Color(0x338B5CF6),
+    textColor: Color(0xFF6D28D9),
+    icon: Icons.toys_outlined,
+    title: 'Opa! Ainda não! 🎈',
+    message: 'Essa brincadeira ainda não começou!',
+  );
 }
 
 class _KidsPatternPainter extends CustomPainter {

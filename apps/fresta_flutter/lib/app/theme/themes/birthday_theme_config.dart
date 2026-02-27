@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class BirthdayThemeConfig implements CalendarThemeConfig {
+class BirthdayThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'aniversario';
 
@@ -80,6 +80,34 @@ class BirthdayThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF0F9FF),
+    envelopeBorder: Color(0x330EA5E9),
+    envelopeSealStart: Color(0xFF0EA5E9),
+    envelopeSealEnd: Color(0xFF6366F1),
+    envelopeButtonBg: Color(0xFF0EA5E9),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFE0F2FE),
+    lockedBorder: Color(0xFFBAE6FD),
+    lockedNumberColor: Color(0xFF7DD3FC),
+    unlockedBorder: Color(0xFFBAE6FD),
+    unlockedBadgeBg: Color(0xFF0EA5E9),
+    glowColor: Color(0x4D0EA5E9),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF0EA5E9),
+    iconColor: Color(0xFF6366F1),
+    bgColor: Color(0xFFF0F9FF),
+    borderColor: Color(0x330EA5E9),
+    textColor: Color(0xFF0369A1),
+    icon: Icons.cake,
+    title: 'Ainda não! 🎂',
+    message: 'Essa surpresa ainda está sendo preparada!',
+  );
 }
 
 class _BirthdayBackground extends StatelessWidget {

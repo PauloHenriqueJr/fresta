@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 
 /// Estudos (Study) — Clean blue/teal academic theme
-class EstudosThemeConfig implements CalendarThemeConfig {
+class EstudosThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'estudos';
 
@@ -83,6 +83,34 @@ class EstudosThemeConfig implements CalendarThemeConfig {
   IconData get defaultIcon => LucideIcons.bookOpen;
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF0FDFA),
+    envelopeBorder: Color(0x330891B2),
+    envelopeSealStart: Color(0xFF0891B2),
+    envelopeSealEnd: Color(0xFF0D9488),
+    envelopeButtonBg: Color(0xFF0891B2),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFCCFBF1),
+    lockedBorder: Color(0xFF99F6E4),
+    lockedNumberColor: Color(0xFF5EEAD4),
+    unlockedBorder: Color(0xFF99F6E4),
+    unlockedBadgeBg: Color(0xFF0891B2),
+    glowColor: Color(0x4D0891B2),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF0891B2),
+    iconColor: Color(0xFF0D9488),
+    bgColor: Color(0xFFF0FDFA),
+    borderColor: Color(0x330891B2),
+    textColor: Color(0xFF155E75),
+    icon: Icons.menu_book_outlined,
+    title: 'Calma, estudante! 📚',
+    message: 'Cada lição tem seu dia.',
+  );
 }
 
 class _StudyPatternPainter extends CustomPainter {

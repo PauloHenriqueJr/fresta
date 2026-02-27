@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class WeddingThemeConfig implements CalendarThemeConfig {
+class WeddingThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'casamento';
 
@@ -80,6 +80,34 @@ class WeddingThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFDFBF7),
+    envelopeBorder: Color(0x26D4AF37),
+    envelopeSealStart: Color(0xFFD4AF37),
+    envelopeSealEnd: Color(0xFFB5942F),
+    envelopeButtonBg: Color(0xFFD4AF37),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFFDFBF7),
+    lockedBorder: Color(0xFFF5F0E6),
+    lockedNumberColor: Color(0xFFD4AF37),
+    unlockedBorder: Color(0xFFF5F0E6),
+    unlockedBadgeBg: Color(0xFFD4AF37),
+    glowColor: Color(0x26D4AF37),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFD4AF37),
+    iconColor: Color(0xFFB5942F),
+    bgColor: Color(0xFFFDFBF7),
+    borderColor: Color(0x26D4AF37),
+    textColor: Color(0xFF996515),
+    icon: Icons.diamond_outlined,
+    title: 'Cada detalhe no seu tempo...',
+    message: 'Uma surpresa elegante está sendo preparada.',
+  );
 }
 
 class _WeddingBackground extends StatelessWidget {

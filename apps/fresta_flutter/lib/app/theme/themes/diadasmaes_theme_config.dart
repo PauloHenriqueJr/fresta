@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class DiadasmaesThemeConfig implements CalendarThemeConfig {
+class DiadasmaesThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'diadasmaes';
 
@@ -81,6 +81,34 @@ class DiadasmaesThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFDF2F8),
+    envelopeBorder: Color(0x33EC4899),
+    envelopeSealStart: Color(0xFFEC4899),
+    envelopeSealEnd: Color(0xFFF43F5E),
+    envelopeButtonBg: Color(0xFFEC4899),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFFCE7F3),
+    lockedBorder: Color(0xFFFBCFE8),
+    lockedNumberColor: Color(0xFFF9A8D4),
+    unlockedBorder: Color(0xFFFBCFE8),
+    unlockedBadgeBg: Color(0xFFEC4899),
+    glowColor: Color(0x4DEC4899),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFEC4899),
+    iconColor: Color(0xFFF43F5E),
+    bgColor: Color(0xFFFDF2F8),
+    borderColor: Color(0x33EC4899),
+    textColor: Color(0xFFBE185D),
+    icon: Icons.favorite_outline,
+    title: 'Surpresa em preparo! 💐',
+    message: 'Essa homenagem ainda está sendo preparada com amor.',
+  );
 }
 
 class _DiadasmaesBackground extends StatelessWidget {

@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 
 /// Bodas (Wedding Anniversary) — Elegant burgundy/wine theme
-class BodasThemeConfig implements CalendarThemeConfig {
+class BodasThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'bodas';
 
@@ -83,6 +83,34 @@ class BodasThemeConfig implements CalendarThemeConfig {
   IconData get defaultIcon => LucideIcons.wine;
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFFF1F2),
+    envelopeBorder: Color(0x339F1239),
+    envelopeSealStart: Color(0xFF9F1239),
+    envelopeSealEnd: Color(0xFFBE185D),
+    envelopeButtonBg: Color(0xFF9F1239),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFFFF1F2),
+    lockedBorder: Color(0xFFFFE4E6),
+    lockedNumberColor: Color(0xFFFDA4AF),
+    unlockedBorder: Color(0xFFFFE4E6),
+    unlockedBadgeBg: Color(0xFF9F1239),
+    glowColor: Color(0x4D9F1239),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF9F1239),
+    iconColor: Color(0xFFBE185D),
+    bgColor: Color(0xFFFFF1F2),
+    borderColor: Color(0x339F1239),
+    textColor: Color(0xFF881337),
+    icon: Icons.favorite_outline,
+    title: 'A memória vem no tempo certo...',
+    message: 'Cada ano juntos merece sua própria história.',
+  );
 }
 
 class _BodasPatternPainter extends CustomPainter {

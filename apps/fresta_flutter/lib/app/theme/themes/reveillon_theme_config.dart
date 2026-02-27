@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class ReveillonThemeConfig implements CalendarThemeConfig {
+class ReveillonThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'reveillon';
 
@@ -89,6 +89,38 @@ class ReveillonThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  bool get isDarkTheme => true;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFF1E293B),
+    envelopeBorder: Color(0x33FBBF24),
+    envelopeSealStart: Color(0xFFFBBF24),
+    envelopeSealEnd: Color(0xFFFDE68A),
+    envelopeButtonBg: Color(0xFFFBBF24),
+    envelopeButtonText: Color(0xFF0F172A),
+    lockedBg: Color(0xFF0F172A),
+    lockedBorder: Color(0x33FBBF24),
+    lockedNumberColor: Color(0xFFFBBF24),
+    unlockedBorder: Color(0x33FBBF24),
+    unlockedBadgeBg: Color(0xFFFBBF24),
+    glowColor: Color(0x33FBBF24),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFFBBF24),
+    iconColor: Color(0xFFFDE68A),
+    bgColor: Color(0xFF0F172A),
+    borderColor: Color(0x33FBBF24),
+    textColor: Color(0xFFFBBF24),
+    buttonGradient: LinearGradient(colors: [Color(0xFFFBBF24), Color(0xFFFDE68A)]),
+    icon: Icons.nightlight_round,
+    title: 'A hora ainda não chegou! 🎆',
+    message: 'Essa surpresa está reservada pra meia-noite!',
+  );
 }
 
 class _StarFieldPainter extends CustomPainter {

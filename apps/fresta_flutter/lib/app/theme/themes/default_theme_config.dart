@@ -4,7 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class DefaultThemeConfig implements CalendarThemeConfig {
+class DefaultThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'default';
 
@@ -79,4 +79,20 @@ class DefaultThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFF0FDF4),
+    envelopeBorder: Color(0x332D7A5F),
+    envelopeSealStart: Color(0xFF2D7A5F),
+    envelopeSealEnd: Color(0xFFF9A03F),
+    envelopeButtonBg: Color(0xFF2D7A5F),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFF5F5F5),
+    lockedBorder: Color(0xFFE5E7EB),
+    lockedNumberColor: Color(0xFF9CA3AF),
+    unlockedBorder: Color(0xFFE5E7EB),
+    unlockedBadgeBg: Color(0xFF2D7A5F),
+    glowColor: Color(0x332D7A5F),
+  );
 }

@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class SaojoaoThemeConfig implements CalendarThemeConfig {
+class SaojoaoThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'saojoao';
 
@@ -81,6 +81,34 @@ class SaojoaoThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFF5D4037),
+    envelopeBorder: Color(0x33E65100),
+    envelopeSealStart: Color(0xFFE65100),
+    envelopeSealEnd: Color(0xFFFF8F00),
+    envelopeButtonBg: Colors.white,
+    envelopeButtonText: Color(0xFF5D4037),
+    lockedBg: Color(0xFFEFEBE9),
+    lockedBorder: Color(0x268D6E63),
+    lockedNumberColor: Color(0xFF8D6E63),
+    unlockedBorder: Color(0x268D6E63),
+    unlockedBadgeBg: Color(0xFFE65100),
+    glowColor: Color(0x4DE65100),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFE65100),
+    iconColor: Color(0xFFFF8F00),
+    bgColor: Color(0xFFFFF8E8),
+    borderColor: Color(0x33E65100),
+    textColor: Color(0xFF5D4037),
+    icon: Icons.local_fire_department,
+    title: 'Arrêia! Calma aí! 🌽',
+    message: 'Essa surpresa ainda tá assando no forno.',
+  );
 }
 
 class _SaoJoaoBackground extends StatelessWidget {

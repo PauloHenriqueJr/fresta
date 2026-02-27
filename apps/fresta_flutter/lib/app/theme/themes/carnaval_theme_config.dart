@@ -5,7 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../calendar_theme_config.dart';
 
-class CarnavalThemeConfig implements CalendarThemeConfig {
+class CarnavalThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'carnaval';
 
@@ -81,6 +81,34 @@ class CarnavalThemeConfig implements CalendarThemeConfig {
 
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFFFDF4FF),
+    envelopeBorder: Color(0x339333EA),
+    envelopeSealStart: Color(0xFF9333EA),
+    envelopeSealEnd: Color(0xFFEC4899),
+    envelopeButtonBg: Color(0xFF9333EA),
+    envelopeButtonText: Colors.white,
+    lockedBg: Color(0xFFF3E8FF),
+    lockedBorder: Color(0xFFE9D5FF),
+    lockedNumberColor: Color(0xFFC084FC),
+    unlockedBorder: Color(0xFFE9D5FF),
+    unlockedBadgeBg: Color(0xFF9333EA),
+    glowColor: Color(0x4D9333EA),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFF9333EA),
+    iconColor: Color(0xFFEC4899),
+    bgColor: Color(0xFFFDF4FF),
+    borderColor: Color(0x339333EA),
+    textColor: Color(0xFF7E22CE),
+    icon: Icons.celebration,
+    title: 'Opa, ainda não! 🎭',
+    message: 'Essa folia ainda está sendo preparada.',
+  );
 }
 
 class _CarnavalBackground extends StatelessWidget {

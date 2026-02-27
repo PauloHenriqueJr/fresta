@@ -6,7 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../calendar_theme_config.dart';
 
 /// Metas (Goals) — Dark indigo with amber/gold accents, motivational theme
-class MetasThemeConfig implements CalendarThemeConfig {
+class MetasThemeConfig extends CalendarThemeConfig {
   @override
   String get id => 'metas';
 
@@ -77,6 +77,38 @@ class MetasThemeConfig implements CalendarThemeConfig {
   IconData get defaultIcon => LucideIcons.target;
   @override
   IconData get lockedIcon => LucideIcons.lock;
+
+  @override
+  bool get isDarkTheme => true;
+
+  @override
+  CardStateStyle get cardStateStyle => const CardStateStyle(
+    envelopeBg: Color(0xFF312E81),
+    envelopeBorder: Color(0x33FBBF24),
+    envelopeSealStart: Color(0xFFFBBF24),
+    envelopeSealEnd: Color(0xFFFDE68A),
+    envelopeButtonBg: Color(0xFFFBBF24),
+    envelopeButtonText: Color(0xFF1E1B4B),
+    lockedBg: Color(0xFF1E1B4B),
+    lockedBorder: Color(0x33FBBF24),
+    lockedNumberColor: Color(0xFFFBBF24),
+    unlockedBorder: Color(0x33FBBF24),
+    unlockedBadgeBg: Color(0xFFFBBF24),
+    glowColor: Color(0x4DFBBF24),
+  );
+
+  @override
+  LockedModalThemeStyle get lockedModalStyle => const LockedModalThemeStyle(
+    buttonColor: Color(0xFFFBBF24),
+    iconColor: Color(0xFFFDE68A),
+    bgColor: Color(0xFF1E1B4B),
+    borderColor: Color(0x33FBBF24),
+    textColor: Color(0xFFFBBF24),
+    buttonGradient: LinearGradient(colors: [Color(0xFFFBBF24), Color(0xFFFDE68A)]),
+    icon: Icons.emoji_events_outlined,
+    title: 'Ainda não é hora! 🎯',
+    message: 'Cada meta tem seu momento. Aguarde!',
+  );
 }
 
 class _MetasPatternPainter extends CustomPainter {
