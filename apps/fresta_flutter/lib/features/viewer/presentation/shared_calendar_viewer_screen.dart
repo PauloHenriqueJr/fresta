@@ -184,8 +184,11 @@ class _SharedCalendarViewerScreenState
 
           // Se for rascunho e não for preview, bloqueamos o acesso público
           // Porém, o owner sempre pode ver seu próprio calendário
-          final currentUserId = ref.read(authControllerProvider).user?.id;
+          final authState = ref.read(authControllerProvider);
+          final currentUserId = authState.user?.id;
           final isOwner = currentUserId != null && meta.calendar.ownerId == currentUserId;
+          final isAdmin = authState.profile?.role == 'admin';
+          final hideAds = meta.calendar.isPremium || isOwner || isAdmin;
           if (meta.calendar.status == 'rascunho' && !widget.isPreview && !isOwner) {
             return Scaffold(
               backgroundColor: const Color(0xFFF8F9F5),
@@ -355,7 +358,7 @@ class _SharedCalendarViewerScreenState
                   ),
                   
                   // ---- Fresta Ad Banner for free calendars (Header) ----
-                  if (!meta.calendar.isPremium)
+                  if (!hideAds)
                     const SliverToBoxAdapter(
                       child: FrestaAdBanner(position: FrestaAdPosition.header),
                     ),
@@ -681,7 +684,7 @@ class _SharedCalendarViewerScreenState
                      ),
 
                   // ---- Fresta Watermark for free calendars ----
-                  if (!meta.calendar.isPremium)
+                  if (!hideAds)
                     const SliverToBoxAdapter(
                       child: FrestaWatermark(),
                     ),

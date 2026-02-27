@@ -250,6 +250,8 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
         }
 
         final isPremium = detail.calendar.isPremium;
+        final isAdmin = ref.read(authControllerProvider).profile?.role == 'admin';
+        final hideAds = isPremium || isAdmin;
 
         return SafeArea(
           bottom: false,
@@ -257,7 +259,7 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 48),
             children: [
               // ---- Ad Banner for free calendars (header) ----
-              if (!isPremium)
+              if (!hideAds)
                 const FrestaAdBanner(position: FrestaAdPosition.header),
 
               // ---- Header Card ----
