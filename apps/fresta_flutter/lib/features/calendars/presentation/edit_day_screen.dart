@@ -158,10 +158,33 @@ class _EditDayScreenState extends ConsumerState<EditDayScreen> {
         finalUrl = _urlController.text.trim().isEmpty ? null : _urlController.text.trim();
       }
 
+      // Auto-detect content_type when user wrote a message but never chose a type
+      var effectiveContentType = _contentType;
+      final hasMessage = _messageController.text.trim().isNotEmpty;
+      final hasUrl = (finalUrl ?? '').isNotEmpty;
+
+      if (effectiveContentType == null && (hasMessage || hasUrl)) {
+        if (hasUrl) {
+          final lower = finalUrl!.toLowerCase();
+          if (lower.contains('youtube.com') ||
+              lower.contains('youtu.be') ||
+              lower.contains('tiktok.com') ||
+              lower.contains('instagram.com')) {
+            effectiveContentType = 'video';
+          } else if (lower.contains('spotify.com')) {
+            effectiveContentType = 'music';
+          } else {
+            effectiveContentType = 'link';
+          }
+        } else {
+          effectiveContentType = 'text';
+        }
+      }
+
       await ref.read(calendarsRepositoryProvider).updateDay(
         calendarId: widget.calendarId,
         day: widget.day,
-        contentType: _contentType,
+        contentType: effectiveContentType,
         message: _messageController.text.trim().isEmpty
             ? null
             : _messageController.text.trim(),

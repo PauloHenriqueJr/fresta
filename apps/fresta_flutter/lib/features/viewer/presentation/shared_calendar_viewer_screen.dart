@@ -82,19 +82,21 @@ class _SharedCalendarViewerScreenState
     }
   }
 
-  bool _isDayLocked(DateTime? createdAt, int day) {
-    if (createdAt == null) return false;
-    final startDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
-    final availableDate = startDate.add(Duration(days: day - 1));
+  bool _isDayLocked(DateTime? startDate, DateTime? createdAt, int day) {
+    final baseDate = startDate ?? createdAt;
+    if (baseDate == null) return false;
+    final start = DateTime(baseDate.year, baseDate.month, baseDate.day);
+    final availableDate = start.add(Duration(days: day - 1));
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     return today.isBefore(availableDate);
   }
 
-  DateTime _getAvailableDate(DateTime? createdAt, int day) {
-    if (createdAt == null) return DateTime.now();
-    final startDate = DateTime(createdAt.year, createdAt.month, createdAt.day);
-    return startDate.add(Duration(days: day - 1));
+  DateTime _getAvailableDate(DateTime? startDate, DateTime? createdAt, int day) {
+    final baseDate = startDate ?? createdAt;
+    if (baseDate == null) return DateTime.now();
+    final start = DateTime(baseDate.year, baseDate.month, baseDate.day);
+    return start.add(Duration(days: day - 1));
   }
 
   void _showLockedMessage(DateTime availableDate, {required dynamic themeConfig, int dayNumber = 0}) {
@@ -180,7 +182,10 @@ class _SharedCalendarViewerScreenState
           }
 
           // Se for rascunho e não for preview, bloqueamos o acesso público
-          if (meta.calendar.status == 'rascunho' && !widget.isPreview) {
+          // Porém, o owner sempre pode ver seu próprio calendário
+          final currentUserId = ref.read(authControllerProvider).user?.id;
+          final isOwner = currentUserId != null && meta.calendar.ownerId == currentUserId;
+          if (meta.calendar.status == 'rascunho' && !widget.isPreview && !isOwner) {
             return Scaffold(
               backgroundColor: const Color(0xFFF8F9F5),
               body: Center(
@@ -590,13 +595,13 @@ class _SharedCalendarViewerScreenState
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
                                   final day = days[index];
-                                  final locked = _isDayLocked(meta.calendar.createdAt, day.day);
+                                  final locked = _isDayLocked(meta.calendar.startDate, meta.calendar.createdAt, day.day);
                                   final isOpened = _openedDays.contains(day.day);
                                   final hasMedia = day.contentType == 'photo' || day.contentType == 'gif' || 
                                     (day.url?.contains('youtube.com') == true) || (day.url?.contains('youtu.be') == true) || 
                                     (day.url?.contains('tiktok.com') == true) || (day.url?.contains('instagram.com') == true) ||
                                     (day.url?.contains('spotify.com') == true);
-                                  final availableDate = _getAvailableDate(meta.calendar.createdAt, day.day);
+                                  final availableDate = _getAvailableDate(meta.calendar.startDate, meta.calendar.createdAt, day.day);
                                   final daysUntil = availableDate.difference(DateTime.now()).inDays;
 
                                   // Determine card state

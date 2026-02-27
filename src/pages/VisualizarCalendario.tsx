@@ -696,12 +696,7 @@ const VisualizarCalendario = () => {
             isOpen={selectedDay !== null}
             onClose={() => setSelectedDay(null)}
             day={selectedDay || 1}
-            content={selectedDayData?.content_type ? {
-              type: selectedDayData.content_type as any,
-              message: selectedDayData?.message || "",
-              url: selectedDayData?.url || "",
-              label: selectedDayData?.label || "Abrir",
-            } : undefined}
+            content={selectedDayData ? (getRedactedContent(selectedDayData) as any) : undefined}
             theme={calendar.theme_id as any}
           />
         )}

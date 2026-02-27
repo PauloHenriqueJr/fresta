@@ -2,6 +2,7 @@ class CalendarSummary {
   const CalendarSummary({
     required this.id,
     required this.title,
+    this.ownerId,
     this.headerMessage,
     this.footerMessage,
     required this.themeId,
@@ -10,12 +11,14 @@ class CalendarSummary {
     required this.duration,
     required this.createdAt,
     required this.isPremium,
+    this.startDate,
     this.views = 0,
     this.likes = 0,
   });
 
   final String id;
   final String title;
+  final String? ownerId;
   final String? headerMessage;
   final String? footerMessage;
   final String themeId;
@@ -24,6 +27,7 @@ class CalendarSummary {
   final int duration;
   final DateTime? createdAt;
   final bool isPremium;
+  final DateTime? startDate;
   final int views;
   final int likes;
 
@@ -31,6 +35,7 @@ class CalendarSummary {
     return CalendarSummary(
       id: map['id'] as String,
       title: (map['title'] as String?) ?? 'Calendário',
+      ownerId: map['owner_id'] as String?,
       headerMessage: map['header_message'] as String?,
       footerMessage: map['footer_message'] as String?,
       themeId: (map['theme_id'] as String?) ?? 'aniversario',
@@ -41,6 +46,9 @@ class CalendarSummary {
           ? DateTime.tryParse(map['created_at'] as String)
           : null,
       isPremium: (map['is_premium'] as bool?) ?? false,
+      startDate: map['start_date'] != null
+          ? DateTime.tryParse(map['start_date'] as String)
+          : null,
       views: (map['views'] as int?) ?? 0,
       likes: (map['likes'] as int?) ?? 0,
     );

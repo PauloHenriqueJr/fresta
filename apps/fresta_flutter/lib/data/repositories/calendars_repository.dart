@@ -68,7 +68,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
   Future<List<CalendarSummary>> listOwnedCalendars(String ownerId) async {
     final data = await _client
         .from('calendars')
-        .select('id,title,theme_id,status,privacy,duration,created_at,is_premium,header_message,footer_message,views,likes')
+        .select('id,owner_id,title,theme_id,status,privacy,duration,created_at,start_date,is_premium,header_message,footer_message,views,likes')
         .eq('owner_id', ownerId)
         .order('created_at', ascending: false);
 
@@ -82,7 +82,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final calendar = await _client
         .from('calendars')
         .select(
-          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message,views,likes',
+          'id,owner_id,title,theme_id,status,privacy,duration,created_at,start_date,is_premium,password,header_message,footer_message,views,likes',
         )
         .eq('id', calendarId)
         .maybeSingle();
@@ -112,7 +112,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final rows = await _client
         .from('calendars')
         .select(
-          'id,title,theme_id,status,privacy,duration,created_at,is_premium,password,header_message,footer_message,views,likes',
+          'id,owner_id,title,theme_id,status,privacy,duration,created_at,start_date,is_premium,password,header_message,footer_message,views,likes',
         )
         .eq('id', calendarId)
         .limit(1);
