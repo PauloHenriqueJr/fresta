@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fresta - Calendários de Surpresas para Datas Especiais</title>
-    <meta name="description" content="Crie calendários personalizados com surpresas diárias para Carnaval, São João, Natal e muito mais. Surpreenda quem você ama!" />
+    <meta
+      name="description"
+      content="Crie calendários personalizados com surpresas diárias para Carnaval, São João, Natal e muito mais. Surpreenda quem você ama!"
+    />
     <meta name="author" content="Fresta" />
-    <meta name="keywords" content="calendário, surpresas, carnaval, são joão, natal, presente, advento, contagem regressiva" />
+    <meta
+      name="keywords"
+      content="calendário, surpresas, carnaval, são joão, natal, presente, advento, contagem regressiva"
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- PWA Meta Tags -->
@@ -17,12 +23,18 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icon-192.svg" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Great+Vibes&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Great+Vibes&family=Dancing+Script:wght@700&display=swap"
+      rel="stylesheet"
+    />
 
     <meta property="og:title" content="Fresta - Calendários de Surpresas" />
-    <meta property="og:description" content="Crie calendários personalizados com surpresas diárias. Uma porta por dia, uma emoção diferente." />
+    <meta
+      property="og:description"
+      content="Crie calendários personalizados com surpresas diárias. Uma porta por dia, uma emoção diferente."
+    />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="icon-512.png" />
 
@@ -30,16 +42,22 @@
     <meta name="twitter:site" content="@Fresta" />
     <meta name="twitter:image" content="icon-512.png" />
 
+    <!-- Smart App Banner (iOS) — substitua APP_ID pelo Apple App Store ID quando publicado -->
+    <!-- <meta name="apple-itunes-app" content="app-id=APP_ID, app-argument=https://fresta.storyspark.com.br"> -->
+
+    <!-- Android Smart Banner (intent://) — ativa quando a Play Store publicar -->
+    <!-- <link rel="alternate" href="android-app://com.storyspark.fresta/https/fresta.storyspark.com.br"> -->
+
     <script>
-      (function() {
-        const theme = localStorage.getItem('fresta_theme');
+      (function () {
+        const theme = localStorage.getItem("fresta_theme");
         // Padrão do Fresta é light agora, ignora preferência do sistema para consistência de marca
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.style.backgroundColor = '#0E220E';
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.backgroundColor = "#0E220E";
         } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.style.backgroundColor = '#F8F9F5';
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.backgroundColor = "#F8F9F5";
         }
       })();
     </script>
@@ -48,15 +66,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
+
     <!-- Service Worker Registration -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
           // Utiliza caminho relativo para funcionar em qualquer base (dev ou sub-path no deploy)
-          navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('[SW] Registered:', reg.scope))
-            .catch(err => console.warn('[SW] Registration failed:', err));
+          navigator.serviceWorker
+            .register("sw.js")
+            .then((reg) => console.log("[SW] Registered:", reg.scope))
+            .catch((err) => console.warn("[SW] Registration failed:", err));
         });
       }
     </script>

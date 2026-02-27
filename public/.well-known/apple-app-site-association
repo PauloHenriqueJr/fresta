@@ -1,0 +1,21 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appIDs": [
+                    "TEAM_ID_PLACEHOLDER.com.storyspark.fresta"
+                ],
+                "paths": [
+                    "/c/*",
+                    "/auth/callback"
+                ]
+            }
+        ]
+    },
+    "webcredentials": {
+        "apps": [
+            "TEAM_ID_PLACEHOLDER.com.storyspark.fresta"
+        ]
+    }
+}

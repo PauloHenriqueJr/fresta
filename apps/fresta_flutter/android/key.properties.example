@@ -1,0 +1,17 @@
+# ============================================
+# key.properties — Android Release Signing
+# ============================================
+# NUNCA commitar este arquivo no Git!
+# Gere sua keystore de produção com:
+#
+#   keytool -genkey -v -keystore upload-keystore.jks \
+#     -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 \
+#     -alias upload -storepass SENHA_AQUI -keypass SENHA_AQUI
+#
+# Coloque upload-keystore.jks em android/app/
+# Preencha os valores abaixo:
+
+storePassword=SUBSTITUA_AQUI
+keyPassword=SUBSTITUA_AQUI
+keyAlias=upload
+storeFile=upload-keystore.jks
