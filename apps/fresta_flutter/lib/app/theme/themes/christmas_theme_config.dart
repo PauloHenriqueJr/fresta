@@ -45,6 +45,12 @@ class ChristmasThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Que a magia do Natal ilumine seu coração';
+
+  @override
+  String get defaultFooterMessage => 'Feliz Natal e um próspero Ano Novo!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _ChristmasSnowflakes();
 
   @override

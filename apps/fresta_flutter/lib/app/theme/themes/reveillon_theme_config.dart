@@ -37,6 +37,12 @@ class ReveillonThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8));
 
   @override
+  String get defaultHeaderMessage => 'Um brinde ao novo ano que se inicia!';
+
+  @override
+  String get defaultFooterMessage => 'Que este ano seja repleto de luz e realizações!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _ReveillonStars();
 
   @override

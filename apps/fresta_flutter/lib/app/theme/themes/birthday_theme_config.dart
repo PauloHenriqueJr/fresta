@@ -45,6 +45,12 @@ class BirthdayThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Desejando um dia repleto de alegrias!';
+
+  @override
+  String get defaultFooterMessage => 'Que seu novo ciclo seja incrível!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _BirthdayBalloons();
 
   @override

@@ -45,6 +45,12 @@ class SaojoaoThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Eita que a festa tá boa demais, sô!';
+
+  @override
+  String get defaultFooterMessage => 'Viva São João! Muita alegria e forró no coração!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _SaoJoaoFlags();
 
   @override

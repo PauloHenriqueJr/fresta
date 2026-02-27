@@ -45,6 +45,12 @@ class TravelThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Novas aventuras nos aguardam!';
+
+  @override
+  String get defaultFooterMessage => 'Que nossa viagem nunca termine.';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _TravelElements();
 
   @override

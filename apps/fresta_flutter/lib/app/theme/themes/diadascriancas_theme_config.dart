@@ -46,6 +46,12 @@ class DiadascriancasThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Um mundo de aventura e diversão para você!';
+
+  @override
+  String get defaultFooterMessage => 'Nunca perca a alegria de ser criança!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _KidsElements();
 
   @override

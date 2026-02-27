@@ -46,6 +46,12 @@ class NoivadoThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'O começo de uma nova e linda jornada juntos';
+
+  @override
+  String get defaultFooterMessage => 'Disse sim para o nosso para sempre!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _NoivadoElements();
 
   @override

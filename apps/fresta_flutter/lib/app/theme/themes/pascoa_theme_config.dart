@@ -45,6 +45,12 @@ class PascoaThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Que a doçura da Páscoa alegre seu dia!';
+
+  @override
+  String get defaultFooterMessage => 'Renovação e muita doçura para você e sua família!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _PascoaEggs();
 
   @override

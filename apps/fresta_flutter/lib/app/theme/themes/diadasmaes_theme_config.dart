@@ -45,6 +45,12 @@ class DiadasmaesThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Todo o meu amor para a melhor mãe do mundo';
+
+  @override
+  String get defaultFooterMessage => 'Obrigado por ser minha luz e inspiração!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _FloatingFlowers();
 
   @override

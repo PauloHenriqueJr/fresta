@@ -46,6 +46,12 @@ class EstudosThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Foco e determinação no seu caminho de aprendizado!';
+
+  @override
+  String get defaultFooterMessage => 'O conhecimento é o melhor presente que se pode ter.';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _StudyElements();
 
   @override

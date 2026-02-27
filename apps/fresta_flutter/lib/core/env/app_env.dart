@@ -15,7 +15,7 @@ class AppEnv {
       case 'FRESTA_PUBLIC_BASE_URL':
         return const String.fromEnvironment(
           'FRESTA_PUBLIC_BASE_URL',
-          defaultValue: 'https://fresta.com',
+          defaultValue: 'https://fresta.app',
         );
       case 'FRESTA_DEEP_LINK_SCHEME':
         return const String.fromEnvironment('FRESTA_DEEP_LINK_SCHEME', defaultValue: 'fresta');

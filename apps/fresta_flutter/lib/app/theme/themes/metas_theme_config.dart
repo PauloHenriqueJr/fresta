@@ -35,7 +35,13 @@ class MetasThemeConfig implements CalendarThemeConfig {
   TextStyle get titleStyle => GoogleFonts.outfit(fontWeight: FontWeight.w800);
 
   @override
-  TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, color: const Color(0xFFA5B4FC));
+  TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
+
+  @override
+  String get defaultHeaderMessage => 'Um passo de cada vez rumo aos seus sonhos!';
+
+  @override
+  String get defaultFooterMessage => 'A persistência é o caminho do êxito. Continue firme!';
 
   @override
   Widget? buildFloatingComponent(BuildContext context) => const _MetasElements();

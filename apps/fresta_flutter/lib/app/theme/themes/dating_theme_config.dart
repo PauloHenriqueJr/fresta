@@ -44,6 +44,12 @@ class DatingThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => DatingTheme.body;
 
   @override
+  String get defaultHeaderMessage => 'Uma jornada de amor para nós dois';
+
+  @override
+  String get defaultFooterMessage => 'Com todo o meu amor, para sempre.';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const FloatingHearts();
 
   @override

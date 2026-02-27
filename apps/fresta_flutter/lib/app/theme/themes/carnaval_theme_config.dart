@@ -45,6 +45,12 @@ class CarnavalThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Prepare sua fantasia, a festa vai começar!';
+
+  @override
+  String get defaultFooterMessage => 'A alegria do Carnaval dura o ano inteiro com você!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _CarnavalConfetti();
 
   @override

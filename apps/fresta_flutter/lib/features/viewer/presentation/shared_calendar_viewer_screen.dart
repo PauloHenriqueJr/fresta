@@ -357,15 +357,20 @@ class _SharedCalendarViewerScreenState
                               fontSize: 36,
                             ),
                           ),
-                          if (meta.calendar.headerMessage?.isNotEmpty == true) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              meta.calendar.headerMessage!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: themeConfig.textColor(context), fontSize: 20, fontWeight: FontWeight.w400),
+                          const SizedBox(height: 8),
+                          Text(
+                            (meta.calendar.headerMessage ?? '').trim().isEmpty 
+                                ? themeConfig.defaultHeaderMessage 
+                                : meta.calendar.headerMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: themeConfig.textColor(context), 
+                              fontSize: 18, 
+                              fontWeight: FontWeight.w500,
+                              height: 1.3,
                             ),
-                            const SizedBox(height: 32),
-                          ],
+                          ),
+                          const SizedBox(height: 32),
                           if (themeConfig.id == 'namoro')
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -623,7 +628,9 @@ class _SharedCalendarViewerScreenState
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  meta.calendar.footerMessage ?? 'Muito obrigado por fazer parte desta história!',
+                                  (meta.calendar.footerMessage ?? '').trim().isEmpty 
+                                      ? themeConfig.defaultFooterMessage 
+                                      : meta.calendar.footerMessage!,
                                   textAlign: TextAlign.center,
                                   style: themeConfig.titleStyle.copyWith(fontSize: 20, color: themeConfig.primaryColor),
                                 ),

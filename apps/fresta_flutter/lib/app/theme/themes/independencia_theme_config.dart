@@ -46,6 +46,12 @@ class IndependenciaThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Celebrando a nossa liberdade e história!';
+
+  @override
+  String get defaultFooterMessage => 'Orgulho de construir nossa própria história juntos.';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _IndependenciaElements();
 
   @override

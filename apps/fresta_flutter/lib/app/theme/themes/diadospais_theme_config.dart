@@ -45,6 +45,12 @@ class DiadospaisThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Homenagem ao meu grande herói';
+
+  @override
+  String get defaultFooterMessage => 'Com admiração e gratidão, feliz dia dos pais!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _FloatingElements();
 
   @override

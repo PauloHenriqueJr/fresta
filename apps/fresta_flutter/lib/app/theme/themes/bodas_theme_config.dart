@@ -46,6 +46,12 @@ class BodasThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Celebrando mais um ano de amor e cumplicidade';
+
+  @override
+  String get defaultFooterMessage => 'Que venham muitos outros anos de felicidade!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _BodasSparkles();
 
   @override

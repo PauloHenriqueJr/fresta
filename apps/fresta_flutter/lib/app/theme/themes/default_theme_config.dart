@@ -42,6 +42,12 @@ class DefaultThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Prepare-se para uma surpresa especial';
+
+  @override
+  String get defaultFooterMessage => 'Muito obrigado por fazer parte desta história!';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => null;
 
   @override

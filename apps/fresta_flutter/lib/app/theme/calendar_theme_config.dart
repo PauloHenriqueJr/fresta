@@ -25,6 +25,10 @@ abstract class CalendarThemeConfig {
   BoxDecoration cardDecoration(BuildContext context);
   Widget buildBackground(BuildContext context, Widget child);
 
+  // Default Messages
+  String get defaultHeaderMessage => 'Prepare-se para uma surpresa!';
+  String get defaultFooterMessage => 'Muito obrigado por fazer parte desta história!';
+
   // Icons and visual flags
   IconData get defaultIcon;
   IconData get lockedIcon;

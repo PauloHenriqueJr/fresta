@@ -45,6 +45,12 @@ class WeddingThemeConfig implements CalendarThemeConfig {
   TextStyle get bodyStyle => GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500);
 
   @override
+  String get defaultHeaderMessage => 'Celebrando o início do nosso para sempre';
+
+  @override
+  String get defaultFooterMessage => 'Para amar e respeitar, todos os dias da nossa vida.';
+
+  @override
   Widget? buildFloatingComponent(BuildContext context) => const _WeddingSparkles();
 
   @override

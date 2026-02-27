@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../app/theme/theme_manager.dart';
 import '../../../data/repositories/calendars_repository.dart';
 import '../../../shared/models/calendar_models.dart';
+import '../../../core/utils/fresta_urls.dart';
 import '../application/calendar_providers.dart';
 
 class MyCalendarsScreen extends ConsumerStatefulWidget {
@@ -94,12 +95,15 @@ class _MyCalendarsScreenState extends ConsumerState<MyCalendarsScreen> {
                           return _CalendarCard(
                             calendar: item,
                             onTap: () => context.go('/creator/calendars/${item.id}'),
-                            onShare: () => SharePlus.instance.share(
-                              ShareParams(
-                                text: '🎉 Tenho uma surpresa para você! Abra minha Fresta:\n\nhttps://fresta.app/c/${item.id}',
-                                subject: 'Minha surpresa no Fresta',
-                              ),
-                            ),
+                            onShare: () {
+                              final url = FrestaUrls.calendarShareUrl(item.id);
+                              SharePlus.instance.share(
+                                ShareParams(
+                                  text: '🎉 Tenho uma surpresa para você! Abra minha Fresta:\n\n$url',
+                                  subject: 'Minha surpresa no Fresta',
+                                ),
+                              );
+                            },
                             onDelete: () => _confirmDelete(context, ref, item),
                           );
                         },
