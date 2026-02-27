@@ -256,7 +256,8 @@ class _SharedCalendarViewerScreenState
             _loadOpenedDays();
           });
 
-          final needsPassword = !widget.isPreview && meta.hasPassword && !_authorized;
+          // Owner always has access, no password needed
+          final needsPassword = !widget.isPreview && meta.hasPassword && !_authorized && !isOwner;
           final asyncDays =
               needsPassword ? null : ref.watch(sharedCalendarDaysProvider(widget.calendarId));
 

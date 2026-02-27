@@ -379,7 +379,7 @@ const VisualizarCalendario = () => {
         setDays(result.days);
 
         // If no password or current user is owner, authorize immediately
-        if (!result.calendar.password || (user && result.calendar.owner_id === user.id)) {
+        if (!(result.calendar as any).has_password || (user && result.calendar.owner_id === user.id)) {
           setIsAuthorized(true);
         }
 
