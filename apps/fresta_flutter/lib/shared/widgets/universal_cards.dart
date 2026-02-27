@@ -326,7 +326,6 @@ class UniversalUnlockedCard extends StatelessWidget {
   final String? dateLabel;
   final int openedCount;
 
-  bool get _isPhoto => contentType == 'photo' || contentType == 'gif';
   bool get _isVideo {
     if (mediaUrl == null) return false;
     return mediaUrl!.contains('youtube.com') ||
@@ -336,6 +335,7 @@ class UniversalUnlockedCard extends StatelessWidget {
   }
   bool get _isMusic =>
       contentType == 'music' || (mediaUrl?.contains('spotify.com') ?? false);
+  bool get _isPhoto => (contentType == 'photo' || contentType == 'gif') && !_isVideo && !_isMusic;
 
   @override
   Widget build(BuildContext context) {

@@ -34,7 +34,6 @@ class DayContent {
         contentType: model.contentType,
       );
 
-  bool get isPhoto => contentType == 'photo' || contentType == 'gif';
   bool get isVideo {
     if (url == null) return false;
     return url!.contains('youtube.com') ||
@@ -42,7 +41,13 @@ class DayContent {
         url!.contains('tiktok.com') ||
         url!.contains('instagram.com');
   }
+
   bool get isMusic => contentType == 'music' || (url?.contains('spotify.com') ?? false);
+
+  // isPhoto must come AFTER isVideo: URL-based detection takes priority over
+  // content_type, mirroring the web's getRedactedContent logic.
+  // A TikTok/YouTube URL saved with content_type='photo' is still a video.
+  bool get isPhoto => (contentType == 'photo' || contentType == 'gif') && !isVideo && !isMusic;
   bool get isLink => contentType == 'link' || (url != null && !isPhoto && !isVideo && !isMusic);
 }
 
