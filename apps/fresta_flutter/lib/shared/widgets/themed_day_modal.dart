@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -267,7 +269,7 @@ class _LoveLetterModal extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(2),
-            child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+            child: _SafeNetworkImage(url: content.url!),
           ),
         ),
       );
@@ -403,7 +405,7 @@ class _FestiveTicketModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -505,7 +507,7 @@ class _ChristmasModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -601,7 +603,7 @@ class _BirthdayCardModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -703,7 +705,7 @@ class _WeddingCardModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -793,7 +795,7 @@ class _PascoaEggModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -895,7 +897,7 @@ class _DarkGlowModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -990,7 +992,7 @@ class _FloralModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -1084,7 +1086,7 @@ class _DefaultDayModal extends StatelessWidget {
     if (content.isPhoto && content.url != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: Image.network(content.url!, fit: BoxFit.cover, width: double.infinity),
+        child: _SafeNetworkImage(url: content.url!),
       );
     }
     if (content.url != null && content.url!.isNotEmpty && !content.isPhoto) {
@@ -1102,6 +1104,77 @@ class _DefaultDayModal extends StatelessWidget {
 // ═══════════════════════════════════════════
 // SHARED COMPONENTS
 // ═══════════════════════════════════════════
+
+/// Safe image widget that handles network URLs and base64 data URIs.
+/// Shows a shimmer placeholder while loading and a graceful error placeholder
+/// instead of crashing with "Invalid image data".
+class _SafeNetworkImage extends StatelessWidget {
+  const _SafeNetworkImage({required this.url});
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    // Handle base64 data URIs (e.g. data:image/jpeg;base64,...)
+    if (url.startsWith('data:image')) {
+      try {
+        final commaIdx = url.indexOf(',');
+        if (commaIdx != -1) {
+          final bytes = base64.decode(url.substring(commaIdx + 1));
+          return Image.memory(
+            bytes,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            errorBuilder: (c, e, s) => _errorPlaceholder(context),
+          );
+        }
+      } catch (_) {
+        return _errorPlaceholder(context);
+      }
+    }
+
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return AspectRatio(
+          aspectRatio: 4 / 3,
+          child: Container(
+            color: Colors.black12,
+            child: const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (c, e, s) => _errorPlaceholder(context),
+    );
+  }
+
+  Widget _errorPlaceholder(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 4 / 3,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.broken_image_outlined, size: 32, color: Colors.grey.shade400),
+            const SizedBox(height: 8),
+            Text(
+              'Imagem não disponível',
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _ChevronPainter extends CustomPainter {
   _ChevronPainter({required this.color});
