@@ -323,7 +323,7 @@ const LandingPageBrand = () => {
                     </button>
 
                     <nav className="flex items-center gap-8">
-                        {[{ label: 'Explorar', path: '/explorar' }, { label: 'Plus', path: '/plus' }].map(item => (
+                        {[{ label: 'Explorar', path: '/explorar' }, { label: 'Plus', path: '/plus' }, { label: 'App', path: '/baixar-app' }].map(item => (
                             <button
                                 key={item.label}
                                 onClick={() => navigate(item.path)}
@@ -348,11 +348,11 @@ const LandingPageBrand = () => {
                             Entrar
                         </button>
                         <button
-                            onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")}
+                            onClick={() => navigate("/baixar-app")}
                             className="px-6 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg"
                             style={{ backgroundColor: currentTheme.colors.accent }}
                         >
-                            Criar calendário <ArrowRight className="w-4 h-4" />
+                            <Smartphone className="w-4 h-4" /> Baixar App
                         </button>
                     </div>
                 </div>
@@ -378,11 +378,11 @@ const LandingPageBrand = () => {
                                 {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" style={{ color: currentTheme.colors.primary }} />}
                             </button>
                             <button
-                                onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")}
+                                onClick={() => navigate("/baixar-app")}
                                 className={`px-4 py-2.5 rounded-xl font-bold text-sm text-white ${currentTheme.primaryGradient} shadow-lg`}
                                 style={{ boxShadow: `0 4px 14px ${currentTheme.colors.primary}40` }}
                             >
-                                Criar
+                                App
                             </button>
                         </div>
                     </div>
@@ -473,14 +473,11 @@ const LandingPageBrand = () => {
                                     <span>💳 Plus por <span className="font-bold" style={{ color: currentTheme.colors.primary }}>R$ 14,90</span></span>
                                 </p>
                                 <div className="flex flex-col gap-4 sm:flex-row justify-center lg:justify-start">
-                                    <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
-                                        <Sparkles className="w-6 h-6" /> Criar meu calendário
+                                    <button onClick={() => navigate("/baixar-app")} className={`flex items-center justify-center gap-2 px-8 py-4 rounded-full font-bold text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}>
+                                        <Smartphone className="w-6 h-6" /> Baixar o App
                                     </button>
-                                    <button onClick={() => {
-                                        const el = document.getElementById('como-funciona');
-                                        el?.scrollIntoView({ behavior: 'smooth' });
-                                    }} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
-                                        <Heart className="w-5 h-5" /> Como funciona
+                                    <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="px-8 py-4 rounded-full font-bold text-xl bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95">
+                                        <Sparkles className="w-5 h-5" /> Criar no Web
                                     </button>
                                 </div>
                             </motion.div>
@@ -672,7 +669,46 @@ const LandingPageBrand = () => {
                 </div>
             </section>
 
-            {/* Section Removed - Merged into Footer */}
+            {/* App Download Banner */}
+            <section className="py-24 px-4" style={{ backgroundColor: `${currentTheme.colors.primary}12` }}>
+                <div className="max-w-3xl mx-auto text-center">
+                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6 border" style={{ backgroundColor: `${currentTheme.colors.primary}10`, color: currentTheme.colors.primary, borderColor: `${currentTheme.colors.primary}20` }}>
+                            <Smartphone className="w-4 h-4" />
+                            Agora disponível como App
+                        </div>
+                        <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight" style={{ color: currentTheme.colors.primary }}>
+                            Crie e viva cada surpresa <br />
+                            <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${currentTheme.colors.primary}, ${currentTheme.colors.accent})` }}>pelo celular</span>
+                        </h2>
+                        <p className="text-slate-500 text-lg font-medium mb-10 max-w-xl mx-auto">
+                            Com o app Fresta você cria, edita com a cêmera e abre as portas com uma experiência feita para mobile.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                            {[
+                                { icon: Zap, label: 'Notificações de porta' },
+                                { icon: Gift, label: 'Fotos da galeria' },
+                                { icon: Smartphone, label: 'Experiência nativa' },
+                                { icon: Share2, label: 'Compartilhe com 1 toque' },
+                            ].map((f, i) => {
+                                const Icon = f.icon;
+                                return (
+                                    <div key={i} className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white border shadow-sm">
+                                        <Icon className="w-5 h-5" style={{ color: currentTheme.colors.primary }} />
+                                        <span className="text-sm font-semibold text-slate-700">{f.label}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <button
+                            onClick={() => navigate('/baixar-app')}
+                            className={`inline-flex items-center gap-3 px-10 py-5 rounded-full font-bold text-xl text-white shadow-xl transition-all hover:scale-105 active:scale-95 ${currentTheme.primaryGradient}`}
+                        >
+                            <Smartphone className="w-6 h-6" /> Baixar o App Fresta
+                        </button>
+                    </motion.div>
+                </div>
+            </section>
 
             {/* Footer - SUTILE CURVES */}
             <footer className="pt-32 pb-12 px-4 text-white overflow-hidden relative mt-2 rounded-t-[2rem] w-full mb-0" style={{ backgroundColor: currentTheme.colors.primary }}>
@@ -712,9 +748,14 @@ const LandingPageBrand = () => {
                             </div>
                         </div>
 
-                        <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="py-6 px-12 rounded-full font-bold text-2xl bg-white hover:bg-gray-100 transition-all hover:shadow-2xl hover:scale-105 active:scale-95" style={{ color: currentTheme.colors.primary }}>
-                            Criar meu calendário
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onClick={() => navigate("/baixar-app")} className="py-6 px-12 rounded-full font-bold text-2xl bg-white hover:bg-gray-100 transition-all hover:shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-3" style={{ color: currentTheme.colors.primary }}>
+                                <Smartphone className="w-7 h-7" /> Baixar o App
+                            </button>
+                            <button onClick={() => navigate(isAuthenticated ? "/criar" : "/entrar?redirect=/criar")} className="py-6 px-10 rounded-full font-bold text-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 transition-all hover:scale-105 active:scale-95">
+                                Criar no Web
+                            </button>
+                        </div>
                     </div>
 
                     <div className="h-px w-full bg-white/10 mb-12" />
@@ -725,10 +766,12 @@ const LandingPageBrand = () => {
                             <span className="font-extrabold text-3xl tracking-tight text-white">Fresta</span>
                         </div>
 
-                        <div className="flex gap-8 text-[#A8E6CF] font-bold text-sm uppercase tracking-widest">
+                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[#A8E6CF] font-bold text-sm uppercase tracking-widest">
                             <button className="hover:text-white transition-colors">Ajuda</button>
                             <button className="hover:text-white transition-colors" onClick={() => navigate("/portal")}>Portal RH</button>
                             <button className="hover:text-white transition-colors" onClick={() => navigate("/privacidade")}>Privacidade</button>
+                            <button className="hover:text-white transition-colors" onClick={() => navigate("/baixar-app")}>Baixar App</button>
+                            <button className="hover:text-white transition-colors" onClick={() => navigate("/exclusao-de-dados")}>Exclusão de Dados</button>
                         </div>
 
                         <p className="text-white/40 font-medium text-sm">© 2026 Fresta.</p>

@@ -1,6 +1,7 @@
 // Namoro (Dating) Theme - Love Letter Modal
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, Play, Share2 } from "lucide-react";
+import { Heart, ImageOff, Play, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,7 @@ import type { BaseModalProps } from "../shared/types";
 
 export const LoveLetterModal = ({ isOpen, onClose, content, config }: BaseModalProps & { config?: any }) => {
     const { toast } = useToast();
+    const [imgError, setImgError] = useState(false);
     if (!isOpen) return null;
 
     const messageFont = config?.layout?.messageFont || "font-festive";
@@ -70,8 +72,18 @@ export const LoveLetterModal = ({ isOpen, onClose, content, config }: BaseModalP
                                 <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
                                     <Play className="w-12 h-12 text-white" />
                                 </div>
+                            ) : imgError ? (
+                                <div className="w-full h-full bg-rose-50 flex flex-col items-center justify-center gap-2">
+                                    <ImageOff className="w-10 h-10 text-rose-300" />
+                                    <span className="text-xs text-rose-300 font-medium">Imagem não disponível</span>
+                                </div>
                             ) : (
-                                <img src={content.mediaUrl} alt="Memory" className="w-full h-full object-cover" />
+                                <img
+                                    src={content.mediaUrl}
+                                    alt="Memory"
+                                    className="w-full h-full object-cover"
+                                    onError={() => setImgError(true)}
+                                />
                             )}
                         </div>
                     )}

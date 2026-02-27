@@ -48,6 +48,16 @@
     <!-- Android Smart Banner (intent://) — ativa quando a Play Store publicar -->
     <!-- <link rel="alternate" href="android-app://com.storyspark.fresta/https/fresta.storyspark.com.br"> -->
 
+    <!-- Deep link redirect: /c/:id paths → /#/c/:id so HashRouter handles them -->
+    <script>
+      (function () {
+        var p = window.location.pathname;
+        if (p.startsWith('/c/') || p.startsWith('/auth/')) {
+          window.location.replace('/#' + p + window.location.search);
+        }
+      })();
+    </script>
+
     <script>
       (function () {
         const theme = localStorage.getItem("fresta_theme");
