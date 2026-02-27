@@ -6,13 +6,14 @@ import { toast } from "sonner";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
+  redirectTo?: string;
 }
 
 /**
  * Componente de proteção de rotas com comportamento fail-closed.
  * Se houver qualquer dúvida sobre autorização, NEGA o acesso.
  */
-export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, allowedRoles, redirectTo }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, role, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,7 +74,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
         description: "Você não tem permissão para acessar esta área."
       });
 
-      navigate("/portal", { replace: true });
+      navigate(redirectTo || "/portal", { replace: true });
     }
   }, [isAuthenticated, isLoading, isAuthorized, isRoleStillLoading, role, allowedRoles, user, location.pathname, location.search, navigate]);
 

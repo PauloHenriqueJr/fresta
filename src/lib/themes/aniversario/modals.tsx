@@ -1,9 +1,10 @@
 // Aniversario (Birthday) Theme - Birthday Card Modal
 import { motion } from "framer-motion";
-import { PartyPopper, Gift, Star, Play, Share2 } from "lucide-react";
+import { PartyPopper, Gift, Star, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const BirthdayCardModal = ({ isOpen, onClose, content }: BaseModalProps) => {
     const { toast } = useToast();
@@ -51,9 +52,7 @@ export const BirthdayCardModal = ({ isOpen, onClose, content }: BaseModalProps) 
                     {content.mediaUrl && (
                         <div className="w-full aspect-square rounded-2xl overflow-hidden border-4 border-purple-200 shadow-xl mb-6 relative shrink-0 -rotate-1">
                             {content.type === 'video' ? (
-                                <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-                                    <Play className="w-12 h-12 text-purple-400" />
-                                </div>
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
                             ) : (
                                 <img src={content.mediaUrl} alt="Birthday" className="w-full h-full object-cover" />
                             )}

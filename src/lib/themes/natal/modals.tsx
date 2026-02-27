@@ -1,9 +1,10 @@
 // Natal (Christmas) Theme - Christmas Modal
 import { motion } from "framer-motion";
-import { Gift, Star, Snowflake, Play, Share2 } from "lucide-react";
+import { Gift, Star, Snowflake, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareContent } from "@/lib/utils/share-utils";
 import type { BaseModalProps } from "../shared/types";
+import { SocialLinkPreview } from "../shared/SocialLinkPreview";
 
 export const NatalFireworksModal = ({ isOpen, onClose, content }: BaseModalProps) => {
     const { toast } = useToast();
@@ -46,9 +47,7 @@ export const NatalFireworksModal = ({ isOpen, onClose, content }: BaseModalProps
                     {content.mediaUrl && (
                         <div className="w-full aspect-square rounded-2xl overflow-hidden border-4 border-amber-400/50 shadow-lg mb-6 relative shrink-0">
                             {content.type === 'video' ? (
-                                <div className="w-full h-full bg-black flex items-center justify-center">
-                                    <Play className="w-12 h-12 text-red-400" />
-                                </div>
+                                <SocialLinkPreview url={content.mediaUrl} className="h-full" />
                             ) : (
                                 <img src={content.mediaUrl} alt="Natal" className="w-full h-full object-cover" />
                             )}
