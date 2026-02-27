@@ -31,7 +31,7 @@ import CalendarioDiadasmaes from "./pages/CalendarioDiadasmaes";
 import CalendarioDiadospais from "./pages/CalendarioDiadospais";
 import CriarCalendario from "./pages/CriarCalendario";
 import EscolherTema from "./pages/EscolherTema";
-import VisualizarCalendario from "./pages/VisualizarCalendario";
+import CalendarAppRedirect from "./pages/CalendarAppRedirect";
 import Perfil from "./pages/Perfil";
 import Estatisticas from "./pages/Estatisticas";
 import Ajuda from "./pages/Ajuda";
@@ -449,7 +449,7 @@ const AppContent = () => {
         {/* /editar-dia/:calendarId/:dia agora está dentro do B2CLayout */}
         <Route path="/editar-dia/:dia" element={<EditarDia />} />
         <Route path="/escolher-tema" element={<EscolherTema />} />
-        <Route path="/c/:id" element={<VisualizarCalendario />} />
+        <Route path="/c/:id" element={<CalendarAppRedirect />} />
         {/* /perfil agora está dentro do B2CLayout */}
         <Route
           path="/estatisticas"

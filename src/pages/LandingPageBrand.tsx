@@ -580,7 +580,7 @@ const LandingPageBrand = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                         {[
                             { step: "1", title: "Crie", description: "Escolha um tema e monte seu calendário com mensagens, fotos, vídeos, GIFs e mais", icon: Sparkles },
-                            { step: "2", title: "Envie", description: "Compartilhe o link por WhatsApp — a pessoa abre direto no celular, sem instalar nada", icon: Send },
+                            { step: "2", title: "Envie", description: "Compartilhe o link por WhatsApp — a pessoa baixa o app e o presente abre automaticamente", icon: Send },
                             { step: "3", title: "Emocione", description: "A cada dia, uma nova surpresa é revelada. Um presente que dura dias, não minutos", icon: MessageCircleHeart }
                         ].map((item, i) => {
                             const Icon = item.icon;
@@ -602,7 +602,7 @@ const LandingPageBrand = () => {
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
                             {[
                                 { icon: Zap, label: "Pronto em 2 min" },
-                                { icon: Smartphone, label: "Funciona no celular" },
+                                { icon: Smartphone, label: "App leve e grátis" },
                                 { icon: Share2, label: "Envie por WhatsApp" },
                                 { icon: Gift, label: "1 calendário grátis" }
                             ].map((item, i) => {

@@ -58,7 +58,19 @@ class _AppEntryScreenState extends ConsumerState<AppEntryScreen> {
       id = uri.pathSegments[1];
     } else if (value.startsWith('/c/')) {
       id = value.substring(3);
-    } else if (_looksLikeCalendarId(value)) {
+    }
+
+    // Support hash-based URLs (e.g. https://fresta.storyspark.com.br/#/c/{id})
+    if (id == null && uri.fragment.isNotEmpty) {
+      final fragment = uri.fragment;
+      if (fragment.startsWith('/c/') && fragment.length > 3) {
+        id = fragment.substring(3);
+      } else if (fragment.startsWith('c/') && fragment.length > 2) {
+        id = fragment.substring(2);
+      }
+    }
+
+    if (id == null && _looksLikeCalendarId(value)) {
       id = value;
     }
 
