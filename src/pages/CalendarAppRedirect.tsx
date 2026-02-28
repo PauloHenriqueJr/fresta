@@ -21,10 +21,10 @@ export default function CalendarAppRedirect() {
     const androidUrl = "https://play.google.com/store/apps/details?id=com.storyspark.fresta";
     const iosUrl = "https://apps.apple.com/app/fresta/id000000000";
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isAndroid = /Android/i.test(navigator.userAgent);
+    // Deep link via custom scheme — opens the app if installed, silently fails if not.
+    // We deliberately do NOT use intent:// here because it redirects to the Play Store
+    // when the app isn't installed, sending the user away from this informative page.
     const deepLink = `fresta://c/${id}`;
-    // Android intent:// URI — tries to open app, falls back to Play Store
-    const androidIntentLink = `intent://c/${id}#Intent;scheme=fresta;package=com.storyspark.fresta;S.browser_fallback_url=${encodeURIComponent(androidUrl)};end`;
 
     // Remove the inline splash screen from index.html once component mounts
     useEffect(() => {
@@ -148,7 +148,7 @@ export default function CalendarAppRedirect() {
                 <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 text-center">
                     <p className="text-white/60 text-sm">
                         Já tem o app?{" "}
-                        <a href={isAndroid ? androidIntentLink : deepLink} className="text-amber-300 font-bold underline underline-offset-2">
+                        <a href={deepLink} className="text-amber-300 font-bold underline underline-offset-2">
                             Toque aqui para abrir
                         </a>
                     </p>
