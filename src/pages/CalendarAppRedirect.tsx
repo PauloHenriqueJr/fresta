@@ -26,21 +26,18 @@ export default function CalendarAppRedirect() {
     // Android intent:// URI — tries to open app, falls back to Play Store
     const androidIntentLink = `intent://c/${id}#Intent;scheme=fresta;package=com.storyspark.fresta;S.browser_fallback_url=${encodeURIComponent(androidUrl)};end`;
 
-    // On mobile, attempt to open the app via deep link automatically
+    // Remove the inline splash screen from index.html once component mounts
     useEffect(() => {
-        // Remove the inline splash screen from index.html
         const splash = document.getElementById("fresta-calendar-splash");
         if (splash) splash.remove();
         const splashStyle = document.getElementById("fresta-splash");
         if (splashStyle) splashStyle.remove();
-
-        if (!id) return;
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        if (isMobile) {
-            // Use intent:// on Android (reliable app opening), custom scheme on iOS
-            window.location.href = isAndroid ? androidIntentLink : deepLink;
-        }
-    }, [id, deepLink, isAndroid, androidIntentLink]);
+        // NOTE: We do NOT auto-redirect to intent:// or custom scheme here.
+        // If the user doesn't have the app, intent:// sends them straight to
+        // the Play Store without context. Instead, we show the informative page
+        // and let them tap "Toque aqui para abrir" (if they have the app) or
+        // the download button (if they don't).
+    }, []);
 
     // Fetch minimal calendar info for context
     useEffect(() => {
