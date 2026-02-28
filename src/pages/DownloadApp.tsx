@@ -1,5 +1,6 @@
 import { Smartphone, ArrowLeft, Star, Shield, Bell, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase/client";
 
 /**
  * Standalone page shown when B2C web routes are fully deprecated.
@@ -77,7 +78,10 @@ export default function DownloadAppPage() {
 
                 {/* Back */}
                 <button
-                    onClick={() => navigate("/")}
+                    onClick={async () => {
+                        await supabase.auth.signOut();
+                        navigate("/");
+                    }}
                     className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />

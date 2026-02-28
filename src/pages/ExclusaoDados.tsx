@@ -63,10 +63,10 @@ const ExclusaoDados = () => {
                             <li>
                                 <strong>Por e-mail:</strong> envie uma solicitação para{" "}
                                 <a
-                                    href="mailto:privacidade@storyspark.com.br"
+                                    href="mailto:elmineirodev@gmail.com"
                                     className="text-primary underline underline-offset-4 hover:opacity-70"
                                 >
-                                    privacidade@storyspark.com.br
+                                    elmineirodev@gmail.com
                                 </a>{" "}
                                 com o assunto <em>"Solicitação de Exclusão de Dados"</em> e o e-mail cadastrado na conta.
                             </li>
