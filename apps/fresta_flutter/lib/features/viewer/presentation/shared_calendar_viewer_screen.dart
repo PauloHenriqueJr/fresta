@@ -188,7 +188,8 @@ class _SharedCalendarViewerScreenState
           final currentUserId = authState.user?.id;
           final isOwner = currentUserId != null && meta.calendar.ownerId == currentUserId;
           final isAdmin = authState.profile?.role == 'admin';
-          final hideAds = meta.calendar.isPremium || isOwner || isAdmin;
+          final isOwnerAdmin = meta.calendar.ownerRole == 'admin';
+          final hideAds = meta.calendar.isPremium || isOwner || isAdmin || isOwnerAdmin;
           if (meta.calendar.status == 'rascunho' && !widget.isPreview && !isOwner) {
             return Scaffold(
               backgroundColor: const Color(0xFFF8F9F5),

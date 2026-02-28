@@ -49,11 +49,30 @@
     <!-- <link rel="alternate" href="android-app://com.storyspark.fresta/https/fresta.storyspark.com.br"> -->
 
     <!-- Deep link redirect: /c/:id paths → /#/c/:id so HashRouter handles them -->
+    <!-- Show instant loading screen for /c/ paths to avoid landing page flash -->
     <script>
       (function () {
         var p = window.location.pathname;
+        var h = window.location.hash;
+        var isCalendarRoute = p.startsWith("/c/") || h.startsWith("#/c/");
         if (p.startsWith("/c/") || p.startsWith("/auth/")) {
           window.location.replace("/#" + p + window.location.search);
+        }
+        if (isCalendarRoute) {
+          document.documentElement.style.backgroundColor = "#5B21B6";
+          var style = document.createElement("style");
+          style.id = "fresta-splash";
+          style.textContent =
+            "#fresta-calendar-splash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7C3AED,#6D28D9,#4338CA);}" +
+            "#fresta-calendar-splash .spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,0.2);border-top-color:#FCD34D;border-radius:50%;animation:fsp .8s linear infinite;}" +
+            "@keyframes fsp{to{transform:rotate(360deg)}}";
+          document.head.appendChild(style);
+          document.addEventListener("DOMContentLoaded", function () {
+            var splash = document.createElement("div");
+            splash.id = "fresta-calendar-splash";
+            splash.innerHTML = '<div class="spinner"></div>';
+            document.body.prepend(splash);
+          });
         }
       })();
     </script>

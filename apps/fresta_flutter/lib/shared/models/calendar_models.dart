@@ -3,6 +3,7 @@ class CalendarSummary {
     required this.id,
     required this.title,
     this.ownerId,
+    this.ownerRole,
     this.headerMessage,
     this.footerMessage,
     required this.themeId,
@@ -19,6 +20,7 @@ class CalendarSummary {
   final String id;
   final String title;
   final String? ownerId;
+  final String? ownerRole;
   final String? headerMessage;
   final String? footerMessage;
   final String themeId;
@@ -32,10 +34,18 @@ class CalendarSummary {
   final int likes;
 
   factory CalendarSummary.fromMap(Map<String, dynamic> map) {
+    // Owner profile may come as nested map from a join
+    String? ownerRole;
+    final profiles = map['profiles'];
+    if (profiles is Map) {
+      ownerRole = profiles['role'] as String?;
+    }
+
     return CalendarSummary(
       id: map['id'] as String,
       title: (map['title'] as String?) ?? 'Calendário',
       ownerId: map['owner_id'] as String?,
+      ownerRole: ownerRole,
       headerMessage: map['header_message'] as String?,
       footerMessage: map['footer_message'] as String?,
       themeId: (map['theme_id'] as String?) ?? 'aniversario',

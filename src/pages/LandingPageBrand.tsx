@@ -761,6 +761,7 @@ const LandingPageBrand = () => {
                             <button className="hover:text-white transition-colors" onClick={() => navigate("/privacidade")}>Privacidade</button>
                             <button className="hover:text-white transition-colors" onClick={() => navigate("/baixar-app")}>Baixar App</button>
                             <button className="hover:text-white transition-colors" onClick={() => navigate("/exclusao-de-dados")}>Exclusão de Dados</button>
+                            <button className="hover:text-white/60 transition-colors text-white/30" onClick={() => navigate("/entrar")}>Entrar</button>
                         </div>
 
                         <p className="text-white/40 font-medium text-sm">© 2026 Fresta.</p>

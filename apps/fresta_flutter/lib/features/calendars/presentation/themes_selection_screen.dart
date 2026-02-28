@@ -32,14 +32,6 @@ class ThemesSelectionScreen extends StatelessWidget {
       imageAsset: 'assets/images/themes/mascot-namoro.jpg',
     ),
     ThemeItem(
-      id: 'love',
-      title: 'Amor & Paixão',
-      category: 'Romance',
-      isPremium: true,
-      gradientColors: [Color(0xFFFFEBEE), Color(0xFFFFCDD2)],
-      imageAsset: 'assets/images/themes/mascot-love.jpg',
-    ),
-    ThemeItem(
       id: 'noivado',
       title: 'O Sim Mais Importante',
       category: 'Romance',
