@@ -21,21 +21,26 @@ export default function CalendarAppRedirect() {
     const androidUrl = "https://play.google.com/store/apps/details?id=com.storyspark.fresta";
     const iosUrl = "https://apps.apple.com/app/fresta/id000000000";
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
     const deepLink = `fresta://c/${id}`;
+    // Android intent:// URI — tries to open app, falls back to Play Store
+    const androidIntentLink = `intent://c/${id}#Intent;scheme=fresta;package=com.storyspark.fresta;S.browser_fallback_url=${encodeURIComponent(androidUrl)};end`;
 
     // On mobile, attempt to open the app via deep link automatically
     useEffect(() => {
+        // Remove the inline splash screen from index.html
+        const splash = document.getElementById("fresta-calendar-splash");
+        if (splash) splash.remove();
+        const splashStyle = document.getElementById("fresta-splash");
+        if (splashStyle) splashStyle.remove();
+
         if (!id) return;
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         if (isMobile) {
-            // Hidden iframe trick — opens app if installed, silently fails if not
-            const iframe = document.createElement("iframe");
-            iframe.style.display = "none";
-            iframe.src = deepLink;
-            document.body.appendChild(iframe);
-            setTimeout(() => iframe.remove(), 2000);
+            // Use intent:// on Android (reliable app opening), custom scheme on iOS
+            window.location.href = isAndroid ? androidIntentLink : deepLink;
         }
-    }, [id, deepLink]);
+    }, [id, deepLink, isAndroid, androidIntentLink]);
 
     // Fetch minimal calendar info for context
     useEffect(() => {
@@ -146,7 +151,7 @@ export default function CalendarAppRedirect() {
                 <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 text-center">
                     <p className="text-white/60 text-sm">
                         Já tem o app?{" "}
-                        <a href={deepLink} className="text-amber-300 font-bold underline underline-offset-2">
+                        <a href={isAndroid ? androidIntentLink : deepLink} className="text-amber-300 font-bold underline underline-offset-2">
                             Toque aqui para abrir
                         </a>
                     </p>

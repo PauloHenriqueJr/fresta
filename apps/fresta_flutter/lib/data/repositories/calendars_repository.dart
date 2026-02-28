@@ -113,7 +113,7 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
     final rows = await _client
         .from('calendars')
         .select(
-          'id,owner_id,title,theme_id,status,privacy,duration,created_at,start_date,is_premium,password,header_message,footer_message,views,likes',
+          'id,owner_id,title,theme_id,status,privacy,duration,created_at,start_date,is_premium,password,header_message,footer_message,views,likes,profiles:owner_id(role)',
         )
         .eq('id', calendarId)
         .limit(1);
