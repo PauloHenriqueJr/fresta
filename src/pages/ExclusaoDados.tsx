@@ -48,7 +48,7 @@ const ExclusaoDados = () => {
                             <li><strong>Conteúdo criado:</strong> calendários, textos das portas, URLs de vídeos.</li>
                             <li><strong>Mídias enviadas:</strong> fotos e GIFs carregados para os calendários.</li>
                             <li><strong>Dados de uso:</strong> portas abertas, visualizações e curtidas (dados anônimos).</li>
-                            <li><strong>Dados de pagamento:</strong> processados pelo AbacatePay e RevenueCat — não armazenamos dados de cartão.</li>
+                            <li><strong>Dados de pagamento:</strong> processados pelo RevenueCat — não armazenamos dados de cartão ou dados sensíveis de pagamento.</li>
                         </ul>
 
                         <h2 className="text-xl font-black text-foreground pt-4">2. Como Solicitar a Exclusão</h2>
@@ -95,9 +95,9 @@ const ExclusaoDados = () => {
 
                         <h2 className="text-xl font-black text-foreground pt-4">5. Dados de Terceiros</h2>
                         <p>
-                            Dados processados pelo <strong>RevenueCat</strong> (compras in-app) e <strong>AbacatePay</strong> (PIX) são
-                            regidos pelas políticas de privacidade desses serviços. Nossa exclusão de conta não afeta registros
-                            mantidos por essas plataformas para fins de conformidade financeira.
+                            Dados processados pelo <strong>RevenueCat</strong> (compras in-app) são
+                            regidos pelas políticas de privacidade desse serviço. Nossa exclusão de conta não afeta registros
+                            mantidos por essa plataforma para fins de conformidade financeira.
                         </p>
 
                         <div className="mt-12 pt-8 border-t border-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
