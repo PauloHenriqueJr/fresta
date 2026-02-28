@@ -32,8 +32,8 @@ fi
 # --- 3. COMPACTAR E ENVIAR ---
 echo "📦 Compactando código fonte..."
 ARCHIVE_NAME="source_code.tar.gz"
-# COPYFILE_DISABLE=1 evita metadados do macOS que causam avisos no Linux
-COPYFILE_DISABLE=1 tar --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='*.tar.gz' -czf $ARCHIVE_NAME . || [[ $? -eq 1 ]]
+# Excluir node_modules, .git, dist e pastas build do Flutter para evitar arquivos gigantes (du > 1GB)
+COPYFILE_DISABLE=1 tar --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='apps' --exclude='*.tar.gz' -czf $ARCHIVE_NAME . || [[ $? -eq 1 ]]
 
 echo "📤 Enviando código para a VPS..."
 ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $REMOTE_PATH"

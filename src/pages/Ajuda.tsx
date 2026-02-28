@@ -8,7 +8,8 @@ import {
   Mail,
   ExternalLink,
   HelpCircle,
-  Sparkles
+  Sparkles,
+  MessageSquareHeart
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -191,14 +192,28 @@ const Ajuda = () => {
             <h2 className="text-xs font-black text-[#5A7470]/50 uppercase tracking-[0.3em] mb-6 ml-1">
               Fale Conosco
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <button
+                onClick={() => navigate("/feedback")}
+                className="flex items-center gap-6 p-6 rounded-[2.5rem] bg-[#FFEEF2] border border-pink-100 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-white text-pink-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                  <MessageSquareHeart className="w-8 h-8" />
+                </div>
+                <div className="text-left flex-1">
+                  <p className="font-black text-pink-700 text-lg mb-1">Feedback</p>
+                  <p className="text-xs text-pink-600/60 font-bold uppercase tracking-widest leading-tight">Sugira algo novo!</p>
+                </div>
+                <ExternalLink className="w-5 h-5 text-pink-300 group-hover:text-pink-500 transition-colors" />
+              </button>
+
               <button className="flex items-center gap-6 p-6 rounded-[2.5rem] bg-card border border-border/10 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all group">
                 <div className="w-16 h-16 rounded-2xl bg-solidroad-green dark:bg-solidroad-green-dark text-[#2D7A5F] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <MessageCircle className="w-8 h-8" />
                 </div>
                 <div className="text-left flex-1">
                   <p className="font-black text-foreground text-lg mb-1">WhatsApp</p>
-                  <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest">Suporte Humanizado</p>
+                  <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest leading-tight">Suporte Humanizado</p>
                 </div>
                 <ExternalLink className="w-5 h-5 text-muted-foreground/20 group-hover:text-solidroad-accent transition-colors" />
               </button>
@@ -209,7 +224,7 @@ const Ajuda = () => {
                 </div>
                 <div className="text-left flex-1">
                   <p className="font-black text-foreground text-lg mb-1">E-mail</p>
-                  <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest">Respostas em até 24h</p>
+                  <p className="text-xs text-muted-foreground/60 font-bold uppercase tracking-widest leading-tight">Respostas em 24h</p>
                 </div>
                 <ExternalLink className="w-5 h-5 text-muted-foreground/20 group-hover:text-solidroad-accent transition-colors" />
               </button>

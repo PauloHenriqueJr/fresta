@@ -39,6 +39,7 @@ import ContaConfiguracoes from "./pages/ContaConfiguracoes";
 import Explorar from "./pages/Explorar";
 import NotFound from "./pages/NotFound";
 import DownloadApp from "./pages/DownloadApp";
+import Feedback from "./pages/Feedback";
 import ExclusaoDados from "./pages/ExclusaoDados";
 import Entrar from "./pages/Entrar";
 import CalendarioDetalhe from "./pages/CalendarioDetalhe";
@@ -397,6 +398,7 @@ const AppContent = () => {
         </Route>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/contato" element={<Contato />} />
+        <Route path="/feedback" element={<Feedback />} />
         <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/termos" element={<Termos />} />
 
