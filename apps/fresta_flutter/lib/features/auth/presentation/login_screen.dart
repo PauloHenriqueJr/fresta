@@ -19,6 +19,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   ProviderSubscription<AuthSessionState>? _authSub;
   bool _isSubmitting = false;
   String? _error;
+  bool _showEmailForm = false;
+  final _emailController = TextEditingController();
+  bool _magicLinkSent = false;
 
   @override
   void initState() {
@@ -34,6 +37,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void dispose() {
     _authSub?.close();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -52,18 +56,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _signInWithMagicLink() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) return;
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await ref.read(authControllerProvider.notifier).signInWithMagicLink(email);
+      if (mounted) setState(() => _magicLinkSent = true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   Future<void> _signInWithApple() async {
     setState(() {
       _isSubmitting = true;
       _error = null;
     });
     try {
-      // Implement Apple sign-in in the controller when required.
-      // For now, we simulate the structure or call an existing method.
-      // await ref.read(authControllerProvider.notifier).signInWithApple();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login com Apple em breve.')),
-      );
+      await ref.read(authControllerProvider.notifier).signInWithApple();
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString());
@@ -312,6 +329,65 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 16),
+
+                    // Magic Link Email Option
+                    if (!_showEmailForm && !_magicLinkSent)
+                      TextButton(
+                        onPressed: () => setState(() => _showEmailForm = true),
+                        child: Text(
+                          'Entrar com e-mail',
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+
+                    if (_showEmailForm && !_magicLinkSent) ...[
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        autofocus: true,
+                        style: TextStyle(color: colorScheme.onSurface),
+                        decoration: InputDecoration(
+                          hintText: 'seu@email.com',
+                          hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4)),
+                          filled: true,
+                          fillColor: colorScheme.surface,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                          ),
+                        ),
+                        onSubmitted: (_) => _signInWithMagicLink(),
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton(
+                        onPressed: _isSubmitting ? null : _signInWithMagicLink,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          minimumSize: const Size.fromHeight(56),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: const Text('Enviar link de acesso', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+
+                    if (_magicLinkSent)
+                      _LoginStatusCard(
+                        icon: Icons.mark_email_read_rounded,
+                        color: colorScheme.primary,
+                        bgcolor: colorScheme.primaryContainer,
+                        message: 'Link enviado! Verifique seu e-mail e clique no link para entrar.',
+                      ),
 
                     const SizedBox(height: 32),
 

@@ -1,0 +1,33 @@
+{
+  "identifier" : "4A8E2F1B",
+  "nonConsumableProducts" : [
+
+  ],
+  "consumableProducts" : [
+    {
+      "displayPrice" : "14.90",
+      "familyShareable" : false,
+      "internalID" : "1A2B3C4D",
+      "localizations" : [
+        {
+          "description" : "Desbloqueie este calendário com tema premium, fotos e vídeos. Pagamento único por calendário.",
+          "displayName" : "Fresta Plus",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.storyspark.fresta.calendar.plus",
+      "referenceName" : "Fresta Plus",
+      "type" : "Consumable"
+    }
+  ],
+  "autoRenewableSubscriptions" : [
+
+  ],
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Flutter Run iOS Simulator",
+			"type": "shell",
+			"command": "flutter run -d BAE94BE0-6C76-4001-8527-4839DCC9114E",
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}

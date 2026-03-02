@@ -175,6 +175,10 @@ class AuthController extends Notifier<AuthSessionState> implements Listenable {
     await ref.read(authRepositoryProvider).signInWithGoogle();
   }
 
+  Future<void> signInWithApple() async {
+    await ref.read(authRepositoryProvider).signInWithApple();
+  }
+
   Future<void> signOut() async {
     await ref.read(authRepositoryProvider).signOut();
     // Explicitly clear state so GoRouter redirect sees unauthenticated immediately.
