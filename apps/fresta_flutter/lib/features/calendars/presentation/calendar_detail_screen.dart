@@ -293,9 +293,18 @@ class CalendarDetailScreen extends ConsumerWidget {
                                     if (detail.calendar.status == 'rascunho') ...[
                                       FilledButton.icon(
                                         onPressed: () async {
+                                          final repo = ref.read(calendarsRepositoryProvider);
+                                          // Calendários premium exigem pagamento antes de publicar
+                                          if (detail.calendar.isPremium) {
+                                            final paid = await repo.isCalendarPaid(calendarId);
+                                            if (!paid) {
+                                              if (!context.mounted) return;
+                                              context.go('/creator/calendars/$calendarId/paywall/${detail.calendar.themeId}');
+                                              return;
+                                            }
+                                          }
                                           try {
-                                            // TODO: If Plus, trigger checkout instead of direct publish.
-                                            await ref.read(calendarsRepositoryProvider).publishCalendar(calendarId);
+                                            await repo.publishCalendar(calendarId);
                                             ref.invalidate(ownerCalendarDetailProvider(calendarId));
                                             if (!context.mounted) return;
                                             ScaffoldMessenger.of(context).showSnackBar(

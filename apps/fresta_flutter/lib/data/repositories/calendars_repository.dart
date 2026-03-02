@@ -54,6 +54,8 @@ abstract class CalendarsRepository {
 
   Future<void> publishCalendar(String calendarId);
 
+  Future<bool> isCalendarPaid(String calendarId);
+
   Future<void> deleteCalendar(String calendarId);
 
   Future<bool> toggleLike({required String calendarId, required String userId});
@@ -305,6 +307,17 @@ class SupabaseCalendarsRepository implements CalendarsRepository {
         .from('calendars')
         .update({'status': 'ativo', 'updated_at': DateTime.now().toUtc().toIso8601String()})
         .eq('id', calendarId);
+  }
+
+  @override
+  Future<bool> isCalendarPaid(String calendarId) async {
+    final data = await _client
+        .from('orders')
+        .select('id')
+        .eq('calendar_id', calendarId)
+        .eq('status', 'paid')
+        .limit(1);
+    return (data as List).isNotEmpty;
   }
 
   @override

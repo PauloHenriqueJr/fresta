@@ -12,6 +12,7 @@ abstract class AuthRepository {
   Session? get currentSession;
   Stream<AuthState> authStateChanges();
   Future<void> signInWithMagicLink(String email);
+  Future<void> signInWithEmailPassword(String email, String password);
   Future<void> signInWithGoogle();
   Future<void> signInWithApple();
   Future<void> handleAuthCallback(Uri uri);
@@ -40,6 +41,11 @@ class SupabaseAuthRepository implements AuthRepository {
       email: email,
       emailRedirectTo: AppEnv.authRedirectUrl,
     );
+  }
+
+  @override
+  Future<void> signInWithEmailPassword(String email, String password) async {
+    await _client.auth.signInWithPassword(email: email, password: password);
   }
 
   @override

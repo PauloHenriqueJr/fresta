@@ -171,6 +171,10 @@ class AuthController extends Notifier<AuthSessionState> implements Listenable {
     await ref.read(authRepositoryProvider).signInWithMagicLink(email);
   }
 
+  Future<void> signInWithEmailPassword(String email, String password) async {
+    await ref.read(authRepositoryProvider).signInWithEmailPassword(email, password);
+  }
+
   Future<void> signInWithGoogle() async {
     await ref.read(authRepositoryProvider).signInWithGoogle();
   }

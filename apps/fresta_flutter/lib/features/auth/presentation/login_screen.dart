@@ -21,7 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? _error;
   bool _showEmailForm = false;
   final _emailController = TextEditingController();
-  bool _magicLinkSent = false;
+  final _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -38,6 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void dispose() {
     _authSub?.close();
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -56,19 +57,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  Future<void> _signInWithMagicLink() async {
+  Future<void> _signInWithEmailPassword() async {
     final email = _emailController.text.trim();
-    if (email.isEmpty) return;
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) return;
     setState(() {
       _isSubmitting = true;
       _error = null;
     });
     try {
-      await ref.read(authControllerProvider.notifier).signInWithMagicLink(email);
-      if (mounted) setState(() => _magicLinkSent = true);
+      await ref.read(authControllerProvider.notifier).signInWithEmailPassword(email, password);
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.toString());
+      setState(() => _error = 'E-mail ou senha incorretos.');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -332,8 +333,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     const SizedBox(height: 16),
 
-                    // Magic Link Email Option
-                    if (!_showEmailForm && !_magicLinkSent)
+                    // Email + Senha
+                    if (!_showEmailForm)
                       TextButton(
                         onPressed: () => setState(() => _showEmailForm = true),
                         child: Text(
@@ -346,15 +347,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
 
-                    if (_showEmailForm && !_magicLinkSent) ...[
+                    if (_showEmailForm) ...[
                       const SizedBox(height: 8),
                       TextField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         autofocus: true,
+                        textInputAction: TextInputAction.next,
                         style: TextStyle(color: colorScheme.onSurface),
                         decoration: InputDecoration(
                           hintText: 'seu@email.com',
+                          labelText: 'E-mail',
                           hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4)),
                           filled: true,
                           fillColor: colorScheme.surface,
@@ -367,27 +370,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
                           ),
                         ),
-                        onSubmitted: (_) => _signInWithMagicLink(),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        textInputAction: TextInputAction.done,
+                        style: TextStyle(color: colorScheme.onSurface),
+                        decoration: InputDecoration(
+                          hintText: '••••••••',
+                          labelText: 'Senha',
+                          hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.4)),
+                          filled: true,
+                          fillColor: colorScheme.surface,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+                          ),
+                        ),
+                        onSubmitted: (_) => _signInWithEmailPassword(),
                       ),
                       const SizedBox(height: 12),
                       FilledButton(
-                        onPressed: _isSubmitting ? null : _signInWithMagicLink,
+                        onPressed: _isSubmitting ? null : _signInWithEmailPassword,
                         style: FilledButton.styleFrom(
                           backgroundColor: colorScheme.primary,
                           minimumSize: const Size.fromHeight(56),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        child: const Text('Enviar link de acesso', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        child: _isSubmitting
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            : const Text('Entrar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                       ),
                     ],
-
-                    if (_magicLinkSent)
-                      _LoginStatusCard(
-                        icon: Icons.mark_email_read_rounded,
-                        color: colorScheme.primary,
-                        bgcolor: colorScheme.primaryContainer,
-                        message: 'Link enviado! Verifique seu e-mail e clique no link para entrar.',
-                      ),
 
                     const SizedBox(height: 32),
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,7 @@ class PurchasesService {
   final Ref ref;
 
   bool _isConfigured = false;
+  bool get isConfigured => _isConfigured;
 
   Future<void> init() async {
     if (_isConfigured) return;
@@ -28,25 +30,36 @@ class PurchasesService {
 
     if (Platform.isAndroid) {
       final googleKey = dotenv.env['FRESTA_REVENUECAT_GOOGLE_KEY'];
+      debugPrint('[PurchasesService] Android key: ${googleKey != null ? "present" : "missing"}');
       if (googleKey != null && googleKey.isNotEmpty) {
         configuration = PurchasesConfiguration(googleKey);
       }
     } else if (Platform.isIOS) {
       final appleKey = dotenv.env['FRESTA_REVENUECAT_APPLE_KEY'];
+      debugPrint('[PurchasesService] iOS key: ${appleKey != null ? "present (${appleKey.substring(0, 8)}...)" : "missing"}');
       if (appleKey != null && appleKey.isNotEmpty) {
         configuration = PurchasesConfiguration(appleKey);
       }
     }
 
     if (configuration != null) {
-      await Purchases.configure(configuration);
-      _isConfigured = true;
+      try {
+        await Purchases.configure(configuration);
+        _isConfigured = true;
+        debugPrint('[PurchasesService] SDK configured successfully');
+      } catch (e) {
+        debugPrint('[PurchasesService] SDK configure FAILED: $e');
+        return;
+      }
       
       // Attempt to identify user if logged in
       final user = ref.read(authControllerProvider).user;
       if (user != null) {
         await Purchases.logIn(user.id);
+        debugPrint('[PurchasesService] Logged in as ${user.id}');
       }
+    } else {
+      debugPrint('[PurchasesService] No configuration found — SDK NOT configured');
     }
   }
 
@@ -74,6 +87,49 @@ class PurchasesService {
       return await Purchases.getOfferings();
     } on PlatformException catch (_) {
       return null;
+    }
+  }
+
+  /// Busca o produto diretamente do StoreKit/Play Store sem precisar de Offering.
+  /// Funciona com o arquivo Fresta.storekit no simulador.
+  Future<StoreProduct?> getDirectProduct() async {
+    if (!_isConfigured) return null;
+    try {
+      final productId = Platform.isAndroid
+          ? 'com.storyspark.fresta.plus'
+          : 'com.storyspark.fresta.calendar.plus';
+      final products = await Purchases.getProducts(
+        [productId],
+        productCategory: ProductCategory.nonSubscription,
+      );
+      return products.isNotEmpty ? products.first : null;
+    } on PlatformException catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> purchaseStoreProduct(StoreProduct product, String calendarId) async {
+    if (!_isConfigured) return false;
+    try {
+      final purchaseResult = await Purchases.purchaseStoreProduct(product);
+      final transaction = purchaseResult.customerInfo.nonSubscriptionTransactions.isNotEmpty
+          ? purchaseResult.customerInfo.nonSubscriptionTransactions.last
+          : null;
+      final transactionId = transaction?.transactionIdentifier ??
+          DateTime.now().millisecondsSinceEpoch.toString();
+
+      await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
+        calendarId: calendarId,
+        transactionId: transactionId,
+        productId: product.identifier,
+      );
+      return true;
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) return false;
+      return false;
+    } catch (_) {
+      return false;
     }
   }
 
