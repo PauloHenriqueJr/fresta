@@ -168,6 +168,55 @@ class NotificationService {
     await _plugin.cancel(id: notificationId);
   }
 
+  /// Schedule a one-time notification for when a specific day unlocks.
+  /// Uses a unique ID derived from calendarId + dayNumber.
+  Future<void> scheduleDayUnlockReminder({
+    required String calendarId,
+    required String calendarTitle,
+    required int dayNumber,
+    required DateTime unlockDate,
+  }) async {
+    final int notificationId =
+        ('${calendarId}_day_$dayNumber'.hashCode.abs()) % 100000 + 100000;
+
+    // Schedule for 9:00 AM on the unlock date
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      unlockDate.year,
+      unlockDate.month,
+      unlockDate.day,
+      9,
+      0,
+    );
+
+    // Don't schedule if the date is already in the past
+    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    await _plugin.zonedSchedule(
+      id: notificationId,
+      title: 'Fresta: Porta $dayNumber abriu! 🎉',
+      body: 'A surpresa do dia $dayNumber de "$calendarTitle" está pronta!',
+      scheduledDate: scheduledDate,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'day_unlock',
+          'Portas Desbloqueadas',
+          channelDescription: 'Aviso quando uma porta específica é desbloqueada.',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: '/c/$calendarId',
+    );
+  }
+
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate =

@@ -100,12 +100,36 @@ class _SharedCalendarViewerScreenState
     return start.add(Duration(days: day - 1));
   }
 
-  void _showLockedMessage(DateTime availableDate, {required dynamic themeConfig, int dayNumber = 0}) {
+  void _showLockedMessage(DateTime availableDate, {required dynamic themeConfig, int dayNumber = 0, String calendarTitle = ''}) {
     LockedDayBottomSheet.show(
       context,
       dayNumber: dayNumber,
       unlockDate: availableDate,
       themeConfig: themeConfig,
+      onNotifyMe: () {
+        ref.read(notificationServiceProvider).scheduleDayUnlockReminder(
+              calendarId: widget.calendarId,
+              calendarTitle: calendarTitle,
+              dayNumber: dayNumber,
+              unlockDate: availableDate,
+            );
+        _showNotifyMeConfirmation();
+      },
+    );
+  }
+
+  void _showNotifyMeConfirmation() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Pronto! Vamos te avisar quando esta porta abrir 🔔',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 
@@ -620,6 +644,7 @@ class _SharedCalendarViewerScreenState
                                         availableDate,
                                         themeConfig: themeConfig,
                                         dayNumber: day.day,
+                                        calendarTitle: meta.calendar.title,
                                       ),
                                     );
                                   }
