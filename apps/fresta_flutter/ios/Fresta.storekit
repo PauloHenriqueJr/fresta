@@ -13,6 +13,11 @@
           "description" : "Desbloqueie este calendário com tema premium, fotos e vídeos. Pagamento único por calendário.",
           "displayName" : "Fresta Plus",
           "locale" : "pt_BR"
+        },
+        {
+          "description" : "Premium calendar with photos and videos. One-time payment per calendar.",
+          "displayName" : "Fresta Plus",
+          "locale" : "en_US"
         }
       ],
       "productID" : "com.storyspark.fresta.calendar.plus",

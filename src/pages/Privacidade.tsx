@@ -29,37 +29,63 @@ const Privacidade = () => {
 
                     <section className="space-y-6 text-muted-foreground leading-relaxed">
                         <p>
-                            Na <strong>Fresta</strong>, levamos a sério a sua privacidade e a segurança dos seus dados. Esta política descreve como coletamos, usamos e protegemos as informações fornecidas por você ao usar nosso serviço de calendários de surpresas.
+                            Na <strong>Fresta</strong>, levamos a sério a sua privacidade e a segurança dos seus dados. Esta política descreve como coletamos, usamos e protegemos as informações fornecidas por você ao usar nosso serviço de calendários de contagem regressiva interativos.
                         </p>
 
-                        <h2 className="text-xl font-black text-foreground pt-4">1. Coleta de Informações</h2>
-                        <p>
-                            Coletamos apenas o essencial para o funcionamento do serviço: seu endereço de e-mail para autenticação e os conteúdos (textos, imagens, links) que você escolhe inserir em seus calendários.
-                        </p>
-
-                        <h2 className="text-xl font-black text-foreground pt-4">2. Uso de Dados</h2>
-                        <p>
-                            Seus dados são usados exclusivamente para:
-                        </p>
+                        <h2 className="text-xl font-black text-foreground pt-4">1. Dados que coletamos</h2>
                         <ul className="list-disc pl-6 space-y-2">
-                            <li>Permitir o acesso e a gestão dos seus calendários.</li>
-                            <li>Entregar os links mágicos de acesso.</li>
-                            <li>Enviar comunicações de marketing, novidades e ofertas (conforme autorizado).</li>
-                            <li>Melhorar a experiência do usuário através de análises anônimas.</li>
+                            <li><strong>Endereço de e-mail:</strong> usado para criar e acessar sua conta.</li>
+                            <li><strong>Conteúdo criado:</strong> textos, links, fotos e vídeos que você adiciona aos seus calendários.</li>
+                            <li><strong>Dados de uso:</strong> visualizações e interações com calendários.</li>
+                            <li><strong>Dados de compra:</strong> histórico de transações in-app, processados pelo RevenueCat e Apple.</li>
+                            <li><strong>Identificador de dispositivo:</strong> usado pelo RevenueCat para gerenciar compras.</li>
                         </ul>
 
-                        <h2 className="text-xl font-black text-foreground pt-4">3. Proteção e Compartilhamento</h2>
+                        <h2 className="text-xl font-black text-foreground pt-4">2. Como usamos seus dados</h2>
+                        <ul className="list-disc pl-6 space-y-2">
+                            <li>Autenticar sua conta e manter sua sessão ativa.</li>
+                            <li>Armazenar e exibir seus calendários criados.</li>
+                            <li>Processar pagamentos e verificar acesso premium.</li>
+                            <li>Melhorar a experiência do aplicativo.</li>
+                            <li>Enviar notificações sobre seus calendários (se autorizado).</li>
+                        </ul>
+
+                        <h2 className="text-xl font-black text-foreground pt-4">3. Serviços de terceiros</h2>
+                        <p>Não vendemos seus dados. Utilizamos os seguintes serviços:</p>
+                        <ul className="list-disc pl-6 space-y-2 mt-2">
+                            <li><strong>Supabase</strong> — banco de dados e autenticação</li>
+                            <li><strong>RevenueCat</strong> — gerenciamento de compras in-app</li>
+                            <li><strong>Apple App Store</strong> — distribuição e pagamentos</li>
+                        </ul>
+
+                        <h2 className="text-xl font-black text-foreground pt-4">4. Armazenamento e segurança</h2>
                         <p>
-                            Não vendemos nem compartilhamos seus dados pessoais com terceiros para fins publicitários. Utilizamos o <strong>Supabase</strong> para armazenamento seguro e criptografia de ponta a ponta em transações críticas.
+                            Seus dados são armazenados em servidores seguros com criptografia em trânsito (HTTPS) e em repouso. Imagens e vídeos enviados ficam em buckets privados com acesso controlado.
                         </p>
 
-                        <h2 className="text-xl font-black text-foreground pt-4">4. Seus Direitos</h2>
+                        <h2 className="text-xl font-black text-foreground pt-4">5. Seus direitos (LGPD)</h2>
+                        <p>De acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), você tem direito a:</p>
+                        <ul className="list-disc pl-6 space-y-2 mt-2">
+                            <li>Acessar os dados que temos sobre você.</li>
+                            <li>Solicitar a correção de dados incorretos.</li>
+                            <li>Solicitar a exclusão da sua conta e todos os dados associados.</li>
+                            <li>Revogar o consentimento a qualquer momento.</li>
+                        </ul>
+
+                        <h2 className="text-xl font-black text-foreground pt-4">6. Retenção de dados</h2>
                         <p>
-                            Você pode, a qualquer momento, solicitar a exclusão da sua conta e de todos os dados associados a ela através das configurações do seu perfil.
+                            Seus dados são mantidos enquanto sua conta estiver ativa. Ao solicitar exclusão, todos os dados pessoais são removidos em até 30 dias.
+                        </p>
+
+                        <h2 className="text-xl font-black text-foreground pt-4">7. Contato</h2>
+                        <p>
+                            Dúvidas ou solicitações sobre seus dados:<br />
+                            <strong>StorySpark Tecnologia</strong><br />
+                            E-mail: <a href="mailto:contato@storyspark.com.br" className="text-primary hover:underline">contato@storyspark.com.br</a>
                         </p>
 
                         <div className="mt-12 pt-8 border-t border-border/50 italic text-sm">
-                            Última atualização: Janeiro de 2026.
+                            Última atualização: 2 de março de 2026.
                         </div>
                     </section>
                 </div>

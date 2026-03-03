@@ -73,16 +73,21 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
   Future<void> _makePurchase(Package package) async {
     setState(() => _isPurchasing = true);
     
-    final success = await ref.read(purchasesServiceProvider).purchasePackage(package, widget.calendarId);
-    
-    if (mounted) {
-      setState(() => _isPurchasing = false);
-      if (success) {
-        // Unlock feature
-        context.go('/creator/calendars/${widget.calendarId}');
-      } else {
+    try {
+      final success = await ref.read(purchasesServiceProvider).purchasePackage(package, widget.calendarId);
+      if (mounted) {
+        setState(() => _isPurchasing = false);
+        if (success) {
+          context.go('/creator/calendars/${widget.calendarId}');
+        }
+        // false = cancelado pelo usuário — sem mensagem
+      }
+    } catch (e) {
+      debugPrint('[Paywall] _makePurchase ERROR: $e');
+      if (mounted) {
+        setState(() => _isPurchasing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Não foi possível concluir a compra.')),
+          SnackBar(content: Text('Erro na compra: $e')),
         );
       }
     }
@@ -90,16 +95,23 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
 
   Future<void> _makeDirectPurchase(StoreProduct product) async {
     setState(() => _isPurchasing = true);
-    final success = await ref
-        .read(purchasesServiceProvider)
-        .purchaseStoreProduct(product, widget.calendarId);
-    if (mounted) {
-      setState(() => _isPurchasing = false);
-      if (success) {
-        context.go('/creator/calendars/${widget.calendarId}');
-      } else {
+    try {
+      final success = await ref
+          .read(purchasesServiceProvider)
+          .purchaseStoreProduct(product, widget.calendarId);
+      if (mounted) {
+        setState(() => _isPurchasing = false);
+        if (success) {
+          context.go('/creator/calendars/${widget.calendarId}');
+        }
+        // false = cancelado — sem mensagem
+      }
+    } catch (e) {
+      debugPrint('[Paywall] _makeDirectPurchase ERROR: $e');
+      if (mounted) {
+        setState(() => _isPurchasing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Não foi possível concluir a compra.')),
+          SnackBar(content: Text('Erro na compra: $e')),
         );
       }
     }
@@ -237,12 +249,12 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
             _buildFeatureRow('Acesso vitalício a este calendário'),
             const SizedBox(height: 40),
             
-            // Pricing options or generic fallback
+            // Pricing options
             if (packages.isNotEmpty)
               ...packages.map((pkg) => _buildPackageCard(pkg))
             else if (_directProduct != null)
               _buildDirectProductCard(_directProduct!)
-            else ...[
+            else if (kDebugMode) ...[
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -306,6 +318,46 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
                               'COMPRAR',
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else ...[
+              // PRODUÇÃO: erro ao carregar produtos
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Icon(LucideIcons.circleAlert, color: Colors.red.shade400, size: 40),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Não foi possível carregar os produtos.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Verifique sua conexão e tente novamente.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: _isLoading ? null : () {
+                        setState(() => _isLoading = true);
+                        _loadOfferings();
+                      },
+                      icon: const Icon(LucideIcons.refreshCw),
+                      label: const Text('Tentar novamente'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1B4D3E),
+                        minimumSize: const Size.fromHeight(48),
+                      ),
                     ),
                   ],
                 ),

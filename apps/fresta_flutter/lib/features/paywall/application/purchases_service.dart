@@ -82,10 +82,20 @@ class PurchasesService {
   }
 
   Future<Offerings?> getOfferings() async {
-    if (!_isConfigured) return null;
+    if (!_isConfigured) {
+      debugPrint('[PurchasesService] getOfferings: SDK not configured');
+      return null;
+    }
     try {
-      return await Purchases.getOfferings();
-    } on PlatformException catch (_) {
+      final offerings = await Purchases.getOfferings();
+      debugPrint('[PurchasesService] getOfferings: current=${offerings.current?.identifier}, all=${offerings.all.keys.toList()}');
+      if (offerings.current != null) {
+        final pkgs = offerings.current!.availablePackages;
+        debugPrint('[PurchasesService] packages: ${pkgs.map((p) => '${p.packageType.name}=${p.storeProduct.identifier}').toList()}');
+      }
+      return offerings;
+    } on PlatformException catch (e) {
+      debugPrint('[PurchasesService] getOfferings ERROR: ${e.code} ${e.message}');
       return null;
     }
   }
@@ -93,17 +103,35 @@ class PurchasesService {
   /// Busca o produto diretamente do StoreKit/Play Store sem precisar de Offering.
   /// Funciona com o arquivo Fresta.storekit no simulador.
   Future<StoreProduct?> getDirectProduct() async {
-    if (!_isConfigured) return null;
+    if (!_isConfigured) {
+      debugPrint('[PurchasesService] getDirectProduct: SDK not configured');
+      return null;
+    }
     try {
       final productId = Platform.isAndroid
           ? 'com.storyspark.fresta.plus'
           : 'com.storyspark.fresta.calendar.plus';
-      final products = await Purchases.getProducts(
-        [productId],
-        productCategory: ProductCategory.nonSubscription,
-      );
+      debugPrint('[PurchasesService] getDirectProduct: fetching $productId');
+      
+      // Tentar primeiro sem categoria (deixa StoreKit resolver)
+      var products = await Purchases.getProducts([productId]);
+      debugPrint('[PurchasesService] getDirectProduct (sem categoria): ${products.length} produtos');
+      
+      // Se não encontrou, tentar com categoria explícita  
+      if (products.isEmpty) {
+        products = await Purchases.getProducts(
+          [productId],
+          productCategory: ProductCategory.nonSubscription,
+        );
+        debugPrint('[PurchasesService] getDirectProduct (nonSubscription): ${products.length} produtos');
+      }
+      
+      if (products.isNotEmpty) {
+        debugPrint('[PurchasesService] getDirectProduct FOUND: ${products.first.identifier} ${products.first.priceString}');
+      }
       return products.isNotEmpty ? products.first : null;
-    } on PlatformException catch (_) {
+    } on PlatformException catch (e) {
+      debugPrint('[PurchasesService] getDirectProduct ERROR: ${e.code} ${e.message}');
       return null;
     }
   }
@@ -111,56 +139,71 @@ class PurchasesService {
   Future<bool> purchaseStoreProduct(StoreProduct product, String calendarId) async {
     if (!_isConfigured) return false;
     try {
+      debugPrint('[PurchasesService] purchaseStoreProduct: starting ${product.identifier}');
       final purchaseResult = await Purchases.purchaseStoreProduct(product);
+      debugPrint('[PurchasesService] purchaseStoreProduct: SUCCESS, transactions=${purchaseResult.customerInfo.nonSubscriptionTransactions.length}');
       final transaction = purchaseResult.customerInfo.nonSubscriptionTransactions.isNotEmpty
           ? purchaseResult.customerInfo.nonSubscriptionTransactions.last
           : null;
       final transactionId = transaction?.transactionIdentifier ??
           DateTime.now().millisecondsSinceEpoch.toString();
 
-      await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
-        calendarId: calendarId,
-        transactionId: transactionId,
-        productId: product.identifier,
-      );
+      try {
+        await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
+          calendarId: calendarId,
+          transactionId: transactionId,
+          productId: product.identifier,
+        );
+        debugPrint('[PurchasesService] activatePremiumCalendar: OK');
+      } catch (supabaseError) {
+        debugPrint('[PurchasesService] activatePremiumCalendar ERROR (pagamento OK): $supabaseError');
+        // Pagamento foi feito — continua mesmo se Supabase falhar
+      }
       return true;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      debugPrint('[PurchasesService] purchaseStoreProduct PlatformException: code=${e.code} msg=${e.message} rcCode=$errorCode');
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) return false;
-      return false;
-    } catch (_) {
-      return false;
+      rethrow;
+    } catch (e) {
+      debugPrint('[PurchasesService] purchaseStoreProduct ERROR: $e');
+      rethrow;
     }
   }
 
   Future<bool> purchasePackage(Package package, String calendarId) async {
     if (!_isConfigured) return false;
     try {
+      debugPrint('[PurchasesService] purchasePackage: starting ${package.storeProduct.identifier}');
       final purchaseResult = await Purchases.purchasePackage(package);
+      debugPrint('[PurchasesService] purchasePackage: SUCCESS, transactions=${purchaseResult.customerInfo.nonSubscriptionTransactions.length}');
       final transaction = purchaseResult.customerInfo.nonSubscriptionTransactions.isNotEmpty 
           ? purchaseResult.customerInfo.nonSubscriptionTransactions.last
           : null;
 
-      String transactionId = transaction?.transactionIdentifier ?? DateTime.now().millisecondsSinceEpoch.toString();
-      String productId = package.storeProduct.identifier;
+      final transactionId = transaction?.transactionIdentifier ?? DateTime.now().millisecondsSinceEpoch.toString();
+      final productId = package.storeProduct.identifier;
 
-      // Link payment to the calendar in Supabase
-      await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
-        calendarId: calendarId,
-        transactionId: transactionId,
-        productId: productId,
-      );
-
+      try {
+        await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
+          calendarId: calendarId,
+          transactionId: transactionId,
+          productId: productId,
+        );
+        debugPrint('[PurchasesService] activatePremiumCalendar: OK');
+      } catch (supabaseError) {
+        debugPrint('[PurchasesService] activatePremiumCalendar ERROR (pagamento OK): $supabaseError');
+        // Pagamento foi feito — continua mesmo se Supabase falhar
+      }
       return true;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
-      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-        // Log error
-      }
-      return false;
+      debugPrint('[PurchasesService] purchasePackage PlatformException: code=${e.code} msg=${e.message} rcCode=$errorCode');
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) return false;
+      rethrow;
     } catch (e) {
-      // Catch any Supabase errors
-      return false;
+      debugPrint('[PurchasesService] purchasePackage ERROR: $e');
+      rethrow;
     }
   }
 
