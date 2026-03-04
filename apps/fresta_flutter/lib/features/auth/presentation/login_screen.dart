@@ -19,7 +19,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   ProviderSubscription<AuthSessionState>? _authSub;
   bool _isSubmitting = false;
   String? _error;
-  bool _showEmailForm = false;
+  bool _showEmailForm = true;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 

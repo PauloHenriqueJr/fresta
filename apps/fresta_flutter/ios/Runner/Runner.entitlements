@@ -7,5 +7,9 @@
 		<string>applinks:fresta.storyspark.com.br</string>
 		<string>webcredentials:fresta.storyspark.com.br</string>
 	</array>
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>
