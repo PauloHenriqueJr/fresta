@@ -304,7 +304,7 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
                     FilledButton(
                       onPressed: _isPurchasing ? null : _debugBypassPurchase,
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B4D3E),
+                        backgroundColor: Colors.orange.shade800,
                         foregroundColor: Colors.white,
                         minimumSize: const Size.fromHeight(52),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -315,8 +315,8 @@ class _FrestaPaywallScreenState extends ConsumerState<FrestaPaywallScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
                           : const Text(
-                              'COMPRAR',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              '🔧 SIMULAR COMPRA (DEBUG ONLY)',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                     ),
                   ],

@@ -145,8 +145,12 @@ class PurchasesService {
       final transaction = purchaseResult.customerInfo.nonSubscriptionTransactions.isNotEmpty
           ? purchaseResult.customerInfo.nonSubscriptionTransactions.last
           : null;
-      final transactionId = transaction?.transactionIdentifier ??
-          DateTime.now().millisecondsSinceEpoch.toString();
+      final transactionId = transaction?.transactionIdentifier;
+
+      if (transactionId == null) {
+        debugPrint('[PurchasesService] purchaseStoreProduct: transactionId is null — not activating calendar');
+        return false;
+      }
 
       try {
         await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(
@@ -181,8 +185,13 @@ class PurchasesService {
           ? purchaseResult.customerInfo.nonSubscriptionTransactions.last
           : null;
 
-      final transactionId = transaction?.transactionIdentifier ?? DateTime.now().millisecondsSinceEpoch.toString();
+      final transactionId = transaction?.transactionIdentifier;
       final productId = package.storeProduct.identifier;
+
+      if (transactionId == null) {
+        debugPrint('[PurchasesService] purchasePackage: transactionId is null — not activating calendar');
+        return false;
+      }
 
       try {
         await ref.read(calendarsRepositoryProvider).activatePremiumCalendar(

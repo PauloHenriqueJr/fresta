@@ -63,13 +63,15 @@ class _CreateCalendarScreenState extends ConsumerState<CreateCalendarScreen> {
       final defaults = await ref.read(calendarsRepositoryProvider).getThemeDefaults(themeId);
       if (mounted && defaults != null) {
         setState(() {
+          // Save previous defaults BEFORE overwriting, to compare correctly
+          final previousDefaults = _currentThemeDefaults;
           _currentThemeDefaults = defaults;
           
-          // Only overwrite if it matches the previous default or is empty
+          // Only overwrite title if user hasn't customized it
           final currentTitle = _titleController.text.trim();
           if (currentTitle.isEmpty || 
               currentTitle == 'Meu Calendário' || 
-              (_currentThemeDefaults != null && currentTitle == _currentThemeDefaults?.defaultTitle)) {
+              (previousDefaults != null && currentTitle == previousDefaults.defaultTitle)) {
              _titleController.text = defaults.defaultTitle;
           }
           
